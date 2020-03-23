@@ -1,12 +1,28 @@
-const theremin = require('./thereminClef')
 const sym_util = require('./utils')
+
+const defaultContext = {
+    class: "svg",
+    x: 0,
+    y: 0,
+    width: 800,
+    height: 600
+}
+
+// to do: automate adding symbols to stave palette def, so we can load files dynamically
+const theremin = require('./thereminStave')
+const notelines = require('./thereminStave.noteline')
+
+theremin.palette.push( notelines.class );
 
 let model = new Map();
 let defs = new Map();
 
 function init()
 {
-    defs.set('thereminStave', theremin);
+    defs.set(defaultContext.class, defaultContext);
+    defs.set(theremin.class, theremin);
+    defs.set(notelines.class, notelines);
+
     console.log('received init');
     makePalette();
     console.log(theremin);
@@ -34,8 +50,11 @@ function makeViewFromData(data_obj, clefDef)
 function makePalette()
 {
     let draw_msg = [];
-    defs.forEach((_def, _key) => {        
-        draw_msg.push( _def.getIcon() )
+    defs.forEach((_def, _key) => { 
+        if( _def.hasOwnProperty('getStaveIcon') )
+        {
+            draw_msg.push( _def.getStaveIcon() )
+        }
     });
 
     process.send({
@@ -46,29 +65,40 @@ function makePalette()
 
 function makeSymbolPalette(_classname)
 {
-    console.log('makeSymbolPalette ', _classname);
+    //console.log('makeSymbolPalette ', _classname);
 
     if( defs.has(_classname) )
     {
-        console.log('has ', _classname);
-
         const clef = defs.get(_classname);
         if( clef.hasOwnProperty('palette') )
         {
-            console.log('building symbol palette');
+            //console.log('building symbol palette');
             
             let draw_msg = [];
-            for( _symbolDefID in clef.palette )
-            {                
-                draw_msg.push( clef.palette[_symbolDefID].getIcon() )
+            for( _symbolDefID of clef.palette )
+            {   
+                //console.log('checking for ', _symbolDefID);
+
+                if( defs.has(_symbolDefID) )
+                {
+                    const symDef = defs.get(_symbolDefID);
+                    if( symDef.hasOwnProperty('getEventIcon') )
+                    {
+                        draw_msg.push( symDef.getEventIcon() )
+                    }
+
+                }
             }
 
-            process.send({
-                key: 'draw',
-                val: draw_msg
-            }) 
+            if( draw_msg.length > 0 )
+            {
+                process.send({
+                    key: 'draw',
+                    val: draw_msg
+                }) 
+            }
+            
         }
-        return
     }
 }
 
@@ -86,7 +116,10 @@ function dataToView(def_, newData_, obj_)
         //    console.log('previous data:', model.get(val.id), 'newData: ', val);
         
         model.set( val.id, val );
-        return def_.fromData(val, obj_.context, null); // null: context data ref is not implemented yet
+
+        const context_dataref = model.has(obj_.context.id) ? model.get(obj_.context.id) : null;
+       
+        return def_.fromData(val, obj_.context, context_dataref); // null: context data ref is not implemented yet
     });
 
    // console.log('newview', JSON.stringify(newView, null, 2));
@@ -101,42 +134,17 @@ function dataToView(def_, newData_, obj_)
    
 }
 
-function getDef(obj_, classtype) // paletteClass or object class
-{
-    if( !obj_.hasOwnProperty(classtype) ){
-        console.log(`no ${classtype} found:`, obj_);
-        return null;
-    }
-    const classList = obj_[classtype].split(".");
-    
-    if( defs.has(classList[0]) )
-    {
-        const clefDef = defs.get(classList[0]);
-
-        if( classList.length == 1 )
-        {
-            return clefDef;
-        }
-        else if( classList.length == 2 )
-        {
-            if( clefDef.palette.hasOwnProperty(classList[1]) )
-            {
-                return clefDef.palette[ classList[1] ];
-            }
-        }
-    }
-
-    return null;
-}
-
 function newFromClick(event_)
 {
-    const def = getDef(event_, "paletteClass");
-    if( def != null )
+    if( event_.hasOwnProperty('paletteClass') && defs.has( event_.paletteClass ) )
     {
-        let newData = def.newFromClick(event_);
+        const def = defs.get( event_.paletteClass );
+        const contextDef = model.get( event_.context.id );
+
+        let newData = def.newFromClick(event_, contextDef);
         dataToView(def, newData, event_);
     }
+
 }
 
 function applyTransform(event_)
@@ -144,16 +152,15 @@ function applyTransform(event_)
     if( event_.selected.length > 0 )
     {
         event_.selected.forEach( sel => {
-            const def = getDef(sel, "class");
-            if( def != null )
+            if( defs.has( sel.class ) )
             {
+                const def = defs.get( sel.class );
                 const transformMatrix = sym_util.matrixFromString(sel.transform);
                 let newData = def.transform(transformMatrix, sel);
                 console.log('current:', sel, 'newData:', newData);
                 
                 dataToView(def, newData, event_);
             }
-
         });
     }
 }
@@ -207,3 +214,35 @@ function input(_obj)
 }
 
 module.exports = { input }
+
+
+/*
+function getDef(obj_, classtype) // paletteClass or object class
+{
+    if( !obj_.hasOwnProperty(classtype) ){
+        console.log(`no ${classtype} found:`, obj_);
+        return null;
+    }
+
+    const classList = obj_[classtype].split(".");
+    
+    if( defs.has(classList[0]) )
+    {
+        const clefDef = defs.get(classList[0]);
+
+        if( classList.length == 1 )
+        {
+            return clefDef;
+        }
+        else if( classList.length == 2 )
+        {
+            if( clefDef.palette.hasOwnProperty(classList[1]) )
+            {
+                return clefDef.palette[ classList[1] ];
+            }
+        }
+    }
+
+    return null;
+}
+*/
