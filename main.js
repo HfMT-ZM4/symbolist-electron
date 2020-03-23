@@ -138,11 +138,11 @@ if( cluster.isMaster )
   cache_proc.on('message', (msg)=> {
     if( msg.key == 'draw' )
     {
-      console.log('main recieved and sending', JSON.stringify(msg.val, null, 2));
+   //   console.log('main recieved and sending', JSON.stringify(msg.val, null, 2));
 
       win.webContents.send('draw-input', msg.val);
     }
-    console.log('main recieved', msg);
+  //  console.log('main recieved', msg);
   });
   
  // cache_proc.send('ping');

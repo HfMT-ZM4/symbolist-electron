@@ -1,3 +1,4 @@
+const sym_utils = require('./utils')
 const thereminClef = require('./thereminStave')
 
 module.exports = {
@@ -67,6 +68,7 @@ module.exports = {
     }),
 
 
+    // context_data_ref not actaully used here.... 
     fromData: function(dataobj, view_context, context_data_ref) {
 
         console.log('noteline fromData:', dataobj);
@@ -105,11 +107,12 @@ module.exports = {
     },
 
      newFromClick: function(gui_event, data_context) {
-         console.log('newFromClick', gui_event, data_context);
+         console.log('newFromClick', gui_event, 'data_context', data_context);
          
          return {
             class : "thereminStave.noteline",
             id : gui_event.id,
+            parent: data_context.id, 
             time : this.map.x2time( data_context, gui_event.context, gui_event.xy[[0]] - this.map.amp2r(this.default.amp) ),
             pitch : this.map.y2pitch( data_context, gui_event.context, gui_event.xy[[1]] ),
             dur : this.default.dur,
@@ -117,22 +120,22 @@ module.exports = {
         }
      },
  
-     transform: function(_transformMatrix, viewobj){        
-         const staff = sym_utils.getChildByValue(viewobj, "class", "thereminStaff")                
-         const xy = sym_utils.applyTransform( _transformMatrix, [staff.x, staff.y] )
-         return [
-             {
-                 class : "thereminStave",
-                 id : viewobj.id,
-                 offsetInParent : {
-                     x : xy[[0]],
-                     y : xy[[1]]
-                 },
-                 time : 0.,
-                 dur : 1., // seconds
-                 pitchRange : 127 // min implied as zero
-             }
-         ]
+     // maybe make context an object with data and view params
+     transform: function(_transformMatrix, viewobj, data_context, view_context){        
+         const notehead = sym_utils.getChildByValue(viewobj, "class", "notehead")                
+         const durationLine = sym_utils.getChildByValue(viewobj, "class", "durationLine")                
+
+         const xy = sym_utils.applyTransform( _transformMatrix, [notehead.cx, notehead.cy] )
+         return {
+            class : "thereminStave.noteline",
+            id : viewobj.id,
+            parent: data_context.id, 
+            time : this.map.x2time( data_context, view_context, xy[[0]] - this.map.amp2r(this.default.amp) ),
+            pitch : this.map.y2pitch( data_context, view_context, xy[[1]] ),
+            dur : this.default.dur,
+            amp : this.default.amp
+        }
+
      }
 
 }

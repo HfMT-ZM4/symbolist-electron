@@ -494,7 +494,64 @@ function drawsocket_input(obj)
             d3.select("#"+_clear).remove();
           }
         break;
-
+        case "clear":
+            if( _objarr[0] == 1 || _objarr[0] == "*" || _objarr[0] == "all" ) // clear : 1
+            {
+              
+              drawing.selectAll("*").remove();
+              maindef.selectAll("*").remove();
+              main.selectAll("*").remove();
+              forms.selectAll("*").remove();
+  
+              ongoingTouches = [];
+  
+              //clearCSS();
+              //clearAnim();
+              //clearPDF();
+              //clearSound();
+            }
+            else
+            {
+              for( let _clear of _objarr )
+              {
+                switch( _clear )
+                {
+                  case "svg":
+                    drawing.selectAll("*").remove();
+                  break;
+  
+                  case "html":
+                    main.selectAll("*").remove();
+                  break;
+  /*
+                  case "css":
+                    clearCSS();
+                  break;
+  
+                  case "tween":
+                  case "tweens":
+                    clearAnim();
+                  break;
+  
+                  case "pdf":
+                    clearPDF();
+                  break;
+  */
+                  
+                  default:
+                  {
+                    let parent = d3.select(`#${_clear}`).node();
+    //                console.log("select and remove", _clear, parent);
+  
+                    while( parent.firstChild )
+                    {
+                      parent.firstChild.remove();
+                    }
+                  }
+                  break;
+                }
+              }
+            }
         default:
             console.log("unrouted command key:", key, objValue );
             wasHandled = false;

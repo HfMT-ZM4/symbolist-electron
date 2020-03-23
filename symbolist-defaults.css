@@ -15,10 +15,16 @@ body {
   stroke: blue !important;
 }
 
-.current_context {
+.current_context .stave_display rect {
   stroke-width: 1 !important;
   stroke: yellow !important;
 }
+
+.current_context .stave_display line {
+  stroke-width: 1 !important;
+  stroke: yellow !important;
+}
+
 
 
 .symbolist_log {

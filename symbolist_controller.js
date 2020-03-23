@@ -19,6 +19,7 @@ let defs = new Map();
 
 function init()
 {
+    model.set(defaultContext.class, defaultContext);
     defs.set(defaultContext.class, defaultContext);
     defs.set(theremin.class, theremin);
     defs.set(notelines.class, notelines);
@@ -65,7 +66,7 @@ function makePalette()
 
 function makeSymbolPalette(_classname)
 {
-    //console.log('makeSymbolPalette ', _classname);
+    console.log('makeSymbolPalette ', _classname);
 
     if( defs.has(_classname) )
     {
@@ -94,7 +95,10 @@ function makeSymbolPalette(_classname)
             {
                 process.send({
                     key: 'draw',
-                    val: draw_msg
+                    val: [{
+                        key: "clear",
+                        val: "palette-symbols"
+                    }, ...draw_msg]
                 }) 
             }
             
@@ -122,15 +126,7 @@ function dataToView(def_, newData_, obj_)
         return def_.fromData(val, obj_.context, context_dataref); // null: context data ref is not implemented yet
     });
 
-   // console.log('newview', JSON.stringify(newView, null, 2));
-    
-    if( newView.length > 0 )
-    {
-        process.send({
-            key: 'draw',
-            val: newView
-        }) 
-    }
+    return newView;
    
 }
 
@@ -142,7 +138,52 @@ function newFromClick(event_)
         const contextDef = model.get( event_.context.id );
 
         let newData = def.newFromClick(event_, contextDef);
-        dataToView(def, newData, event_);
+        let newView = dataToView(def, newData, event_);
+           // console.log('newview', JSON.stringify(newView, null, 2));
+        if( newView.length > 0 )
+        {
+            process.send({
+                key: 'draw',
+                val: newView
+            }) 
+        }
+
+
+        
+    }
+
+}
+
+function applyTransform_recurse(_matrix, _viewobj, _data_context, _view_context)
+{
+    let _parent_data_context = _data_context;
+    let _parent_view_context = _view_context;
+    if( defs.has( _viewobj.class[0] ) )
+    {
+        const def = defs.get( _viewobj.class[0] );
+
+        let newData = def.transform(_matrix, _viewobj, _data_context, _view_context);
+    
+        let newView = dataToView(def, newData, _data_context);
+        if( newView.length > 0 )
+        {
+            process.send({
+                key: 'draw',
+                val: newView
+            }) 
+        }
+
+        _parent_data_context = newData;
+        _parent_view_context = newView;
+
+    }
+
+    if( _viewobj.hasOwnProperty('children') )
+    {
+        const children = Array.isArray(_viewobj.children) ? _viewobj.children : [_viewobj.children];
+        children.forEach(val => {
+            applyTransform_recurse(_matrix, val, _parent_data_context, _parent_view_context);
+        });
     }
 
 }
@@ -152,15 +193,43 @@ function applyTransform(event_)
     if( event_.selected.length > 0 )
     {
         event_.selected.forEach( sel => {
-            if( defs.has( sel.class ) )
+
+            if( defs.has( sel.class[0] ) )
             {
-                const def = defs.get( sel.class );
+                const def = defs.get( sel.class[0] );
+                const context = model.get( event_.context.id );
+
+                const transformMatrix = sym_util.matrixFromString(sel.transform);
+
+                let newData = def.transform(transformMatrix, sel, context, event_.context);
+                let newView = dataToView(def, newData, event_); // <<< maybe real context here
+                if( newView.length > 0 )
+                {
+                    process.send({
+                        key: 'draw',
+                        val: newView
+                    }) 
+                }
+
+                if( sel.hasOwnProperty('children') )
+                {        
+                    const children = Array.isArray(sel.children) ? sel.children : [sel.children];
+                    children.forEach(val => {
+                        applyTransform_recurse(transformMatrix, val, newData);
+                    });
+                }
+            }
+            /*
+            if( defs.has( sel.class[0] ) )
+            {
+                const def = defs.get( sel.class[0] );
                 const transformMatrix = sym_util.matrixFromString(sel.transform);
                 let newData = def.transform(transformMatrix, sel);
-                console.log('current:', sel, 'newData:', newData);
+          //      console.log('current:', sel, 'newData:', newData);
                 
                 dataToView(def, newData, event_);
             }
+            */
         });
     }
 }
@@ -168,7 +237,9 @@ function applyTransform(event_)
 function procGuiEvent(event_) {
     switch (event_.symbolistAction) {
         case "getClefSymbols":
-            makeSymbolPalette(event_.class);
+            console.log('getClefSymbols',event_);
+            
+            makeSymbolPalette(event_.class[0]);
             break;
         case "removeFromViewCache":
             break;

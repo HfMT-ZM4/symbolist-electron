@@ -25,20 +25,20 @@ function getChildByValue(obj, key, val)
     return null;
 }
 
-function matrixFromString(matrix_str) {
-    
+function matrixFromString(matrix_str) 
+{    
     return matrix_str.trim().slice( matrix_str.indexOf("matrix(")+7, matrix_str.length-1 )
                             .split(" ")
                             .map(Number)
 }
   
-  function applyTransform( matrix, xy )
-  {
+function applyTransform( matrix, xy )
+{
     return [    matrix[[0]] * xy[[0]] + matrix[[2]] * xy[[1]] + matrix[[4]], 
                 matrix[[1]] * xy[[0]] + matrix[[3]] * xy[[1]] + matrix[[5]]
-           ];
-  }
-    
+            ];
+}
+
 
   /*
   /helper/make/default_infoDisplay = quote(

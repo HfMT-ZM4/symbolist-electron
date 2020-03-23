@@ -84,7 +84,7 @@ module.exports = {
             key: 'svg',
             val: {
                 new : "g",
-                class : "thereminStave",
+                class : "thereminStave stave",
                 id : dataobj.id,
                 children : [
                     {   // top stave layer for events
@@ -94,7 +94,8 @@ module.exports = {
                     },
                     {
                         new : "g",
-                        class : "thereminStave-display",
+                        class : "stave_display",
+                        id: dataobj.id + "-staveDisplay",
                         children : [{
                             new : "rect",
                             class : "thereminStaff",
@@ -132,7 +133,7 @@ module.exports = {
         }
     },
 
-    transform: function(_transformMatrix, viewobj){        
+    transform: function(_transformMatrix, viewobj, _data_context, view_context){        
         const staff = sym_utils.getChildByValue(viewobj, "class", "thereminStaff")                
         const xy = sym_utils.applyTransform( _transformMatrix, [staff.x, staff.y] )
         return [

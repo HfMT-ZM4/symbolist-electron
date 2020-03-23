@@ -74,19 +74,7 @@ function symbolist_setClass(_class)
     });
 
     let paletteItem = document.getElementById(`${_class}-paletteIcon`);
-    paletteItem.classList.add("selected");
-
-  //  if( _class != currentPaletteClass )
-    {
-        ipcRenderer.send('symbolist_event',  {
-            key: "symbolistEvent",
-            val: {
-                symbolistAction: 'getClefSymbols',
-                class: _class
-            }
-        }); 
-    }
-    
+    paletteItem.classList.add("selected");  
 
     currentPaletteClass = _class;
 
@@ -98,18 +86,38 @@ function symbolist_setClass(_class)
  */
 function symbolist_setContext(obj)
 {
+    deselectAll();
+
     document.querySelectorAll(".current_context").forEach( el => {
         el.classList.remove("current_context");
     });
 
-    obj.classList.add("current_context");
-    currentContext = document.getElementById(obj.id);
+    if( obj != svgObj )
+        obj.classList.add("current_context");
+
+    currentContext = obj;
     symbolist_set_log(`set context to ${obj.id}`)
 
+    //  if( _class != currentPaletteClass )
+    {
+        
+        ipcRenderer.send('symbolist_event',  {
+            key: "symbolistEvent",  
+            val: {
+                symbolistAction: 'getClefSymbols',
+                class: formatClassArray( currentContext.classList.value )
+            }
+        }); 
+    }
 
 }
 
-module.exports = { setClass: symbolist_setClass }
+function setDefaultContext()
+{
+    symbolist_setContext(svgObj);
+}
+
+module.exports = { setClass: symbolist_setClass, setContext: symbolist_setContext }
 
  /**
   * internal methods
@@ -122,15 +130,10 @@ module.exports = { setClass: symbolist_setClass }
 function setSelectedContext()
 {
     if( selected.length > 0 )
-    {
-        document.querySelectorAll(".current_context").forEach( el => {
-            el.classList.remove("current_context");
-        });
+        symbolist_setContext( selected[selected.length-1] );
+    else
+        setDefaultContext();
 
-        currentContext = selected[selected.length-1];
-
-        symbolist_set_log(`context is now: ${currentContext.id}`);
-    }
 }
  
 
@@ -308,8 +311,11 @@ function translate(obj, delta_pos)
 
 function translate_selected(delta_pos)
 {
+
     for( let i = 0; i < selected.length; i++)
     {
+        console.log('translate_selected', selected[i]);
+        
         translate(selected[i], delta_pos);
     }
 }
@@ -370,7 +376,8 @@ function getTopLevel(elm)
     while(  elm != svgObj && 
             elm.parentNode && 
             elm.parentNode.id != 'main-svg' && 
-            elm.parentNode.id != 'palette' ) // elm.parentNode != currentContext
+            elm.parentNode.id != 'palette' && 
+            !(currentContext != svgObj && currentPaletteClass == currentContext && elm.parentNode == currentContext ) ) 
     {
         elm = elm.parentNode;
     }
@@ -378,29 +385,32 @@ function getTopLevel(elm)
     return elm;
 }
 
-
-
 // maybe use arrays instead?
 function formatClassArray(classlist)
 {
+    let classArr = classlist.split(" ");
+    if( Array.isArray(classArr) )
+        return classArr;
+    else
+        return [ classArr ];
+
+    /*
+
     let classArr = attr.value.includes(" ") ? attr.value.split(" ") : attr.value;
-                
+    
     if( Array.isArray(classArr) )
     {
         let newClassList = [];
         for( let ii = 0 ; ii < classArr.length; ii++)
         {
-            if( classArr[ii] != 'symbolist_selected' )
-            {
-                newClassList.push(classArr[ii]);
-            }
+            newClassList.push(classArr[ii]);
         }
 
         return newClassList;
     }
     
     return classArr;
-
+    */
 }
 
 function removedSymbolistSelected(classlist)
@@ -433,8 +443,7 @@ function elementToJSON(elm)
 
             if( attr.name === "class" )
             {
-                obj.class = removedSymbolistSelected(attr.value);
-                
+                obj.class = formatClassArray(attr.value); // removedSymbolistSelected(attr.value);
             }
             else
                 obj[attr.name] = (isNumeric(attr.value) ? Number(attr.value) : attr.value);
@@ -645,11 +654,12 @@ function clearDragRegionRect()
 
 function symbolsit_dblclick(event)
 {
+    /*
     setSelectedContext();
     deselectAll();
     event.symbolistAction = "setContext";
     sendMouseEvent(event, "dblclick");
-
+*/
 /*
     const _eventTarget = getTopLevel( event.target );
 
@@ -672,9 +682,10 @@ function symbolsit_dblclick(event)
 
 function symbolist_mousedown(event)
 {          
-    const _eventTarget = getTopLevel( event.target );
+    console.log(`mouse down> current context: ${currentContext.id}`); 
 
-   // console.log("test", _eventTarget);
+    const _eventTarget = getTopLevel( event.target );
+    console.log(`mouse down ${_eventTarget.classList}`); 
     
     if( prevEventTarget === null )
         prevEventTarget = _eventTarget;
@@ -685,10 +696,13 @@ function symbolist_mousedown(event)
 
     if( _eventTarget != svgObj && _eventTarget != currentContext )
     {
-        console.log(`selection, event ${_eventTarget.classList}, context ${currentContext.classList}` );
         
         addToSelection( _eventTarget );
         clickedObj = _eventTarget;
+
+        event.symbolistAction = "selection";
+
+        console.log(`clicked object ${clickedObj} selection, event ${_eventTarget.classList}, context ${currentContext.classList}` );
 
 //        selectedClass =  clickedObj.classList[0]; // hopefully this will always be correct! not for sure though
 
@@ -733,7 +747,6 @@ function symbolist_mousemove(event)
 
     if( event.buttons == 1 )
     {
-
         if( clickedObj )
         {
             translate_selected( deltaPt({ x: event.clientX, y: event.clientY }, mousedown_pos) );
