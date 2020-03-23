@@ -1,8 +1,5 @@
 const thereminClef = require('./thereminStave')
 
-// inheriting clef base values
-let noteline = thereminClef;
-
 module.exports = {
 
     class : "thereminStave.noteline",
@@ -13,7 +10,7 @@ module.exports = {
         amp : 1
     },
     
-    scalar : { ... thereminClef.scalar},
+    scalar : thereminClef.scalar,
 
     map : { ...thereminClef.map, ... { 
         amp2r: function(amp) {
@@ -136,8 +133,6 @@ module.exports = {
                  pitchRange : 127 // min implied as zero
              }
          ]
-     },
-
-
+     }
 
 }
