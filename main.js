@@ -7,7 +7,14 @@ const parseAsync = (obj_str) => {
     if( typeof obj_str == 'String' )
       return JSON.parse( obj_str )  // max sends a trailing comma for some reason
     else
+    {
+      let _str = obj_str.toString('utf8');
+      return JSON.parse(_str.slice( 0, _str.lastIndexOf('}')+1 ));
+    }/*
+    else
+    {
       return obj_str;
+    }*/
   })
 }
 
@@ -110,9 +117,7 @@ if( cluster.isMaster )
   });
   
   
-  server.on('message', (msg, rinfo) => {
-  
-    msg = msg.slice( 0, msg.lastIndexOf('}')+1 )
+  server.on('message', (msg, rinfo) => {    
     parseAsync(msg)
       .then( obj_ => {
         win.webContents.send('draw-input', obj_ )
