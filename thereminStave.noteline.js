@@ -9,7 +9,7 @@ module.exports = {
 
     default : {
         start: 0,
-        dur : 100,
+        dur : 0.1,
         amp : 1
     },
     
