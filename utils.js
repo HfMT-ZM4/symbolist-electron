@@ -1,8 +1,34 @@
 
+function JSONprint(obj)
+{
+    return JSON.stringify(obj, null, 2 );
+}
+
+function getValObject(obj)
+{
+    const _obj = Array.isArray(obj) ? obj[0] : obj;
+
+    if( _obj.hasOwnProperty('key') && _obj.hasOwnProperty('val') )
+        return _obj.val;
+    else
+        return _obj;
+
+    
+}
+
 function getChildByValue(obj, key, val)
 {
+//    console.log(`getChildByValue input ${JSONprint(obj)} testing for ${key} == ${val}`);
     
-    if( obj.hasOwnProperty(key) && obj[key] == val )
+    if( Array.isArray(obj) )
+    {
+        const len = obj.length;
+        for(let i = 0; i < len; i++)
+        {
+            return getChildByValue(obj[i], key, val);
+        }
+    }        
+    else if( obj.hasOwnProperty(key) && obj[key] == val )
     {
         return obj;
     }
@@ -19,6 +45,10 @@ function getChildByValue(obj, key, val)
                     return found;
                 }
             }
+        }
+        else if( obj.hasOwnProperty('key') && obj.hasOwnProperty('val') )
+        {
+            return getChildByValue(obj.val, key, val);
         }
     }
 
@@ -120,5 +150,7 @@ function applyTransform( matrix, xy )
 module.exports = {
     matrixFromString,
     getChildByValue,
-    applyTransform
+    applyTransform,
+    JSONprint,
+    getValObject
   }

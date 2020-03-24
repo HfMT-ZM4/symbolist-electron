@@ -69,14 +69,11 @@ module.exports = {
 
 
     // context_data_ref not actaully used here.... 
-    fromData: function(dataobj, view_context, context_data_ref) {
-
-        console.log('noteline fromData:', dataobj);
-        
+    fromData: function(dataobj, data_context, view_context ) {        
         const r = this.map.amp2r(dataobj.amp);
-        const y = this.map.pitch2y( context_data_ref, view_context, dataobj.pitch);
-        const x1 = this.map.time2x( context_data_ref, view_context, dataobj.time);
-        const x2 = this.map.time2x( context_data_ref, view_context, dataobj.time + dataobj.dur);
+        const y = this.map.pitch2y( data_context, view_context, dataobj.pitch);
+        const x1 = this.map.time2x( data_context, view_context, dataobj.time);
+        const x2 = this.map.time2x( data_context, view_context, dataobj.time + dataobj.dur);
 
         return {
             key: 'svg',
@@ -107,8 +104,6 @@ module.exports = {
     },
 
      newFromClick: function(gui_event, data_context) {
-         console.log('newFromClick', gui_event, 'data_context', data_context);
-         
          return {
             class : "thereminStave.noteline",
             id : gui_event.id,
@@ -124,7 +119,6 @@ module.exports = {
      transform: function(_transformMatrix, viewobj, data_context, view_context){        
          const notehead = sym_utils.getChildByValue(viewobj, "class", "notehead")                
          const durationLine = sym_utils.getChildByValue(viewobj, "class", "durationLine")                
-
          const xy = sym_utils.applyTransform( _transformMatrix, [notehead.cx, notehead.cy] )
          return {
             class : "thereminStave.noteline",

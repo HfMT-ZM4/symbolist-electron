@@ -106,7 +106,7 @@ function makeSymbolPalette(_classname)
     }
 }
 
-function dataToView(def_, newData_, obj_)
+function dataToView(def_, newData_, data_context, view_context)
 {    
     if( typeof newData_ === 'undefined') {
         console.log('unhandled fromGUI function', newData_);
@@ -120,10 +120,12 @@ function dataToView(def_, newData_, obj_)
         //    console.log('previous data:', model.get(val.id), 'newData: ', val);
         
         model.set( val.id, val );
+        
+        //const contextID = obj_.hasOwnProperty('context') && obj_.context.hasOwnProperty('id') ? obj_.context.id : obj_.id;
+        //const context_dataref = model.has(contextID) ? model.get(contextID) : null;
 
-        const context_dataref = model.has(obj_.context.id) ? model.get(obj_.context.id) : null;
-       
-        return def_.fromData(val, obj_.context, context_dataref); // null: context data ref is not implemented yet
+  //      console.log(`dataToView object new ${val.id} data_context ${sym_util.JSONprint(data_context)} view_context ${sym_util.JSONprint(view_context)}`);
+        return def_.fromData(val, data_context, view_context); // null: context data ref is not implemented yet
     });
 
     return newView;
@@ -135,10 +137,10 @@ function newFromClick(event_)
     if( event_.hasOwnProperty('paletteClass') && defs.has( event_.paletteClass ) )
     {
         const def = defs.get( event_.paletteClass );
-        const contextDef = model.get( event_.context.id );
+        const data_context = model.get( event_.context.id );
 
-        let newData = def.newFromClick(event_, contextDef);
-        let newView = dataToView(def, newData, event_);
+        let newData = def.newFromClick(event_, data_context);
+        let newView = dataToView(def, newData, data_context, event_.context);
            // console.log('newview', JSON.stringify(newView, null, 2));
         if( newView.length > 0 )
         {
@@ -157,15 +159,19 @@ function newFromClick(event_)
 function applyTransform_recurse(_matrix, _viewobj, _data_context, _view_context)
 {
     let _parent_data_context = _data_context;
-    let _parent_view_context = _view_context;
+    let _parent_view_context = sym_util.getValObject(_view_context);
     if( defs.has( _viewobj.class[0] ) )
     {
         const def = defs.get( _viewobj.class[0] );
 
-        let newData = def.transform(_matrix, _viewobj, _data_context, _view_context);
-    
-        let newView = dataToView(def, newData, _data_context);
-        if( newView.length > 0 )
+        //console.log('recurse _data_context', _data_context);
+
+        let newData = def.transform(_matrix, _viewobj, _parent_data_context, _parent_view_context);    
+        let newView = dataToView(def, newData, _parent_data_context, _parent_view_context);
+
+        //console.log('recurse newview', newView);
+
+        if( typeof newView !== 'undefined' )
         {
             process.send({
                 key: 'draw',
@@ -190,6 +196,8 @@ function applyTransform_recurse(_matrix, _viewobj, _data_context, _view_context)
 
 function applyTransform(event_)
 {
+//    console.log('applyTransform');
+    
     if( event_.selected.length > 0 )
     {
         event_.selected.forEach( sel => {
@@ -197,12 +205,15 @@ function applyTransform(event_)
             if( defs.has( sel.class[0] ) )
             {
                 const def = defs.get( sel.class[0] );
-                const context = model.get( event_.context.id );
+
+                
+                const data_context = model.get( event_.context.id );
+                //console.log(`context id ${event_.context.id} model ${JSON.stringify(data_context, null, 2)}`);
 
                 const transformMatrix = sym_util.matrixFromString(sel.transform);
 
-                let newData = def.transform(transformMatrix, sel, context, event_.context);
-                let newView = dataToView(def, newData, event_); // <<< maybe real context here
+                let newData = def.transform(transformMatrix, sel, data_context, event_.context);
+                let newView = dataToView(def, newData, data_context, event_.context); // <<< maybe real context here
                 if( newView.length > 0 )
                 {
                     process.send({
@@ -215,7 +226,7 @@ function applyTransform(event_)
                 {        
                     const children = Array.isArray(sel.children) ? sel.children : [sel.children];
                     children.forEach(val => {
-                        applyTransform_recurse(transformMatrix, val, newData);
+                        applyTransform_recurse(transformMatrix, val, newData, newView);
                     });
                 }
             }
@@ -236,9 +247,7 @@ function applyTransform(event_)
 
 function procGuiEvent(event_) {
     switch (event_.symbolistAction) {
-        case "getClefSymbols":
-            console.log('getClefSymbols',event_);
-            
+        case "getClefSymbols":            
             makeSymbolPalette(event_.class[0]);
             break;
         case "removeFromViewCache":

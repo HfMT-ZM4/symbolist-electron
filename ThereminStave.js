@@ -29,7 +29,7 @@ module.exports = {
     map : {
 
         x2time : function(clefdata, clefview, x) { 
-            const rect = sym_utils.getChildByValue(clefview, 'class', 'thereminStaff');
+            const rect = sym_utils.getChildByValue(clefview, 'class', 'thereminStaff');            
             return clefdata.timeStart + ((x - rect.x) *  0.001);
         },
             
@@ -73,7 +73,7 @@ module.exports = {
         }
     }),
 
-    fromData: function(dataobj, view_context, context_data) {
+    fromData: function(dataobj, data_context, view_context ) {
        // console.log('input dataobj', dataobj, 'view ref', view_context);
         
         const x = view_context.bbox.x + dataobj.offsetInParent.x + this.scalar.time2pix * dataobj.timeStart; // sorting of staves?
@@ -136,8 +136,7 @@ module.exports = {
     transform: function(_transformMatrix, viewobj, _data_context, view_context){        
         const staff = sym_utils.getChildByValue(viewobj, "class", "thereminStaff")                
         const xy = sym_utils.applyTransform( _transformMatrix, [staff.x, staff.y] )
-        return [
-            {
+        return {
                 class : "thereminStave",
                 id : viewobj.id,
                 offsetInParent : {
@@ -148,7 +147,6 @@ module.exports = {
                 timeDur : 1., // seconds
                 pitchRange : 127 // min implied as zero
             }
-        ]
     },
 
     /*
