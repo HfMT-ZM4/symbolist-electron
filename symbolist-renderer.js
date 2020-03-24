@@ -386,7 +386,7 @@ function getTopLevel(elm)
             elm.parentNode && 
             elm.parentNode.id != 'main-svg' && 
             elm.parentNode.id != 'palette' && 
-            !elm.parentNode.classList.contains('stave_events') ) 
+            ( currentContext != svgObj ? !elm.parentNode.classList.contains('stave_events') : 1 ) ) 
     {
         elm = elm.parentNode;
     }
@@ -523,7 +523,12 @@ function symbolist_keydownhandler(event)
                 event.symbolistAction = "getInfo";
             break;
         case "Escape":
-            deselectAll();
+
+            if( selected.length == 0 )
+                setDefaultContext();
+            else
+                deselectAll();
+
             break;
         case "s":
             setSelectedContext();

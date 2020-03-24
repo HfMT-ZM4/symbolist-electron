@@ -3,7 +3,7 @@ const thereminClef = require('./thereminStave')
 
 module.exports = {
 
-    class : "thereminStave.noteline",
+    class : "thereminStave_noteline",
 
     default : {
         start: 0,
@@ -23,11 +23,11 @@ module.exports = {
         key : "html",
         val : {
             new : "div",
-            id : "thereminStave.noteline-paletteIcon",
+            id : "thereminStave_noteline-paletteIcon",
             parent : "palette-symbols",
             onclick : `
                 console.log('select noteline'); 
-                symbolist.setClass('thereminStave.noteline');
+                symbolist.setClass('thereminStave_noteline');
             `,
             children : {
                 new : "svg",
@@ -79,7 +79,7 @@ module.exports = {
             key: 'svg',
             val: {
                 new : "g",
-                class : "thereminStave.noteline",
+                class : "thereminStave_noteline",
                 id : dataobj.id,
                 parent : view_context.id + "-events",
                 children : [
@@ -105,7 +105,7 @@ module.exports = {
 
      newFromClick: function(gui_event, data_context) {
          return {
-            class : "thereminStave.noteline",
+            class : "thereminStave_noteline",
             id : gui_event.id,
             parent: data_context.id, 
             time : this.map.x2time( data_context, gui_event.context, gui_event.xy[[0]] - this.map.amp2r(this.default.amp) ),
@@ -121,7 +121,7 @@ module.exports = {
          const durationLine = sym_utils.getChildByValue(viewobj, "class", "durationLine")                
          const xy = sym_utils.applyTransform( _transformMatrix, [notehead.cx, notehead.cy] )
          return {
-            class : "thereminStave.noteline",
+            class : "thereminStave_noteline",
             id : viewobj.id,
             parent: data_context.id, 
             time : this.map.x2time( data_context, view_context, xy[[0]] - this.map.amp2r(this.default.amp) ),

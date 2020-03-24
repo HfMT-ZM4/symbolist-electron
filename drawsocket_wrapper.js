@@ -270,6 +270,9 @@ function d3_getElement(node)
   // note also here we're ignoring the id stack storage... seems kind of ok actually
 
   // added isNew to keep objects in order based on their creation not their adjustment sequence
+  console.log("new node", node );
+
+
   let el = null;
   let isNew = true;
   if( node.hasOwnProperty('id') )
@@ -282,8 +285,9 @@ function d3_getElement(node)
   if( node.hasOwnProperty('new') )
   {
     if( el !== null){
-//      console.log("should delete", el);
+      console.log("should delete", el.node());
       el.remove();
+      console.log(" delete?", el.node());
     }
       
     el = d3.create(`svg:${node.new}`);

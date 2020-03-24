@@ -160,8 +160,7 @@ g {
 html, body {
   /*background-color: black;*/
   position: absolute;
-  left: 0px;
-  top: 0px;
+  
   /* border: solid blue 1px; */
   display: block;
   box-sizing: border-box;
@@ -171,6 +170,8 @@ html, body {
   font-size: 100%;
 /*  height: 100%;
   width: 100%;
+  left: 0px;
+  top: 0px;
   */
 
 }
