@@ -480,6 +480,11 @@ function cloneObj(obj) {
 
 function symbolost_sendKeyEvent(event, caller)
 {
+    if( typeof event.symbolistAction === 'undefined' )
+    {
+        console.log('undefined key action');
+        return;
+    }
     
     let sel_arr = [];
     for( let i = 0; i < selected.length; i++)
@@ -491,6 +496,8 @@ function symbolost_sendKeyEvent(event, caller)
 
     let _jsonContext = elementToJSON( currentContext );
     _jsonContext.bbox = cloneObj(currentContext.getBoundingClientRect());
+
+    console.log("send key: ", event.symbolistAction);
 
     ipcRenderer.send('symbolist_event',  {
         key: 'key',
@@ -519,8 +526,10 @@ function symbolist_keydownhandler(event)
     switch( event.key )
     {
         case "i":
-            if( nmods == 0 && selected.length > 0 )
+            if( nmods == 0 && selected.length > 0 ){                
+                console.log("i key getInfo");
                 event.symbolistAction = "getInfo";
+            }
             break;
         case "Escape":
 
@@ -537,6 +546,8 @@ function symbolist_keydownhandler(event)
 
     }
 
+    console.log("symbolist_keydownhandler", event.symbolistAction);
+    
     symbolost_sendKeyEvent(event, "keydown");
 }
 

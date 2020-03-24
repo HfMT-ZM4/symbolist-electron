@@ -138,11 +138,11 @@ function newFromClick(event_)
     {
         const def = defs.get( event_.paletteClass );
         const data_context = model.get( event_.context.id );
-        console.log(`newFromClick data context  ${sym_util.JSONprint( data_context )}`);
+      //  console.log(`newFromClick data context  ${sym_util.JSONprint( data_context )}`);
         
         let newData = def.newFromClick(event_, data_context);
         let newView = dataToView(def, newData, data_context, event_.context);
-        console.log(`newview ${sym_util.JSONprint( newView )}` );
+//        console.log(`newview ${sym_util.JSONprint( newView )}` );
 
         if( newView.length > 0 )
         {
@@ -247,6 +247,35 @@ function applyTransform(event_)
     }
 }
 
+function getInfoBoxes(event_)
+{
+   // console.log('getInfoBoxes', event_);
+    
+    event_.selected.forEach( obj => {
+        if( defs.has(obj.class[0]) )
+        {
+            const def = defs.get(obj.class[0]);
+            const data = model.get(obj.id);
+            const view_bbox = obj.bbox;
+            
+            const newView = def.getInfoDisplay(data, view_bbox);
+
+            console.log(newView);
+            
+            if( typeof newView != 'undefined')
+            {
+                process.send({
+                    key: 'draw',
+                    val: newView
+                }) 
+            }
+
+        }
+    })
+}
+
+
+
 function procGuiEvent(event_) {
     switch (event_.symbolistAction) {
         case "getClefSymbols":            
@@ -260,7 +289,9 @@ function procGuiEvent(event_) {
         case "transformed":
             applyTransform(event_);
             break;
-
+        case "getInfo":
+            getInfoBoxes(event_);
+            break;
         default:
             console.log('unhandled symbolistAction:', event_.symbolistAction);
             break;
@@ -286,7 +317,7 @@ function input(_obj)
             procGuiEvent(val);
             break;
         case 'key':
-        // console.log('key', key);
+            procGuiEvent(val);
             break;
         default:
             console.log('controller, unhandled key', key);

@@ -9,10 +9,8 @@ module.exports = {
     palette : [], // placeholder for child symbols
 
     defaults: {
-        offsetInParent: {
-            x: 0,
-            y: 0
-        },
+        offsetInParent_x: 0,
+        offsetInParent_y: 0,
         timeStart: 0,
         timeDur: 1,
         pitchRange: 127
@@ -73,12 +71,17 @@ module.exports = {
         }
     }),
 
+    getInfoDisplay: function(dataobj, view_bbox) {
+        return sym_utils.make_default_infoDisplay(dataobj, view_bbox);
+    },
+
+
     fromData: function(dataobj, data_context, view_context ) {
        // console.log('input dataobj', dataobj, 'view ref', view_context);
         
-        const x = view_context.bbox.x + dataobj.offsetInParent.x + this.scalar.time2pix * dataobj.timeStart; // sorting of staves?
+        const x = view_context.bbox.x + dataobj.offsetInParent_x + this.scalar.time2pix * dataobj.timeStart; // sorting of staves?
         const width = (this.scalar.time2pix * dataobj.timeStart) + (this.scalar.time2pix * dataobj.timeDur);        
-        const y = view_context.bbox.y + dataobj.offsetInParent.y; // << obviously we're not done here
+        const y = view_context.bbox.y + dataobj.offsetInParent_y; // << obviously we're not done here
         const height = this.scalar.pitch2pix * dataobj.pitchRange;
         return {
             key: 'svg',
@@ -123,74 +126,26 @@ module.exports = {
         return {
             class : "thereminStave",
             id : gui_event.id,
-            offsetInParent : {
-                x : gui_event.xy[[0]],
-                y : gui_event.xy[[1]]
-            },
+            offsetInParent_x : gui_event.xy[0],
+            offsetInParent_y : gui_event.xy[1],
             timeStart : 0.,
             timeDur : 1., // seconds
             pitchRange : 127 // min implied as zero
         }
     },
 
-    transform: function(_transformMatrix, viewobj, _data_context, view_context){        
+    transform: function(_transformMatrix, viewobj, _data_context, view_context) {        
         const staff = sym_utils.getChildByValue(viewobj, "class", "thereminStaff")                
         const xy = sym_utils.applyTransform( _transformMatrix, [staff.x, staff.y] )
         return {
                 class : "thereminStave",
                 id : viewobj.id,
-                offsetInParent : {
-                    x : xy[[0]],
-                    y : xy[[1]]
-                },
+                offsetInParent_x : xy[0],
+                offsetInParent_y : xy[1],
                 timeStart : 0.,
                 timeDur : 1., // seconds
                 pitchRange : 127 // min implied as zero
             }
-    },
-
-    /*
-    fromGUI: function (viewobj, gui_event, data_ref) {
-        switch(gui_event.symbolistAction)
-        {
-            case "newFromClick_down":    
-            // view object and current data value don't exist yet            
-                return {
-                    class : "thereminStave",
-                    id : gui_event.id,
-                    offsetInParent : {
-                        x : gui_event.xy[[0]],
-                        y : gui_event.xy[[1]]
-                    },
-                    timeStart : 0.,
-                    timeDur : 1., // seconds
-                    pitchRange : 127 // min implied as zero
-                }
-            break;
-            case "transformed":
-                console.log(viewobj);
-                
-                const transformMatrix = sym_utils.matrixFromString( viewobj.transform );
-                const staff = sym_utils.getChildByValue(viewobj, "class", "thereminStaff")                
-                const xy = sym_utils.applyTransform( [staff.x, staff.y] )
-                return [
-                    {
-                        class : "thereminStave",
-                        id : viewobj.id,
-                        offsetInParent : {
-                            x : xy[[0]],
-                            y : xy[[1]]
-                        },
-                        timeStart : 0.,
-                        timeDur : 1., // seconds
-                        pitchRange : 127 // min implied as zero
-                    }
-                ]
-                break;
-
-        }
-
-    },
-        */
+    }
 
 }

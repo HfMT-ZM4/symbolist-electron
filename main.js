@@ -168,7 +168,7 @@ else if (cluster.isWorker)
     
     controller.input(_msg);
 
-   // console.log('cluster received msg', _msg);
+    //console.log('cluster received msg', _msg);
 
     /*
     parseAsync(_msg)

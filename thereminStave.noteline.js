@@ -67,6 +67,9 @@ module.exports = {
         }
     }),
 
+    getInfoDisplay: function(dataobj, view_bbox) {
+        return sym_utils.make_default_infoDisplay(dataobj, view_bbox);
+    },
 
     // context_data_ref not actaully used here.... 
     fromData: function(dataobj, data_context, view_context ) {        
@@ -108,8 +111,8 @@ module.exports = {
             class : "thereminStave_noteline",
             id : gui_event.id,
             parent: data_context.id, 
-            time : this.map.x2time( data_context, gui_event.context, gui_event.xy[[0]] - this.map.amp2r(this.default.amp) ),
-            pitch : this.map.y2pitch( data_context, gui_event.context, gui_event.xy[[1]] ),
+            time : this.map.x2time( data_context, gui_event.context, gui_event.xy[0] - this.map.amp2r(this.default.amp) ),
+            pitch : this.map.y2pitch( data_context, gui_event.context, gui_event.xy[1] ),
             dur : this.default.dur,
             amp : this.default.amp
         }
@@ -124,8 +127,8 @@ module.exports = {
             class : "thereminStave_noteline",
             id : viewobj.id,
             parent: data_context.id, 
-            time : this.map.x2time( data_context, view_context, xy[[0]] - this.map.amp2r(this.default.amp) ),
-            pitch : this.map.y2pitch( data_context, view_context, xy[[1]] ),
+            time : this.map.x2time( data_context, view_context, xy[0] - this.map.amp2r(this.default.amp) ),
+            pitch : this.map.y2pitch( data_context, view_context, xy[1] ),
             dur : this.default.dur,
             amp : this.default.amp
         }

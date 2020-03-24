@@ -64,87 +64,86 @@ function matrixFromString(matrix_str)
   
 function applyTransform( matrix, xy )
 {
-    return [    matrix[[0]] * xy[[0]] + matrix[[2]] * xy[[1]] + matrix[[4]], 
-                matrix[[1]] * xy[[0]] + matrix[[3]] * xy[[1]] + matrix[[5]]
+    return [    matrix[0] * xy[0] + matrix[2] * xy[1] + matrix[4], 
+                matrix[1] * xy[0] + matrix[3] * xy[1] + matrix[5]
             ];
 }
 
 
-  /*
-  /helper/make/default_infoDisplay = quote(
-      lambda([dataobj, bbox],
-          {
-              /key : "html",
-              /val : {
-                  /parent : "forms",
-                  /new : "div",
-                  /style : {
-                      /left : bbox./x+"px",
-                      /top : bbox./bottom+10+"px"
+function make_parms_inputs(dataobj)
+{
+    let infoBoxChildren = [];
+    
+    Object.keys(dataobj).map(param => {
+      //  console.log(param);
+        
+        if( param == 'id' || param == 'class')
+        {
+            infoBoxChildren = infoBoxChildren.concat( [{
+                    new : "span",
+                    class : "infoparam",
+                    text : param
+                }, {
+                    new : "span",
+                    class : "infovalue-noedit",
+                    text : dataobj[param]
+                }])
+        }
+        else
+        {
+            infoBoxChildren = infoBoxChildren.concat( [{
+                new : "label",
+                class : "infoparam",
+                for : dataobj.id+"-"+param+"-input",
+                text : param
+            }, {
+                new : "input",
+                class : "infovalue",
+                type : "text",
+                id : dataobj.id+"-"+param+"-input",
+                placeholder : dataobj[param],
+                onkeydown : ` if( event.key == 'Enter' ){
+                    drawsocket.send( {
+                        event:  {
+                            key: 'symbolistEvent',
+                            val: {
+                                id: ${dataobj.id},
+                                symbolistAction: 'updateSymbolData',
+                                param: ${param},
+                                value: this.value
+                            }
+                        }
+                    });
+                }`,
+                onmousedrag : `
+                    console.log(event);
+                `
+            }] )
+        }
+    });
+
+    return infoBoxChildren;
+
+}
+
+
+function make_default_infoDisplay(dataobj, bbox)
+{
+    return {
+              key : "html",
+              val : {
+                  parent : "forms",
+                  new : "div",
+                  style : {
+                      left : bbox.x+"px",
+                      top : bbox.bottom+10+"px"
                   },
-                  /id : dataobj./id+"-infobox",
-                  /class : "infobox",
-                  /children : /helper/make/parms_inputs(dataobj)
+                  id : dataobj.id+"-infobox",
+                  class : "infobox",
+                  children : make_parms_inputs(dataobj)
               }
           }
-      )
-  ),
-  
-  /helper/make/parms_inputs = quote(
-      lambda([data],
-              map(
-                  lambda([param],
-                      let({
-                              deslashed_name : join("", split("/", param))
-                          },
-                          if( deslashed_name == "id" || deslashed_name == "class",
-                              [{
-                                      /new : "span",
-                                      /class : "infoparam",
-                                      /text : param
-                                  }, {
-                                      /new : "span",
-                                      /class : "infovalue-noedit",
-                                      /text : getbundlemember(data, param)
-                              }], 
-                              # else
-                              [{
-                                  /new : "label",
-                                  /class : "infoparam",
-                                  /for : data./id+"-"+deslashed_name+"-input",
-                                  /text : param
-                              }, {
-                                  /new : "input",
-                                  /class : "infovalue",
-                                  /type : "text",
-                                  /id : data./id+"-"+deslashed_name+"-input",
-                                  /placeholder : getbundlemember(data, param),
-                                  /onkeydown : " if( event.key == 'Enter' ){
-                                      drawsocket.send( {
-                                          event:  {
-                                              key: 'symbolistEvent',
-                                              val: {
-                                                  id: '"+ data./id +"',
-                                                  symbolistAction: 'updateSymbolData',
-                                                  param: '"+ param +"',
-                                                  value: this.value
-                                              }
-                                          }
-                                      });
-                                  }",
-                                  /onmousedrag : "
-                                      console.log(event);
-                                  "
-                              }]
-                              
-                          )
-                      )
-                  ), getaddresses(data)
-              )
-          
-      )
-  )*/
-
+}
 
 
 module.exports = {
@@ -152,5 +151,6 @@ module.exports = {
     getChildByValue,
     applyTransform,
     JSONprint,
-    getValObject
+    getValObject,
+    make_default_infoDisplay
   }
