@@ -87,11 +87,6 @@ module.exports = {
                 class : "thereminStave stave",
                 id : dataobj.id,
                 children : [
-                    {   // top stave layer for events
-                        new : "g",
-                        id : dataobj.id + "-events",
-                        class : "stave_events"
-                    },
                     {
                         new : "g",
                         class : "stave_display",
@@ -112,6 +107,11 @@ module.exports = {
                             x2 : x + 10,
                             y2 : y + height
                         }]   
+                    },
+                    {   // top stave layer for events
+                        new : "g",
+                        id : dataobj.id + "-events",
+                        class : "stave_events"
                     }
                 ]
             }

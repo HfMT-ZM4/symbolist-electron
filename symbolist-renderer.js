@@ -27,7 +27,7 @@ let mousedown_pos = {x: 0, y: 0};
 let mouse_pos = {x: 0, y: 0};
 
 let currentContext = svgObj;
-let currentPaletteClass =  "thereminStave";
+let currentPaletteClass =  "";
 
 let selectedClass = currentPaletteClass;
 
@@ -77,6 +77,7 @@ function symbolist_setClass(_class)
     paletteItem.classList.add("selected");  
 
     currentPaletteClass = _class;
+    selectedClass = _class;
 
 }
 
@@ -168,6 +169,9 @@ function addToSelection( element )
     if( element.id == 'dragRegion' )
         return;
 
+    console.log('addToSelection');
+    
+
     for( let i = 0; i < selected.length; i++)
     {
         if( selected[i] == element )
@@ -218,12 +222,18 @@ function deselectAll()
 {
     let infoboxIds = [];
 
+
+    document.querySelectorAll
+
     for( let i = 0; i < selected.length; i++)
     {
         if( selected[i].classList.contains("symbolist_selected") )
         {
             selected[i].classList.remove("symbolist_selected");
             
+            console.log(`deselecting ${selected[i].classList}`);
+            
+
             const boxname = selected[i].id + "-infobox";
             infoboxIds.push(boxname);
 
@@ -311,11 +321,9 @@ function translate(obj, delta_pos)
 
 function translate_selected(delta_pos)
 {
-
     for( let i = 0; i < selected.length; i++)
     {
-        console.log('translate_selected', selected[i]);
-        
+      //  console.log('translate_selected', selected[i]);        
         translate(selected[i], delta_pos);
     }
 }
@@ -373,11 +381,12 @@ function makeUniqueID(obj)
 
 function getTopLevel(elm)
 {    
+
     while(  elm != svgObj && 
             elm.parentNode && 
             elm.parentNode.id != 'main-svg' && 
             elm.parentNode.id != 'palette' && 
-            !(currentContext != svgObj && currentPaletteClass == currentContext && elm.parentNode == currentContext ) ) 
+            !elm.parentNode.classList.contains('stave_events') ) 
     {
         elm = elm.parentNode;
     }
@@ -682,10 +691,12 @@ function symbolsit_dblclick(event)
 
 function symbolist_mousedown(event)
 {          
-    console.log(`mouse down> current context: ${currentContext.id}`); 
+    console.log(`mouse down> current context: ${currentContext.id}\n event target ${event.target}`); 
 
     const _eventTarget = getTopLevel( event.target );
-    console.log(`mouse down ${_eventTarget.classList}`); 
+
+    
+    console.log(`mouse down ${_eventTarget.id} was ${JSON.stringify(elementToJSON(event.target))}`); 
     
     if( prevEventTarget === null )
         prevEventTarget = _eventTarget;
@@ -694,6 +705,43 @@ function symbolist_mousedown(event)
     if( !event.shiftKey && !event.altKey )
         deselectAll();
 
+
+    if( event.metaKey )
+    {
+        event.symbolistAction = "newFromClick_down";
+
+        clickedObj = null;
+        selectedClass = currentPaletteClass; // later, get from palette selection
+    }
+    else
+    {
+        if( _eventTarget != svgObj && _eventTarget != currentContext )
+        {
+            
+            addToSelection( _eventTarget );
+            clickedObj = _eventTarget;
+    
+            event.symbolistAction = "selection";
+    
+            console.log(`selected object ${clickedObj} selection, event ${_eventTarget.classList}, context ${currentContext.classList}` );
+    
+    //        selectedClass =  clickedObj.classList[0]; // hopefully this will always be correct! not for sure though
+    
+            if( event.altKey )
+            {
+                copySelected();
+                //clickedObj = copyObjectAndAddToParent(_eventTarget);       
+                //addToSelection( clickedObj );
+            }
+            else if( event.altKey && event.metaKey )
+            {
+                event.symbolistAction = "create_menu";
+            }
+    
+        }
+    }
+
+    /*
     if( _eventTarget != svgObj && _eventTarget != currentContext )
     {
         
@@ -702,7 +750,7 @@ function symbolist_mousedown(event)
 
         event.symbolistAction = "selection";
 
-        console.log(`clicked object ${clickedObj} selection, event ${_eventTarget.classList}, context ${currentContext.classList}` );
+        console.log(`selected object ${clickedObj} selection, event ${_eventTarget.classList}, context ${currentContext.classList}` );
 
 //        selectedClass =  clickedObj.classList[0]; // hopefully this will always be correct! not for sure though
 
@@ -728,6 +776,7 @@ function symbolist_mousedown(event)
         clickedObj = null;
         selectedClass = currentPaletteClass; // later, get from palette selection
     }
+    */
     
 
     mousedown_pos = { x: event.clientX, y: event.clientY };
@@ -745,11 +794,13 @@ function symbolist_mousemove(event)
     if( prevEventTarget === null )
         prevEventTarget = _eventTarget;
 
+    const mouseDelta = deltaPt({ x: event.clientX, y: event.clientY }, mousedown_pos);
+
     if( event.buttons == 1 )
     {
         if( clickedObj )
         {
-            translate_selected( deltaPt({ x: event.clientX, y: event.clientY }, mousedown_pos) );
+            translate_selected( mouseDelta );
         }
         else 
         {
@@ -759,12 +810,15 @@ function symbolist_mousemove(event)
             if( event.metaKey ){
                 event.symbolistAction = "newFromClick_drag";
             }
+            else
+            {
+                let dragRegion = getDragRegion(event);
 
-            let dragRegion = getDragRegion(event);
+                selectAllInRegion( dragRegion, mainSVG );
+    
+                drawDragRegion(dragRegion);
+            }
 
-            selectAllInRegion( dragRegion, mainSVG );
-
-            drawDragRegion(dragRegion);
 
         }
     }
@@ -826,21 +880,8 @@ function symbolist_mouseover(event)
 
     if( prevEventTarget === null )
         prevEventTarget = _eventTarget;
-/*
-    if( !event.shiftKey && _eventTarget != prevEventTarget )
-    {
-        if( prevEventTarget.classList.contains("symbolist_selected") )
-        {
-            prevEventTarget.classList.remove("symbolist_selected");
-        }
 
-        if( _eventTarget != svgObj )
-        {
-            _eventTarget.classList.add("symbolist_selected");
-        }
-        
-    }
-*/
+
     prevEventTarget = _eventTarget;
 
     //sendMouseEvent(event, "mouseover");

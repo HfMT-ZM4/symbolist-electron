@@ -138,10 +138,12 @@ function newFromClick(event_)
     {
         const def = defs.get( event_.paletteClass );
         const data_context = model.get( event_.context.id );
-
+        console.log(`newFromClick data context  ${sym_util.JSONprint( data_context )}`);
+        
         let newData = def.newFromClick(event_, data_context);
         let newView = dataToView(def, newData, data_context, event_.context);
-           // console.log('newview', JSON.stringify(newView, null, 2));
+        console.log(`newview ${sym_util.JSONprint( newView )}` );
+
         if( newView.length > 0 )
         {
             process.send({
