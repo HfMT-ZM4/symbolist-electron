@@ -118,7 +118,35 @@ function setDefaultContext()
     symbolist_setContext(svgObj);
 }
 
-module.exports = { setClass: symbolist_setClass, setContext: symbolist_setContext }
+function symbolist_send(obj)
+{
+    ipcRenderer.send('symbolist_event', obj);
+}
+
+function getCurrentContextJSON()
+{
+    let view = elementToJSON(currentContext);
+    view.bbox = cloneObj(currentContext.getBoundingClientRect());
+    return view;
+}
+
+function getObjViewContext(obj)
+{
+    let elm = obj;
+    while(  elm != svgObj && 
+        elm.parentNode && 
+        elm.parentNode.id != 'main-svg' && 
+        elm.parentNode.id != 'palette' && 
+        (currentContext != svgObj && (!elm.parentNode.classList.contains('stave') || 
+            !elm.parentNode.classList.contains('stave-events'))) ) 
+    {
+        elm = elm.parentNode;
+    }
+
+    let view = elementToJSON(elm);
+    view.bbox = cloneObj(elm.getBoundingClientRect());
+    return view;
+}
 
  /**
   * internal methods
@@ -220,40 +248,20 @@ function selectAllInRegion(region, element)
 
 function deselectAll()
 {
-    let infoboxIds = [];
-
-
-    document.querySelectorAll
-
-    for( let i = 0; i < selected.length; i++)
-    {
-        if( selected[i].classList.contains("symbolist_selected") )
-        {
-            selected[i].classList.remove("symbolist_selected");
-            
-            console.log(`deselecting ${selected[i].classList}`);
-            
-
-            const boxname = selected[i].id + "-infobox";
-            infoboxIds.push(boxname);
-
-        }
-    }
+ 
+    document.querySelectorAll('.symbolist_selected').forEach( el => {
+        el.classList.remove("symbolist_selected");
+    })
 
     selected = [];
     selectedCopy = [];
-    if( infoboxIds.length > 0 )
-    {
-        ipcRenderer.send('symbolist_event',  {
-            key: "symbolistEvent",
-            val: {
-                symbolistAction: 'removeFromViewCache',
-                ids: infoboxIds
-            }
-        }); 
-    }
-    
+
+    document.querySelectorAll('.infobox').forEach( ibox => {
+        ibox.remove();
+    })
+
 }
+
 
 
 
@@ -948,3 +956,11 @@ function removeSymbolistKeyListeners()
 addSymbolistMouseHandlers(svgObj);
 addSymbolistKeyListeners();
 
+
+module.exports = { 
+    setClass: symbolist_setClass, 
+    setContext: symbolist_setContext,
+    send: symbolist_send,
+    getObjViewContext,
+    elementToJSON
+ }

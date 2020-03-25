@@ -5,10 +5,18 @@ module.exports = {
 
     class : "thereminStave_noteline",
 
+    paramTypes : {
+        time : "Number",
+        pitch : "Number",
+        dur : "Number",
+        amp : "Number"
+    },
+
     default : {
         start: 0,
         dur : 0.1,
-        amp : 1
+        amp : 1,
+        time: 0
     },
     
     scalar : thereminClef.scalar,

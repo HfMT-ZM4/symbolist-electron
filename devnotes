@@ -1,0 +1,8 @@
+consider making override option for drawsocket.send
+so it could be cleaner to switch between browser and electron
+(overriding to ipcRenderer.send)
+
+# short term to do
+- update from gui drawsocket.send from default info box in util.js
+    ipcRenderer not global
+        make global wrapper?

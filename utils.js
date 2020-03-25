@@ -74,8 +74,9 @@ function make_parms_inputs(dataobj)
 {
     let infoBoxChildren = [];
     
+   // console.log('make_parms_inputs', JSON.stringify(dataobj));
+
     Object.keys(dataobj).map(param => {
-      //  console.log(param);
         
         if( param == 'id' || param == 'class')
         {
@@ -103,16 +104,17 @@ function make_parms_inputs(dataobj)
                 id : dataobj.id+"-"+param+"-input",
                 placeholder : dataobj[param],
                 onkeydown : ` if( event.key == 'Enter' ){
-                    drawsocket.send( {
-                        event:  {
+                    const viewObj = document.getElementById('${dataobj.id}');
+                    symbolist.send( {
                             key: 'symbolistEvent',
                             val: {
-                                id: ${dataobj.id},
+                                id: '${dataobj.id}',
+                                class: '${dataobj.class}',
                                 symbolistAction: 'updateSymbolData',
-                                param: ${param},
-                                value: this.value
+                                param: '${param}',
+                                value: this.value,
+                                view_context: symbolist.getObjViewContext(viewObj)
                             }
-                        }
                     });
                 }`,
                 onmousedrag : `

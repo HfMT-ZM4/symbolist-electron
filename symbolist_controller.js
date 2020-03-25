@@ -26,7 +26,7 @@ function init()
 
     console.log('received init');
     makePalette();
-    console.log(theremin);
+   // console.log(theremin);
     
 }
 
@@ -259,8 +259,6 @@ function getInfoBoxes(event_)
             const view_bbox = obj.bbox;
             
             const newView = def.getInfoDisplay(data, view_bbox);
-
-            console.log(newView);
             
             if( typeof newView != 'undefined')
             {
@@ -274,6 +272,38 @@ function getInfoBoxes(event_)
     })
 }
 
+function castFromString(def, param, value)
+{
+    if( def.paramTypes[param] == "Number" )
+        return Number(value);
+    else
+        return value;
+}
+
+function updateSymbolData(obj)
+{
+    if( model.has(obj.id) )
+    {
+        let sym = model.get(obj.id);
+        const def = defs.get(obj.class);
+
+        sym[obj.param] = castFromString(def, obj.param, obj.value);
+
+        console.log('update', obj, sym);
+        
+        const data_context = model.get(obj.view_context.id);
+
+        let newView = dataToView(def, sym, data_context, obj.view_context);
+        if( typeof newView != 'undefined')
+        {
+            process.send({
+                key: 'draw',
+                val: newView
+            }) 
+        }
+
+    }
+}
 
 
 function procGuiEvent(event_) {
@@ -291,6 +321,9 @@ function procGuiEvent(event_) {
             break;
         case "getInfo":
             getInfoBoxes(event_);
+            break;
+        case "updateSymbolData":
+            updateSymbolData(event_);
             break;
         default:
             console.log('unhandled symbolistAction:', event_.symbolistAction);

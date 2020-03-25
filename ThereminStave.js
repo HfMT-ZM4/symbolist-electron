@@ -8,6 +8,14 @@ module.exports = {
 
     palette : [], // placeholder for child symbols
 
+    paramTypes : {
+        offsetInParent_x: "Number",
+        offsetInParent_y: "Number",
+        timeStart: "Number",
+        timeDur: "Number",
+        pitchRange: "Number"
+    },
+
     defaults: {
         offsetInParent_x: 0,
         offsetInParent_y: 0,
