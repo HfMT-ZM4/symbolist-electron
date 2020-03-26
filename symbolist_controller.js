@@ -19,6 +19,11 @@ let defs = new Map();
 
 function init()
 {
+    if( model.size > 0 )
+    {
+        console.log('init model status', model);
+    }
+
     model.set(defaultContext.class, defaultContext);
     defs.set(defaultContext.class, defaultContext);
     defs.set(theremin.class, theremin);

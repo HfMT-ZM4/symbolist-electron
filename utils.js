@@ -55,6 +55,36 @@ function getChildByValue(obj, key, val)
     return null;
 }
 
+function isNumeric(value) {
+    return !isNaN(value - parseFloat(value));
+}
+
+function getCSSFunctionArgs(str, functionname)
+{
+    const index = str.indexOf(functionname);
+    if( index == -1 )
+    {
+        console.log(`${functionname} function not found in string`);
+        return null;
+    }
+
+    const sub = str.slice( functionname.length );
+
+    let args = sub.match(/\(\s*([^)]+?)\s*\)/);
+    if( args )
+    {
+        args = args[1].split(/\s*,\s*/);
+        args = Array.isArray(args) ? args : [args];
+        let fnArgs = args.map( a => ( isNumeric(a) ? Number(a) : a ) );
+        return fnArgs;
+    }
+
+    console.log(`no args found for function ${functionname}`);
+
+    return null;
+      
+}
+
 function matrixFromString(matrix_str) 
 {    
     return matrix_str.trim().slice( matrix_str.indexOf("matrix(")+7, matrix_str.length-1 )
@@ -154,5 +184,6 @@ module.exports = {
     applyTransform,
     JSONprint,
     getValObject,
-    make_default_infoDisplay
+    make_default_infoDisplay,
+    getCSSFunctionArgs
   }

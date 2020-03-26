@@ -9,14 +9,17 @@ module.exports = {
         time : "Number",
         pitch : "Number",
         dur : "Number",
-        amp : "Number"
+        amp : "Number",
+        mod : "Number"
+
     },
 
     default : {
         start: 0,
         dur : 0.1,
         amp : 1,
-        time: 0
+        time: 0,
+        mod : 0.5
     },
     
     scalar : thereminClef.scalar,
@@ -24,7 +27,18 @@ module.exports = {
     map : { ...thereminClef.map, ... { 
         amp2r: function(amp) {
             return (amp / 100) * 15 + 5; //scale(dataobj./amp, 0., 100, 5., 20.),
+        },
+
+        mod2color: function(mod) {            
+            return `rgb( ${(mod * 255)}, 0, 0 )`; //scale(dataobj./amp, 0., 100, 5., 20.),
+        },
+
+        color2mod: function(color) {
+            let rgb = sym_utils.getCSSFunctionArgs(color, "rgb");
+            
+            return rgb[0] / 255.;
         }
+
     }},
 
     getEventIcon: () => ({
@@ -56,17 +70,20 @@ module.exports = {
                             class : "notehead",
                             fill : "white",
                             r : 2,
-                            cy : 0,
-                            cx : 0
+                            cy : 2,
+                            cx : 2
                         },
                         {
                             new : "line",
                             class : "durationLine",
-                            stroke: "white",
-                            x1 : 0,
-                            y1 : 0,
+                            x1 : 2,
+                            y1 : 2,
                             x2 : 16,
-                            y2 : 0
+                            y2 : 2,
+                            style: {
+                                stroke: "white"
+                            }
+
                         }
                     ]
                 }
@@ -85,7 +102,8 @@ module.exports = {
         const y = this.map.pitch2y( data_context, view_context, dataobj.pitch);
         const x1 = this.map.time2x( data_context, view_context, dataobj.time);
         const x2 = this.map.time2x( data_context, view_context, dataobj.time + dataobj.dur);
-
+        const color = this.map.mod2color( dataobj.mod );    
+            
         return {
             key: 'svg',
             val: {
@@ -107,7 +125,12 @@ module.exports = {
                         x1 : x1 ,
                         y1 : y,
                         x2 : x2,
-                        y2 : y
+                        y2 : y,
+                        style: {
+                            "stroke-width": 2,
+                            stroke: color
+                        }
+                        
                     }
                 ]
             }
@@ -122,7 +145,8 @@ module.exports = {
             time : this.map.x2time( data_context, gui_event.context, gui_event.xy[0] - this.map.amp2r(this.default.amp) ),
             pitch : this.map.y2pitch( data_context, gui_event.context, gui_event.xy[1] ),
             dur : this.default.dur,
-            amp : this.default.amp
+            amp : this.default.amp,
+            mod: this.default.mod
         }
      },
  
@@ -131,6 +155,8 @@ module.exports = {
          const notehead = sym_utils.getChildByValue(viewobj, "class", "notehead")                
          const durationLine = sym_utils.getChildByValue(viewobj, "class", "durationLine")                
          const xy = sym_utils.applyTransform( _transformMatrix, [notehead.cx, notehead.cy] )
+         const color = durationLine.style.stroke;
+            
          return {
             class : "thereminStave_noteline",
             id : viewobj.id,
@@ -138,7 +164,8 @@ module.exports = {
             time : this.map.x2time( data_context, view_context, xy[0] - this.map.amp2r(this.default.amp) ),
             pitch : this.map.y2pitch( data_context, view_context, xy[1] ),
             dur : this.default.dur,
-            amp : this.default.amp
+            amp : this.default.amp,
+            mod : this.map.color2mod( color)
         }
 
      }

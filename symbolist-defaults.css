@@ -2,6 +2,10 @@ body {
   background-color: rgb(50, 50, 50);
 }
 
+svg {
+  overflow: scroll;
+}
+
 .symbolist_selected {
   stroke-width: 1 !important;
   stroke: blue !important;

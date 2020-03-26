@@ -435,6 +435,25 @@ function removedSymbolistSelected(classlist)
     return typeof classlist !== "undefined" ? classlist.replace(" symbolist_selected", "" ) : "";
 }
 
+function parseStyleString(styleStr)
+{
+    let chunks = styleStr.split(';').map( tok => tok.trim() );
+    chunks = Array.isArray(chunks) ? chunks : [chunks];
+
+    let rules = {};
+    chunks.forEach( ruleStr => {
+        if( ruleStr != "" )
+        {
+            let keyval = ruleStr.split(':').map( tok => tok.trim() );
+
+            let val = keyval[1];
+            rules[keyval[0]] = isNumeric(val) ? Number(val) : val;
+        }
+    });
+    //console.log('parseStyleString',chunks, '//', rules);
+    return rules;
+}
+
 function elementToJSON(elm)
 {
     if( typeof elm === 'undefined' || elm == document )
@@ -458,7 +477,11 @@ function elementToJSON(elm)
                 obj.points = SVGPoints.toPoints({ type: "path", d: attr.value });
             }
 
-            if( attr.name === "class" )
+            if( attr.name == 'style' )
+            {
+                obj.style = parseStyleString(attr.value);
+            }
+            else if( attr.name === "class" )
             {
                 obj.class = formatClassArray(attr.value); // removedSymbolistSelected(attr.value);
             }

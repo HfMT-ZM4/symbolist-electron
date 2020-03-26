@@ -3,6 +3,7 @@ so it could be cleaner to switch between browser and electron
 (overriding to ipcRenderer.send)
 
 # short term to do
-- update from gui drawsocket.send from default info box in util.js
-    ipcRenderer not global
-        make global wrapper?
+- update from gui doens't work with stave because the getObjViewContext function doesn't go all the way to the svg elment,
+    however, this also makes me wonder if maybe staves shouldn't be redrawn based on the info ... 
+        but that's not right, of course it should, for example, you might have a 5 line staff and want to change the clef, 
+            that could be an attribute of the 5 line stave

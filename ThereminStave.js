@@ -108,7 +108,10 @@ module.exports = {
                             x : x,
                             width : width,
                             y : y,
-                            height : height
+                            height : height,
+                            style : {
+                                fill: "white"
+                            }
                         },
                         {
                             new : "line",
