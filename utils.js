@@ -108,7 +108,7 @@ function make_parms_inputs(dataobj)
 
     Object.keys(dataobj).map(param => {
         
-        if( param == 'id' || param == 'class')
+        if( param == 'id' || param == 'class' || param == 'parent')
         {
             infoBoxChildren = infoBoxChildren.concat( [{
                     new : "span",
@@ -132,7 +132,7 @@ function make_parms_inputs(dataobj)
                 class : "infovalue",
                 type : "text",
                 id : dataobj.id+"-"+param+"-input",
-                placeholder : dataobj[param],
+                value : dataobj[param],
                 onkeydown : ` if( event.key == 'Enter' ){
                     const viewObj = document.getElementById('${dataobj.id}');
                     symbolist.send( {

@@ -179,6 +179,7 @@ function hitTest(regionRect, obj)
 
 function recursiveHitTest(region, element)
 {
+
     if( hitTest(region, element) )
         return true;
 
@@ -237,6 +238,10 @@ function selectedObjectsChanged()
 
 function selectAllInRegion(region, element)
 {
+
+    // if( getTopLevel(element) == currentContext )
+    //     return;
+
     for (let i = 0; i < element.children.length; i++) 
     {
         if( recursiveHitTest(region, element.children[i]) )
