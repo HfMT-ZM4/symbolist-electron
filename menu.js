@@ -55,7 +55,14 @@ const template = [
       { role: 'paste' },
       ...(isMac ? [
         { role: 'pasteAndMatchStyle' },
-        { role: 'delete' },
+       // { role: 'delete' },
+        { 
+          label: 'Delete',
+          accelerator: 'Backspace',
+          click: async () => {
+              actions.deleteSelected();
+          }
+        },
         { role: 'selectAll' },
         { type: 'separator' },
         {

@@ -166,6 +166,18 @@ function setSelectedContext()
 
 }
  
+function removeSelected()
+{
+    if( selected.length > 0 )
+    {
+        let selectedIDs = selected.map( val => val.id );
+        drawsocket.input({
+            key: 'remove',
+            val: selectedIDs
+        });  
+    }
+        
+}
 
 function hitTest(regionRect, obj)
 {
@@ -239,14 +251,23 @@ function selectedObjectsChanged()
 
 function selectAllInRegion(region, element)
 {
+/*
+   // if( currentContext != )
+    let topLevel = getTopLevel(element);
+    if( topLevel == svgObj) //topLevel == currentContext || 
+    { 
+        return;
+    }
+    console.log(topLevel);
+*/
 
-    // if( getTopLevel(element) == currentContext )
-    //     return;
+    // to do, avoid selecting the bounding box, it's turning blue
+    // & now the selection is hitting all the stave events
 
-    for (let i = 0; i < element.children.length; i++) 
+    for (let i = 0; i < currentContext.children.length; i++) 
     {
-        if( recursiveHitTest(region, element.children[i]) )
-            addToSelection( element.children[i] );
+        if( recursiveHitTest(region, currentContext.children[i]) )
+            addToSelection( currentContext.children[i] );
 
     }
         
@@ -557,6 +578,7 @@ function symbolost_sendKeyEvent(event, caller)
 }
 
 
+
 function symbolist_keydownhandler(event)
 {
     let nmods =  event.altKey + event.shiftKey + event.ctrlKey + event.metaKey;
@@ -580,10 +602,14 @@ function symbolist_keydownhandler(event)
             setSelectedContext();
             event.symbolistAction = "setContext";
             break;
+        case "Backspace":
+            removeSelected();
+            event.symbolistAction = "removeSelected";
+            break;
 
     }
 
-    console.log("symbolist_keydownhandler", event.symbolistAction);
+    console.log("symbolist_keydownhandler", event.symbolistAction, event.key);
     
     symbolost_sendKeyEvent(event, "keydown");
 }

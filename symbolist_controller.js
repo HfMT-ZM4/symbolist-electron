@@ -156,11 +156,24 @@ function newFromClick(event_)
                 val: newView
             }) 
         }
-
-
         
     }
 
+}
+
+function removeSelected(event_)
+{
+    if( event_.selected.length > 0 )
+    {
+        event_.selected.forEach( obj => {
+            if( model.has(obj.id) )
+            {
+                model.delete(obj.id);
+            }
+        });
+
+    }
+    // no need to redraw since the view is handled by the renderer    
 }
 
 function applyTransform_recurse(_matrix, _viewobj, _data_context, _view_context)
@@ -329,6 +342,9 @@ function procGuiEvent(event_) {
             break;
         case "updateSymbolData":
             updateSymbolData(event_);
+            break;
+        case "removeSelected":
+            removeSelected(event_);
             break;
         default:
             console.log('unhandled symbolistAction:', event_.symbolistAction);
