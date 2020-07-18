@@ -20,14 +20,13 @@ const parseAsync = (obj_str) => {
 
 if( cluster.isMaster )
 {
-
   const { app, BrowserWindow, ipcMain, globalShortcut } = require('electron')
-  
+  const menu = require('./menu') // init after creating cluster and win
+
   const dgram = require('dgram');
   const server = dgram.createSocket('udp4');
 
-  const cache_proc = cluster.fork();
-
+  const controller_proc = cluster.fork();
   let win = null
   
   function createWindow () {
@@ -42,6 +41,8 @@ if( cluster.isMaster )
       }
     })
   
+    menu.init(controller_proc, win)
+
     globalShortcut.register('CommandOrControl+R', function() {
       console.log('CommandOrControl+R is pressed')
       win.reload()
@@ -55,13 +56,6 @@ if( cluster.isMaster )
     // Open the DevTools.
    // win.webContents.openDevTools()
   }
-  
-  // This method will be called when Electron has finished
-  // initialization and is ready to create browser windows.
-  // Some APIs can only be used after this event occurs.
-  //app.whenReady()
-      //.then(createWindow)
-  
   
   app.on('ready', () => {
     createWindow();
@@ -81,7 +75,7 @@ if( cluster.isMaster )
         }
       })
       */
-      cache_proc.send({
+      controller_proc.send({
         key: 'init'
       });
 
@@ -135,7 +129,7 @@ if( cluster.isMaster )
   server.bind(8888);
 
 
-  cache_proc.on('message', (msg)=> {
+  controller_proc.on('message', (msg)=> {
     if( msg.key == 'draw' )
     {
    //   console.log('main recieved and sending', JSON.stringify(msg.val, null, 2));
@@ -145,11 +139,11 @@ if( cluster.isMaster )
   //  console.log('main recieved', msg);
   });
   
- // cache_proc.send('ping');
+ // controller_proc.send('ping');
 
 
   ipcMain.on('symbolist_event', (event, arg) => {
-    cache_proc.send(arg)
+    controller_proc.send(arg)
     //event.sender.send('asynchronous-reply', 'pong')
   })
   
@@ -157,6 +151,9 @@ if( cluster.isMaster )
     //event.sender.send('asynchronous-reply', 'pong')
     console.log(arg);
   })
+
+
+
 
 }
 else if (cluster.isWorker) 

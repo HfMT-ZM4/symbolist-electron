@@ -15,6 +15,7 @@ ipcRenderer.on('draw-input', (event, arg) => {
  */
 const svgObj = document.getElementById("svg");
 const mainSVG = document.getElementById("main-svg");
+const overlay = document.getElementById('symbolist_overlay');
 
 let symbolist_log = document.getElementById("symbolist_log");;
 
@@ -693,6 +694,7 @@ function drawDragRegion(_dragRegion)
         key: 'svg',
         val: {
             id: 'dragRegion',
+            parent: 'symbolist_overlay',
             new: 'rect',
             x: _dragRegion.left,
             y: _dragRegion.top,
@@ -715,6 +717,7 @@ function clearDragRegionRect()
 
 function symbolsit_dblclick(event)
 {
+   // event.preventDefault();
     /*
     setSelectedContext();
     deselectAll();
@@ -885,6 +888,8 @@ function symbolist_mousemove(event)
 
 function symbolist_mouseup(event)
 {   
+    console.log('symbolist_mouseup');
+
     clearDragRegionRect();
 
     const _eventTarget = getTopLevel( event.target );
@@ -943,7 +948,8 @@ function symbolist_mouseover(event)
 
 function symbolist_mouseleave(event)
 {           
-    clearDragRegionRect();
+    //console.log('symbolist_mouseleave');
+    //clearDragRegionRect();
     prevEventTarget = null;
 }
 
