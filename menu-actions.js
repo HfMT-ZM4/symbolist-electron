@@ -27,9 +27,15 @@ function copyFromHTML()
    
 }
 
+function deleteSelected()
+{
+  win.webContents.send('menu-call', 'deleteSelected');
+}
+
 
 module.exports = {
     init,
-    loadFiles
+    loadFiles,
+    deleteSelected
 }
 

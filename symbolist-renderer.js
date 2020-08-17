@@ -11,6 +11,19 @@ ipcRenderer.on('draw-input', (event, arg) => {
 
 
 /**
+ * handler for special commands from menu that require info about state of view/selection
+ */
+ipcRenderer.on('menu-call', (event, arg) => {
+    switch(arg) {
+        case 'deleteSelected':
+            removeSelected();
+            break;
+
+    }
+    console.log(`menu call received ${arg}`);
+})
+
+/**
  * globals
  */
 const svgObj = document.getElementById("svg");
@@ -156,6 +169,7 @@ function getObjViewContext(obj)
 
 /**
  * set context from UI event, selecting most recently selected object
+ * sets palette class to null
  */
 function setSelectedContext()
 {
@@ -164,6 +178,7 @@ function setSelectedContext()
     else
         setDefaultContext();
 
+    currentPaletteClass = null;
 }
  
 function removeSelected()
