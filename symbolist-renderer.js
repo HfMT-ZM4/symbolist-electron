@@ -279,10 +279,16 @@ function selectAllInRegion(region, element)
     // to do, avoid selecting the bounding box, it's turning blue
     // & now the selection is hitting all the stave events
 
-    for (let i = 0; i < currentContext.children.length; i++) 
+
+    let contextContent = currentContext.querySelector('.stave_content');
+
+    if( contextContent == null )
+        contextContent = currentContext;
+
+    for (let i = 0; i < contextContent.children.length; i++) 
     {
-        if( recursiveHitTest(region, currentContext.children[i]) )
-            addToSelection( currentContext.children[i] );
+        if( recursiveHitTest(region, contextContent.children[i]) )
+            addToSelection( contextContent.children[i] );
 
     }
         
@@ -436,7 +442,7 @@ function getTopLevel(elm)
             elm.parentNode && 
             elm.parentNode.id != 'main-svg' && 
             elm.parentNode.id != 'palette' && 
-            ( currentContext != svgObj ? !elm.parentNode.classList.contains('stave_events') : 1 ) ) 
+            ( currentContext != svgObj ? !elm.parentNode.classList.contains('stave_content') : 1 ) ) 
     {
         elm = elm.parentNode;
     }

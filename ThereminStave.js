@@ -125,7 +125,7 @@ module.exports = {
                     {   // top stave layer for events
                         new : "g",
                         id : dataobj.id + "-events",
-                        class : "stave_events"
+                        class : "stave_content"
                     }
                 ]
             }
