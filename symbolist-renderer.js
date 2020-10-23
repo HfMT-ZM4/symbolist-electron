@@ -277,8 +277,6 @@ function selectAllInRegion(region, element)
 */
 
     // to do, avoid selecting the bounding box, it's turning blue
-    // & now the selection is hitting all the stave events
-
 
     let contextContent = currentContext.querySelector('.stave_content');
 

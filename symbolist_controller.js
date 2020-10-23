@@ -1,3 +1,6 @@
+const fs = require('fs')
+
+
 const sym_util = require('./utils')
 
 const defaultContext = {
@@ -9,13 +12,75 @@ const defaultContext = {
 }
 
 // to do: automate adding symbols to stave palette def, so we can load files dynamically
+/*
 const theremin = require('./thereminStave')
 const notelines = require('./thereminStave.noteline')
 
 theremin.palette.push( notelines.class );
+*/
 
 let model = new Map();
 let defs = new Map();
+
+function loadInitFiles(val)
+{
+    console.log('loadUserFolder', val);
+
+    /*
+    {
+        "name" : "default-palette",
+        "loadStaves" : {
+            "stave" : "thereminStave.js",
+            "paletteSymbols" : "thereminStave.noteline.js"
+        }
+    }
+    */
+   
+   sym_util.toArray(val).forEach( file => {
+        const loaded = fs.readFileSync(file, 'utf-8');
+        if( loaded )
+        {
+            try {
+                const initObj = JSON.parse(loaded);
+                let stavesToLoad = initObj.loadStaves;
+
+                sym_util.toArray(stavesToLoad).forEach( staveFile => {
+                    console.log('trying to load', staveFile.stave);
+
+                    // import user stave js file
+                    let staveDef_ = require(staveFile.stave);
+
+                    sym_util.toArray(staveFile.palette).forEach( paletteItem => {
+
+                        // import user stave itme js file
+                        const paletteDef_ = require(paletteItem);
+                        
+                        // add to stave palette
+                        staveDef_.palette.push( paletteDef_.class );
+
+                        // log in class lookup registry
+                        defs.set(paletteDef_.class, paletteDef_);
+                    })
+
+                    // log stave class lookup registry
+                    defs.set(staveDef_.class, staveDef_);
+
+                    console.log('loaded', staveDef_.class);
+                })
+            }
+            catch(e)
+            {
+                console.error(e);
+            }
+
+        }
+                
+    })
+
+    init();
+    
+
+}
 
 function init()
 {
@@ -26,8 +91,8 @@ function init()
 
     model.set(defaultContext.class, defaultContext);
     defs.set(defaultContext.class, defaultContext);
-    defs.set(theremin.class, theremin);
-    defs.set(notelines.class, notelines);
+   // defs.set(theremin.class, theremin);
+   // defs.set(notelines.class, notelines);
 
     console.log('received init');
     makePalette();
@@ -363,6 +428,9 @@ function input(_obj)
     {
         case 'init':
             init();
+            break;
+        case 'loadInitFiles':
+            loadInitFiles(val);
             break;
         case 'symbolistEvent':
             procGuiEvent(val);

@@ -41,6 +41,7 @@ module.exports = {
 
     }},
 
+    // "event" here means stave event
     getEventIcon: () => ({
         key : "html",
         val : {

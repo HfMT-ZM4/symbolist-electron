@@ -20,7 +20,7 @@ const parseAsync = (obj_str) => {
 
 if( cluster.isMaster )
 {
-  const { app, BrowserWindow, ipcMain, globalShortcut } = require('electron')
+  const { app, BrowserWindow, ipcMain, globalShortcut, dialog } = require('electron')
   const menu = require('./menu') // init after creating cluster and win
 
   const dgram = require('dgram');
@@ -75,9 +75,37 @@ if( cluster.isMaster )
         }
       })
       */
+
+    dialog.showOpenDialog(win, {
+      message: "Please select Symbolist JSON setup files",
+      properties: ['openFile', 'multiSelections'],
+      filters: [{ 
+        name: "JSON", 
+        extensions: ['json'] 
+      }]
+    }).then(result => {
+      if( result.canceled )
+      {
+        console.log( 'selection canceled, now what?')
+      }
+      else
+      {
+        controller_proc.send({
+          key: "loadInitFiles",
+          val: result.filePaths
+        })
+      }
+      //console.log(result.filePaths)
+     
+    }).catch(err => {
+      console.log(err)
+    })
+
+      /*
       controller_proc.send({
         key: 'init'
       });
+      */
 
     })
   })

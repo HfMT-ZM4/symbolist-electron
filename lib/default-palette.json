@@ -1,0 +1,7 @@
+{
+    "name" : "default-palette",
+    "loadStaves" : {
+        "stave" : "./thereminStave.js",
+        "palette" : "./thereminStave.noteline.js"
+    }
+}

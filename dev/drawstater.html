@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>symbolist</title>
+    <!-- https://electronjs.org/docs/tutorial/security#csp-meta-tag -->
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+    <link rel="stylesheet" href="./drawsocket-defaults.css">
+    <link rel="stylesheet" href="./symbolist-defaults.css">
+
+    <script src="./node_modules/d3-selection/dist/d3-selection.min.js"></script>
+    <script src="./node_modules/svg-points/dist/svg-points.js"></script>
+
+  </head>
+  <body>
+
+    <div id="main-div" >
+
+        <div id="main-html" ></div>
+
+        <svg  id="svg" 
+              version="1.1" 
+              baseProfile="full" 
+              xmlns="http://www.w3.org/2000/svg" 
+              xmlns:xlink="http://www.w3.org/1999/xlink" >
+            
+              <defs id="defs"></defs>
+              <g id="main-svg"></g>
+              <g id="symbolist_overlay"></g>
+              
+        </svg>
+    </div>
+
+    <div id="forms">
+      <div id="palette" class="palette">
+        <div id="palette-clefs" class="palette-clefs"></div>
+        <div id="palette-symbols" class="palette-symbols"></div>
+      </div>
+    </div>
+
+    <div id="symbolist_log" class="symbolist_log"><span>new symbolist</span></div>
+ 
+    <script src="drawstarter.js"></script>
+
+  </body>
+</html>

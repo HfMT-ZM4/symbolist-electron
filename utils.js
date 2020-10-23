@@ -1,4 +1,8 @@
 
+function toArray(o)
+{
+    return Array.isArray(o) ? o : [o];
+}
 function JSONprint(obj)
 {
     return JSON.stringify(obj, null, 2 );
@@ -185,5 +189,6 @@ module.exports = {
     JSONprint,
     getValObject,
     make_default_infoDisplay,
-    getCSSFunctionArgs
+    getCSSFunctionArgs,
+    toArray
   }
