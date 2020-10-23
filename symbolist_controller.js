@@ -1,4 +1,5 @@
-const fs = require('fs')
+const fs = require('fs');
+const path = require('path');
 
 
 const sym_util = require('./utils')
@@ -48,12 +49,14 @@ function loadInitFiles(val)
                     console.log('trying to load', staveFile.stave);
 
                     // import user stave js file
-                    let staveDef_ = require(staveFile.stave);
+                    let pathStr = path.dirname(file) + '/';
+
+                    let staveDef_ = require(pathStr + staveFile.stave);
 
                     sym_util.toArray(staveFile.palette).forEach( paletteItem => {
 
                         // import user stave itme js file
-                        const paletteDef_ = require(paletteItem);
+                        const paletteDef_ = require(pathStr + paletteItem);
                         
                         // add to stave palette
                         staveDef_.palette.push( paletteDef_.class );
