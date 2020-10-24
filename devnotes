@@ -12,3 +12,6 @@ so it could be cleaner to switch between browser and electron
 - selction in staves doesnt' work
 - add expression composition interface
 
+
+
+print to pdf https://stackoverflow.com/questions/43015044/electron-printtopdf-from-browserwindow

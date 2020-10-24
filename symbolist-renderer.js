@@ -1,14 +1,17 @@
 
 /* global drawsocket:readonly  */
-const {ipcRenderer} = require('electron')
-const drawsocket = require('./drawsocket_wrapper.js')
+
+/**
+ * symbolist renderer view module -- exported functions are at the the bottom
+ */
+
+const { ipcRenderer } = require('electron')
 
 ipcRenderer.on('draw-input', (event, arg) => {
     console.log(`received ${arg}`);
     
     drawsocket.input(arg)
 })
-
 
 /**
  * handler for special commands from menu that require info about state of view/selection
@@ -22,6 +25,33 @@ ipcRenderer.on('menu-call', (event, arg) => {
     }
     console.log(`menu call received ${arg}`);
 })
+
+ipcRenderer.on('enter-custom-ui', (event, arg) => {
+    console.log('starting custom ui');
+    enterCustomUI(arg);
+})
+
+/**
+ * load and unload custom UI from external file
+ * 
+ */
+function enterCustomUI(filename_)
+{
+    console.log('test', filename_);
+    const userInterface = require(filename_);
+    if( userInterface )
+        userInterface.enter();
+}
+
+function exitCustomUI(filename_)
+{  
+    // removes imported module
+    const userInterface = require.resolve(filename_); // lookup loaded instance of module
+    if( userInterface )
+        userInterface.exit();
+
+    delete require.cache[ userInterface ];
+}
 
 /**
  * globals
@@ -1032,8 +1062,19 @@ function removeSymbolistKeyListeners()
 }
 
 
-addSymbolistMouseHandlers(svgObj);
-addSymbolistKeyListeners();
+function startDefaultEventHandlers()
+{
+    addSymbolistMouseHandlers(svgObj);
+    addSymbolistKeyListeners();
+}
+
+function stopDefaultEventHandlers()
+{
+    removeSymbolistMouseHandlers(svgObj);
+    removeSymbolistKeyListeners();
+}
+
+startDefaultEventHandlers();
 
 
 module.exports = { 
@@ -1041,5 +1082,9 @@ module.exports = {
     setContext: symbolist_setContext,
     send: symbolist_send,
     getObjViewContext,
-    elementToJSON
+    elementToJSON,
+    startDefaultEventHandlers,
+    stopDefaultEventHandlers,
+    enterCustomUI, // called from palette click
+    exitCustomUI // called from custom UI to clean up
  }

@@ -2,6 +2,6 @@
     "name" : "default-palette",
     "loadStaves" : {
         "stave" : "thereminStave.js",
-        "palette" : "thereminStave.noteline.js"
+        "palette" : ["thereminStave.noteline.js", "thereminStave.path.js"]
     }
 }

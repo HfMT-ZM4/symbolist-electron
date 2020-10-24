@@ -56,7 +56,13 @@ function loadInitFiles(val)
                     sym_util.toArray(staveFile.palette).forEach( paletteItem => {
 
                         // import user stave itme js file
-                        const paletteDef_ = require(pathStr + paletteItem);
+                        let paletteDef_ = require(pathStr + paletteItem);
+
+                        // if there is a customUI referenced in the file, add the pathStr
+                        if( paletteDef_.customUI )
+                        {
+                            paletteDef_.customUI = pathStr + paletteDef_.customUI;
+                        }
                         
                         // add to stave palette
                         staveDef_.palette.push( paletteDef_.class );
@@ -214,16 +220,37 @@ function newFromClick(event_)
       //  console.log(`newFromClick data context  ${sym_util.JSONprint( data_context )}`);
         
         let newData = def.newFromClick(event_, data_context);
-        let newView = dataToView(def, newData, data_context, event_.context);
-//        console.log(`newview ${sym_util.JSONprint( newView )}` );
-
-        if( newView.length > 0 )
+        if( newData )
         {
-            process.send({
-                key: 'draw',
-                val: newView
-            }) 
+            if( newData.create )
+            {
+                let newView = dataToView(def, newData.create, data_context, event_.context);
+                //        console.log(`newview ${sym_util.JSONprint( newView )}` );
+                if( newView.length > 0 )
+                {
+                    process.send({
+                        key: 'draw',
+                        val: newView
+                    }) 
+                }
+            }
+            if( newData.script )
+            {
+                // attribute holding name of script to run is here
+                if( def.hasOwnProperty( newData.script ) )
+                {
+                    let scriptFileToLoad = def[ newData.script ];
+
+                    process.send({
+                        key: 'enter-custom-ui',
+                        val: scriptFileToLoad
+                    })
+
+                }
+            }
+
         }
+
         
     }
 

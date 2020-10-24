@@ -164,6 +164,11 @@ if( cluster.isMaster )
 
       win.webContents.send('draw-input', msg.val);
     }
+    else if( msg.key == 'enter-custom-ui' )
+    {
+      win.webContents.send('enter-custom-ui', msg.val);
+    }
+
   //  console.log('main recieved', msg);
   });
   
