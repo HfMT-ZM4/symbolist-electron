@@ -7,6 +7,33 @@
 
 const { ipcRenderer } = require('electron')
 
+/**
+ * globals
+ */
+const svgObj = document.getElementById("svg");
+const mainSVG = document.getElementById("main-svg");
+const overlay = document.getElementById('symbolist_overlay');
+
+let symbolist_log = document.getElementById("symbolist_log");;
+
+let clickedObj = null;
+let prevEventTarget = null;
+let selected = [];
+let selectedCopy = [];
+
+let mousedown_pos = {x: 0, y: 0};
+let mouse_pos = {x: 0, y: 0};
+
+let currentContext = svgObj;
+let currentPaletteClass =  "";
+
+let selectedClass = currentPaletteClass;
+
+
+/**
+ * 
+ */
+
 ipcRenderer.on('draw-input', (event, arg) => {
     console.log(`received ${arg}`);
     
@@ -40,7 +67,7 @@ function enterCustomUI(filename_)
     console.log('test', filename_);
     const userInterface = require(filename_);
     if( userInterface )
-        userInterface.enter();
+        userInterface.enter(mousedown_pos);
 }
 
 function exitCustomUI(filename_)
@@ -52,29 +79,6 @@ function exitCustomUI(filename_)
 
     delete require.cache[ userInterface ];
 }
-
-/**
- * globals
- */
-const svgObj = document.getElementById("svg");
-const mainSVG = document.getElementById("main-svg");
-const overlay = document.getElementById('symbolist_overlay');
-
-let symbolist_log = document.getElementById("symbolist_log");;
-
-let clickedObj = null;
-let prevEventTarget = null;
-let selected = [];
-let selectedCopy = [];
-
-let mousedown_pos = {x: 0, y: 0};
-let mouse_pos = {x: 0, y: 0};
-
-let currentContext = svgObj;
-let currentPaletteClass =  "";
-
-let selectedClass = currentPaletteClass;
-
 
 /**
  *  listener receives all forwarded messages from drawsocket
