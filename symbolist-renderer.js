@@ -62,12 +62,12 @@ ipcRenderer.on('enter-custom-ui', (event, arg) => {
  * load and unload custom UI from external file
  * 
  */
-function enterCustomUI(filename_)
+function enterCustomUI(argObj)
 {
-    console.log('test', filename_);
-    const userInterface = require(filename_);
+    console.log('test', argObj.filename);
+    const userInterface = require(argObj.filename);
     if( userInterface )
-        userInterface.enter(mousedown_pos);
+        userInterface.enter(argObj, mousedown_pos);
 }
 
 function exitCustomUI(filename_)
@@ -553,7 +553,8 @@ function elementToJSON(elm)
         const attr = elm.attributes[i];
         if( attr.specified )
         {
-            if( obj.type === 'path' && attr.name === 'd' ){                
+            if( obj.type === 'path' && attr.name === 'd' && attr.value.length > 0 ){    
+                //console.log(attr);            
                 obj.points = SVGPoints.toPoints({ type: "path", d: attr.value });
             }
 

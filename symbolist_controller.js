@@ -222,9 +222,9 @@ function newFromClick(event_)
         let newData = def.newFromClick(event_, data_context);
         if( newData )
         {
-            if( newData.create )
+            if( newData.data )
             {
-                let newView = dataToView(def, newData.create, data_context, event_.context);
+                let newView = dataToView(def, newData.data, data_context, event_.context);
                 //        console.log(`newview ${sym_util.JSONprint( newView )}` );
                 if( newView.length > 0 )
                 {
@@ -234,16 +234,20 @@ function newFromClick(event_)
                     }) 
                 }
             }
-            if( newData.script )
+
+            if( newData.scriptAttr )
             {
                 // attribute holding name of script to run is here
-                if( def.hasOwnProperty( newData.script ) )
+                if( def.hasOwnProperty( newData.scriptAttr ) )
                 {
-                    let scriptFileToLoad = def[ newData.script ];
+                    let scriptFileToLoad = def[ newData.scriptAttr ];
 
                     process.send({
                         key: 'enter-custom-ui',
-                        val: scriptFileToLoad
+                        val: {
+                            data: newData.data,
+                            filename: scriptFileToLoad,
+                        }
                     })
 
                 }
@@ -387,10 +391,22 @@ function getInfoBoxes(event_)
 
 function castFromString(def, param, value)
 {
-    if( def.paramTypes[param] == "Number" )
-        return Number(value);
-    else
-        return value;
+
+    if( typeof(value) == "String" && def.paramTypes[param] != "String")
+    {
+        if( def.paramTypes[param] == "Number" )
+        {
+            return Number(value);
+        }
+        else if( def.paramTypes[param] == "Array" || def.paramTypes[param] == "Object" )
+        {
+            return JSON.parse(value);
+        }
+        
+    }
+
+    return value;
+   
 }
 
 function updateSymbolData(obj)
