@@ -421,6 +421,11 @@ function getInfoBoxes(event_)
                 }) 
             }
 
+            if( response.event )
+            {
+                input( response.event );
+            }
+
         }
     })
 }
