@@ -331,7 +331,7 @@ function d3_processJSON_SVG_node(node)
         }
         else if( prop === "points" && Array.isArray(node.points) ) // must be an array (i.e. more than one point)
         {
-          console.log('drawsocket', node.points);
+         // console.log('drawsocket', node.points);
           el.attr('d',  SVGPoints.toPath(node.points));
         }
         else if( prop === "child" || prop === "children" || prop === "text" || prop === "html")
