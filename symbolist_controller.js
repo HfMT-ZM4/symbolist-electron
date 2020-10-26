@@ -143,7 +143,7 @@ function makePalette()
     defs.forEach((_def, _key) => { 
         if( _def.hasOwnProperty('getStaveIcon') )
         {
-            draw_msg.push( _def.getStaveIcon() )
+            draw_msg.push( _def.getStaveIcon().view )
         }
     });
 
@@ -174,7 +174,7 @@ function makeSymbolPalette(_classname)
                     const symDef = defs.get(_symbolDefID);
                     if( symDef.hasOwnProperty('getEventIcon') )
                     {
-                        draw_msg.push( symDef.getEventIcon() )
+                        draw_msg.push( symDef.getEventIcon().view )
                     }
 
                 }
@@ -195,6 +195,17 @@ function makeSymbolPalette(_classname)
     }
 }
 
+/**
+ * 
+ * @param {*} def_ 
+ * @param {*} newData_ 
+ * @param {*} data_context 
+ * @param {*} view_context 
+ * 
+ * sets data into model and generates new view display
+ * 
+ * @returns array of new views
+ */
 function dataToView(def_, newData_, data_context, view_context)
 {    
     if( typeof newData_ === 'undefined') {
@@ -208,13 +219,15 @@ function dataToView(def_, newData_, data_context, view_context)
         //if( model.has(val.id) )
         //    console.log('previous data:', model.get(val.id), 'newData: ', val);
         
+      //  console.log('setting val into model', val.id, val )
         model.set( val.id, val );
         
         //const contextID = obj_.hasOwnProperty('context') && obj_.context.hasOwnProperty('id') ? obj_.context.id : obj_.id;
         //const context_dataref = model.has(contextID) ? model.get(contextID) : null;
 
   //      console.log(`dataToView object new ${val.id} data_context ${sym_util.JSONprint(data_context)} view_context ${sym_util.JSONprint(view_context)}`);
-        return def_.fromData(val, data_context, view_context); // null: context data ref is not implemented yet
+        const fromDataResponse = def_.fromData(val, data_context, view_context); // null: context data ref is not implemented yet
+        return fromDataResponse.view;
     });
 
     return newView;
@@ -234,13 +247,14 @@ function newFromClick(event_)
         {
             if( newData.data )
             {
-                let newView = dataToView(def, newData.data, data_context, event_.context);
-                //        console.log(`newview ${sym_util.JSONprint( newView )}` );
-                if( newView.length > 0 )
+                let newViewArray = dataToView(def, newData.data, data_context, event_.context);
+                // dataToView always returns an array
+
+                if( newViewArray.length > 0 )
                 {
                     process.send({
                         key: 'draw',
-                        val: newView
+                        val: newViewArray
                     }) 
                 }
             }
@@ -301,21 +315,23 @@ function applyTransform_recurse(_matrix, _viewobj, _data_context, _view_context)
 
         //console.log('recurse _data_context', _data_context);
 
-        let newData = def.transform(_matrix, _viewobj, _parent_data_context, _parent_view_context);    
-        let newView = dataToView(def, newData, _parent_data_context, _parent_view_context);
 
-        //console.log('recurse newview', newView);
-
-        if( typeof newView !== 'undefined' )
+        let transformResponse = def.transform(_matrix, _viewobj, _parent_data_context, _parent_view_context);
+        if( transformResponse.data )
         {
-            process.send({
-                key: 'draw',
-                val: newView
-            }) 
+            let newViewArray = dataToView(def, transformResponse.data,  _parent_data_context, _parent_view_context); // <<< maybe real context here
+            if( newViewArray.length > 0 )
+            {
+                process.send({
+                    key: 'draw',
+                    val: newViewArray
+                });
+
+                _parent_data_context = transformResponse.data;
+                _parent_view_context = newViewArray;
+            }
         }
 
-        _parent_data_context = newData;
-        _parent_view_context = newView;
 
     }
 
@@ -347,23 +363,27 @@ function applyTransform(event_)
 
                 const transformMatrix = sym_util.matrixFromString(sel.transform);
 
-                let newData = def.transform(transformMatrix, sel, data_context, event_.context);
-                let newView = dataToView(def, newData, data_context, event_.context); // <<< maybe real context here
-                if( newView.length > 0 )
+                let transformResponse = def.transform(transformMatrix, sel, data_context, event_.context);
+                if( transformResponse.data )
                 {
-                    process.send({
-                        key: 'draw',
-                        val: newView
-                    }) 
+                    let newViewArray = dataToView(def, transformResponse.data, data_context, event_.context); // <<< maybe real context here
+                    if( newViewArray.length > 0 )
+                    {
+                        process.send({
+                            key: 'draw',
+                            val: newViewArray
+                        }) 
+                    }
+    
+                    if( sel.hasOwnProperty('children') )
+                    {        
+                        const children = Array.isArray(sel.children) ? sel.children : [sel.children];
+                        children.forEach(val => {
+                            applyTransform_recurse(transformMatrix, val, transformResponse.data, newViewArray);
+                        });
+                    }
                 }
 
-                if( sel.hasOwnProperty('children') )
-                {        
-                    const children = Array.isArray(sel.children) ? sel.children : [sel.children];
-                    children.forEach(val => {
-                        applyTransform_recurse(transformMatrix, val, newData, newView);
-                    });
-                }
             }
             /*
             if( defs.has( sel.class[0] ) )
@@ -391,13 +411,13 @@ function getInfoBoxes(event_)
             const data = model.get(obj.id);
             const view_bbox = obj.bbox;
             
-            const newView = def.getInfoDisplay(data, view_bbox);
+            const response = def.getInfoDisplay(data, view_bbox);
             
-            if( typeof newView != 'undefined')
+            if( response.view )
             {
                 process.send({
                     key: 'draw',
-                    val: newView
+                    val: response.view
                 }) 
             }
 
@@ -427,23 +447,26 @@ function castFromString(def, param, value)
 
 function updateSymbolData(obj)
 {
+    //console.log('updateSymbolData', obj);
+
     if( model.has(obj.id) )
     {
+      //  console.log('test');
+
         let sym = model.get(obj.id);
         const def = defs.get(obj.class);
 
+        //update the symbol's parametrer passed in
         sym[obj.param] = castFromString(def, obj.param, obj.value);
-
-        console.log('update', obj, sym);
         
         const data_context = model.get(obj.view_context.id);
 
-        let newView = dataToView(def, sym, data_context, obj.view_context);
-        if( typeof newView != 'undefined')
+        let newViewArray = dataToView(def, sym, data_context, obj.view_context);
+        if( newViewArray.length > 0)
         {
             process.send({
                 key: 'draw',
-                val: newView
+                val: newViewArray
             }) 
         }
 

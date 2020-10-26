@@ -279,14 +279,18 @@ function setSelectedContext()
  
 function removeSelected()
 {
-    if( selected.length > 0 )
+    if( selected.length > 0 && !document.querySelector('.infobox') )
     {
         let selectedIDs = selected.map( val => val.id );
         drawsocket.input({
             key: 'remove',
             val: selectedIDs
         });  
+
+        return true;
     }
+
+    return false;
         
 }
 
@@ -719,8 +723,8 @@ function symbolist_keydownhandler(event)
             event.symbolistAction = "setContext";
             break;
         case "Backspace":
-            removeSelected();
-            event.symbolistAction = "removeSelected";
+            if( removeSelected() ) // returns true if should really delete (and not in infobox)
+                event.symbolistAction = "removeSelected";
             break;
 
     }
