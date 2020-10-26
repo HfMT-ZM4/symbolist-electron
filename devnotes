@@ -15,3 +15,20 @@ so it could be cleaner to switch between browser and electron
 
 
 print to pdf https://stackoverflow.com/questions/43015044/electron-printtopdf-from-browserwindow
+
+
+
+user scripts
+
+on new object click
+    symbolistEvent creates new data object and generates view from data
+
+    sequece could be:
+    - UI event, sends new click notice and class name to controller
+        controller creates data from symbol def, data creates view
+        - then def calls custom UI to edit the object
+            do we have a data from view?
+                newFromClick, mappings, transform do this
+                better to make a function for that?
+    or
+    - UI event, 

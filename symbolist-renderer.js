@@ -2,6 +2,13 @@
 /* global drawsocket:readonly  */
 
 /**
+ * right now there are separate vars for currentPaletteClass and selectedClass
+ * maybe this is still necessary, but when you select a different type of object,
+ * the UI should change also since the parameters / interaction might be different
+ */
+
+
+/**
  * symbolist renderer view module -- exported functions are at the the bottom
  */
 
@@ -29,10 +36,52 @@ let currentPaletteClass =  "";
 
 let selectedClass = currentPaletteClass;
 
+let uiMap = new Map();
+
+
+/*
+    {
+        call: "enterEditMode",
+        args: data
+    } 
+ */
+ipcRenderer.on('signal-gui-script', (event, arg) => {
+    if( arg.call )
+    {
+        console.log('check', arg);
+        if( uiMap.has(currentPaletteClass) )
+        {
+            console.log('check check', arg.call);
+
+            uiMap.get(currentPaletteClass)[arg.call](arg.args)
+        }
+    }
+    
+})
+
+
 
 /**
+ *  load ui file into map
  * 
+ * format:
+ * {
+ *      classname: 'foo',
+ *      filepath: '/usr/local/scripts/.../foo-ui.js'
+ * }
  */
+ipcRenderer.on('load-ui-file', (event, arg) => {
+    console.log('loading custom ui', arg.classname, arg.filepath);
+
+    const userInterface = require(arg.filepath);
+    
+    if( userInterface ){
+        uiMap.set(arg.classname, userInterface)
+    }
+
+})
+
+
 
 ipcRenderer.on('draw-input', (event, arg) => {
     console.log(`received ${arg}`);
@@ -131,6 +180,14 @@ function symbolist_setClass(_class)
 
     currentPaletteClass = _class;
     selectedClass = _class;
+
+    ipcRenderer.send('symbolist_event',  {
+        key: "symbolistEvent",  
+        val: {
+            symbolistAction: 'setPaletteClass',
+            class: currentPaletteClass
+        }
+    }); 
 
 }
 
@@ -925,6 +982,38 @@ function symbolist_mousedown(event)
     prevEventTarget = _eventTarget;
     
     sendMouseEvent(event, "mousedown");
+
+    callbackCustomUI( event );
+
+}
+
+/**
+ * 
+ * @param {SymbolistMouseEventObject} event passed from mouse event, contains information about context, class etc.
+ * 
+ * this callback system could allow users to trigger GUI actions directly in the view, without going through the controller first
+ */
+
+function callbackCustomUI( event )
+{
+
+    if( uiMap.has(currentPaletteClass) )
+    {
+        const uiDef = uiMap.get(currentPaletteClass);
+
+        switch( event.symbolistAction )
+        {
+            case "newFromClick_down":         
+                if( uiDef.newFromClick )   
+                    uiDef.newFromClick( event );
+
+                break;
+            default:
+                break;
+        }
+    }
+    
+    
 }
 
 function symbolist_mousemove(event)

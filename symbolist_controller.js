@@ -55,13 +55,23 @@ function loadInitFiles(val)
 
                     sym_util.toArray(staveFile.palette).forEach( paletteItem => {
 
-                        // import user stave itme js file
+                        // import user stave item js file
                         let paletteDef_ = require(pathStr + paletteItem);
 
                         // if there is a customUI referenced in the file, add the pathStr
-                        if( paletteDef_.customUI )
+                        // and send to renderer to load into ui lookup
+                        if( paletteDef_.uiFile )
                         {
-                            paletteDef_.customUI = pathStr + paletteDef_.customUI;
+                            // probably don't need to store the path anymore, but whatever
+                            paletteDef_.uiFile = pathStr + paletteDef_.uiFile;
+
+                            process.send({
+                                key: 'load-ui-file',
+                                val: {
+                                    classname: paletteDef_.class,
+                                    filepath: paletteDef_.uiFile
+                                }
+                            })
                         }
                         
                         // add to stave palette
@@ -235,6 +245,12 @@ function newFromClick(event_)
                 }
             }
 
+            if( newData.event )
+            {
+                input( newData.event );
+            }
+/*
+// previous version here... maybe still useful later
             if( newData.scriptAttr )
             {
                 // attribute holding name of script to run is here
@@ -252,7 +268,7 @@ function newFromClick(event_)
 
                 }
             }
-
+*/
         }
 
         
@@ -434,6 +450,14 @@ function updateSymbolData(obj)
     }
 }
 
+function signalGUI(obj)
+{
+    process.send({
+        key: 'signal-gui-script',
+        val: obj
+    }) 
+}
+
 
 function procGuiEvent(event_) {
     switch (event_.symbolistAction) {
@@ -486,6 +510,9 @@ function input(_obj)
             break;
         case 'key':
             procGuiEvent(val);
+            break;
+        case 'signal-gui-script':
+            signalGUI(val);
             break;
         default:
             console.log('controller, unhandled key', key);
