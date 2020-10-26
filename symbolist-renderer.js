@@ -111,7 +111,12 @@ function symbolist_set_log(msg)
     symbolist_log.innerHTML = `<span>${msg}</span>`;
 }
 
-
+/**
+ * 
+ * @param {string} _class sets current selected palette class
+ * 
+ * this functions also could/should tell the controller to send the linked interface js file?
+ */
 function symbolist_setClass(_class)
 {
 //    console.log("symbolist_setClass", _class);
@@ -131,7 +136,7 @@ function symbolist_setClass(_class)
 
 /**
  * 
- * @param {set context from symbolist controller} obj 
+ * @param {Object} obj set context from symbolist controller
  */
 function symbolist_setContext(obj)
 {
