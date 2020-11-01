@@ -471,7 +471,7 @@ function drawsocket_input(obj)
       iter_obj_arr = obj;
     
 
-//  console.log(iter_obj_arr);
+  //console.log('iter_obj_arr', iter_obj_arr);
 
     let wasHandled = true;
 

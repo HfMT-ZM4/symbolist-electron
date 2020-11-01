@@ -247,6 +247,7 @@ function getObjViewContext(obj)
         elm.parentNode && 
         elm.parentNode.id != 'main-svg' && 
         elm.parentNode.id != 'palette' && 
+        //elm.parentNode.id != 'symbolist_overlay' && 
         (currentContext != svgObj && (!elm.parentNode.classList.contains('stave') || 
             !elm.parentNode.classList.contains('stave-events'))) ) 
     {
@@ -292,6 +293,116 @@ function removeSelected()
 
     return false;
         
+}
+
+function getUnionBounds()
+{
+
+    if( selected.length == 0 )
+        return;
+
+    const bounds = cloneObj(selected[0].getBoundingClientRect());
+
+    let l = bounds.left;
+    let r = bounds.right;
+    let t = bounds.top;
+    let b = bounds.bottom;
+
+    for( let i = 1; i < selected.length; i++)
+    {
+            const addBox = selected[i].getBoundingClientRect();
+
+            if( l > addBox.left ){
+                l = addBox.left;
+            }
+            
+            if( r < addBox.right ){
+                r = addBox.right;
+            }
+
+            if( t > addBox.top ){
+                t = addBox.top;
+            }
+            
+            if( b < addBox.bottom ){
+                b = addBox.bottom;
+            }
+
+           // console.log('bounds', bounds);
+    }
+
+
+    function HandleRect(x,y, idx) {
+        const r = 5;
+        const d = r * 2;
+        return {
+            new: "rect",
+            parent: "symbolist_overlay",
+            class: "transform-handle",
+            x: x - r,
+            y: y - r,
+            width: d,
+            height: d,
+            id: `transform-handle-${idx}`,
+            onclick: `console.log( "selected", this.id )`,
+            style: {
+                fill: "rgba(0, 0, 0, 0.05)"
+            }
+        }
+    }
+
+    function BoundsLine(x1,y1,x2,y2) {
+        const r = 2;
+        const d = r * 2;
+        return {
+            new: "line",
+            parent: "bounds-group",
+            class: "transform-line",
+            x1: x - r,
+            y: y - r,
+            width: d,
+            height: d,
+            id: `transform-handle-${idx}`,
+            onclick: `console.log( "selected", this.id )`,
+            style: {
+                fill: "rgba(0, 0, 0, 0.05)"
+            }
+        }
+    }
+    
+    
+
+    drawsocket.input({
+        key: 'svg',
+        val: {
+            new: "g",
+            id: "bounds-group",
+            parent: "symbolist_overlay",
+            children : [
+                HandleRect(l,t, 0),
+                HandleRect(l,b, 1),
+                HandleRect(r,t, 2),
+                HandleRect(r,b, 3),
+                {
+                    new: "rect",
+                    id: "bounds-rect",
+                    x: l,
+                    y: t,
+                    width: r-l,
+                    height: b-t,
+                    style: {
+                        "stroke-width" : 1,
+                        stroke: 'rgba(0,0,0, 0.5)',
+                        fill: "none",
+                        "stroke-dasharray" : 1,
+                        'pointer-events': "none" // "stroke"
+                    }
+                }
+            ]
+        }
+    });
+
+
 }
 
 function hitTest(regionRect, obj)
@@ -355,8 +466,7 @@ function selectedObjectsChanged()
         if( !selectedCopy[i].isEqualNode( selected[i] ) ){
       //      console.log(selectedCopy[i], selected[i] );    
             return true;
-        }
-            
+        }   
         
     }
 
@@ -404,6 +514,11 @@ function deselectAll()
 
     document.querySelectorAll('.infobox').forEach( ibox => {
         ibox.remove();
+    })
+
+    drawsocket.input({
+        key: "remove",
+        val: 'bounds-group'
     })
 
 }
@@ -924,7 +1039,7 @@ function symbolist_mousedown(event)
     
             event.symbolistAction = "selection";
     
-            console.log(`selected object ${clickedObj} selection, event ${_eventTarget.classList}, context ${currentContext.classList}` );
+            //console.log(`selected object ${clickedObj} selection, event ${_eventTarget.classList}, context ${currentContext.classList}` );
     
     //        selectedClass =  clickedObj.classList[0]; // hopefully this will always be correct! not for sure though
     
@@ -941,44 +1056,6 @@ function symbolist_mousedown(event)
     
         }
     }
-
-    /*
-    if( _eventTarget != svgObj && _eventTarget != currentContext )
-    {
-        
-        addToSelection( _eventTarget );
-        clickedObj = _eventTarget;
-
-        event.symbolistAction = "selection";
-
-        console.log(`selected object ${clickedObj} selection, event ${_eventTarget.classList}, context ${currentContext.classList}` );
-
-//        selectedClass =  clickedObj.classList[0]; // hopefully this will always be correct! not for sure though
-
-        if( event.altKey )
-        {
-            copySelected();
-            //clickedObj = copyObjectAndAddToParent(_eventTarget);       
-            //addToSelection( clickedObj );
-        }
-        else if( event.altKey && event.metaKey )
-        {
-            event.symbolistAction = "create_menu";
-        }
-
-    }
-    else
-    {
-
-        if( event.metaKey ){
-            event.symbolistAction = "newFromClick_down";
-        }
-
-        clickedObj = null;
-        selectedClass = currentPaletteClass; // later, get from palette selection
-    }
-    */
-    
 
     mousedown_pos = { x: event.clientX, y: event.clientY };
     mouse_pos = mousedown_pos;
@@ -1092,7 +1169,11 @@ function symbolist_mouseup(event)
         {
             event.symbolistAction = "transformed";
         }
-        
+        else
+        {
+            getUnionBounds();
+
+        }
     }
 
     

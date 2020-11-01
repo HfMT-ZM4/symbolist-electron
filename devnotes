@@ -9,7 +9,6 @@ so it could be cleaner to switch between browser and electron
             that could be an attribute of the 5 line stave
 
 
-- selction in staves doesnt' work
 - add expression composition interface
 
 
