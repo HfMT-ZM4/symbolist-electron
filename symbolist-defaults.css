@@ -78,8 +78,6 @@ svg {
   
 }
 
-
-
 .palette div {
   position: relative;
 
@@ -95,6 +93,10 @@ svg {
   background-color: gray;
 }
 
+.palette-clefs {
+  background-color: rgba(255, 255, 255, 0.0);
+}
+
 .palette-clefs div {
   background-color: inherit;
 
@@ -107,6 +109,10 @@ svg {
   margin: 10%;
   padding: 4%;
 
+}
+
+.palette-symbols {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .palette-symbols div {

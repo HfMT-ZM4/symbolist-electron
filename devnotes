@@ -31,3 +31,28 @@ on new object click
                 better to make a function for that?
     or
     - UI event, 
+
+on palette selection:
+1) enters create symbol UI, sets limits and range of possible creation,
+    for example, quantized to scale degrees etc.
+
+on selection:
+1) enter symbol UI, which sets possible types of transformation (translation mode)
+
+after selection
+1) possibility to go into edit mode, similar to creation mode
+
+
+so for general selection, we can keep the drag area rect
+in illustrator there are different tools that can perform the same types of actions on the objects
+in symbolist right now you need to hold down the cmd key which is like selecting the symbol palette icon to create the symbol, rather than selecting -- maybe this is still an interesting why to go...
+
+sine we may sill want to create symbols by drawing rather than importing them.
+
+TO DO:
+revise symbols to use modes to customize the UI
+
+translation should not necesarily be a built in edit UI, for example maybe translation means somethind different in different contexts. the idea from before was that the stave would define a concept of organization of it's symbols, be it in time, or some other aspect, like space
+
+
+

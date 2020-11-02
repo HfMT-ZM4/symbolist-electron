@@ -164,15 +164,12 @@ if( cluster.isMaster )
 
       win.webContents.send('draw-input', msg.val);
     }
-    else if( msg.key == 'load-ui-file')
+    else
     {
-      win.webContents.send('load-ui-file', msg.val);
+      win.webContents.send(msg.key, msg.val);
 
     }
-    else if( msg.key == 'signal-gui-script' )
-    {
-      win.webContents.send('signal-gui-script', msg.val);
-    }
+    
 
   //  console.log('main recieved', msg);
   });

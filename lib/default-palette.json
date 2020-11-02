@@ -1,7 +1,10 @@
 {
     "name" : "default-palette",
-    "loadStaves" : {
+    "loadStaves" : [{
         "stave" : "thereminStave.js",
         "palette" : ["thereminStave.noteline.js", "thereminStave.path.js"]
-    }
+    }, {
+        "stave" : "basicStave.js",
+        "palette" : []
+    }]
 }

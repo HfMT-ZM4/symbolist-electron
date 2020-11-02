@@ -73,6 +73,12 @@ ipcRenderer.on('signal-gui-script', (event, arg) => {
 ipcRenderer.on('load-ui-file', (event, arg) => {
     console.log('loading custom ui', arg.classname, arg.filepath);
 
+    // should exit in case we are already running a custom script here?
+    const removeUI = require.resolve(arg.filepath); // lookup loaded instance of module
+    if( removeUI )
+        delete require.cache[ removeUI ];
+
+
     const userInterface = require(arg.filepath);
     
     if( userInterface ){
@@ -165,6 +171,7 @@ function symbolist_set_log(msg)
  * @param {string} _class sets current selected palette class
  * 
  * this functions also could/should tell the controller to send the linked interface js file?
+ * 
  */
 function symbolist_setClass(_class)
 {
@@ -180,6 +187,11 @@ function symbolist_setClass(_class)
 
     currentPaletteClass = _class;
     selectedClass = _class;
+
+    if( uiMap.has('enterCreationMode') )
+    {
+
+    }
 
     ipcRenderer.send('symbolist_event',  {
         key: "symbolistEvent",  
@@ -426,7 +438,8 @@ function recursiveHitTest(region, element)
     {
         if( recursiveHitTest(region, element.children[i]) )
             return true;
-        //console.log(mainSVG.children[i].tagName);
+        
+           // console.log(element.children[i].tagName);
     }
 
     return false;
@@ -493,6 +506,7 @@ function selectAllInRegion(region, element)
     if( contextContent == null )
         contextContent = currentContext;
 
+    console.log(contextContent);
     for (let i = 0; i < contextContent.children.length; i++) 
     {
         if( recursiveHitTest(region, contextContent.children[i]) )
@@ -1171,8 +1185,8 @@ function symbolist_mouseup(event)
         }
         else
         {
+            // only call getUnionBounds if there is no custom transform function
             getUnionBounds();
-
         }
     }
 
