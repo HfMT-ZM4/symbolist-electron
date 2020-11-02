@@ -1,3 +1,4 @@
+
 consider making override option for drawsocket.send
 so it could be cleaner to switch between browser and electron
 (overriding to ipcRenderer.send)
@@ -54,5 +55,9 @@ revise symbols to use modes to customize the UI
 
 translation should not necesarily be a built in edit UI, for example maybe translation means somethind different in different contexts. the idea from before was that the stave would define a concept of organization of it's symbols, be it in time, or some other aspect, like space
 
+
+
+key thing to remember: view and model use the same ids, so the "data_context" will have the same id as the "view_context"
+therefore, a graphic object can be interpreted into data via mapping (in the controller still probably) and use the view_context as the parent
 
 

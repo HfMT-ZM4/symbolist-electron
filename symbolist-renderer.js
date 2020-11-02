@@ -215,11 +215,18 @@ function symbolist_setContext(obj)
         el.classList.remove("current_context");
     });
 
+    if( uiMap.has(obj.classList[0]) )
+    {
+        uiMap.get(obj.classList[0]).enter(obj);
+    }
+
     if( obj != svgObj )
         obj.classList.add("current_context");
 
     currentContext = obj;
     symbolist_set_log(`set context to ${obj.id}`)
+
+
 
     //  if( _class != currentPaletteClass )
     {
@@ -506,7 +513,7 @@ function selectAllInRegion(region, element)
     if( contextContent == null )
         contextContent = currentContext;
 
-    console.log(contextContent);
+    //console.log(contextContent);
     for (let i = 0; i < contextContent.children.length; i++) 
     {
         if( recursiveHitTest(region, contextContent.children[i]) )
@@ -1228,23 +1235,23 @@ function symbolist_mouseleave(event)
 
 function addSymbolistMouseHandlers(element)
 {
-    element.addEventListener("mousedown", symbolist_mousedown, true);
-    element.addEventListener("mousemove", symbolist_mousemove, true);
-    element.addEventListener("mouseup", symbolist_mouseup, true);
-    element.addEventListener("mouseover", symbolist_mouseover, true);
-    element.addEventListener("mouseleave", symbolist_mouseleave, true);
-    element.addEventListener("dblclick", symbolsit_dblclick, true);
+    element.addEventListener("mousedown", symbolist_mousedown);
+    element.addEventListener("mousemove", symbolist_mousemove);
+    element.addEventListener("mouseup", symbolist_mouseup);
+    element.addEventListener("mouseover", symbolist_mouseover);
+    element.addEventListener("mouseleave", symbolist_mouseleave);
+    element.addEventListener("dblclick", symbolsit_dblclick);
 
 }
 
 function removeSymbolistMouseHandlers(element)
 {
-    element.removeEventListener("mousedown", symbolist_mousedown, true);
-    element.removeEventListener("mousemove", symbolist_mousemove, true);
-    element.removeEventListener("mouseup", symbolist_mouseup, true);
-    element.removeEventListener("mouseover", symbolist_mouseover, true);
-    element.removeEventListener("mouseleave", symbolist_mouseleave, true);
-    element.removeEventListener("dblclick", symbolsit_dblclick, true);
+    element.removeEventListener("mousedown", symbolist_mousedown);
+    element.removeEventListener("mousemove", symbolist_mousemove);
+    element.removeEventListener("mouseup", symbolist_mouseup);
+    element.removeEventListener("mouseover", symbolist_mouseover);
+    element.removeEventListener("mouseleave", symbolist_mouseleave);
+    element.removeEventListener("dblclick", symbolsit_dblclick);
 }
 
 function addSymbolistKeyListeners()
@@ -1281,6 +1288,7 @@ module.exports = {
     send: symbolist_send,
     getObjViewContext,
     elementToJSON,
+    translate,
     startDefaultEventHandlers,
     stopDefaultEventHandlers,
     enterCustomUI, // called from palette click

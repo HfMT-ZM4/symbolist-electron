@@ -46,12 +46,26 @@ function loadInitFiles(val)
                 let stavesToLoad = initObj.loadStaves;
 
                 sym_util.toArray(stavesToLoad).forEach( staveFile => {
-                    console.log('trying to load', staveFile.stave);
 
                     // import user stave js file
                     let pathStr = path.dirname(file) + '/';
 
+                    console.log('trying to load', pathStr + staveFile.stave);
+
                     let staveDef_ = require(pathStr + staveFile.stave);
+
+                    if( staveDef_.uiFile )
+                    {
+                        staveDef_.uiFile = pathStr + staveDef_.uiFile;
+
+                        process.send({
+                            key: 'load-ui-file',
+                            val: {
+                                classname: staveDef_.class,
+                                filepath: staveDef_.uiFile
+                            }
+                        })
+                    }
 
                     sym_util.toArray(staveFile.palette).forEach( paletteItem => {
 
