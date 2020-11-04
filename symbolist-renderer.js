@@ -188,9 +188,9 @@ function symbolist_setClass(_class)
     currentPaletteClass = _class;
     selectedClass = _class;
 
-    if( uiMap.has('enterCreationMode') )
+    if( uiMap.has(selectedClass) && uiMap.get(selectedClass).hasOwnProperty('enter') )
     {
-
+        uiMap.get(selectedClass).enter();
     }
 
     ipcRenderer.send('symbolist_event',  {
@@ -1282,6 +1282,18 @@ function stopDefaultEventHandlers()
 startDefaultEventHandlers();
 
 
+function getContextConstraintsForPoint(pt)
+{
+    if( uiMap.has( currentContext.classList[0]) )
+    {
+        return uiMap.get( currentContext.classList[0] ).getConstraintsForPoint( currentContext, pt );
+    }
+    else
+    {
+        return pt;
+    }
+}
+
 module.exports = { 
     setClass: symbolist_setClass, 
     setContext: symbolist_setContext,
@@ -1291,6 +1303,7 @@ module.exports = {
     translate,
     startDefaultEventHandlers,
     stopDefaultEventHandlers,
+    getContextConstraintsForPoint,
     enterCustomUI, // called from palette click
     exitCustomUI // called from custom UI to clean up
  }

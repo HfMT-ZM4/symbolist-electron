@@ -33,9 +33,20 @@ function deleteSelected()
 }
 
 
+function buildModelLookup()
+{
+  controller_proc.send({
+    key: 'symbolistEvent',
+    val : {
+      symbolistAction: 'buildModelLookup'
+    }
+  });
+}
+
 module.exports = {
     init,
     loadFiles,
-    deleteSelected
+    deleteSelected,
+    buildModelLookup
 }
 

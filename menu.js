@@ -40,7 +40,13 @@ const template = [
             click: async () => {
                 actions.loadFiles();
             }
-        }
+        },
+        { 
+          label: 'Build Model Lookup...',
+          click: async () => {
+              actions.buildModelLookup();
+          }
+      }
     ]
   },
   // { role: 'editMenu' }

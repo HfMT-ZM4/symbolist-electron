@@ -59,5 +59,13 @@ translation should not necesarily be a built in edit UI, for example maybe trans
 
 key thing to remember: view and model use the same ids, so the "data_context" will have the same id as the "view_context"
 therefore, a graphic object can be interpreted into data via mapping (in the controller still probably) and use the view_context as the parent
+newFromClick will still get used
 
+- set stave as context
+- icons appear
+- select icon
+- ghost position preview appears limited by stave -- but calcuated in the symbol? how does the symbol know about the parent context?
+
+
+previously i was trying to stick with the MVC pattern, and work with the idea that the view objects would be really updated by the def, since it might override the view update -- and i stil think that is interesting, but now since we will have scripts read by the view as well, i think it makes more sense to have the view apply the transform (which it is already doing? is that a dummy object?) and then the def can update the model from the upated view object, and will still have the opiton to limit or change the data based on that , so the view should still be updated after the data is updated.
 

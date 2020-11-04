@@ -500,6 +500,16 @@ function signalGUI(obj)
     }) 
 }
 
+function buildModelLookup()
+{
+    console.log('ok will do');
+
+    let array = [ ...model.entries() ];
+    array.forEach( v => {
+        console.log(v);
+    })
+}
+
 
 function procGuiEvent(event_) {
     switch (event_.symbolistAction) {
@@ -522,6 +532,9 @@ function procGuiEvent(event_) {
             break;
         case "removeSelected":
             removeSelected(event_);
+            break;
+        case 'buildModelLookup':
+            buildModelLookup();
             break;
         default:
             console.log('unhandled symbolistAction:', event_.symbolistAction);
