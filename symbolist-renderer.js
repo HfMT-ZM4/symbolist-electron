@@ -648,7 +648,7 @@ function isNumeric(value) {
     return !isNaN(value - parseFloat(value));
 }
 
-function fairlyUniqueNumber() {
+function fairlyUniqueString() {
     return (
       Number(String(Math.random()).slice(2)) + 
       Date.now() + 
@@ -660,7 +660,7 @@ function makeUniqueID(obj)
 {
     let tok = obj.id.split("_u_");
     let base = ( tok.length == 1 ) ? tok : tok[0];
-    let newId = base+'_u_'+fairlyUniqueNumber();
+    let newId = base+'_u_'+fairlyUniqueString();
     return newId;
 }
 
@@ -884,7 +884,7 @@ function sendMouseEvent(event, caller)
 
     const toplevelObj = getTopLevel(event.target);
     
-    const _id = ( event.target.id == "svg" || toplevelObj.id == currentContext.id ) ? selectedClass+'_u_'+fairlyUniqueNumber() : toplevelObj.id;
+    const _id = ( event.target.id == "svg" || toplevelObj.id == currentContext.id ) ? selectedClass+'_u_'+fairlyUniqueString() : toplevelObj.id;
 
   //  console.log(_id, selectedClass, toplevelObj.id, currentContext);
    
@@ -1300,6 +1300,7 @@ module.exports = {
     send: symbolist_send,
     getObjViewContext,
     elementToJSON,
+    fairlyUniqueString,
     translate,
     startDefaultEventHandlers,
     stopDefaultEventHandlers,

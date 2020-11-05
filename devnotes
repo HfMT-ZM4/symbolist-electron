@@ -69,3 +69,10 @@ newFromClick will still get used
 
 previously i was trying to stick with the MVC pattern, and work with the idea that the view objects would be really updated by the def, since it might override the view update -- and i stil think that is interesting, but now since we will have scripts read by the view as well, i think it makes more sense to have the view apply the transform (which it is already doing? is that a dummy object?) and then the def can update the model from the upated view object, and will still have the opiton to limit or change the data based on that , so the view should still be updated after the data is updated.
 
+
+page.staves = [ staveid, staveid, ... ]
+
+stave.events = [ eventid, eventid, ... ]
+
+
+

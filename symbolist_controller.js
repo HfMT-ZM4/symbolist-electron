@@ -1,15 +1,31 @@
 const fs = require('fs');
 const path = require('path');
-
-
 const sym_util = require('./utils')
 
+/**
+ * 
+ * @param {string} path -- path to file to require, relative to symbolist root folder
+ */
+global.root_require = function(path) {
+    return require(__dirname + '/' + path);
+}
+
 const defaultContext = {
-    class: "svg",
+    id: "svg-root", // unique id used as key for model Map()
+    class: "svg", // required for lookup in to defs
+    //  data items (user defined):  <-- should this be wrapped to protect scope?
     x: 0,
     y: 0,
     width: 800,
-    height: 600
+    height: 600,
+    // sorting for child objects using data items
+    comparator: (a,b) => { 
+        return (a.time < b.time ? -1 : (a.time == b.time ? 0 : 1));
+    },
+    // use utills.insertSorted(el, arr, comparator)
+    children: [],
+    // id of parent, for the root element this is null
+    parent: null
 }
 
 // to do: automate adding symbols to stave palette def, so we can load files dynamically
@@ -20,8 +36,27 @@ const notelines = require('./thereminStave.noteline')
 theremin.palette.push( notelines.class );
 */
 
-let model = new Map();
+
+/**
+ * model
+ * 
+ * key: unique_id
+ * value:   {
+ *              id: xxx,
+ *              class: xxxx,
+ *              parent: parent object (base level is the main svg window)
+ *              comparator: function used to sort children
+ *              children: [ child_ids, child_ids, ... ] 
+ *                  sorted array of child_ids, use utills.insertSorted(el, arr, comparator_fn)
+ *          }
+ *      
+ * 
+ * 
+ */
+
 let defs = new Map();
+let model = new Map();
+
 
 function loadInitFiles(val)
 {
@@ -209,6 +244,58 @@ function makeSymbolPalette(_classname)
     }
 }
 
+
+
+function addToModel( dataobj )
+{
+    //  console.log('setting val into model', val.id, val )
+    if( model.has(dataobj.id) )
+    {
+        let ref = model.get(dataobj.id);
+        for (const [key, value] of Object.entries(dataobj)) 
+        {
+            ref[key] = value;
+            console.log(`updating value ${key}: ${value}`);
+        }    
+    }
+    else
+        model.set( dataobj.id, dataobj );
+        
+    if( model.has(dataobj.parent) )
+    {
+        let parent = model.get(dataobj.parent);
+        let parentDef = defs.get(parent.class);
+
+        if( !parentDef.hasOwnProperty('comparator') )
+        {
+            console.log(`no comparator for ${JSON.stringify(parent, null, 2)}`);
+        }
+        else
+        {
+            if( typeof parent.children == "undefined" )
+                parent.children = []
+
+            console.log(`insterting sorted ${JSON.stringify(dataobj, null, 2)} into ${JSON.stringify(parent, null, 2)}`);
+
+            const index = parent.children.indexOf(dataobj.id);
+            if (index > -1) {
+                parent.children.splice(index, 1);
+            }
+
+            sym_util.insertSorted(dataobj.id, parent.children, (a,b) => {
+                const test_a = model.get(a);
+                if( typeof test_a == "undefined" ) return 0;
+
+                const test_b = model.get(b);
+                if( typeof test_b == "undefined"  ) return 0;
+
+                return parentDef.comparator( test_a, test_b )
+            })
+        }
+        
+    }
+}
+
 /**
  * 
  * @param {*} def_ 
@@ -233,8 +320,21 @@ function dataToView(def_, newData_, data_context, view_context)
         //if( model.has(val.id) )
         //    console.log('previous data:', model.get(val.id), 'newData: ', val);
         
+    //    model.set( val.id, val );
+
+        addToModel( val );
+        /*
       //  console.log('setting val into model', val.id, val )
         model.set( val.id, val );
+        if( model.has(val.parent) )
+        {
+            let parent = model.get(val.parent);
+            utils.insertSorted(val.id, parent.children, (a,b) => {
+                return parent.comparator( model.get(a), model.get(b) )
+            } )
+            
+        }
+        */
         
         //const contextID = obj_.hasOwnProperty('context') && obj_.context.hasOwnProperty('id') ? obj_.context.id : obj_.id;
         //const context_dataref = model.has(contextID) ? model.get(contextID) : null;
@@ -303,6 +403,8 @@ function newFromClick(event_)
     }
 
 }
+
+// once children ids are logged in model, we can use that to delete the child ids from model
 
 function removeSelected(event_)
 {
@@ -516,7 +618,7 @@ function procGuiEvent(event_) {
         case "getClefSymbols":            
             makeSymbolPalette(event_.class[0]);
             break;
-        case "removeFromViewCache":
+        case "removeFromViewCache": 
             break;
         case "newFromClick_down":
             newFromClick(event_);
