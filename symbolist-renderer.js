@@ -2,6 +2,13 @@
 /* global drawsocket:readonly  */
 
 /**
+ * applying translation to the svg element attributes is now working
+ * next need to offset attributes to container bbox before sending to "fromView" function in controller
+ */
+
+
+
+/**
  * right now there are separate vars for currentPaletteClass and selectedClass
  * maybe this is still necessary, but when you select a different type of object,
  * the UI should change also since the parameters / interaction might be different
@@ -551,44 +558,105 @@ function deltaPt(ptA, ptB)
 {
     return { x: ptA.x - ptB.x, y: ptA.y - ptB.y };
 }
-/*
-function calcTransform(matrix, _x, _y)
+
+
+function calcTransform(matrix, pt)
 {  
     return { 
-        x: matrix.a * _x + matrix.c * _y + matrix.e, 
-        y: matrix.b * _x + matrix.d * _y + matrix.f
+        x: matrix.a * pt.x + matrix.c * pt.y + matrix.e, 
+        y: matrix.b * pt.x + matrix.d * pt.y + matrix.f
     }   
 }
 
-
-function applyTransform(obj)
-{
-    let matrix = obj.getCTM();
-
+/**
+ * 
+ * @param {Object} obj 
+ * 
+ * the function gets the tranformation matrix and adjusts the SVG parameters to the desired values
+ * 
+ */
+function applyTransformRecusive(obj, matrix)
+{    
     let x, y;
-
-
+// add scaling eventually
     switch ( obj.tagName )
     {
+        case "g":
+            {
+                obj.childNodes.forEach(node => {
+                    applyTransformRecusive(node, matrix);
+                });
+            }
+            break;
         case "circle":
             {
                 x = obj.getAttribute("cx");
                 y = obj.getAttribute("cy");
-                const newpt = calcTransform(matrix, x, y)
+                const newpt = calcTransform(matrix, { x, y } )
                 obj.setAttribute("cx", newpt.x );
                 obj.setAttribute("cy", newpt.y );
             }
             break;
         case "rect":
+            {
+                x = obj.getAttribute("x");
+                y = obj.getAttribute("y");
+                const newpt = calcTransform(matrix, { x, y } )
+                obj.setAttribute("x", newpt.x );
+                obj.setAttribute("y", newpt.y );
+            }
+            break;
+        case "line":
+            {
+                x = obj.getAttribute("x1");
+                y = obj.getAttribute("y1");
+                const newpt = calcTransform(matrix, { x, y } )
+                obj.setAttribute("x1", newpt.x );
+                obj.setAttribute("y1", newpt.y );
+
+                x = obj.getAttribute("x2");
+                y = obj.getAttribute("y2");
+                const newpt2 = calcTransform(matrix, { x, y } )
+                obj.setAttribute("x2", newpt2.x );
+                obj.setAttribute("y2", newpt2.y );
+            }
             break;
         case "path":
             break;                
         default:
             break;
     }
-}
-*/
 
+    obj.removeAttribute('transform');
+}
+
+/**
+ * 
+ * @param {Object} obj element to transform, which should already have a transform initialized
+ * 
+ * the applyTransform function applies the transform matrix refcursively for all children of the object
+ * and then removes the object's transform matrix
+ */
+function applyTransform(obj)
+{
+    let matrix = obj.getCTM();
+    //matrix = ( typeof matrix == "undefined" ) ? obj.getCTM() : {a: 1, b: 0, c: 0, d: 1, e: 0, f:0 } : 
+
+    applyTransformRecusive( obj, matrix)
+}
+
+/**
+ * 
+ * @param {Object} obj element to trasnlate
+ * @param {Object} delta_pos point {x,y} of translation delta from the object attribute settings
+ * 
+ * function applies transaltion and updates position of object, via transform without updating SVG attributes
+ * this is done via the transform list since it works on the top level <g> object
+ * 
+ * once the transformation is complete, it should be applied to the child objects so that the mapping works more easiy in the controller
+ * 
+ * 
+ *  */
 function translate(obj, delta_pos)
 {
     if( !obj )
@@ -1188,7 +1256,12 @@ function symbolist_mouseup(event)
         
         if( selectedObjectsChanged() ) // _eventTarget != svgObj
         {
-            event.symbolistAction = "transformed";
+            //event.symbolistAction = "transformed";
+
+            
+            selected.forEach(sel => {
+                applyTransform(sel);
+            })
         }
         else
         {

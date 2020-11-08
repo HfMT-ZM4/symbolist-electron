@@ -6,15 +6,6 @@ console.log(foo);
 
 
 
-const b = require('./module-test');
-
-
-b.view.bar();
-
-console.log(b.bar);
-
-
-
 /**
  * 
  * @param {*} element element to insert
@@ -63,3 +54,16 @@ insertSorted(element, array, (a,b) => {
 });
 
 console.log( array );
+
+let obj1 = {
+    a: 1,
+    b: 2
+}
+
+let obj2 = {
+    a: 3,
+    c: 4
+}
+
+console.log({ ...obj2, ...obj1 });
+console.log({ ...obj1, ...obj2 });
