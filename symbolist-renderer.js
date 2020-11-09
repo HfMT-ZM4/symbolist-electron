@@ -570,7 +570,8 @@ function calcTransform(matrix, pt)
 
 /**
  * 
- * @param {Object} obj 
+ * @param {Object} obj element to transform
+ * @param {Object} matrix transform matrix
  * 
  * the function gets the tranformation matrix and adjusts the SVG parameters to the desired values
  * 
@@ -684,6 +685,20 @@ function translate_selected(delta_pos)
       //  console.log('translate_selected', selected[i]);        
         translate(selected[i], delta_pos);
     }
+}
+
+
+function makeRelative(obj, container)
+{
+    let containerBBox = container.getBoundingClientRect();
+
+    // assumes that the translation has been applied already
+    let matrix = obj.getCTM();
+    matrix.e = -containerBBox.x;
+    matrix.f = -containerBBox.y;
+
+    applyTransformRecusive(obj, matrix);
+
 }
 
 
@@ -1375,6 +1390,8 @@ module.exports = {
     elementToJSON,
     fairlyUniqueString,
     translate,
+    applyTransform,
+    makeRelative,
     startDefaultEventHandlers,
     stopDefaultEventHandlers,
     getContextConstraintsForPoint,

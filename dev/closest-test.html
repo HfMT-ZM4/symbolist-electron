@@ -1,0 +1,15 @@
+<div class="foo container">
+    <div class="foo display">hey</div>
+
+    <div class="foo contents">
+        <div id="bar" class="bar foo event">
+            <div class="foo lol">lol</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let bar = document.querySelector('#bar');
+    let display = bar.closest('.lol');
+    console.log(display);
+</script>
