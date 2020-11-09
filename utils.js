@@ -163,7 +163,7 @@ function make_parms_inputs(dataobj)
 }
 
 
-function make_default_infoDisplay(dataobj, bbox)
+function makeDefaultInfoDisplay(dataobj, bbox)
 {
     return {
               key : "html",
@@ -252,7 +252,7 @@ module.exports = {
     applyTransform,
     JSONprint,
     getValObject,
-    make_default_infoDisplay,
+    makeDefaultInfoDisplay,
     getCSSFunctionArgs,
     toArray,
     insertSorted

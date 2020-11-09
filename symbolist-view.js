@@ -2,6 +2,20 @@
 /* global drawsocket:readonly  */
 
 /**
+ * applying translation to the svg element attributes is now working
+ * next need to offset attributes to container bbox before sending to "fromView" function in controller
+ */
+
+
+
+/**
+ * right now there are separate vars for currentPaletteClass and selectedClass
+ * maybe this is still necessary, but when you select a different type of object,
+ * the UI should change also since the parameters / interaction might be different
+ */
+
+
+/**
  * symbolist renderer view module -- exported functions are at the the bottom
  */
 
@@ -29,73 +43,7 @@ let currentPaletteClass =  "";
 
 let selectedClass = currentPaletteClass;
 
-
-// hierarchical storage of class names
-/**
- * {
- *      nameofcontainer : [ nameofobject, nameofobject, ..., or { nameofobject: [list if is a container] } ]
- * 
- *  or easier, just use the same way as we already did in the controller, save the palette names in the def
- * and look up the palette value when selecting that class.
- * 
- * }
- */
-
-
-let paletteMap = {
-    main: []
-};
-
-// ui defs stored in flat structure, lookup by classname
 let uiMap = new Map();
-
-
-function makeSymbolPaletteForContainer(_classname)
-{
-    console.log('makeSymbolPaletteForContainer ', _classname);
-
-    if( paletteMap.has(_classname) )
-    {
-        const clef = paletteMap.get(_classname);
-        if( clef.hasOwnProperty('palette') )
-        {
-            //console.log('building symbol palette');
-            
-            let draw_msg = [];
-            for( _symbolDefID of clef.palette )
-            {   
-                //console.log('checking for ', _symbolDefID);
-
-                if( defs.has(_symbolDefID) )
-                {
-                    const symDef = defs.get(_symbolDefID);
-                    if( symDef.hasOwnProperty('getEventIcon') )
-                    {
-                        draw_msg.push( symDef.getEventIcon().view )
-                    }
-
-                }
-            }
-
-            if( draw_msg.length > 0 )
-            {
-                process.send({
-                    key: 'draw',
-                    val: [{
-                        key: "clear",
-                        val: "palette-symbols"
-                    }, ...draw_msg]
-                }) 
-            }
-            
-        }
-    }
-}
-
-
-
-
-
 
 
 /*
@@ -1428,19 +1376,11 @@ function getContextConstraintsForPoint(pt)
     }
 }
 
-/**
- * returns Element Node of currently selected context
- */
-function getCurrentContext(){
-    return currentContext;
-}
-
 module.exports = { 
     setClass: symbolist_setClass, 
     setContext: symbolist_setContext,
     send: symbolist_send,
     getObjViewContext,
-    getCurrentContext,
     elementToJSON,
     fairlyUniqueString,
     translate,

@@ -75,4 +75,10 @@ page.staves = [ staveid, staveid, ... ]
 stave.events = [ eventid, eventid, ... ]
 
 
+a difference between the drawsocket and symbolist_renderer format of objects is that drawsocket uses the 'new' tag 
+maybe we should change that? maybe not... new makes drawsocket remove the old object and overwrite a new one in its place.
+
+symbolist_renderer sends back a "type" tag instead of new... 
+
+
 

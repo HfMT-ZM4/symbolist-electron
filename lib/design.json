@@ -1,0 +1,7 @@
+{
+    "name" : "design",
+    "loadStaves" : [{
+        "stave" : "rectangleStave.js",
+        "palette" : ["rectangleStave.event.js"]
+    }]
+}
