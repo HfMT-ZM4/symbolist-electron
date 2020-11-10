@@ -30,24 +30,114 @@ let currentPaletteClass =  "";
 let selectedClass = currentPaletteClass;
 
 
-// hierarchical storage of class names
 /**
+ * uiDefs stores UI defs in flat array, lookup by classname
+ * 
+ * definitions have a palette array that stores the classNames of potential child types
+ *  */ 
+let uiDefs = new Map();
+
+let renderer_api = {
+    drawsocketInput,
+    sendToController, // renderer-event
+    fairlyUniqueString,
+}
+
+ipcRenderer.on('load-ui-defs', (event, arg) => {
+
+    console.log('loading files:', arg);
+
+    // load controller def
+    let { ui } = require(arg);
+
+    // initialize def with api
+    let cntrlDef_ = ui(renderer_api);
+
+    // set into def map
+    uiDefs.set(cntrlDef_.className, cntrlDef_);
+   
+})
+
+ipcRenderer.on('init', (event, filepath) => {
+
+    const exists = require.resolve(filepath); 
+    if( exists )
+        delete require.cache[ exists ];
+
+    let init = require(filepath)
+
+    if( init.hasOwnProperty('palette') )
+    {
+        let drawMsgs = [];
+        init.palette.forEach( el => {
+            let def_ = uiDefs.get(el);
+
+            const def_classname = def_.className;
+            let def_palette_display = def_.getPaletteIcon();
+
+            if( def_palette_display.key == "svg" )
+            {
+                def_palette_display = {
+                    new: "svg",
+                    id: `${def_classname}-icon`,
+                    children: def_palette_display.val
+                }
+            }
+
+            drawMsgs.push({
+                key: "html",
+                val: {
+                    new: "div",
+                    id: `${def_classname}-paletteIcon`,
+                    parent: "palette-clefs",
+                    onclick: `
+                            console.log('select ${def_classname}'); 
+                            symbolist.setClass('${def_classname}');
+                        `,
+                    children: def_palette_display
+                }
+            })
+        })
+
+        drawsocket.input([{
+                key: "clear",
+                val: "palette-symbols"
+            }, ...drawMsgs
+        ]) 
+    }
+
+    // in controller there is a defautlContext class, probably we should do the same
+    console.log('initFile', init);
+})
+
+
+/**
+ *  load ui file into map
+ * 
+ * format:
  * {
- *      nameofcontainer : [ nameofobject, nameofobject, ..., or { nameofobject: [list if is a container] } ]
- * 
- *  or easier, just use the same way as we already did in the controller, save the palette names in the def
- * and look up the palette value when selecting that class.
- * 
+ *      classname: 'foo',
+ *      filepath: '/usr/local/scripts/.../foo-ui.js'
  * }
  */
+/*
+ipcRenderer.on('load-ui-file', (event, arg) => {
+    console.log('loading custom ui', arg.classname, arg.filepath);
+
+    // should exit in case we are already running a custom script here?
+    const removeUI = require.resolve(arg.filepath); // lookup loaded instance of module
+    if( removeUI )
+        delete require.cache[ removeUI ];
 
 
-let paletteMap = {
-    main: []
-};
+    const userInterface = require(arg.filepath);
+    
+    if( userInterface ){
+        uiDefs.set(arg.classname, userInterface)
+    }
 
-// ui defs stored in flat structure, lookup by classname
-let uiMap = new Map();
+})
+*/
 
 
 function makeSymbolPaletteForContainer(_classname)
@@ -108,11 +198,11 @@ ipcRenderer.on('signal-gui-script', (event, arg) => {
     if( arg.call )
     {
         console.log('check', arg);
-        if( uiMap.has(currentPaletteClass) )
+        if( uiDefs.has(currentPaletteClass) )
         {
             console.log('check check', arg.call);
 
-            uiMap.get(currentPaletteClass)[arg.call](arg.args)
+            uiDefs.get(currentPaletteClass)[arg.call](arg.args)
         }
     }
     
@@ -120,33 +210,14 @@ ipcRenderer.on('signal-gui-script', (event, arg) => {
 
 
 
+
 /**
- *  load ui file into map
  * 
- * format:
- * {
- *      classname: 'foo',
- *      filepath: '/usr/local/scripts/.../foo-ui.js'
- * }
+ * @param {Object} obj input to drawsocket
  */
-ipcRenderer.on('load-ui-file', (event, arg) => {
-    console.log('loading custom ui', arg.classname, arg.filepath);
-
-    // should exit in case we are already running a custom script here?
-    const removeUI = require.resolve(arg.filepath); // lookup loaded instance of module
-    if( removeUI )
-        delete require.cache[ removeUI ];
-
-
-    const userInterface = require(arg.filepath);
-    
-    if( userInterface ){
-        uiMap.set(arg.classname, userInterface)
-    }
-
-})
-
-
+function drawsocketInput(obj){
+    drawsocket.input(obj)
+}
 
 ipcRenderer.on('draw-input', (event, arg) => {
     console.log(`received ${arg}`);
@@ -247,9 +318,9 @@ function symbolist_setClass(_class)
     currentPaletteClass = _class;
     selectedClass = _class;
 
-    if( uiMap.has(selectedClass) && uiMap.get(selectedClass).hasOwnProperty('enter') )
+    if( uiDefs.has(selectedClass) && uiDefs.get(selectedClass).hasOwnProperty('enter') )
     {
-        uiMap.get(selectedClass).enter();
+        uiDefs.get(selectedClass).enter();
     }
 
     ipcRenderer.send('symbolist_event',  {
@@ -274,9 +345,9 @@ function symbolist_setContext(obj)
         el.classList.remove("current_context");
     });
 
-    if( uiMap.has(obj.classList[0]) )
+    if( uiDefs.has(obj.classList[0]) )
     {
-        uiMap.get(obj.classList[0]).enter(obj);
+        uiDefs.get(obj.classList[0]).enter(obj);
     }
 
     if( obj != svgObj )
@@ -318,6 +389,8 @@ function getCurrentContextJSON()
     return view;
 }
 
+
+// could be improved with html.closest()
 function getObjViewContext(obj)
 {
     let elm = obj;
@@ -1230,9 +1303,9 @@ function symbolist_mousedown(event)
 function callbackCustomUI( event )
 {
 
-    if( uiMap.has(currentPaletteClass) )
+    if( uiDefs.has(currentPaletteClass) )
     {
-        const uiDef = uiMap.get(currentPaletteClass);
+        const uiDef = uiDefs.get(currentPaletteClass);
 
         switch( event.symbolistAction )
         {
@@ -1418,9 +1491,9 @@ startDefaultEventHandlers();
 
 function getContextConstraintsForPoint(pt)
 {
-    if( uiMap.has( currentContext.classList[0]) )
+    if( uiDefs.has( currentContext.classList[0]) )
     {
-        return uiMap.get( currentContext.classList[0] ).getConstraintsForPoint( currentContext, pt );
+        return uiDefs.get( currentContext.classList[0] ).getConstraintsForPoint( currentContext, pt );
     }
     else
     {
@@ -1435,14 +1508,31 @@ function getCurrentContext(){
     return currentContext;
 }
 
+/**
+ * 
+ * @param {Object} obj object to send to controller
+ */
+function sendToController(obj)
+{
+    ipcRenderer.send('renderer-event', obj);
+
+}
+
 module.exports = { 
+    drawsocketInput,
+    sendToController, // renderer-event
+    fairlyUniqueString,
+
+    send: symbolist_send,
+
     setClass: symbolist_setClass, 
     setContext: symbolist_setContext,
-    send: symbolist_send,
+
     getObjViewContext,
     getCurrentContext,
+    
     elementToJSON,
-    fairlyUniqueString,
+    
     translate,
     applyTransform,
     makeRelative,

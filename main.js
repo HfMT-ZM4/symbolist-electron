@@ -78,11 +78,11 @@ if( cluster.isMaster )
 
     dialog.showOpenDialog(win, {
       message: "Please select Symbolist JSON setup files",
-      properties: ['openFile', 'multiSelections'],
-      filters: [{ 
-        name: "JSON", 
-        extensions: ['json'] 
-      }]
+      properties: ['openDirectory', ]//, //'openFile', 'multiSelections'
+      /*filters: [{ 
+        name: "JavaScript", 
+        extensions: ['js'] 
+      }]*/
     }).then(result => {
       if( result.canceled )
       {
@@ -90,12 +90,13 @@ if( cluster.isMaster )
       }
       else
       {
+       // console.log('result', result)
+
         controller_proc.send({
           key: "loadInitFiles",
           val: result.filePaths
         })
       }
-      //console.log(result.filePaths)
      
     }).catch(err => {
       console.log(err)
@@ -166,7 +167,13 @@ if( cluster.isMaster )
     }
     else
     {
-      win.webContents.send(msg.key, msg.val);
+      // general catch all
+      
+      if( !Array.isArray(msg) )
+        msg = [ msg ];
+
+      msg.forEach( m => win.webContents.send(m.key, m.val) )
+      
 
     }
     

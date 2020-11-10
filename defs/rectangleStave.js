@@ -1,14 +1,19 @@
 
+// make time/pixel scalar something that can be adjusted in the UI
+
 'use strict';
 
-const sym_utils = root_require('utils')
+//const sym_utils = root_require('utils')
 
 const className = "rectangleStave";
 
-const palette = [ "rectangleStaveEvent", "otherRectangleStaveEvent"]
+const palette = [ ] //"rectangleStaveEvent", "otherRectangleStaveEvent"
 
 
-const dataInstace = {
+let x2time = 0.001;
+let time2x = 1000;
+
+let dataInstace = {
     // class name, refering to the definition below
     className,
 
@@ -16,7 +21,7 @@ const dataInstace = {
     id : "default-0",
     
     // container objects 
-    events = [],
+    contents: [],
     
     // container objects 
     time: 0,
@@ -30,13 +35,13 @@ const dataInstace = {
  * svg:
  * <g class='className container'>
  *      <g class='className display'></g>
- *      <g class='className events'></g>
+ *      <g class='className contents'></g>
  * </g>
  * 
  * html:
  * <div class='className container'>
  *      <div class='className display'></div>
- *      <div class='className events'></div>
+ *      <div class='className contents'></div>
  * </div>
  * 
  * regular objects can be any node type
@@ -56,19 +61,22 @@ const viewDisplay = function(x, y, width, height)
         x,
         y,
         width,
-        height
+        height,
+        style: {
+            fill: "white"
+        }
     }
 }
 
-const viewContainer = function(x, y, width, height, id) 
+const viewContainer = function(x, y, width, height, id, parentID) 
 {
     return {
-        key: "svg",
+        key: "svg", 
         val: {
             new: "g", // container objects us a group to contain their child objects, separate from their display
             id, // use same reference id as data object
             class: `${className} container`, // the top level container, using the 'container' class for type selection if needed
-            parent: "",
+            parent: parentID,
             children: [
                 {
                     new: "g",
@@ -77,7 +85,7 @@ const viewContainer = function(x, y, width, height, id)
                 },
                 {
                     new: "g",
-                    class: `${className} contents`, // the events container, using the 'events' class as a selector
+                    class: `${className} contents`, // the contents container, using the 'contents' class as a selector
                     children: [] // empty for now
                 }
             ]  
@@ -88,72 +96,74 @@ const viewContainer = function(x, y, width, height, id)
 
 /**
  * 
- * @param {Object} symbolist_api reference to object containing method functions for accessing the model and view if needed
+ * @param {Object} controller_api reference to object containing method functions for accessing the model and view if needed
  * 
  * @returns {Object} containing controller functions to be used in mapping to/from data-view
  */
-const controllerDefinition = function( symbolist_api ) {
-    return {
-        // do we really need the class name here?
-        //className: 'staveExample',
-
-        // used to sort child objects
-        comparator: function (a,b) {
-            return (a < b ? -1 : (a == b ? 0 : 1))
-        },
-
-        // class names of child objects
-        palette,
-
-
+const controllerDef = function( controller_api ) 
+{
 
         /**
-         * received in controller from view
-         * it's up to the user to make sure that the data passed into this function from the view 
-         * in most cases you'll want the parent view, to calculate the element's offset from it's container
          * 
-         * it's also possible that you could only deal with relative values in the controller
-         * and then you'd need to convert to/from absolute coordinates in the view
-         * for example you could subtract the top left corner from all coordinates,
-         * or make the coordinates normalized (0-1) scaled by the container
-         * 
-         * that might make the most sense, since then the controller doesn't need to konw the parent position when doing the 
-         * mapping to view, in this case the parentID is very important
-         * 
-         * in cases where there is a complex graphic element that must be used in the model to compare against the 
-         * element, the graphic element information can also be stored in the model
-         * 
-         * for now we will just send the view object sent from the view into this function, and try some different 
-         * use cases and see how / where things need to be adjusted
-         * 
-         * the fromView script runs in the controller, and may look up values in the model
-         * via the API function ??? getDataForID(id)
-         * 
-         * 
-         * 
-         * */
-
-        /**
+         * called in controller routing updates from view
          * 
          * @param {Object} view object sent from view, containing information needed to create the data
          * @param {*} isNew (optional) flag to indicate that this is a new object (maybe we can remove this...)
-         */
-        fromView: function(view, isNew = false){
-            
-            let data = isNew ? defaultDataObject : {};
+         * 
+         * @returns new data object, mapped from view
+         * 
+         * 
+         * from:
+         * {
+                id: uniqueID,
+                class: className,
+                parent: eventNode.id,
+                new: "rect",
+                x,
+                y,
+                width,
+                height
+         }
 
-            let parentData = symbolist_api.get( new.parent );
-            // could also add await 
+         to: 
+            {
+                className,
+                id,
+                parent,
+
+                // container objects 
+                contents = [],
+                
+                time: 0,
+                duration: 1
+            }
+         */
+        function fromView(viewObj)
+        { 
+            let parentData = controller_api.get( viewObj.parent );
+
+            let dataObj = controller_api.has( viewObj.id ) ? controller_api.get( viewObj.id ) : {};
+
+            let time = (viewObj.x * x2time) + parentData.time + parentData.duration;
+
+            let data = {
+                ...dataObj,
+                time,
+                duration: 1
+            }
+
             return {
                 data
             }
-        },
+        }
 
         /**
          * 
+         * will be called when creating the view from the data (not implemented yet)
+         * 
          * @param {Object} data object sent from model to create the view
          */
-        fromData: function(data){
+        function fromData(data) {
             return {
                 view: {
                     
@@ -161,7 +171,20 @@ const controllerDefinition = function( symbolist_api ) {
             }
         }
 
-    }
+         // used to sort child objects
+         function comparator (a,b) {
+            return (a.time < b.time ? -1 : (a.time == b.time ? 0 : 1))
+        }
+
+    
+        return {
+            className,
+            palette,
+            fromView,
+            fromData,
+            comparator
+        }
+
 }
 
 /**
@@ -175,8 +198,10 @@ const controllerDefinition = function( symbolist_api ) {
  * the uiDef defines the behaviour of mouse interaction, and maniuputing the view information
  * 
  */
-const uiDef = (function(){
+const uiDef = function(renderer_api) 
+{
 
+    
 
     /**
      * called when drawing this symbol to draw into the palette 
@@ -187,19 +212,9 @@ const uiDef = (function(){
     {
         return {
             key: "svg",
-            val: {
-                id: 'rectangleStave-palette-icon',
-                ...viewDisplay(0, 0, 25, 25)
-            }
+            val: viewDisplay(0, 0, 25, 25)
         }
     }
-
-    
-    /**
-     * palette -- list of sub symbols that can be used inside this container
-     * these will be looked up and added to the palette when this container is selected
-     */
-    palette,
 
 
     /**
@@ -213,7 +228,7 @@ const uiDef = (function(){
      */
     function getInfoDisplay(dataObj, viewElement)
     {
-        return sym_utils.makeDefaultInfoDisplay(dataObj, viewElement.getBoundingClientRect() );
+        return renderer_api.makeDefaultInfoDisplay(dataObj, viewElement.getBoundingClientRect() );
     }
 
 
@@ -273,29 +288,26 @@ const uiDef = (function(){
         const width = 800; // default w
         const height = 600; // default h
 
-        const uniqueID = `${className}_u_${sym_utils.fairlyUniqueString()}`;
+        const uniqueID = `${className}_u_${renderer_api.fairlyUniqueString()}`;
 
-        const container = symbolist_api.getCurrentContext();
-        const eventElement = container.querySelector('events');
+        const container = renderer_api.getCurrentContext();
+        const eventElement = container.querySelector('.contents');
 
         // create new symbol in view
-        drawsocket.input({
-            key: "svg", 
-            val: {
-                parent: eventNode.id,
-                ...viewContainer(x, y, width, height, uniqueID)
-            }
-        })
+        renderer_api.drawsocketInput(
+            viewContainer(x, y, width, height, uniqueID, eventNode.id)
+        )
 
 
-        const containerDisplay = container.querySelector('display');
+        const containerDisplay = container.querySelector('.display');
         const bbox = containerDisplay.getBoundingClientRect();
 
         // make relative for controller
         // the send command should be wrapped in the controller probably
-        symbolist_api.send({
+        renderer_api.send({
             key: "toData",
             val: {
+                class: className,
                 id: uniqueID,
                 parent: eventNode.id,
                 ...viewDisplay(x - bbox.x, y - bbox.y, width, height)
@@ -326,9 +338,6 @@ const uiDef = (function(){
         if( e.metaKey )
         {
 
-// scale coordinates to parent container object so we don't have to look it up in the controller
-
-            symbolist.makeRelative()
 
 
             symbolist.send({
@@ -373,8 +382,44 @@ const uiDef = (function(){
 
     // exported functions used by the symbolist renderer
     return {
+        className,
+        palette,
+        getPaletteIcon,
+        getInfoDisplay,
         enter,
         exit
     }
 
-})();
+}
+
+module.exports = {
+    controller: controllerDef,
+    ui: uiDef
+}
+
+
+        /**
+         * received in controller from view
+         * it's up to the user to make sure that the data passed into this function from the view 
+         * in most cases you'll want the parent view, to calculate the element's offset from it's container
+         * 
+         * it's also possible that you could only deal with relative values in the controller
+         * and then you'd need to convert to/from absolute coordinates in the view
+         * for example you could subtract the top left corner from all coordinates,
+         * or make the coordinates normalized (0-1) scaled by the container
+         * 
+         * that might make the most sense, since then the controller doesn't need to konw the parent position when doing the 
+         * mapping to view, in this case the parentID is very important
+         * 
+         * in cases where there is a complex graphic element that must be used in the model to compare against the 
+         * element, the graphic element information can also be stored in the model
+         * 
+         * for now we will just send the view object sent from the view into this function, and try some different 
+         * use cases and see how / where things need to be adjusted
+         * 
+         * the fromView script runs in the controller, and may look up values in the model
+         * via the API function ??? getDataForID(id)
+         * 
+         * 
+         * 
+         * */

@@ -58,95 +58,62 @@ let defs = new Map();
 let model = new Map();
 
 
-function loadInitFiles(val)
+// api export to definitions
+const controller_api = {
+    input
+}
+
+
+function loadInitFiles(folderArray)
 {
-    console.log('loadUserFolder', val);
+    const folder = folderArray[0];
+    console.log('loadUserFolder', folder);
+    
+    let initFile = null;
 
-    /*
-    {
-        "name" : "default-palette",
-        "loadStaves" : {
-            "stave" : "thereminStave.js",
-            "paletteSymbols" : "thereminStave.noteline.js"
-        }
-    }
-    */
-   
-   sym_util.toArray(val).forEach( file => {
-        const loaded = fs.readFileSync(file, 'utf-8');
-        if( loaded )
+    fs.readdirSync(folder,'utf-8').forEach( file => {
+        
+        let filepath = `${folder}/${file}`;
+
+
+        if( file.split('.').pop() == 'json' )
         {
-            try {
-                const initObj = JSON.parse(loaded);
-                let stavesToLoad = initObj.loadStaves;
-
-                sym_util.toArray(stavesToLoad).forEach( staveFile => {
-
-                    // import user stave js file
-                    let pathStr = path.dirname(file) + '/';
-
-                    console.log('trying to load', pathStr + staveFile.stave);
-
-                    let staveDef_ = require(pathStr + staveFile.stave);
-
-                    if( staveDef_.uiFile )
-                    {
-                        staveDef_.uiFile = pathStr + staveDef_.uiFile;
-
-                        process.send({
-                            key: 'load-ui-file',
-                            val: {
-                                classname: staveDef_.class,
-                                filepath: staveDef_.uiFile
-                            }
-                        })
-                    }
-
-                    sym_util.toArray(staveFile.palette).forEach( paletteItem => {
-
-                        // import user stave item js file
-                        let paletteDef_ = require(pathStr + paletteItem);
-
-                        // if there is a customUI referenced in the file, add the pathStr
-                        // and send to renderer to load into ui lookup
-                        if( paletteDef_.uiFile )
-                        {
-                            // probably don't need to store the path anymore, but whatever
-                            paletteDef_.uiFile = pathStr + paletteDef_.uiFile;
-
-                            process.send({
-                                key: 'load-ui-file',
-                                val: {
-                                    classname: paletteDef_.class,
-                                    filepath: paletteDef_.uiFile
-                                }
-                            })
-                        }
-                        
-                        // add to stave palette
-                        staveDef_.palette.push( paletteDef_.class );
-
-                        // log in class lookup registry
-                        defs.set(paletteDef_.class, paletteDef_);
-                    })
-
-                    // log stave class lookup registry
-                    defs.set(staveDef_.class, staveDef_);
-
-                    console.log('loaded', staveDef_.class);
-                })
-            }
-            catch(e)
-            {
-                console.error(e);
-            }
-
+            initFile = filepath;
         }
-                
+        else
+        {
+            // new version, both controllers load the files, but pull different parts out
+            // forward to renderer-controller
+            process.send({
+                key: 'load-ui-defs',
+                val: filepath
+            })
+
+            
+            // load controller def
+            let { controller } = require(filepath);
+
+            // initialize def with api
+            let cntrlDef_ = controller(controller_api);
+
+            // set into def map
+            defs.set(cntrlDef_.className, cntrlDef_);
+        }
     })
 
+
+    /**
+     * eventually we will be able to load files on the fly,
+     * so probably don't do init every time...
+     *  */ 
     init();
     
+
+    process.send({
+        key: 'init',
+        val: initFile
+    })
+
 
 }
 
@@ -163,7 +130,7 @@ function init()
    // defs.set(notelines.class, notelines);
 
     console.log('received init');
-    makePalette();
+   // makePalette();
    // console.log(theremin);
     
 }
