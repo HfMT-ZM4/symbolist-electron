@@ -2,6 +2,13 @@
 /* global drawsocket:readonly  */
 
 /**
+ * 
+ * every major event in the general use sequence should have the option of a callback in the defs
+ * for example, selection, and on setting the context
+ */
+
+
+/**
  * symbolist renderer view module -- exported functions are at the the bottom
  */
 
@@ -41,6 +48,7 @@ let renderer_api = {
     drawsocketInput,
     sendToController, // renderer-event
     fairlyUniqueString,
+    getCurrentContext
 }
 
 ipcRenderer.on('load-ui-defs', (event, arg) => {
@@ -79,6 +87,7 @@ ipcRenderer.on('init', (event, filepath) => {
             {
                 def_palette_display = {
                     new: "svg",
+                    class: "palette-svg",
                     id: `${def_classname}-icon`,
                     children: def_palette_display.val
                 }
@@ -88,6 +97,7 @@ ipcRenderer.on('init', (event, filepath) => {
                 key: "html",
                 val: {
                     new: "div",
+                    class: `${def_classname} palette-icon`,
                     id: `${def_classname}-paletteIcon`,
                     parent: "palette-clefs",
                     onclick: `
@@ -109,6 +119,61 @@ ipcRenderer.on('init', (event, filepath) => {
     // in controller there is a defautlContext class, probably we should do the same
     console.log('initFile', init);
 })
+
+
+/**
+ * 
+ * @param {Array} class_array array of class names
+ */
+function makeSymbolPalette(class_array)
+{
+    let draw_msg = [];
+    class_array.forEach( classname => {
+        if( uiDefs.has(classname) )
+        {
+            const symDef = uiDefs.get(classname);
+
+            let def_palette_display = symDef.getPaletteIcon();
+
+            if( def_palette_display.key == "svg" )
+            {
+                def_palette_display = {
+                    new: "svg",
+                    class: "symbol-palette-svg",
+                    id: `${classname}-icon`,
+                    children: def_palette_display.val
+                }
+            }
+        
+            draw_msg.push({
+                key: "html",
+                val: {
+                    new: "div",
+                    class: `${classname} palette-icon`,
+                    id: `${classname}-paletteIcon`,
+                    parent: "palette-symbols",
+                    onclick: `
+                            console.log('select ${classname}'); 
+                            symbolist.setClass('${classname}');
+                        `,
+                    children: def_palette_display
+                }
+            })
+        
+        }
+    })
+
+    if( draw_msg.length > 0 )
+    {
+        drawsocket.input([
+            {
+                key: "clear",
+                val: "palette-symbols"
+            }, 
+            ...draw_msg
+        ]) 
+    }
+}
 
 
 /**
@@ -333,6 +398,7 @@ function symbolist_setClass(_class)
 
 }
 
+
 /**
  * 
  * @param {Object} obj set context from symbolist controller
@@ -347,7 +413,14 @@ function symbolist_setContext(obj)
 
     if( uiDefs.has(obj.classList[0]) )
     {
-        uiDefs.get(obj.classList[0]).enter(obj);
+        let def_ = uiDefs.get(obj.classList[0]);
+
+        if( def_.palette )
+        {
+            makeSymbolPalette(def_.palette);
+        }
+
+        def_.enter(obj);
     }
 
     if( obj != svgObj )
@@ -357,7 +430,7 @@ function symbolist_setContext(obj)
     symbolist_set_log(`set context to ${obj.id}`)
 
 
-
+/*
     //  if( _class != currentPaletteClass )
     {
         
@@ -369,7 +442,7 @@ function symbolist_setContext(obj)
             }
         }); 
     }
-
+*/
 }
 
 function setDefaultContext()
@@ -1251,6 +1324,14 @@ function symbolist_mousedown(event)
     {
         event.symbolistAction = "newFromClick_down";
 
+        if( uiDefs.has(currentPaletteClass) )
+        {
+            const def_ = uiDefs.get(currentPaletteClass);
+            if( def_.hasOwnProperty('newFromClick') )
+                def_.newFromClick(event);
+        }
+
+
         clickedObj = null;
         selectedClass = currentPaletteClass; // later, get from palette selection
     }
@@ -1287,9 +1368,9 @@ function symbolist_mousedown(event)
 
     prevEventTarget = _eventTarget;
     
-    sendMouseEvent(event, "mousedown");
+   // sendMouseEvent(event, "mousedown");
 
-    callbackCustomUI( event );
+   // callbackCustomUI( event );
 
 }
 
@@ -1505,6 +1586,7 @@ function getContextConstraintsForPoint(pt)
  * returns Element Node of currently selected context
  */
 function getCurrentContext(){
+    //console.log('currentContext', currentContext);
     return currentContext;
 }
 

@@ -97,6 +97,7 @@ svg {
   background-color: rgba(255, 255, 255, 0.0);
 }
 
+
 .palette-clefs div {
   background-color: inherit;
 
@@ -109,6 +110,11 @@ svg {
   margin: 10%;
   padding: 4%;
 
+}
+
+.palette-svg {
+  width: 40px;
+  height: 40px;
 }
 
 .palette-symbols {

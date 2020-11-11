@@ -11,7 +11,7 @@ global.root_require = function(path) {
 }
 
 const defaultContext = {
-    id: "svg-root", // unique id used as key for model Map()
+    id: "main-svg", // unique id used as key for model Map()
     class: "svg", // required for lookup in to defs
     //  data items (user defined):  <-- should this be wrapped to protect scope?
     x: 0,
@@ -23,7 +23,7 @@ const defaultContext = {
         return (a.time < b.time ? -1 : (a.time == b.time ? 0 : 1));
     },
     // use utills.insertSorted(el, arr, comparator)
-    children: [],
+    contents: [],
     // id of parent, for the root element this is null
     parent: null
 }
@@ -58,9 +58,23 @@ let defs = new Map();
 let model = new Map();
 
 
+function modelGet( classname )
+{
+    return model.get(classname);
+}
+
+function modelHas( classname )
+{
+    return model.has(classname);
+}
+
+
+
 // api export to definitions
 const controller_api = {
-    input
+    input,
+    modelGet,
+    modelHas
 }
 
 
@@ -109,6 +123,9 @@ function loadInitFiles(folderArray)
     init();
     
 
+    /**
+     * init file sets up palette creation in view
+     */
     process.send({
         key: 'init',
         val: initFile
@@ -124,7 +141,7 @@ function init()
         console.log('init model status', model);
     }
 
-    model.set(defaultContext.class, defaultContext);
+    model.set(defaultContext.id, defaultContext);
     defs.set(defaultContext.class, defaultContext);
    // defs.set(theremin.class, theremin);
    // defs.set(notelines.class, notelines);
@@ -153,6 +170,7 @@ function makeViewFromData(data_obj, clefDef)
     */
 }
 
+/*
 function makePalette()
 {
     let draw_msg = [];
@@ -168,6 +186,7 @@ function makePalette()
         val: draw_msg
     })  
 }
+
 
 function makeSymbolPalette(_classname)
 {
@@ -210,7 +229,7 @@ function makeSymbolPalette(_classname)
         }
     }
 }
-
+*/
 
 
 function addToModel( dataobj )
@@ -239,17 +258,17 @@ function addToModel( dataobj )
         }
         else
         {
-            if( typeof parent.children == "undefined" )
-                parent.children = []
+            if( typeof parent.contents == "undefined" )
+                parent.contents = []
 
             console.log(`insterting sorted ${JSON.stringify(dataobj, null, 2)} into ${JSON.stringify(parent, null, 2)}`);
 
-            const index = parent.children.indexOf(dataobj.id);
+            const index = parent.contents.indexOf(dataobj.id);
             if (index > -1) {
-                parent.children.splice(index, 1);
+                parent.contents.splice(index, 1);
             }
 
-            sym_util.insertSorted(dataobj.id, parent.children, (a,b) => {
+            sym_util.insertSorted(dataobj.id, parent.contents, (a,b) => {
                 const test_a = model.get(a);
                 if( typeof test_a == "undefined" ) return 0;
 
@@ -315,6 +334,24 @@ function dataToView(def_, newData_, data_context, view_context)
    
 }
 
+
+function viewToData(obj)
+{
+    console.log('viewToData', obj);
+
+    if( defs.has(obj.class) )
+    {
+        let def_ = defs.get(obj.class);
+        let ret = def_.fromView(obj);
+        console.log(ret);
+
+        addToModel(ret.data);
+
+    }
+}
+
+/*
+// new from click is now defined in view-controller
 function newFromClick(event_)
 {
     if( event_.hasOwnProperty('paletteClass') && defs.has( event_.paletteClass ) )
@@ -344,32 +381,14 @@ function newFromClick(event_)
             {
                 input( newData.event );
             }
-/*
-// previous version here... maybe still useful later
-            if( newData.scriptAttr )
-            {
-                // attribute holding name of script to run is here
-                if( def.hasOwnProperty( newData.scriptAttr ) )
-                {
-                    let scriptFileToLoad = def[ newData.scriptAttr ];
 
-                    process.send({
-                        key: 'enter-custom-ui',
-                        val: {
-                            data: newData.data,
-                            filename: scriptFileToLoad,
-                        }
-                    })
-
-                }
-            }
-*/
         }
 
         
     }
 
 }
+*/
 
 // once children ids are logged in model, we can use that to delete the child ids from model
 
@@ -387,6 +406,9 @@ function removeSelected(event_)
     }
     // no need to redraw since the view is handled by the renderer    
 }
+
+/*
+// transforms are now applied in the view-controller
 
 function applyTransform_recurse(_matrix, _viewobj, _data_context, _view_context)
 {
@@ -468,20 +490,10 @@ function applyTransform(event_)
                 }
 
             }
-            /*
-            if( defs.has( sel.class[0] ) )
-            {
-                const def = defs.get( sel.class[0] );
-                const transformMatrix = sym_util.matrixFromString(sel.transform);
-                let newData = def.transform(transformMatrix, sel);
-          //      console.log('current:', sel, 'newData:', newData);
-                
-                dataToView(def, newData, event_);
-            }
-            */
         });
     }
 }
+*/
 
 function getInfoBoxes(event_)
 {
@@ -620,6 +632,9 @@ function input(_obj)
 
     switch (key) //must have key!
     {
+        case 'toData':
+            viewToData(val);
+            break;
         case 'init':
             init();
             break;

@@ -183,16 +183,22 @@ if( cluster.isMaster )
   
  // controller_proc.send('ping');
 
+ 
+  ipcMain.on('renderer-event', (event, arg) => {
+    controller_proc.send(arg)
+  })
 
+  /*
   ipcMain.on('symbolist_event', (event, arg) => {
     controller_proc.send(arg)
     //event.sender.send('asynchronous-reply', 'pong')
   })
-  
+ 
   ipcMain.on('click',  (event, arg) => {
     //event.sender.send('asynchronous-reply', 'pong')
     console.log(arg);
   })
+  */
 
 
 
