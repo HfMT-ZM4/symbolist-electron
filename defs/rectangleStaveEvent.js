@@ -5,13 +5,14 @@
 
 //const sym_utils = root_require('utils')
 
-const className = "rectangleStave";
+const className = "rectangleStaveEvent";
 
-const palette = [ "rectangleStaveEvent" ]; //, "otherRectangleStaveEvent"
+const palette = [ ] //"rectangleStaveEvent", "otherRectangleStaveEvent"
 
-
-let x2time = 0.001;
-let time2x = 1000;
+const x2time = 0.001;
+const time2x = 1000;
+const y2pitch = 127.; // y is normalized 0-1
+const default_r = 4;
 
 let dataInstace = {
     // class name, refering to the definition below
@@ -25,73 +26,22 @@ let dataInstace = {
     
     // container objects 
     time: 0,
-    duration: 1
+    duration: 1,
+    pitch: 60,
+    amp: 1
 }
 
 
-/**
- * view container model (stave/page/etc)
- * 
- * svg:
- * <g class='className container'>
- *      <g class='className display'></g>
- *      <g class='className contents'></g>
- * </g>
- * 
- * html:
- * <div class='className container'>
- *      <div class='className display'></div>
- *      <div class='className contents'></div>
- * </div>
- * 
- * regular objects can be any node type
- * usually they will be in a container
- * 
- * <circle .... />
- * 
- * sent to browser using drawsocket format
- * 
- */
-
-
-const viewDisplay = function(x, y, width, height)
+const viewDisplay = function(cx, cy, r)
 {
     return {
-        new: "rect",
-        x,
-        y,
-        width,
-        height,
-        style: {
-            fill: "white"
-        }
+        new: "circle",
+        cx,
+        cy,
+        r
     }
 }
 
-const viewContainer = function(x, y, width, height, id, parentID) 
-{
-    return {
-        key: "svg", 
-        val: {
-            new: "g", // container objects us a group to contain their child objects, separate from their display
-            id, // use same reference id as data object
-            class: `${className} container`, // the top level container, using the 'container' class for type selection if needed
-            parent: parentID,
-            children: [
-                {
-                    new: "g",
-                    class: `${className} display`, // the display container, using the 'display' class as a selector
-                    children : viewDisplay(x,y,width,height)
-                },
-                {
-                    new: "g",
-                    class: `${className} contents`, // the contents container, using the 'contents' class as a selector
-                    children: [] // empty for now
-                }
-            ]  
-        }
-    }
-}
 
 
 /**
@@ -102,7 +52,6 @@ const viewContainer = function(x, y, width, height, id, parentID)
  */
 const controllerDef = function( controller_api ) 
 {
-
         /**
          * 
          * called in controller routing updates from view
@@ -111,32 +60,6 @@ const controllerDef = function( controller_api )
          * @param {*} isNew (optional) flag to indicate that this is a new object (maybe we can remove this...)
          * 
          * @returns new data object, mapped from view
-         * 
-         * 
-         * from:
-         * {
-                id: uniqueID,
-                class: className,
-                parent: eventNode.id,
-                new: "rect",
-                x,
-                y,
-                width,
-                height
-         }
-
-         to: 
-            {
-                className,
-                id,
-                parent,
-
-                // container objects 
-                contents = [],
-                
-                time: 0,
-                duration: 1
-            }
          */
         function fromView(viewObj)
         { 
@@ -156,7 +79,8 @@ const controllerDef = function( controller_api )
                 }
             }
 
-            let time = 0; //(viewObj.x * x2time) + parentData.time + parentData.duration;
+            let time = (viewObj.cx * x2time) + parentData.time + parentData.duration;
+            let pitch = viewObj.cy * y2pitch; 
 
             let data = {
                 ...dataObj,
@@ -224,7 +148,7 @@ const uiDef = function(renderer_api)
     {
         return {
             key: "svg",
-            val: viewDisplay(0, 0, 25, 25)
+            val: viewDisplay(25, 25, default_r)
         }
     }
 
@@ -294,10 +218,9 @@ const uiDef = function(renderer_api)
      */
     function creatNewFromMouseEvent(event)
     {
-        const x = event.clientX;
-        const y = event.clientY;
-        const width = 800; // default w
-        const height = 600; // default h
+        const cx = event.clientX;
+        const cy = event.clientY;
+        const r = default_r; 
 
         const uniqueID = `${className}_u_${renderer_api.fairlyUniqueString()}`;
 
@@ -308,13 +231,25 @@ const uiDef = function(renderer_api)
         renderer_api.drawsocketInput([
             {
                 key: "remove", 
-                val: 'rectangleStave-sprite'
+                val: `${className}-sprite`
             },
-            viewContainer(x, y, width, height, uniqueID, eventElement.id)
+            {
+                key: "svg",
+                val: {
+                    class: className,
+                    id: uniqueID,
+                    parent: eventElement.id,
+                    ...viewDisplay(cx, cy, r)
+                }
+            }
         ])
 
         const containerDisplay = container.querySelector('.display');
         const bbox = containerDisplay.getBoundingClientRect();
+
+        const rel_x = cx - bbox.x;
+        // normalizing Y to container to simplify mapping
+        const rel_y = (cy - bbox.y) / bbox.height; 
 
         // make relative for controller
         // the send command should be wrapped in the controller probably
@@ -324,7 +259,7 @@ const uiDef = function(renderer_api)
                 class: className,
                 id: uniqueID,
                 parent: eventElement.id,
-                ...viewDisplay(x - bbox.x, y - bbox.y, width, height)
+                ...viewDisplay(rel_x, rel_y, r)
             }
         })
 
@@ -333,13 +268,14 @@ const uiDef = function(renderer_api)
 
     function move(e)
     {
-        if( e.metaKey && renderer_api.getCurrentContext().classList[0] != className )
+        if( e.metaKey )
         {
+
             drawsocket.input({
                 key: "svg", 
                 val: {
-                    id: 'rectangleStave-sprite',
-                    ...viewDisplay(e.clientX, e.clientY, 800, 600)
+                    id: `${className}-sprite`,
+                    ...viewDisplay(e.clientX, e.clientY, default_r)
                 }
             })
         }
@@ -367,7 +303,7 @@ const uiDef = function(renderer_api)
         {
             renderer_api.drawsocketInput({
                 key: "remove", 
-                val: 'rectangleStave-sprite'
+                val: `${className}-sprite`
             })
 
         }
@@ -375,13 +311,7 @@ const uiDef = function(renderer_api)
 
 
 
-    /**
-     * 
-     * @param {Element} obj selected element
-     */
-    function enter (obj){
-        console.log('entered with context', obj);
-
+    function enter (){
         window.addEventListener("mousedown", down);
         window.addEventListener("mousemove", move);
         window.addEventListener("mouseup", up);
@@ -393,7 +323,7 @@ const uiDef = function(renderer_api)
         
         renderer_api.drawsocketInput({
             key: "remove", 
-            val: 'rectangleStave-sprite'
+            val: `${className}-sprite`
         })
 
 
