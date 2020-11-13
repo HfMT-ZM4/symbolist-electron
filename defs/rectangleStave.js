@@ -29,6 +29,55 @@ let dataInstace = {
 }
 
 
+
+const viewDisplay = function(x, y, width, height)
+{
+    return {
+        new: "rect",
+        x,
+        y,
+        width,
+        height,
+        style: {
+            fill: "white"
+        }
+    }
+}
+
+const viewContainer = function(x, y, width, height, id, parentID, data_) 
+{
+    // prepend data to keys
+
+    let dataObj = {};
+    Object.keys(data_).forEach( key => {
+        dataObj[`data-${key}`] = data_[key];
+    })
+
+    return {
+        key: "svg", 
+        val: {
+            new: "g", // container objects us a group to contain their child objects, separate from their display
+            id, // use same reference id as data object
+            class: `${className} container`, // the top level container, using the 'container' class for type selection if needed
+            parent: parentID,
+            ...dataObj,
+            children: [
+                {
+                    new: "g",
+                    class: `${className} display`, // the display container, using the 'display' class as a selector
+                    children : viewDisplay(x,y,width,height)
+                },
+                {
+                    new: "g",
+                    class: `${className} contents`, // the contents container, using the 'contents' class as a selector
+                    children: [] // empty for now
+                }
+            ]  
+        }
+    }
+}
+
+
 /**
  * view container model (stave/page/etc)
  * 
@@ -53,45 +102,6 @@ let dataInstace = {
  * 
  */
 
-
-const viewDisplay = function(x, y, width, height)
-{
-    return {
-        new: "rect",
-        x,
-        y,
-        width,
-        height,
-        style: {
-            fill: "white"
-        }
-    }
-}
-
-const viewContainer = function(x, y, width, height, id, parentID) 
-{
-    return {
-        key: "svg", 
-        val: {
-            new: "g", // container objects us a group to contain their child objects, separate from their display
-            id, // use same reference id as data object
-            class: `${className} container`, // the top level container, using the 'container' class for type selection if needed
-            parent: parentID,
-            children: [
-                {
-                    new: "g",
-                    class: `${className} display`, // the display container, using the 'display' class as a selector
-                    children : viewDisplay(x,y,width,height)
-                },
-                {
-                    new: "g",
-                    class: `${className} contents`, // the contents container, using the 'contents' class as a selector
-                    children: [] // empty for now
-                }
-            ]  
-        }
-    }
-}
 
 
 /**
@@ -304,14 +314,21 @@ const uiDef = function(renderer_api)
         const container = renderer_api.getCurrentContext();
         const eventElement = container.querySelector('.contents');
 
+        let dataObj = {
+            test: 1
+        }
         // create new symbol in view
         renderer_api.drawsocketInput([
             {
                 key: "remove", 
                 val: 'rectangleStave-sprite'
             },
-            viewContainer(x, y, width, height, uniqueID, eventElement.id)
+                viewContainer(x, y, width, height, uniqueID, eventElement.id, dataObj)
         ])
+
+        let t = document.getElementById(uniqueID);
+        console.log('test value', t.dataset.test);
+
 
         const containerDisplay = container.querySelector('.display');
         const bbox = containerDisplay.getBoundingClientRect();

@@ -138,7 +138,12 @@ const uiDef = function(renderer_api)
 {
 
     
-
+    function dataReqeust(refObject)
+    {
+        const container = renderer_api.getCurrentContext();
+        const eventElement = container.querySelector('.contents');
+        return [ eventElement.id ]
+    }
     /**
      * called when drawing this symbol to draw into the palette 
      * 

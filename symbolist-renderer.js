@@ -1600,6 +1600,31 @@ function sendToController(obj)
 
 }
 
+/**
+ * 
+ * @param {String} id id to lookup in data model
+ * 
+ * returns Promise for result, can be used with await,
+ * or with .then( (result) => {}) etc.
+ * 
+ */
+async function getDataForID(id)
+{
+    return ipcRenderer.invoke('query-event', id);
+}
+
+function asyncQuery(id, query, calllbackFn)
+{
+    ipcRenderer.once(`${id}-reply`, (event, args) => {
+        calllbackFn(args) 
+    })
+
+    ipcRenderer.send('query', {
+        id,
+        query
+    });
+}
+
 module.exports = { 
     drawsocketInput,
     sendToController, // renderer-event

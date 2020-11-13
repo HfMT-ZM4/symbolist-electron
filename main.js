@@ -23,13 +23,11 @@ if( cluster.isMaster )
   const { app, BrowserWindow, ipcMain, globalShortcut, dialog } = require('electron')
   const menu = require('./menu') // init after creating cluster and win
 
-  const dgram = require('dgram');
-  const server = dgram.createSocket('udp4');
-
   const controller_proc = cluster.fork();
   let win = null
   
-  function createWindow () {
+  function createWindow () 
+  {
   
     // Create the browser window.
     win = new BrowserWindow({
@@ -48,7 +46,6 @@ if( cluster.isMaster )
       win.reload()
     })
     
-    // and load the index.html of the app.
     win.loadFile('index.html')
   
     console.log(win);
@@ -58,49 +55,37 @@ if( cluster.isMaster )
   }
   
   app.on('ready', () => {
+
     createWindow();
 
     win.webContents.on('did-finish-load', () => {
-  //    console.log('test');
-      /*
-      win.webContents.send('draw-input', {
-        key: 'svg',
-        val: {
-          new: 'rect',
-          id: 'foo',
-          x: 10,
-          y: 10,
-          width: 20,
-          height: 20
+
+      dialog.showOpenDialog(win, {
+        message: "Please select Symbolist JSON setup files",
+        properties: ['openDirectory', ]//, //'openFile', 'multiSelections'
+        /*filters: [{ 
+          name: "JavaScript", 
+          extensions: ['js'] 
+        }]*/
+      }).then(result => {
+        if( result.canceled )
+        {
+          console.log( 'selection canceled, now what?')
         }
+        else
+        {
+        // console.log('result', result)
+
+        // could send directly to renderer here also
+          controller_proc.send({
+            key: "loadInitFiles",
+            val: result.filePaths
+          })
+        }
+      
+      }).catch(err => {
+        console.log(err)
       })
-      */
-
-    dialog.showOpenDialog(win, {
-      message: "Please select Symbolist JSON setup files",
-      properties: ['openDirectory', ]//, //'openFile', 'multiSelections'
-      /*filters: [{ 
-        name: "JavaScript", 
-        extensions: ['js'] 
-      }]*/
-    }).then(result => {
-      if( result.canceled )
-      {
-        console.log( 'selection canceled, now what?')
-      }
-      else
-      {
-       // console.log('result', result)
-
-        controller_proc.send({
-          key: "loadInitFiles",
-          val: result.filePaths
-        })
-      }
-     
-    }).catch(err => {
-      console.log(err)
-    })
 
       /*
       controller_proc.send({
@@ -129,34 +114,6 @@ if( cluster.isMaster )
     }
   })
   
-  // In this file you can include the rest of your app's specific main process
-  // code. You can also put them in separate files and require them here.
-  
-  // UDP server
-  
-  server.on('error', (err) => {
-    console.log(`server error:\n${err.stack}`);
-    server.close();
-  });
-  
-  
-  server.on('message', (msg, rinfo) => {    
-    parseAsync(msg)
-      .then( obj_ => {
-        win.webContents.send('draw-input', obj_ )
-      }).catch( err => {
-        console.log(`parse error: ${err}\n for message ${msg}`) 
-      })
-  
-  });
-  
-  server.on('listening', () => {
-    const address = server.address();
-    console.log(`server listening ${address.address}:${address.port}`);
-  });
-  
-  server.bind(8888);
-
 
   controller_proc.on('message', (msg)=> {
     if( msg.key == 'draw' )
@@ -169,6 +126,7 @@ if( cluster.isMaster )
     {
       // general catch all
       
+      // maybe better to wrap array in object rather than iterated in main thread
       if( !Array.isArray(msg) )
         msg = [ msg ];
 
@@ -181,27 +139,15 @@ if( cluster.isMaster )
   //  console.log('main recieved', msg);
   });
   
- // controller_proc.send('ping');
-
  
   ipcMain.on('renderer-event', (event, arg) => {
     controller_proc.send(arg)
   })
 
-  /*
-  ipcMain.on('symbolist_event', (event, arg) => {
-    controller_proc.send(arg)
-    //event.sender.send('asynchronous-reply', 'pong')
+  ipcMain.handle('query-event', async (event, ...args) => {
+    const result = await somePromise(...args)
+    return result
   })
- 
-  ipcMain.on('click',  (event, arg) => {
-    //event.sender.send('asynchronous-reply', 'pong')
-    console.log(arg);
-  })
-  */
-
-
-
 
 }
 else if (cluster.isWorker) 
@@ -225,5 +171,38 @@ else if (cluster.isWorker)
     */
    
   });
+
+
+  /**
+   * UDP I/O
+   */
+  const dgram = require('dgram');
+  const server = dgram.createSocket('udp4');
+    
+  server.on('error', (err) => {
+    console.log(`server error:\n${err.stack}`);
+    server.close();
+  });
+
+
+  server.on('message', (msg, rinfo) => {    
+    parseAsync(msg)
+      .then( obj_ => {
+        console.log(`parsed message ${obj_}`) 
+       // win.webContents.send('draw-input', obj_ )
+      }).catch( err => {
+        console.log(`parse error: ${err}\n for message ${msg}`) 
+      })
+
+  });
+
+  server.on('listening', () => {
+    const address = server.address();
+    console.log(`server listening ${address.address}:${address.port}`);
+  });
+
+  server.bind(8888);
+
+
 }
 
