@@ -131,6 +131,8 @@ function processJSON_HTML_node(node)
         processMethodCalls( el.node(), node[prop] );            
         
       }
+      else if( typeof node[prop] == 'function' )
+        el.node()[prop] = node[prop];
       else // regular attribute
         el.attr(prop, node[prop]);
 
@@ -382,6 +384,10 @@ function d3_processJSON_SVG_node(node)
             el.html( node[prop] );
           }
 
+        }
+        else if( typeof node[prop] == 'function' )
+        {
+          el.node()[prop] = node[prop]
         }
         else // regular attribute
           el.attr(prop, node[prop]);

@@ -11,7 +11,10 @@ const palette = [ ] //"rectangleStaveEvent", "otherRectangleStaveEvent"
 
 const x2time = 0.001;
 const time2x = 1000;
+
 const y2pitch = 127.; // y is normalized 0-1
+const pitch2y = 1 / 127.;
+
 const default_r = 4;
 
 let dataInstace = {
@@ -61,35 +64,11 @@ const controllerDef = function( controller_api )
          * 
          * @returns new data object, mapped from view
          */
-        function fromView(viewObj)
+        function fromView(objFromView)
         { 
-            let parentData = controller_api.modelGet( viewObj.parent );
-
-            let dataObj;
-            
-            if( controller_api.modelHas( viewObj.id ) )
-                dataObj = controller_api.modelGet( viewObj.id )
-            else
-            {
-                dataObj = {
-                    id: viewObj.id,
-                    class: viewObj.class,
-                    parent: viewObj.parent,
-                    contents: []
-                }
-            }
-
-            let time = (viewObj.cx * x2time) + parentData.time + parentData.duration;
-            let pitch = viewObj.cy * y2pitch; 
-
-            let data = {
-                ...dataObj,
-                time,
-                duration: 1
-            }
-
+            // in this case the object coming in is already formatted so we don't need to do anything
             return {
-                data
+                data: objFromView
             }
         }
 
@@ -137,13 +116,6 @@ const controllerDef = function( controller_api )
 const uiDef = function(renderer_api) 
 {
 
-    
-    function dataReqeust(refObject)
-    {
-        const container = renderer_api.getCurrentContext();
-        const eventElement = container.querySelector('.contents');
-        return [ eventElement.id ]
-    }
     /**
      * called when drawing this symbol to draw into the palette 
      * 
@@ -156,7 +128,6 @@ const uiDef = function(renderer_api)
             val: viewDisplay(25, 25, default_r)
         }
     }
-
 
     /**
      * 
@@ -172,45 +143,30 @@ const uiDef = function(renderer_api)
         return renderer_api.makeDefaultInfoDisplay(dataObj, viewElement.getBoundingClientRect() );
     }
 
-
-    /**
-     * 
-     * @param {HTML/SVG Element} element element to convert coordinates to be relative to container
-     * 
-     * @returns {HTML/SVG Element} with coordinates relative to container (in most cases this will be a simple translation)
-     */
-    function toRelative(element)
+    function mapToData(cx, cy, r, container)
     {
-        let containerDisplay = element.closest('.container').querySelector('.display');
+        const containerDisplay = container.querySelector('.display');
+        const bbox = containerDisplay.getBoundingClientRect();
 
-        let containerBBox = containerDisplay.getBoundingClientRect();
+        const time = ((cx-bbox.x) * x2time) + parseFloat(container.dataset.time);// + parseFloat(container.dataset.duration);
+        const pitch = (1 - ((cy-bbox.y) / bbox.height)) * y2pitch; 
 
-        let relativeEl = element.cloneNode(1);
-        let matrix = relativeEl.getCTM();
-
-        matrix.e = -containerBBox.x;
-        matrix.f = -containerBBox.y;
-    
-        symbolist.applyTransform(relativeEl, matrix);
-
-        return relativeEl;
-
+        return {
+            time, 
+            pitch
+        }
     }
 
-    /**
-     * 
-     * @param {Object} obj input from controller in drawsocket format, to be converted to absolute coordinates before drawing
-     * 
-     * @returns {Object} object in drawsocket format offset by parent display
-     */
-    function toAbsoulte(obj)
+    function mapToView(time, pitch, container)
     {
-        let parentID = obj.val.parent;
+        const containerDisplay = container.querySelector('.display');
+        const bbox = containerDisplay.getBoundingClientRect();
 
-        let containerDisplay = document.querySelector(`#${parentID}`).querySelector('.display');
-        let containerBBox = containerDisplay.getBoundingClientRect();
+        const cx = bbox.x + ((time - parseFloat(container.dataset.time)) * time2x);
+        const cy = bbox.y + ((1. - (pitch * pitch2y)) * bbox.height);
 
-    
+        return viewDisplay(cx, cy, default_r)
+            
     }
 
 
@@ -232,6 +188,15 @@ const uiDef = function(renderer_api)
         const container = renderer_api.getCurrentContext();
         const eventElement = container.querySelector('.contents');
 
+      //  console.log('eventElement', eventElement);
+
+        const dataObj = mapToData(cx, cy, r, container)
+       
+        let viewObject = mapToView(dataObj.time, dataObj.pitch, container);
+        console.log(dataObj, viewObject)
+
+        viewObject.cx = parseFloat(viewObject.cx) + 10;
+
         // create new symbol in view
         renderer_api.drawsocketInput([
             {
@@ -244,27 +209,33 @@ const uiDef = function(renderer_api)
                     class: className,
                     id: uniqueID,
                     parent: eventElement.id,
-                    ...viewDisplay(cx, cy, r)
+                    ...viewDisplay(cx, cy, r),
+                    ...renderer_api.dataToHTML(dataObj)//,
+                    //onclick: function(e){ console.log('ello', e)}
+
+                }
+            },
+            {
+                key: "svg",
+                val: {
+                    class: className,
+                    id: uniqueID+'test',
+                    parent: eventElement.id,
+                    ...viewObject,
+                    ...renderer_api.dataToHTML(dataObj)//,
+
                 }
             }
         ])
 
-        const containerDisplay = container.querySelector('.display');
-        const bbox = containerDisplay.getBoundingClientRect();
-
-        const rel_x = cx - bbox.x;
-        // normalizing Y to container to simplify mapping
-        const rel_y = (cy - bbox.y) / bbox.height; 
-
-        // make relative for controller
-        // the send command should be wrapped in the controller probably
+        // send out
         renderer_api.sendToController({
-            key: "toData",
+            key: "new",
             val: {
                 class: className,
                 id: uniqueID,
                 parent: eventElement.id,
-                ...viewDisplay(rel_x, rel_y, r)
+                ...dataObj
             }
         })
 
@@ -276,24 +247,44 @@ const uiDef = function(renderer_api)
         if( e.metaKey )
         {
 
+            const cx = e.clientX;
+            const cy = e.clientY;
+            const r = default_r; 
+    
+            const container = renderer_api.getCurrentContext();
+        
+            const dataObj = mapToData(cx, cy, r, container)
+
             drawsocket.input({
                 key: "svg", 
                 val: {
                     id: `${className}-sprite`,
-                    ...viewDisplay(e.clientX, e.clientY, default_r)
+                    new: "g",
+                    children: [
+                        viewDisplay(cx, cy, r),
+                        {
+                            new: "text",
+                            x: cx,
+                            y: cy - 20,
+                            text: JSON.stringify(dataObj),
+                            style: {
+                                'font-size': '13px',
+                                'font-family': 'Helvetica sans-serif'
+                            }
+                        }
+                    ]
                 }
             })
         }
-
     }
 
     function down(e) 
     {
+        console.log('hai');
         if( e.metaKey )
         {
             creatNewFromMouseEvent(e);
         }
-
     }
 
     function up(e){
@@ -330,7 +321,6 @@ const uiDef = function(renderer_api)
             key: "remove", 
             val: `${className}-sprite`
         })
-
 
         window.removeEventListener("mousedown", down);
         window.removeEventListener("mousemove", move);

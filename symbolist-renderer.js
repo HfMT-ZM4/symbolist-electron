@@ -48,7 +48,8 @@ let renderer_api = {
     drawsocketInput,
     sendToController, // renderer-event
     fairlyUniqueString,
-    getCurrentContext
+    getCurrentContext,
+    dataToHTML
 }
 
 ipcRenderer.on('load-ui-defs', (event, arg) => {
@@ -139,7 +140,7 @@ function makeSymbolPalette(class_array)
             {
                 def_palette_display = {
                     new: "svg",
-                    class: "symbol-palette-svg",
+                    class: "palette-svg",
                     id: `${classname}-icon`,
                     children: def_palette_display.val
                 }
@@ -203,6 +204,23 @@ ipcRenderer.on('load-ui-file', (event, arg) => {
 
 })
 */
+
+
+/**
+ * 
+ * @param {Object} data_ data object to convert to HTML style
+ * 
+ * returns object with "data-" prepended to keys
+ */
+function dataToHTML(data_)
+{
+    let dataObj = {};
+    Object.keys(data_).forEach( key => {
+        dataObj[`data-${key}`] = data_[key];
+    })
+
+    return dataObj;
+}
 
 
 function makeSymbolPaletteForContainer(_classname)
@@ -379,6 +397,11 @@ function symbolist_setClass(_class)
 
     let paletteItem = document.getElementById(`${_class}-paletteIcon`);
     paletteItem.classList.add("selected");  
+
+    if( uiDefs.has(selectedClass) && uiDefs.get(selectedClass).hasOwnProperty('exit') )
+    {
+        uiDefs.get(selectedClass).exit();
+    }
 
     currentPaletteClass = _class;
     selectedClass = _class;
@@ -876,7 +899,7 @@ function translate_selected(delta_pos)
 {
     for( let i = 0; i < selected.length; i++)
     {
-      //  console.log('translate_selected', selected[i]);        
+        console.log('translate_selected', selected[i]);        
         translate(selected[i], delta_pos);
     }
 }
@@ -1020,8 +1043,12 @@ function elementToJSON(elm)
 
     if( typeof elm.attributes === 'undefined' )
     {
-        console.log('->',elm);
-        return null;
+        if( typeof elm == 'object' )
+            return cloneObj(elm); // not sure if this is the right thing yet
+        else {
+            console.log('->',elm);
+            return null;
+        }
     }
         
         
@@ -1345,7 +1372,7 @@ function symbolist_mousedown(event)
     
             event.symbolistAction = "selection";
     
-            //console.log(`selected object ${clickedObj} selection, event ${_eventTarget.classList}, context ${currentContext.classList}` );
+            console.log(`selected object ${clickedObj} selection, event ${_eventTarget.classList}, context ${currentContext.classList}` );
     
     //        selectedClass =  clickedObj.classList[0]; // hopefully this will always be correct! not for sure though
     
@@ -1361,6 +1388,9 @@ function symbolist_mousedown(event)
             }
     
         }
+        else
+            console.log(`not selected object ${_eventTarget.id} selection, event ${_eventTarget.classList}, context ${currentContext.classList}` );
+
     }
 
     mousedown_pos = { x: event.clientX, y: event.clientY };

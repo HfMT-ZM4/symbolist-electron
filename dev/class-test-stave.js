@@ -248,3 +248,45 @@ const ui = (function(){
     }
 
 })();
+
+
+
+    /**
+     * 
+     * @param {HTML/SVG Element} element element to convert coordinates to be relative to container
+     * 
+     * @returns {HTML/SVG Element} with coordinates relative to container (in most cases this will be a simple translation)
+     */
+    function toRelative(element)
+    {
+        let containerDisplay = element.closest('.container').querySelector('.display');
+
+        let containerBBox = containerDisplay.getBoundingClientRect();
+
+        let relativeEl = element.cloneNode(1);
+        let matrix = relativeEl.getCTM();
+
+        matrix.e = -containerBBox.x;
+        matrix.f = -containerBBox.y;
+    
+        symbolist.applyTransform(relativeEl, matrix);
+
+        return relativeEl;
+
+    }
+
+    /**
+     * 
+     * @param {Object} obj input from controller in drawsocket format, to be converted to absolute coordinates before drawing
+     * 
+     * @returns {Object} object in drawsocket format offset by parent display
+     */
+    function toAbsoulte(obj)
+    {
+        let parentID = obj.val.parent;
+
+        let containerDisplay = document.querySelector(`#${parentID}`).querySelector('.display');
+        let containerBBox = containerDisplay.getBoundingClientRect();
+
+    
+    }

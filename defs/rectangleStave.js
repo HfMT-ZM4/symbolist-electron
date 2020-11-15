@@ -13,19 +13,9 @@ const palette = [ "rectangleStaveEvent" ]; //, "otherRectangleStaveEvent"
 let x2time = 0.001;
 let time2x = 1000;
 
-let dataInstace = {
-    // class name, refering to the definition below
-    className,
-
-    // unique id for this instance
-    id : `${className}-0`,
-    
-    // container objects 
-    contents: [],
-    
-    // container objects 
-    time: 0,
-    duration: 1
+let objectDataTypes = {
+    time: "Number",
+    duration: "Number"
 }
 
 
@@ -44,36 +34,27 @@ const viewDisplay = function(x, y, width, height)
     }
 }
 
-const viewContainer = function(x, y, width, height, id, parentID, data_) 
+const viewContainer = function(x, y, width, height, id, parentID) 
 {
     // prepend data to keys
-
-    let dataObj = {};
-    Object.keys(data_).forEach( key => {
-        dataObj[`data-${key}`] = data_[key];
-    })
-
     return {
-        key: "svg", 
-        val: {
-            new: "g", // container objects us a group to contain their child objects, separate from their display
-            id, // use same reference id as data object
-            class: `${className} container`, // the top level container, using the 'container' class for type selection if needed
-            parent: parentID,
-            ...dataObj,
-            children: [
-                {
-                    new: "g",
-                    class: `${className} display`, // the display container, using the 'display' class as a selector
-                    children : viewDisplay(x,y,width,height)
-                },
-                {
-                    new: "g",
-                    class: `${className} contents`, // the contents container, using the 'contents' class as a selector
-                    children: [] // empty for now
-                }
+        new: "g", // container objects us a group to contain their child objects, separate from their display
+        id, // use same reference id as data object
+        class: `${className} container`, // the top level container, using the 'container' class for type selection if needed
+        parent: parentID,
+        children: [
+            {
+                new: "g",
+                class: `${className} display`, // the display container, using the 'display' class as a selector
+                children : viewDisplay(x,y,width,height)
+            },
+            {
+                new: "g",
+                id: `${id}-contents`,
+                class: `${className} contents`, // the contents container, using the 'contents' class as a selector
+                children: [] // empty for now
+            }
             ]  
-        }
     }
 }
 
@@ -254,46 +235,6 @@ const uiDef = function(renderer_api)
     }
 
 
-    /**
-     * 
-     * @param {HTML/SVG Element} element element to convert coordinates to be relative to container
-     * 
-     * @returns {HTML/SVG Element} with coordinates relative to container (in most cases this will be a simple translation)
-     */
-    function toRelative(element)
-    {
-        let containerDisplay = element.closest('.container').querySelector('.display');
-
-        let containerBBox = containerDisplay.getBoundingClientRect();
-
-        let relativeEl = element.cloneNode(1);
-        let matrix = relativeEl.getCTM();
-
-        matrix.e = -containerBBox.x;
-        matrix.f = -containerBBox.y;
-    
-        symbolist.applyTransform(relativeEl, matrix);
-
-        return relativeEl;
-
-    }
-
-    /**
-     * 
-     * @param {Object} obj input from controller in drawsocket format, to be converted to absolute coordinates before drawing
-     * 
-     * @returns {Object} object in drawsocket format offset by parent display
-     */
-    function toAbsoulte(obj)
-    {
-        let parentID = obj.val.parent;
-
-        let containerDisplay = document.querySelector(`#${parentID}`).querySelector('.display');
-        let containerBBox = containerDisplay.getBoundingClientRect();
-
-    
-    }
-
 
     /**
      * called when new instance of this object is created by a mouse down event
@@ -314,8 +255,15 @@ const uiDef = function(renderer_api)
         const container = renderer_api.getCurrentContext();
         const eventElement = container.querySelector('.contents');
 
+
+        // figure out the time value of this container
+        // ideally this should be determined by the parent container, but we don't have a top level container yet
+        // let allOfThisType = container.querySelectAll(`.${className}.container`);
+        // for now the events will just be relative to their container
+
         let dataObj = {
-            test: 1
+            time: 0,
+            duration: 1
         }
         // create new symbol in view
         renderer_api.drawsocketInput([
@@ -323,11 +271,17 @@ const uiDef = function(renderer_api)
                 key: "remove", 
                 val: 'rectangleStave-sprite'
             },
-                viewContainer(x, y, width, height, uniqueID, eventElement.id, dataObj)
+            {
+                key: "svg",
+                val: {
+                    ...viewContainer(x, y, width, height, uniqueID, eventElement.id),
+                    ...renderer_api.dataToHTML(dataObj)
+                }
+            }
         ])
 
-        let t = document.getElementById(uniqueID);
-        console.log('test value', t.dataset.test);
+        //let t = document.getElementById(uniqueID);
+        //console.log('test value', t.dataset.test);
 
 
         const containerDisplay = container.querySelector('.display');
@@ -341,7 +295,7 @@ const uiDef = function(renderer_api)
                 class: className,
                 id: uniqueID,
                 parent: eventElement.id,
-                ...viewDisplay(x - bbox.x, y - bbox.y, width, height)
+                ...dataObj
             }
         })
 
