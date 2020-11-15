@@ -972,6 +972,10 @@ function makeUniqueID(obj)
 function getTopLevel(elm)
 {    
 
+    //const ret = elm.closest(".symbol");
+   // console.log(ret);
+    return elm.closest(".symbol");
+/*
     while(  elm != svgObj && 
             elm.parentNode && 
             elm.parentNode.id != 'main-svg' && 
@@ -981,7 +985,8 @@ function getTopLevel(elm)
         elm = elm.parentNode;
     }
 
-    return elm;
+   return elm;
+   */
 }
 
 // maybe use arrays instead?
@@ -1477,6 +1482,21 @@ function symbolist_mousemove(event)
 
 }
 
+function callSelected()
+{
+    selected.forEach( el => {
+        if( uiDefs.has( el.classList[0] ) )
+        {
+            const def_ = uiDefs.get( el.classList[0] );
+            if( def_.hasOwnProperty('selected') )
+            {
+                def_.selected(el);
+            }
+        }
+    })
+
+}
+
 function symbolist_mouseup(event)
 {   
     console.log('symbolist_mouseup');
@@ -1510,8 +1530,10 @@ function symbolist_mouseup(event)
         }
         else
         {
+
+            callSelected();
             // only call getUnionBounds if there is no custom transform function
-            getUnionBounds();
+           // getUnionBounds();
         }
     }
 

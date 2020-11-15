@@ -222,7 +222,7 @@ const uiDef = function(renderer_api)
             {
                 key: "svg",
                 val: {
-                    class: className,
+                    class: `${className} symbol`,
                     id: uniqueID,
                     parent: eventElement.id,
                     ...viewDisplay(cx, cy, r, cx + r, cy - 10),
@@ -231,10 +231,10 @@ const uiDef = function(renderer_api)
 
                 }
             },
-            {
+            { 
                 key: "svg",
                 val: {
-                    class: className,
+                    class: `${className} symbol`,
                     id: uniqueID+'_test',
                     parent: eventElement.id,
                     ...viewObj
@@ -246,7 +246,7 @@ const uiDef = function(renderer_api)
         renderer_api.sendToController({
             key: "new",
             val: {
-                class: className,
+                class: `${className} symbol`,
                 id: uniqueID,
                 parent: eventElement.id,
                 ...dataObj
@@ -313,9 +313,41 @@ const uiDef = function(renderer_api)
         }
     }
 
+    function selected(element)
+    {
+
+        let line = element.querySelector('line');
+
+        let x2 = line.getAttribute('x2');
+        let y2 = line.getAttribute('y2');
+
+        const test = 'hi!';
+
+        // display handles
+        // note: because these are just going into the main-svg the selection getTopLayer gets messed up 
+        // getting the top layer is still a good idea, but needs some improvement
+        renderer_api.drawsocketInput({
+            key: "svg", 
+            val: {
+                new: "rect",
+                x: x2 - 4,
+                y: y2 - 4,
+                width: 8,
+                height: 8,
+                onclick: (event) => { console.log(test, event.target); }
+            }
+        })
+        console.log('ello', element);
+    }
+
+    function translate(element)
+    {
+        // option for default translation
+    }
+
     function down(e) 
     {
-        console.log('hai');
+        console.log('haiaz');
         if( e.metaKey )
         {
             creatNewFromMouseEvent(e);
@@ -372,7 +404,8 @@ const uiDef = function(renderer_api)
         getInfoDisplay,
        // newFromClick,
         enter,
-        exit
+        exit,
+        selected
     }
 
 }
@@ -381,30 +414,3 @@ module.exports = {
     controller: controllerDef,
     ui: uiDef
 }
-
-
-        /**
-         * received in controller from view
-         * it's up to the user to make sure that the data passed into this function from the view 
-         * in most cases you'll want the parent view, to calculate the element's offset from it's container
-         * 
-         * it's also possible that you could only deal with relative values in the controller
-         * and then you'd need to convert to/from absolute coordinates in the view
-         * for example you could subtract the top left corner from all coordinates,
-         * or make the coordinates normalized (0-1) scaled by the container
-         * 
-         * that might make the most sense, since then the controller doesn't need to konw the parent position when doing the 
-         * mapping to view, in this case the parentID is very important
-         * 
-         * in cases where there is a complex graphic element that must be used in the model to compare against the 
-         * element, the graphic element information can also be stored in the model
-         * 
-         * for now we will just send the view object sent from the view into this function, and try some different 
-         * use cases and see how / where things need to be adjusted
-         * 
-         * the fromView script runs in the controller, and may look up values in the model
-         * via the API function ??? getDataForID(id)
-         * 
-         * 
-         * 
-         * */

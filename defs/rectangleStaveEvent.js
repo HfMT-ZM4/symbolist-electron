@@ -206,7 +206,7 @@ const uiDef = function(renderer_api)
             {
                 key: "svg",
                 val: {
-                    class: className,
+                    class: `${className} symbol`,
                     id: uniqueID,
                     parent: eventElement.id,
                     ...viewDisplay(cx, cy, r),
@@ -218,7 +218,7 @@ const uiDef = function(renderer_api)
             {
                 key: "svg",
                 val: {
-                    class: className,
+                    class: `${className} symbol`,
                     id: uniqueID+'test',
                     parent: eventElement.id,
                     ...viewObject,

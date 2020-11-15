@@ -40,7 +40,7 @@ const viewContainer = function(x, y, width, height, id, parentID)
     return {
         new: "g", // container objects us a group to contain their child objects, separate from their display
         id, // use same reference id as data object
-        class: `${className} container`, // the top level container, using the 'container' class for type selection if needed
+        class: `${className} symbol container`, // the top level container, using the 'container' class for type selection if needed
         parent: parentID,
         children: [
             {
