@@ -3,6 +3,7 @@
 
 'use strict';
 
+
 //const sym_utils = root_require('utils')
 
 const className = "rectangleStaveAzimuth";
@@ -36,6 +37,9 @@ let dataInstace = {
     azim: 0
 }
 
+// all symbols must be wrapped in <g> containers
+// any additional UI elements will be grouped with the symbol,  so that when somehting is clicked it is still
+// part of the symbol heirarchy, where the top level has includes the 'symbol' class
 
 const viewDisplay = function(cx, cy, r, x2, y2)
 {
@@ -128,6 +132,9 @@ const controllerDef = function( controller_api )
 const uiDef = function(renderer_api) 
 {
 
+    // UI mode, "creation" or "edit", passed from renderer
+    let m_mode = null;
+
     /**
      * called when drawing this symbol to draw into the palette 
      * 
@@ -170,6 +177,29 @@ const uiDef = function(renderer_api)
             pitch,
             azim
         }
+    }
+
+    /**
+     * 
+     * @param {Element} element 
+     * @param {Element} container 
+     * 
+     * called when updating data
+     * 
+     */
+    function elementToData(element)
+    {
+        const container = renderer_api.getCurrentContext();
+        const circle = element.querySelector('circle');
+        const line = element.querySelector('line');
+
+        const cx = parseFloat(circle.getAttribute('cx'));
+        const cy = parseFloat(circle.getAttribute('cy'));
+        const x2 = parseFloat(line.getAttribute('x2'));
+        const y2 = parseFloat(line.getAttribute('y2'));
+
+        return mapToData(cx, cy, default_r, x2, y2, container);
+
     }
 
     function mapToView(time, pitch, azim, container)
@@ -316,12 +346,96 @@ const uiDef = function(renderer_api)
     function selected(element)
     {
 
+        return;
+
+    }
+
+
+    function deselected(element)
+    {
+        console.log('deselected');
+        renderer_api.drawsocketInput({
+            key: "remove", 
+            val: `${element.id}-rotation-handle`
+        })
+    }
+
+
+    function applyTransformToData(element)
+    {
+        let matrix = element.getCTM();
+        renderer_api.applyTransform(element, matrix);
+
+        let data = elementToData(element);
+
+
+        renderer_api.drawsocketInput({
+            key: "svg",
+            val: {
+                id: element.id,
+                ...renderer_api.dataToHTML(data)
+            }
+        })
+
+        // send out
+        renderer_api.sendToController({
+            key: "update",
+            val: {
+                id: element.id,
+                class: `${className} symbol`,
+                parent: element.parentNode.id,
+                ...data
+            }
+        })
+
+        return true;
+
+    }
+
+
+    function rotate(element, delta_pos)
+    {
+
+        let azim = Math.atan2( delta_pos.x, delta_pos.y );
+
+        let transformlist = element.transform.baseVal; 
+
+        let matrix = element.getCTM();
+        matrix.rotateSelf(azim, 0, 0);
+
+        const transformMatrix = svgObj.createSVGTransformFromMatrix(matrix);
+        transformlist.initialize( transformMatrix );
+
+
+        return;
+        /*
+        
         let line = element.querySelector('line');
 
-        let x2 = line.getAttribute('x2');
-        let y2 = line.getAttribute('y2');
+        let x1 = parseFloat(line.getAttribute('x1'));
+        let y1 = parseFloat(line.getAttribute('y1'));
+        let x2 = parseFloat(line.getAttribute('x2'));
+        let y2 = parseFloat(line.getAttribute('y2'));
 
-        const test = 'hi!';
+        
+        let azim = Math.atan2( delta_pos.x, delta_pos.y );
+        let newX = x1 + Math.sin(azim) * default_dist;
+        let newY = y1 + Math.cos(azim) * default_dist;
+
+        line.setAttribute('x2', newX);
+        line.setAttribute('y2', newY);
+        element.dataset.azim = azim;
+
+        renderer_api.drawsocketInput({
+            key: 'svg',
+            val: {
+                id: `${element.id}-rotation-handle`,
+                x: newX,
+                y: newY
+            }
+        })
+
+        
 
         // display handles
         // note: because these are just going into the main-svg the selection getTopLayer gets messed up 
@@ -329,25 +443,78 @@ const uiDef = function(renderer_api)
         renderer_api.drawsocketInput({
             key: "svg", 
             val: {
+                id: `${element.id}-rotation-handle`,
                 new: "rect",
+                class: "handle",
+                parent: element.id, 
                 x: x2 - 4,
                 y: y2 - 4,
                 width: 8,
                 height: 8,
-                onclick: (event) => { console.log(test, event.target); }
+                onclick: (event) => { console.log(test, event.target); },
+                onmousemove: (event) => {
+                    
             }
         })
         console.log('ello', element);
+        */
     }
 
-    function translate(element)
+
+    /**
+     * 
+     * @param {Element} element html/svg element to translate
+     * 
+     * return true to use default translation
+     * return false to use custom translation 
+     */
+    function translate(element, delta_pos = {x:0,y:0}) 
     {
+       
+        if( m_mode == "edit" )
+        {
+            rotate(element, delta_pos);
+        }
+        else
+        {
+                // maybe rename... sets translation in transform matrix, but doesn't apply it
+            renderer_api.translate(element, delta_pos);
+        
+            const circ = element.querySelector('circle');
+            const line = element.querySelector('line');
+
+            const cx = parseFloat(circ.getAttribute('cx')) + delta_pos.x;
+            const cy = parseFloat(circ.getAttribute('cy')) + delta_pos.y;
+            const x2 = parseFloat(line.getAttribute('x2')) + delta_pos.x;
+            const y2 = parseFloat(line.getAttribute('y2')) + delta_pos.y;
+
+            let container = element.closest('.container');
+            let dataObj = mapToData(cx, cy, default_r, x2, y2, container);
+
+            renderer_api.drawsocketInput({
+                key: "svg",
+                val: {
+                    new: "text",
+                    id: `${className}-sprite`,
+                    x: cx,
+                    y: cy - 20,
+                    text: JSON.stringify(dataObj),
+                    style: {
+                        'font-size': '13px',
+                        'font-family': 'Helvetica sans-serif'
+                    }
+                }
+            })
+            
+        }
+       
         // option for default translation
+       // console.log('translate', element, delta_pos);
+        return true; // return true if you are handling your own translation
     }
 
     function down(e) 
     {
-        console.log('haiaz');
         if( e.metaKey )
         {
             creatNewFromMouseEvent(e);
@@ -368,44 +535,106 @@ const uiDef = function(renderer_api)
                 key: "remove", 
                 val: `${className}-sprite`
             })
-
         }
     }
 
+    /**
+     * 
+     * @param {Boolean} enable called when entering  "palette" or  "edit"  mode
+     * 
+     * creation mode starts when the symbol is sected in the palette
+     * edit mode is when the symbols is when one symbol is selected (or when you hit [e]?)
+     */
+    function paletteSelected( enable = false ) {
+        m_mode = 'palette';
 
+        console.log(`enter ${className} ${m_mode}`);
 
-    function enter (){
-        window.addEventListener("mousedown", down);
-        window.addEventListener("mousemove", move);
-        window.addEventListener("mouseup", up);
-        document.body.addEventListener("keydown", keyDown);
-        document.body.addEventListener("keyup", keyUp);
+        if( enable ){
+            window.addEventListener("mousedown", down);
+            window.addEventListener("mousemove", move);
+            window.addEventListener("mouseup", up);
+            document.body.addEventListener("keydown", keyDown);
+            document.body.addEventListener("keyup", keyUp);
+        }
+        else
+        {
+            console.log(`exit ${className} ${m_mode}`);
+
+            renderer_api.drawsocketInput({
+                key: "remove", 
+                val: `${className}-sprite`
+            })            
+
+            window.removeEventListener("mousedown", down);
+            window.removeEventListener("mousemove", move);
+            window.removeEventListener("mouseup", up);
+            document.body.removeEventListener("keydown", keyDown);
+            document.body.removeEventListener("keyup", keyUp);
+
+            m_mode = null;
+        }
     }
 
-    function exit (){
+    function editMode( enable = false )
+    {
+        if( enable )
+        {
+            let element = renderer_api.getSelected()[0]; // first object only for now...
+
+            const line = element.querySelector('line')
+            const x2 = parseFloat(line.getAttribute('x2'));
+            const y2 = parseFloat(line.getAttribute('y2'));
+    
+            renderer_api.drawsocketInput({
+                key: "svg", 
+                val: {
+                    id: `${element.id}-rotation-handle`,
+                    new: "rect",
+                    class: "handle",
+                    parent: element.id, 
+                    x: x2 - 4,
+                    y: y2 - 4,
+                    width: 8,
+                    height: 8,
+                    onclick: (event) => { console.log(test, event.target); }                        
+                }
+            })
+        }
+        else
+        {
+           
+        }
         
-        renderer_api.drawsocketInput({
-            key: "remove", 
-            val: `${className}-sprite`
-        })
-
-        window.removeEventListener("mousedown", down);
-        window.removeEventListener("mousemove", move);
-        window.removeEventListener("mouseup", up);
-        document.body.removeEventListener("keydown", keyDown);
-        document.body.removeEventListener("keyup", keyUp);
     }
+
 
     // exported functions used by the symbolist renderer
     return {
         className,
         palette,
+
         getPaletteIcon,
+        
         getInfoDisplay,
-       // newFromClick,
-        enter,
-        exit,
-        selected
+
+        //newFromClick,  // << another optional callback in case you don't want to deal with mouse events
+        
+       // enter edit mode
+
+        paletteSelected, // arg true/false to enter exit
+
+        editMode, // 1/0 to enter/exit
+
+        
+    //    enter,
+    //    exit,
+
+        selected,
+        deselected,
+        
+        translate,
+        applyTransformToData
     }
 
 }

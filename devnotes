@@ -90,5 +90,37 @@ create meta process that creates other data (like tempo curver or clustering)
 ceate symbol with rotating line for azimuth
 
 
-
 top level element is identified by the class "symbol" and all dataset information should be in this object
+best is if all symbols are wrapped in <g> tags, so that GUI elements can be contained inside of them
+
+/**
+ * view container model (stave/page/etc)
+ * 
+ * svg:
+ * <g class='className symbol container' data-time="0.1" data-duration="1" >
+ *      <g class='className display'></g>
+ *      <g class='className contents'></g>
+ * </g>
+ * 
+ * html:
+ * <div class='className symbol container'>
+ *      <div class='className display'></div>
+ *      <div class='className contents'></div>
+ * </div>
+ * 
+ * regular objects can be any node type
+ * usually they will be in a container
+ * 
+ * <g class"className symbol" data-time="0.1" data-duration="1">
+ *     <circle .... />
+ * </g>
+ * 
+ * 
+ * sent to browser using drawsocket format
+ * 
+ */
+
+
+ for rotation, rectangles are special becuase they are defined by width and height, which means that we can't apply the rotation matrix to the object parameters, but need to use a transform, that means that the mapping has to use the transform also, which in turn means that the preview translation before we apply the values to the real object needs to be handled slightly differently. 
+
+ the basic idea is that you apply the translation to the top group and then update the object values on mouse up, or cancel if you press escape

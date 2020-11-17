@@ -24,6 +24,7 @@ const overlay = document.getElementById('symbolist_overlay');
 let symbolist_log = document.getElementById("symbolist_log");;
 
 let clickedObj = null;
+let clickedObjBoundsPreTransform = null;
 let prevEventTarget = null;
 let selected = [];
 let selectedCopy = [];
@@ -49,7 +50,17 @@ let renderer_api = {
     sendToController, // renderer-event
     fairlyUniqueString,
     getCurrentContext,
-    dataToHTML
+    getSelected,
+    dataToHTML,
+    translate,
+    applyTransform,
+    svgObj
+}
+
+
+function getSelected()
+{
+    return selected;
 }
 
 ipcRenderer.on('load-ui-defs', (event, arg) => {
@@ -147,16 +158,16 @@ function makeSymbolPalette(class_array)
             }
         
             draw_msg.push({
-                key: "html",
+                key: "html",    
                 val: {
                     new: "div",
                     class: `${classname} palette-icon`,
                     id: `${classname}-paletteIcon`,
                     parent: "palette-symbols",
-                    onclick: `
-                            console.log('select ${classname}'); 
-                            symbolist.setClass('${classname}');
-                        `,
+                    onclick: () => {
+                            console.log(`select ${classname}`); 
+                            symbolist_setClass(`${classname}`);
+                    },
                     children: def_palette_display
                 }
             })
@@ -398,17 +409,17 @@ function symbolist_setClass(_class)
     let paletteItem = document.getElementById(`${_class}-paletteIcon`);
     paletteItem.classList.add("selected");  
 
-    if( uiDefs.has(selectedClass) && uiDefs.get(selectedClass).hasOwnProperty('exit') )
+    if( uiDefs.has(selectedClass) && uiDefs.get(selectedClass).hasOwnProperty('paletteSelected') )
     {
-        uiDefs.get(selectedClass).exit();
+        uiDefs.get(selectedClass).paletteSelected(false);
     }
 
     currentPaletteClass = _class;
     selectedClass = _class;
 
-    if( uiDefs.has(selectedClass) && uiDefs.get(selectedClass).hasOwnProperty('enter') )
+    if( uiDefs.has(selectedClass) && uiDefs.get(selectedClass).hasOwnProperty('paletteSelected') )
     {
-        uiDefs.get(selectedClass).enter();
+        uiDefs.get(selectedClass).paletteSelected(true);
     }
 
     ipcRenderer.send('symbolist_event',  {
@@ -443,7 +454,8 @@ function symbolist_setContext(obj)
             makeSymbolPalette(def_.palette);
         }
 
-        def_.enter(obj);
+        // make enter context mode also?
+        //def_.enter(obj);
     }
 
     if( obj != svgObj )
@@ -703,7 +715,8 @@ function addToSelection( element )
 
     // copy with selected tag to deal with comparison later
     selectedCopy.push( element.cloneNode(true) );
-  
+
+    callSelected(element);
 
 }
 
@@ -736,7 +749,7 @@ function selectAllInRegion(region, element)
 
     // to do, avoid selecting the bounding box, it's turning blue
 
-    let contextContent = currentContext.querySelector('.stave_content');
+    let contextContent = currentContext.querySelector('.content');
 
     if( contextContent == null )
         contextContent = currentContext;
@@ -756,6 +769,9 @@ function deselectAll()
  
     document.querySelectorAll('.symbolist_selected').forEach( el => {
         el.classList.remove("symbolist_selected");
+        
+        // call class method
+        callDeselected(el);
     })
 
     selected = [];
@@ -856,16 +872,157 @@ function applyTransformToSelected()
 {
     for( let i = 0; i < selected.length; i++)
     {
-        let matrix = selected[i].getCTM();
-        applyTransform(selected[i], matrix);
+        if( !callApplyTransformToData(selected[i]) )
+        {
+            let matrix = selected[i].getCTM();
+            console.log('apply', matrix);
+            applyTransform(selected[i], matrix);
+        }
+        
     }
 }
 
 
+function cancelTransform(element)
+{
+    element.removeAttribute('transform');   
+}
+
+function matrixMultiply(a, b) {
+    var result = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+    
+    var a11 = a[0];
+    var a12 = a[1];
+    var a13 = a[2];
+    var a21 = a[3];
+    var a22 = a[4];
+    var a23 = a[5];
+    var a31 = a[6];
+    var a32 = a[7];
+    var a33 = a[8];
+    
+    var b11 = b[0];
+    var b12 = b[1];
+    var b13 = b[2];
+    var b21 = b[3];
+    var b22 = b[4];
+    var b23 = b[5];
+    var b31 = b[6];
+    var b32 = b[7];
+    var b33 = b[8];
+
+    result[0] = a11*b11 + a12*b21 + a13*b31;
+    result[1] = a11*b12 + a12*b22 + a13*b32;
+    result[2] = a11*b13 + a12*b23 + a13*b33;
+
+    result[3] = a21*b11 + a22*b21 + a23*b31;
+    result[4] = a21*b12 + a22*b22 + a23*b32;
+    result[5] = a21*b13 + a22*b23 + a23*b33;
+    
+    result[6] = a31*b11 + a32*b21 + a33*b31;
+    result[7] = a31*b12 + a32*b22 + a33*b32;
+    result[8] = a31*b13 + a32*b23 + a33*b33;
+    
+    return result;
+}
+
+function matrixTranslate(m, x, y) {
+    var n = [
+        1, 0, x,
+        0, 1, y,
+        0, 0, 1
+    ];
+    
+    return matrixMultiply(n, m);
+}
+
+function matrixRotate(m, theta) {
+    var n = [
+        Math.cos(theta), -Math.sin(theta), 0,
+        Math.sin(theta), Math.cos(theta), 0,
+        0, 0, 1
+    ];
+    
+    return matrixMultiply(n, m);
+}
+
+
+function rotate(obj, mouse_pos)
+{
+
+//     var scaleX = 2;
+// var scaleY = 3;
+// var translateX = 12;
+// var translateY = 8;
+// var angle = Math.PI / 2;
+// var matrix = new DOMMatrix([
+//   Math.sin(angle) * scaleX,
+//   Math.cos(angle) * scaleX,
+//   -Math.sin(angle) * scaleY,
+//   Math.cos(angle) * scaleY,
+//   translateX,
+//   translateY
+// ]);
+
+    if( !obj )
+        return;
+
+//    let svg = document.getElementById("svg");
+    if( obj === svgObj )
+        return;
+    
+    let bbox = clickedObjBoundsPreTransform;    
+    let cx = bbox.x + (bbox.width / 2);
+    let cy = bbox.y + (bbox.height / 2);
+
+    //let dx = mouse_pos.x - cx;
+    //let dy =  mouse_pos.y - cy;
+    let azim = Math.atan2( mouse_pos.x - cx, mouse_pos.y - cy );
+
+//    console.log(cx, cy, mouse_pos.x - cx, mouse_pos.y - cy);
+
+    let transformlist = obj.transform.baseVal; 
+
+    //var translate1 = svgObj.createSVGTransform();
+    //translate.setTranslate(-cx, -cy);
+
+    var rotate = svgObj.createSVGTransform();
+    rotate.setRotate(azim / -Math.PI * 180.0, cx, cy )
+
+    //var translate2 = svgObj.createSVGTransform();
+    //translate.setTranslate(cx, cy);
+
+    //let matrix = svgObj.getCTM();
+/*
+    matrix = matrixTranslate(matrix, -cx, -cy);
+    matrix = matrixRotate(matrix, azim);
+    matrix = matrixTranslate(matrix, cx, cy);
+
+    //matrix = matrix.rotate(azim, mouse_pos.x - cx, mouse_pos.y - cy)
+    console.log(matrix);
+*/
+    /*
+    matrix = matrix.translate(-cx, -cy);
+    matrix = matrix.rotate(azim);
+    matrix = matrix.translate(cx, cy);
+    */
+    /*
+    matrix.a = Math.sin(azim);
+    matrix.c = Math.cos(azim);
+    matrix.b = -Math.sin(azim); 
+    matrix.d = Math.cos(azim);
+    matrix.e = cx - matrix.a * cx - matrix.c * cy;
+    matrix.f = cy - matrix.b * cx - matrix.d * cy;
+*/
+    const transformMatrix = svgObj.createSVGTransformFromMatrix(rotate.matrix);
+    transformlist.initialize( transformMatrix );
+    console.log(transformMatrix);
+}
+
 
 /**
  * 
- * @param {Object} obj element to trasnlate
+ * @param {Object} obj element to translate
  * @param {Object} delta_pos point {x,y} of translation delta from the object attribute settings
  * 
  * function applies transaltion and updates position of object, via transform without updating SVG attributes
@@ -884,25 +1041,50 @@ function translate(obj, delta_pos)
     if( obj === svgObj )
         return;
         
+
     let transformlist = obj.transform.baseVal; 
 
     let matrix = obj.getCTM();
     matrix.e = delta_pos.x;
     matrix.f = delta_pos.y;
 
+    //let translation_ = svgObj.createSVGTransform();
+    //translation_.setTranslate( delta_pos.x,  delta_pos.y );
+    
     const transformMatrix = svgObj.createSVGTransformFromMatrix(matrix);
     transformlist.initialize( transformMatrix );
 
+    //transformlist.insertItemBefore(translation_, 1);
+
 }
+
 
 function translate_selected(delta_pos)
 {
     for( let i = 0; i < selected.length; i++)
     {
-        console.log('translate_selected', selected[i]);        
-        translate(selected[i], delta_pos);
+       
+        if( !callTranslate(selected[i], delta_pos) )
+        {
+            console.log('translate_selected', selected[i]); 
+            translate(selected[i], delta_pos);
+        }
     }
 }
+
+function rotate_selected(mouse_pos)
+{
+    for( let i = 0; i < selected.length; i++)
+    {
+       
+       // if( !callTranslate(selected[i], delta_pos) )
+        {
+           // console.log('translate_selected', selected[i]); 
+            rotate(selected[i], mouse_pos);
+        }
+    }
+}
+
 
 
 function makeRelative(obj, container)
@@ -1155,6 +1337,11 @@ function symbolist_keydownhandler(event)
                 event.symbolistAction = "getInfo";
             }
             break;
+        case "e":
+            if( nmods == 0 && selected.length > 0 ){                
+                callEnterEditModeForSelected();
+            }
+            break;
         case "Escape":
 
             if( selected.length == 0 )
@@ -1348,7 +1535,7 @@ function symbolist_mousedown(event)
         prevEventTarget = _eventTarget;
 
 
-    if( !event.shiftKey && !event.altKey )
+    if( (_eventTarget == currentContext) || (!event.shiftKey && !event.altKey) )
         deselectAll();
 
 
@@ -1374,7 +1561,8 @@ function symbolist_mousedown(event)
             
             addToSelection( _eventTarget );
             clickedObj = _eventTarget;
-    
+            clickedObjBoundsPreTransform = cloneObj( clickedObj.getBoundingClientRect() );
+            
             event.symbolistAction = "selection";
     
             console.log(`selected object ${clickedObj} selection, event ${_eventTarget.classList}, context ${currentContext.classList}` );
@@ -1445,13 +1633,17 @@ function symbolist_mousemove(event)
     if( prevEventTarget === null )
         prevEventTarget = _eventTarget;
 
-    const mouseDelta = deltaPt({ x: event.clientX, y: event.clientY }, mousedown_pos);
+    const pt = { x: event.clientX, y: event.clientY };
+    const mouseDelta = deltaPt(pt, mousedown_pos);
 
     if( event.buttons == 1 )
     {
         if( clickedObj )
         {
-            translate_selected( mouseDelta );
+            if( event.shiftKey )
+                rotate_selected( pt )
+            else
+                translate_selected( mouseDelta );
         }
         else 
         {
@@ -1482,8 +1674,66 @@ function symbolist_mousemove(event)
 
 }
 
-function callSelected()
+function callEnterEditMode(element)
 {
+    if( uiDefs.has( element.classList[0] ))
+    {
+        const def_ = uiDefs.get( element.classList[0] );
+        if( def_.hasOwnProperty('editMode') )
+        {
+            def_.editMode(true);
+            return true;
+        }        
+    }
+
+    return false;
+}
+
+function callEnterEditModeForSelected()
+{
+    selected.forEach( sel => callEnterEditMode(sel) )
+}
+
+function callTranslate(element, delta_pos)
+{
+    if( uiDefs.has( element.classList[0] ))
+    {
+        const def_ = uiDefs.get( element.classList[0] );
+        if( def_.hasOwnProperty('translate') )
+        {
+            return def_.translate(element, delta_pos);
+        }        
+    }
+
+    return false;
+}
+
+function callApplyTransformToData(element)
+{
+    if( uiDefs.has( element.classList[0] ))
+    {
+        const def_ = uiDefs.get( element.classList[0] );
+        if( def_.hasOwnProperty('applyTransformToData') )
+        {
+            return def_.applyTransformToData(element);
+        }        
+    }
+
+    return false;
+}
+
+function callSelected(element)
+{
+    if( uiDefs.has( element.classList[0] ))
+    {
+        const def_ = uiDefs.get( element.classList[0] );
+        if( def_.hasOwnProperty('selected') )
+        {
+            def_.selected(element);
+        }        
+    }
+
+    /*
     selected.forEach( el => {
         if( uiDefs.has( el.classList[0] ) )
         {
@@ -1494,7 +1744,24 @@ function callSelected()
             }
         }
     })
+    */
+}
 
+function callDeselected(element)
+{
+    if( uiDefs.has( element.classList[0] ) )
+    {
+        const def_ = uiDefs.get( element.classList[0] );
+        if( def_.hasOwnProperty('deselected') )
+        {
+            def_.deselected(element);
+        }
+
+        if( def_.hasOwnProperty('editMode') )
+        {
+            def_.editMode(false);
+        }
+    }
 }
 
 function symbolist_mouseup(event)
@@ -1531,7 +1798,7 @@ function symbolist_mouseup(event)
         else
         {
 
-            callSelected();
+            //callSelected();
             // only call getUnionBounds if there is no custom transform function
            // getUnionBounds();
         }

@@ -63,13 +63,13 @@ const viewContainer = function(x, y, width, height, id, parentID)
  * view container model (stave/page/etc)
  * 
  * svg:
- * <g class='className container'>
+ * <g class='className symbol container' data-time="0.1" data-duration="1" >
  *      <g class='className display'></g>
  *      <g class='className contents'></g>
  * </g>
  * 
  * html:
- * <div class='className container'>
+ * <div class='className symbol container'>
  *      <div class='className display'></div>
  *      <div class='className contents'></div>
  * </div>
@@ -77,7 +77,10 @@ const viewContainer = function(x, y, width, height, id, parentID)
  * regular objects can be any node type
  * usually they will be in a container
  * 
- * <circle .... />
+ * <g class"className symbol" data-time="0.1" data-duration="1">
+ *     <circle .... />
+ * </g>
+ * 
  * 
  * sent to browser using drawsocket format
  * 
@@ -350,30 +353,34 @@ const uiDef = function(renderer_api)
      * 
      * @param {Element} obj selected element
      */
-    function enter (obj){
-        console.log('entered with context', obj);
+    function paletteSelected (enable = false)
+    {
 
-        window.addEventListener("mousedown", down);
-        window.addEventListener("mousemove", move);
-        window.addEventListener("mouseup", up);
-        document.body.addEventListener("keydown", keyDown);
-        document.body.addEventListener("keyup", keyUp);
+        if( enable ){
+            window.addEventListener("mousedown", down);
+            window.addEventListener("mousemove", move);
+            window.addEventListener("mouseup", up);
+            document.body.addEventListener("keydown", keyDown);
+            document.body.addEventListener("keyup", keyUp);
+        }
+        else
+        {
+            renderer_api.drawsocketInput({
+                key: "remove", 
+                val: `${className}-sprite`
+            })            
+
+            window.removeEventListener("mousedown", down);
+            window.removeEventListener("mousemove", move);
+            window.removeEventListener("mouseup", up);
+            document.body.removeEventListener("keydown", keyDown);
+            document.body.removeEventListener("keyup", keyUp);
+
+        }
+
     }
 
-    function exit (){
-        
-        renderer_api.drawsocketInput({
-            key: "remove", 
-            val: 'rectangleStave-sprite'
-        })
-
-
-        window.removeEventListener("mousedown", down);
-        window.removeEventListener("mousemove", move);
-        window.removeEventListener("mouseup", up);
-        document.body.removeEventListener("keydown", keyDown);
-        document.body.removeEventListener("keyup", keyUp);
-    }
+  
 
     // exported functions used by the symbolist renderer
     return {
@@ -382,8 +389,7 @@ const uiDef = function(renderer_api)
         getPaletteIcon,
         getInfoDisplay,
        // newFromClick,
-        enter,
-        exit
+        paletteSelected
     }
 
 }
