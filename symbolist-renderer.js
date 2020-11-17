@@ -234,54 +234,6 @@ function dataToHTML(data_)
 }
 
 
-function makeSymbolPaletteForContainer(_classname)
-{
-    console.log('makeSymbolPaletteForContainer ', _classname);
-
-    if( paletteMap.has(_classname) )
-    {
-        const clef = paletteMap.get(_classname);
-        if( clef.hasOwnProperty('palette') )
-        {
-            //console.log('building symbol palette');
-            
-            let draw_msg = [];
-            for( _symbolDefID of clef.palette )
-            {   
-                //console.log('checking for ', _symbolDefID);
-
-                if( defs.has(_symbolDefID) )
-                {
-                    const symDef = defs.get(_symbolDefID);
-                    if( symDef.hasOwnProperty('getEventIcon') )
-                    {
-                        draw_msg.push( symDef.getEventIcon().view )
-                    }
-
-                }
-            }
-
-            if( draw_msg.length > 0 )
-            {
-                process.send({
-                    key: 'draw',
-                    val: [{
-                        key: "clear",
-                        val: "palette-symbols"
-                    }, ...draw_msg]
-                }) 
-            }
-            
-        }
-    }
-}
-
-
-
-
-
-
-
 /*
     {
         call: "enterEditMode",
@@ -336,28 +288,6 @@ ipcRenderer.on('enter-custom-ui', (event, arg) => {
     console.log('starting custom ui');
     enterCustomUI(arg);
 })
-
-/**
- * load and unload custom UI from external file
- * 
- */
-function enterCustomUI(argObj)
-{
-    console.log('test', argObj.filename);
-    const userInterface = require(argObj.filename);
-    if( userInterface )
-        userInterface.enter(argObj, mousedown_pos);
-}
-
-function exitCustomUI(filename_)
-{  
-    // removes imported module
-    const userInterface = require.resolve(filename_); // lookup loaded instance of module
-    if( userInterface )
-        userInterface.exit();
-
-    delete require.cache[ userInterface ];
-}
 
 /**
  *  listener receives all forwarded messages from drawsocket
@@ -1964,7 +1894,6 @@ module.exports = {
     makeRelative,
     startDefaultEventHandlers,
     stopDefaultEventHandlers,
-    getContextConstraintsForPoint,
-    enterCustomUI, // called from palette click
-    exitCustomUI // called from custom UI to clean up
+    getContextConstraintsForPoint
+
  }

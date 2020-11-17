@@ -1,6 +1,14 @@
 const fs = require('fs');
 const path = require('path');
 const sym_util = require('./utils')
+const { js2osc } = require('./js2osc.js')
+
+
+let udp_server;
+
+function setUDP(server){ 
+    udp_server = server;
+}
 
 /**
  * 
@@ -632,6 +640,14 @@ function input(_obj)
 
     switch (key) //must have key!
     {
+        case 'new':
+        case 'update':
+            console.log('sending', val);
+            let buffer = Buffer.from("hello?");
+            udp_server.send( js2osc(val), 7777, (err) => {
+                console.error('send err', err);
+              });
+            break;
         case 'toData':
             viewToData(val);
             break;
@@ -660,7 +676,7 @@ function input(_obj)
     }
 }
 
-module.exports = { input }
+module.exports = { input, setUDP }
 
 
 /*

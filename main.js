@@ -155,23 +155,7 @@ else if (cluster.isWorker)
   const sym_util = require('./utils.js')
   const controller = require('./symbolist_controller')
 
-  process.on("message", (_msg) => {
-    
-    controller.input(_msg);
-
-    //console.log('cluster received msg', _msg);
-
-    /*
-    parseAsync(_msg)
-      .then(obj_ => {
-        // let matrix = sym_util.matrixFromString('matrix(1 1 1 0 0 0)');
-        console.log('cluster received', obj_);
-      })
-      .catch( err => console.log('parse err', err) )
-    */
-   
-  });
-
+  const osc = require('osc')
 
   /**
    * UDP I/O
@@ -202,6 +186,59 @@ else if (cluster.isWorker)
   });
 
   server.bind(8888);
+
+  const client = dgram.createSocket('udp4');
+
+  let buffer = osc.writePacket({
+
+    timeTag: osc.timeTag(0),
+
+    packets: [
+        {
+            address: "/carrier/frequency",
+            args: [
+                {
+                    type: "f",
+                    value: 440
+                }
+            ]
+        },
+        {
+            address: "/carrier/amplitude",
+            args: [
+                {
+                    type: "f",
+                    value: 0.5
+                }
+            ]
+        }
+    ]
+});
+
+  client.send(buffer, 7777, (err) => {
+      console.error('send err', err);
+    });
+    
+  controller.setUDP(server);
+
+  // messages from renderer
+  process.on("message", (_msg) => {
+    
+    controller.input(_msg);
+
+    //console.log('cluster received msg', _msg);
+
+    /*
+    parseAsync(_msg)
+      .then(obj_ => {
+        // let matrix = sym_util.matrixFromString('matrix(1 1 1 0 0 0)');
+        console.log('cluster received', obj_);
+      })
+      .catch( err => console.log('parse err', err) )
+    */
+   
+  });
+
 
 
 }
