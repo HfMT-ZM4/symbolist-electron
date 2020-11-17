@@ -158,19 +158,25 @@ const uiDef = function(renderer_api)
      * 
      * @returns drawsocket format object(s) to draw
      */
-    function getInfoDisplay(dataObj, viewElement)
+    function getInfoDisplay( viewElement )
     {
-        return renderer_api.makeDefaultInfoDisplay(dataObj, viewElement.getBoundingClientRect() );
+        renderer_api.drawsocketInput(
+            renderer_api.makeDefaultInfoDisplay(viewElement)
+        )
+        
     }
 
-    function mapToData(cx, cy, r, x2, y2, container)
+    function mapToData(viewData, container)
     {
         const containerDisplay = container.querySelector('.display');
         const bbox = containerDisplay.getBoundingClientRect();
 
-        const time = ((cx-bbox.x) * x2time) + parseFloat(container.dataset.time);// + parseFloat(container.dataset.duration);
-        const pitch = (1 - ((cy-bbox.y) / bbox.height)) * y2pitch; 
-        const azim = Math.atan2(x2 - cx, y2 - cy)
+        const time = ((viewData.cx-bbox.x) * x2time) + parseFloat(container.dataset.time);// + parseFloat(container.dataset.duration);
+        
+        const pitch = (1 - ((viewData.cy-bbox.y) / bbox.height)) * y2pitch; 
+        
+        const azim = Math.atan2(viewData.x2 - viewData.cx, 
+                                viewData.y2 - viewData.cy )
 
         return {
             time, 
@@ -189,7 +195,7 @@ const uiDef = function(renderer_api)
      */
     function elementToData(element)
     {
-        const container = renderer_api.getCurrentContext();
+        const container = element.closest('.container');
         const circle = element.querySelector('circle');
         const line = element.querySelector('line');
 
@@ -198,23 +204,58 @@ const uiDef = function(renderer_api)
         const x2 = parseFloat(line.getAttribute('x2'));
         const y2 = parseFloat(line.getAttribute('y2'));
 
-        return mapToData(cx, cy, default_r, x2, y2, container);
+        return mapToData(
+            { 
+                cx, 
+                cy, 
+                r: default_r, 
+                x2, 
+                y2 
+            }, 
+            container
+        );
 
     }
 
-    function mapToView(time, pitch, azim, container)
+    function mapToView(data, container)
     {
+        console.log('data', data);
         const containerDisplay = container.querySelector('.display');
         const bbox = containerDisplay.getBoundingClientRect();
 
-        const cx = bbox.x + ((time - parseFloat(container.dataset.time)) * time2x);
-        const cy = bbox.y + ((1. - (pitch * pitch2y)) * bbox.height);
+        const cx = bbox.x + ((data.time - parseFloat(container.dataset.time)) * time2x);
+        const cy = bbox.y + ((1. - (data.pitch * pitch2y)) * bbox.height);
 
-        const x2 = cx + Math.sin(azim) * default_dist;
-        const y2 = cy + Math.cos(azim) * default_dist;
+        const x2 = cx + Math.sin(data.azim) * default_dist;
+        const y2 = cy + Math.cos(data.azim) * default_dist;
 
         return viewDisplay(cx, cy, default_r, x2, y2)
             
+    }
+
+
+    // do we need a separate one for creating a new object from data? (i.e. from udp)
+    function updateFromDataset(element)
+    {
+        // assuming that we have all the data
+        let data = { ...element.dataset };
+        const container = element.closest('.container');
+
+        console.log(element, 'container', container);
+        let newView = mapToView(data, container);
+        console.log('newView', newView);
+
+        renderer_api.drawsocketInput({
+            key: "svg",
+            val: {
+                id: element.id,
+                parent: element.parentNode.id,
+                class: element.classList,
+                ...newView,
+                ...renderer_api.dataToHTML(data)
+            }
+        })
+
     }
 
 
@@ -238,9 +279,22 @@ const uiDef = function(renderer_api)
 
       //  console.log('eventElement', eventElement);
 
-        const dataObj = mapToData(cx, cy, r, cx + r, cy - 10, container)
+        const dataObj = mapToData(
+            {
+                cx, 
+                cy, 
+                r, 
+                x2: cx + r, 
+                y2: cy - 10
+            }, 
+            container 
+        );
 
-        let viewObj = mapToView(dataObj.time + 0.1, dataObj.pitch, dataObj.azim + 1, container);
+        let viewObj = mapToView({
+                            time: dataObj.time + 0.1, 
+                            pitch: dataObj.pitch, 
+                            azim: dataObj.azim + 1
+                       }, container );
 
        
         // create new symbol in view
@@ -315,10 +369,19 @@ const uiDef = function(renderer_api)
     
             const container = renderer_api.getCurrentContext();
         
-            const dataObj = mapToData(cx, cy, r, cx + r, cy - 10, container);
+            let dataObj = mapToData({
+                    cx, 
+                    cy, 
+                    r, 
+                    x2: cx + r, 
+                    y2: cy - 10
+                },
+                container
+            );
+
             dataObj.azim = azim;
 
-            let viewObj = mapToView(dataObj.time, dataObj.pitch, azim, container);
+            let viewObj = mapToView(dataObj, container);
 
             drawsocket.input({
                 key: "svg", 
@@ -359,7 +422,6 @@ const uiDef = function(renderer_api)
             val: `${element.id}-rotation-handle`
         })
     }
-
 
     function applyTransformToData(element)
     {
@@ -489,7 +551,17 @@ const uiDef = function(renderer_api)
             const y2 = parseFloat(line.getAttribute('y2')) + delta_pos.y;
 
             let container = element.closest('.container');
-            let dataObj = mapToData(cx, cy, default_r, x2, y2, container);
+            let dataObj = mapToData(
+                { 
+                    cx, 
+                    cy, 
+                    r: default_r, 
+                    x2, 
+                    y2 
+                }, 
+                container
+            ); //mapToData(cx, cy, default_r, x2, y2, container);
+            
 
             renderer_api.drawsocketInput({
                 key: "svg",
@@ -618,6 +690,8 @@ const uiDef = function(renderer_api)
         
         getInfoDisplay,
 
+        updateFromDataset,
+        
         //newFromClick,  // << another optional callback in case you don't want to deal with mouse events
         
        // enter edit mode

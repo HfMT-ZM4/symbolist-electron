@@ -13,6 +13,7 @@
  */
 
 const { ipcRenderer } = require('electron')
+const { makeDefaultInfoDisplay } = require('./default-infopanel')
 
 /**
  * globals
@@ -52,6 +53,7 @@ let renderer_api = {
     getCurrentContext,
     getSelected,
     dataToHTML,
+    makeDefaultInfoDisplay,
     translate,
     applyTransform,
     svgObj
@@ -1263,6 +1265,8 @@ function symbolist_keydownhandler(event)
     {
         case "i":
             if( nmods == 0 && selected.length > 0 ){                
+
+                callGetInfoDisplayForSelected();
                 console.log("i key getInfo");
                 event.symbolistAction = "getInfo";
             }
@@ -1624,6 +1628,26 @@ function callEnterEditModeForSelected()
     selected.forEach( sel => callEnterEditMode(sel) )
 }
 
+function callGetInfoDisplay(element)
+{
+    if( uiDefs.has( element.classList[0] ))
+    {
+        const def_ = uiDefs.get( element.classList[0] );
+        if( def_.hasOwnProperty('getInfoDisplay') )
+        {
+            def_.getInfoDisplay(element);
+            return true;
+        }        
+    }
+
+    return false;
+}
+
+function callGetInfoDisplayForSelected()
+{
+    selected.forEach( sel => callGetInfoDisplay(sel) )
+}
+
 function callTranslate(element, delta_pos)
 {
     if( uiDefs.has( element.classList[0] ))
@@ -1662,19 +1686,6 @@ function callSelected(element)
             def_.selected(element);
         }        
     }
-
-    /*
-    selected.forEach( el => {
-        if( uiDefs.has( el.classList[0] ) )
-        {
-            const def_ = uiDefs.get( el.classList[0] );
-            if( def_.hasOwnProperty('selected') )
-            {
-                def_.selected(el);
-            }
-        }
-    })
-    */
 }
 
 function callDeselected(element)
@@ -1691,6 +1702,19 @@ function callDeselected(element)
         {
             def_.editMode(false);
         }
+    }
+}
+
+
+function callUpdateFromDataset(element)
+{
+    if( uiDefs.has( element.classList[0] ))
+    {
+        const def_ = uiDefs.get( element.classList[0] );
+        if( def_.hasOwnProperty('updateFromDataset') )
+        {
+            def_.updateFromDataset(element);
+        }        
     }
 }
 
@@ -1894,6 +1918,8 @@ module.exports = {
     makeRelative,
     startDefaultEventHandlers,
     stopDefaultEventHandlers,
-    getContextConstraintsForPoint
+    getContextConstraintsForPoint,
+
+    callUpdateFromDataset
 
  }
