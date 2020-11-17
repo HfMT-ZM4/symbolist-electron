@@ -41,8 +41,8 @@ const js2osc = function(jsObj)
         let src = Array.isArray(jsObj[key]) ? jsObj[key] : [ jsObj[key] ];
         args = src.map(el => {
             const f = parseFloat(el);
-            const numeric = isNaN(el - f);
-            const value = numeric ? el : f;
+            const numeric = !isNaN(el - f);
+            const value = numeric ? f : el;
             const type = numeric ? 'f' : 's';
             return {
                 type,

@@ -643,7 +643,6 @@ function input(_obj)
         case 'new':
         case 'update':
             console.log('sending', val);
-            let buffer = Buffer.from("hello?");
             udp_server.send( js2osc(val), 7777, (err) => {
                 console.error('send err', err);
               });
