@@ -13,9 +13,9 @@
  */
 
 const { ipcRenderer } = require('electron')
-const { makeDefaultInfoDisplay } = require('./default-infopanel')
+const { makeDefaultInfoDisplay } = require('./lib/default-infopanel')
 
-const { insertSorted, insertSortedHTML, insertIndex } = require('./sorted-array-utils')
+const { insertSorted, insertSortedHTML, insertIndex } = require('./lib/sorted-array-utils')
 
 /**
  * globals

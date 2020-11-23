@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
-const sym_util = require('./utils')
-const { js2osc } = require('./js2osc.js')
+const sym_util = require('./lib/utils')
+const { js2osc } = require('./lib/js2osc.js')
 
 
 let udp_server;

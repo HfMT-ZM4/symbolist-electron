@@ -1,5 +1,5 @@
 const { app, Menu } = require('electron')
-const actions = require('./menu-actions')
+const actions = require('./actions')
 const isMac = process.platform === 'darwin'
 
 

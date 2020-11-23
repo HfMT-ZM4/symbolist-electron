@@ -21,9 +21,9 @@ const parseAsync = (obj_str) => {
 if( cluster.isMaster )
 {
   const { app, BrowserWindow, ipcMain, globalShortcut, dialog } = require('electron')
-  const menu = require('./menu') // init after creating cluster and win
+  const menu = require('./menu-actions/menu') // init after creating cluster and win
 
-  const controller_proc = cluster.fork();
+  const io_controller_proc = cluster.fork();
   let win = null
   
   function createWindow () 
@@ -39,7 +39,9 @@ if( cluster.isMaster )
       }
     })
   
-    menu.init(controller_proc, win)
+    // pass menu class the io controller and window for communcations
+    // note that the menu still runs in the main thread
+    menu.init(io_controller_proc, win)
 
     globalShortcut.register('CommandOrControl+R', function() {
       console.log('CommandOrControl+R is pressed')
@@ -58,10 +60,11 @@ if( cluster.isMaster )
 
     createWindow();
 
+    // note: did-finish-load is called on browser refresh
     win.webContents.on('did-finish-load', () => {
 
       dialog.showOpenDialog(win, {
-        message: "Please select Symbolist JSON setup files",
+        message: "Please select Symbolist init folder",
         properties: ['openDirectory', ]//, //'openFile', 'multiSelections'
         /*filters: [{ 
           name: "JavaScript", 
@@ -75,9 +78,11 @@ if( cluster.isMaster )
         else
         {
         // console.log('result', result)
+        
+          // could send directly to renderer here also
+          win.webContents.send('load-ui-defs', result.filePaths);
 
-        // could send directly to renderer here also
-          controller_proc.send({
+          io_controller_proc.send({
             key: "loadInitFiles",
             val: result.filePaths
           })
@@ -88,7 +93,7 @@ if( cluster.isMaster )
       })
 
       /*
-      controller_proc.send({
+      io_controller_proc.send({
         key: 'init'
       });
       */
@@ -115,7 +120,12 @@ if( cluster.isMaster )
   })
   
 
-  controller_proc.on('message', (msg)=> {
+  /**
+   * messages from io_controller
+   */
+  io_controller_proc.on('message', (msg)=> {
+
+    // remove this draw thing
     if( msg.key == 'draw' )
     {
    //   console.log('main recieved and sending', JSON.stringify(msg.val, null, 2));
@@ -140,8 +150,12 @@ if( cluster.isMaster )
   });
   
  
+  /**
+   * messages from ui to io controller (menu events are )
+   */
+
   ipcMain.on('renderer-event', (event, arg) => {
-    controller_proc.send(arg)
+    io_controller_proc.send(arg)
   })
 
   ipcMain.handle('query-event', async (event, ...args) => {
@@ -152,8 +166,7 @@ if( cluster.isMaster )
 }
 else if (cluster.isWorker) 
 {
-  const sym_util = require('./utils.js')
-  const controller = require('./symbolist_controller')
+  const io_controller = require('./io_controller')
 
   const osc = require('osc')
 
@@ -190,52 +203,40 @@ else if (cluster.isWorker)
   const client = dgram.createSocket('udp4');
 
   let buffer = osc.writePacket({
+      timeTag: osc.timeTag(0),
 
-    timeTag: osc.timeTag(0),
-
-    packets: [
-        {
-            address: "/carrier/frequency",
-            args: [
-                {
-                    type: "f",
-                    value: 440
-                }
-            ]
-        },
-        {
-            address: "/carrier/amplitude",
-            args: [
-                {
-                    type: "f",
-                    value: 0.5
-                }
-            ]
-        }
-    ]
-});
+      packets: [
+          {
+              address: "/carrier/frequency",
+              args: [
+                  {
+                      type: "f",
+                      value: 440
+                  }
+              ]
+          },
+          {
+              address: "/carrier/amplitude",
+              args: [
+                  {
+                      type: "f",
+                      value: 0.5
+                  }
+              ]
+          }
+      ]
+  });
 
   client.send(buffer, 7777, (err) => {
-      console.error('send err', err);
-    });
-    
-  controller.setUDP(server);
+    console.error('send err', err);
+  });
+  
+  io_controller.setUDP(server);
 
-  // messages from renderer
+  // messages from UI
   process.on("message", (_msg) => {
     
-    controller.input(_msg);
-
-    //console.log('cluster received msg', _msg);
-
-    /*
-    parseAsync(_msg)
-      .then(obj_ => {
-        // let matrix = sym_util.matrixFromString('matrix(1 1 1 0 0 0)');
-        console.log('cluster received', obj_);
-      })
-      .catch( err => console.log('parse err', err) )
-    */
+    io_controller.input(_msg);
    
   });
 
