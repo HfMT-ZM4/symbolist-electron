@@ -15,12 +15,15 @@
 const { ipcRenderer } = require('electron')
 const { makeDefaultInfoDisplay } = require('./default-infopanel')
 
+const { insertSorted, insertSortedHTML, insertIndex } = require('./sorted-array-utils')
+
 /**
  * globals
  */
 const svgObj = document.getElementById("svg");
 const mainSVG = document.getElementById("main-svg");
 const overlay = document.getElementById('symbolist_overlay');
+let mainDiv = document.getElementById('main-div');
 
 let symbolist_log = document.getElementById("symbolist_log");;
 
@@ -37,6 +40,8 @@ let currentContext = svgObj;
 let currentPaletteClass =  "";
 
 let selectedClass = currentPaletteClass;
+
+let currentMode = "palette";
 
 
 /**
@@ -56,7 +61,12 @@ let renderer_api = {
     makeDefaultInfoDisplay,
     translate,
     applyTransform,
-    svgObj
+    
+    svgObj,
+
+    insertSorted, 
+    insertSortedHTML,
+    insertIndex
 }
 
 
@@ -998,7 +1008,7 @@ function translate_selected(delta_pos)
        
         if( !callTranslate(selected[i], delta_pos) )
         {
-            console.log('translate_selected', selected[i]); 
+           // console.log('translate_selected', selected[i]); 
             translate(selected[i], delta_pos);
         }
     }
@@ -1085,10 +1095,11 @@ function makeUniqueID(obj)
 
 function getTopLevel(elm)
 {    
+    if( elm == svgObj )
+        return elm;
+    else    
+        return elm.closest(".symbol");
 
-    //const ret = elm.closest(".symbol");
-   // console.log(ret);
-    return elm.closest(".symbol");
 /*
     while(  elm != svgObj && 
             elm.parentNode && 
@@ -1257,6 +1268,21 @@ function symbolost_sendKeyEvent(event, caller)
 }
 
 
+function escapeModes()
+{
+    if( selected.length == 0 )
+        setDefaultContext();
+    else
+    {
+        if( currentMode == "edit" )
+            callExitEditModeForSelected();
+        else
+            deselectAll();
+        
+        console.log('currentMode', currentMode, 'currentContext', currentContext );
+    }
+        
+}
 
 function symbolist_keydownhandler(event)
 {
@@ -1277,12 +1303,7 @@ function symbolist_keydownhandler(event)
             }
             break;
         case "Escape":
-
-            if( selected.length == 0 )
-                setDefaultContext();
-            else
-                deselectAll();
-
+            escapeModes()
             break;
         case "s":
             setSelectedContext();
@@ -1297,12 +1318,12 @@ function symbolist_keydownhandler(event)
 
     console.log("symbolist_keydownhandler", event.symbolistAction, event.key);
     
-    symbolost_sendKeyEvent(event, "keydown");
+   // symbolost_sendKeyEvent(event, "keydown");
 }
 
 function symbolist_keyuphandler(event)
 {
-    symbolost_sendKeyEvent(event, "keyup");
+  //  symbolost_sendKeyEvent(event, "keyup");
 }
 
 
@@ -1341,7 +1362,7 @@ function sendMouseEvent(event, caller)
             context: _jsonContext,
             paletteClass: currentPaletteClass, // class specified by the palette
             action: caller,
-            xy: [ event.clientX, event.clientY ],
+            xy: [ event.pageX, event.pageY ],
             mousedownPos: event.buttons == 1 ? [mousedown_pos.x, mousedown_pos.y ] : null,
             button: event.buttons,
             mods : {
@@ -1370,25 +1391,25 @@ function sendMouseEvent(event, caller)
 function getDragRegion(event)
 {
     let left, right, top, bottom;
-    if( mousedown_pos.x < event.clientX )
+    if( mousedown_pos.x < event.pageX )
     {
-        right = event.clientX;
+        right = event.pageX;
         left = mousedown_pos.x;
     }
     else
     {
-        left = event.clientX;
+        left = event.pageX;
         right = mousedown_pos.x;
     }
 
-    if( mousedown_pos.y < event.clientY )
+    if( mousedown_pos.y < event.pageY )
     {
-        bottom = event.clientY;
+        bottom = event.pageY;
         top = mousedown_pos.y;
     }
     else
     {
-        top = event.clientY;
+        top = event.pageY;
         bottom = mousedown_pos.y;
     }
 
@@ -1458,10 +1479,14 @@ function symbolsit_dblclick(event)
 
 function symbolist_mousedown(event)
 {          
+    if( currentMode == "edit" )
+        return;
+
     console.log(`mouse down> current context: ${currentContext.id}\n event target ${event.target}`); 
 
     const _eventTarget = getTopLevel( event.target );
 
+    console.log(_eventTarget);
     
     console.log(`mouse down ${_eventTarget.id} was ${JSON.stringify(elementToJSON(event.target))}`); 
     
@@ -1520,7 +1545,7 @@ function symbolist_mousedown(event)
 
     }
 
-    mousedown_pos = { x: event.clientX, y: event.clientY };
+    mousedown_pos = { x: event.pageX, y: event.pageY };
     mouse_pos = mousedown_pos;
 
     prevEventTarget = _eventTarget;
@@ -1562,12 +1587,16 @@ function callbackCustomUI( event )
 
 function symbolist_mousemove(event)
 {         
+    if( currentMode == "edit" )
+        return;
+    
+    console.log('symbolist_mousemove');
     const _eventTarget = getTopLevel( event.target );
 
     if( prevEventTarget === null )
         prevEventTarget = _eventTarget;
 
-    const pt = { x: event.clientX, y: event.clientY };
+    const pt = { x: event.pageX, y: event.pageY };
     const mouseDelta = deltaPt(pt, mousedown_pos);
 
     if( event.buttons == 1 )
@@ -1601,7 +1630,7 @@ function symbolist_mousemove(event)
     }
 
     
-    mouse_pos = { x: event.clientX, y: event.clientY };
+    mouse_pos = { x: event.pageX, y: event.pageY };
     prevEventTarget = _eventTarget;
 
     sendMouseEvent(event, "mousemove");
@@ -1610,12 +1639,27 @@ function symbolist_mousemove(event)
 
 function callEnterEditMode(element)
 {
+    if( uiDefs.has( element.classList[0] ) )
+    {
+        const def_ = uiDefs.get( element.classList[0] );
+        if( def_.hasOwnProperty('editMode') )
+        {
+            def_.editMode(element, true);
+            return true;
+        }        
+    }
+
+    return false;
+}
+
+function callExitEditMode(element)
+{
     if( uiDefs.has( element.classList[0] ))
     {
         const def_ = uiDefs.get( element.classList[0] );
         if( def_.hasOwnProperty('editMode') )
         {
-            def_.editMode(true);
+            def_.editMode(element, false);
             return true;
         }        
     }
@@ -1625,7 +1669,29 @@ function callEnterEditMode(element)
 
 function callEnterEditModeForSelected()
 {
-    selected.forEach( sel => callEnterEditMode(sel) )
+    selected.forEach( sel => {
+        if( callEnterEditMode(sel) )
+            currentMode = "edit"
+    })
+}
+
+function callExitEditModeForSelected()
+{
+    let check = true;
+    selected.forEach( sel => {
+        if( !callExitEditMode(sel) )
+            check = false;
+    })
+
+    if( check ){
+        currentMode = "palette"
+    }
+    else
+        console.error('failed to exit edit mode!!')
+
+    console.log('callExitEditModeForSelected now ', currentMode );
+
+
 }
 
 function callGetInfoDisplay(element)
@@ -1700,7 +1766,7 @@ function callDeselected(element)
 
         if( def_.hasOwnProperty('editMode') )
         {
-            def_.editMode(false);
+            def_.editMode(element, false);
         }
     }
 }
@@ -1760,7 +1826,7 @@ function symbolist_mouseup(event)
 
     
     
-    mouse_pos = { x: event.clientX, y: event.clientY };
+    mouse_pos = { x: event.pageX, y: event.pageY };
     event.mousedownPos = mousedown_pos;
 
     sendMouseEvent(event, "mouseup");
@@ -1794,6 +1860,97 @@ function symbolist_mouseleave(event)
     prevEventTarget = null;
 }
 
+let ticking = false;
+
+function symbolist_scroll(event)
+{
+
+    last_known_scroll_position = window.scrollY;
+  
+    if (!ticking) {
+      window.requestAnimationFrame(function() {
+        //doSomething(last_known_scroll_position);
+        console.log('symbolist_scroll', window.scrollX, window.scrollY);
+        ticking = false;
+      });
+  
+      ticking = true;
+    }
+
+}
+
+let currentOffset = {x: 0, y: 0};
+
+function symbolist_wheel(event)
+{
+
+   // gsap.set(mainSVG, {x: `-=${event.deltaX}`, y: `-=${event.deltaY}`});
+
+
+    return;
+
+    currentOffset.x += event.deltaX;
+    currentOffset.y += event.deltaY;
+
+   // let matrix = mainDiv.getCTM();
+
+    //matrix.e += event.deltaX;
+    //matrix.f += event.deltaY;
+    
+   // let translation_ = svgObj.createSVGTransform();
+   // translation_.setMatrix( matrix );
+
+    mainDiv.style.transform = `translate(${currentOffset.x}px, ${currentOffset.y}px)`;
+
+    //svgObj.transform.setMatrix(matrix);
+    //svgObj.transform.baseVal.getItem(0)
+
+
+
+    //const transformMatrix = svgObj.createSVGTransformFromMatrix(matrix);
+    //transformlist.initialize( transformMatrix );
+
+    
+/*
+    let viewbox = svgObj.getAttributeNS(null, 'viewbox');
+
+    if( !viewbox )
+    {
+        viewbox = [];
+        viewbox[0] = event.deltaX;
+        viewbox[1] = event.deltaY;
+        viewbox[2] = svgObj.clientWidth;
+        viewbox[3] = svgObj.clientHeight;
+    }
+    else
+    {
+        viewbox = viewbox.split(" ");
+        viewbox[0] = parseFloat(viewbox[0]) + event.deltaX;
+        viewbox[1] = parseFloat(viewbox[1]) + event.deltaY;
+        viewbox[2] = svgObj.clientWidth;
+        viewbox[3] = svgObj.clientHeight;
+    }
+    
+    svgObj.setAttributeNS(null, "viewbox",  viewbox.join(" ") )
+*/
+
+/*
+    last_known_scroll_position = window.scrollY;
+  
+    if (!ticking) {
+      window.requestAnimationFrame(function() {
+        //doSomething(last_known_scroll_position);
+        console.log('symbolist_scroll', window.scrollX, window.scrollY);
+        ticking = false;
+      });
+  
+      ticking = true;
+    }
+*/
+}
+
+
+
 function addSymbolistMouseHandlers(element)
 {
     element.addEventListener("mousedown", symbolist_mousedown);
@@ -1802,6 +1959,8 @@ function addSymbolistMouseHandlers(element)
     element.addEventListener("mouseover", symbolist_mouseover);
     element.addEventListener("mouseleave", symbolist_mouseleave);
     element.addEventListener("dblclick", symbolsit_dblclick);
+
+    window.addEventListener('wheel', symbolist_wheel);
 
 }
 
@@ -1813,6 +1972,9 @@ function removeSymbolistMouseHandlers(element)
     element.removeEventListener("mouseover", symbolist_mouseover);
     element.removeEventListener("mouseleave", symbolist_mouseleave);
     element.removeEventListener("dblclick", symbolsit_dblclick);
+
+    window.removeEventListener('wheel', symbolist_wheel);
+
 }
 
 function addSymbolistKeyListeners()
@@ -1827,10 +1989,63 @@ function removeSymbolistKeyListeners()
   document.body.removeEventListener("keyup", symbolist_keyuphandler);
 }
 
+function onChange(event)
+{
+    console.log('changer', event);
+}
+
+// https://stackoverflow.com/questions/31659567/performance-of-mutationobserver-to-detect-nodes-in-entire-dom/39332340
+function startObserver()
+{
+    // Options for the observer (which mutations to observe)
+    const config = { attributes: true, childList: true, subtree: true };
+
+    let queue = [];
+
+
+    const observer = new MutationObserver( mutation => {
+        if( queue.length > 0 ){
+            requestAnimationFrame( () => {
+                
+                console.log( mainDiv.getBoundingClientRect() );
+                
+                queue.forEach( modlist => {
+                    modlist.forEach( mod => {
+                        
+                        switch( mod.type ){
+                            case "attributes":
+                                console.log('attr', mod.attributeName );
+                                break;
+                            default:
+                                break;
+                        }
+
+                    })
+                    
+                })
+
+                queue = [];
+            });
+        }
+
+        queue.push(mutation);
+    });
+
+
+    // Start observing the target node for configured mutations
+    
+   // observer.observe(mainDiv, config);
+
+    // Later, you can stop observing
+  //  observer.disconnect();
+}
 
 function startDefaultEventHandlers()
 {
     addSymbolistMouseHandlers(svgObj);
+    
+    startObserver();
+
     addSymbolistKeyListeners();
 }
 

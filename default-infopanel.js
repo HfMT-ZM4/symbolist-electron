@@ -40,22 +40,9 @@ function make_parms_inputs(element)
                     if( event.key == 'Enter' )
                     {
                         const viewObj = document.getElementById(`${id}`);
-
                         viewObj.dataset[param] = event.target.value;
-
                         symbolist.callUpdateFromDataset(viewObj);
-                        /*
-                        symbolist.send( {
-                                key: 'symbolistEvent',
-                                val: {
-                                    id: '${dataobj.id}',
-                                    class: '${dataobj.class}',
-                                    symbolistAction: 'updateSymbolData',
-                                    param: '${param}',
-                                    value: this.value,
-                                    view_context: symbolist.getObjViewContext(viewObj)
-                                }
-                        });*/
+                        
                     }
                 },
                 onmousedrag : `

@@ -41,18 +41,23 @@ let dataInstace = {
 // any additional UI elements will be grouped with the symbol,  so that when somehting is clicked it is still
 // part of the symbol heirarchy, where the top level has includes the 'symbol' class
 
-const viewDisplay = function(cx, cy, r, x2, y2)
+// I added the id and overwrite here to deal with situations where you are storing a reference to the element
+// if new is undefined, drawsocket can use the id to update the values and keep the reference in place
+const viewDisplay = function(id, cx, cy, r, x2, y2, overwrite = true)
 {
     return {
-        new: "g",
+        id,
+        new: (overwrite ? "g" : undefined),
         children : [{
-            new: "circle",
+            id: `${id}-notehead`,
+            new: (overwrite ? "circle" : undefined),
             cx,
             cy,
             r
         },
         {
-            new: "line",
+            new: (overwrite ? "line" : undefined),
+            id: `${id}-azim`,
             x1: cx,
             y1: cy,
             x2, 
@@ -61,62 +66,6 @@ const viewDisplay = function(cx, cy, r, x2, y2)
     }
 }
 
-
-
-/**
- * 
- * @param {Object} controller_api reference to object containing method functions for accessing the model and view if needed
- * 
- * @returns {Object} containing controller functions to be used in mapping to/from data-view
- */
-const controllerDef = function( controller_api ) 
-{
-        /**
-         * 
-         * called in controller routing updates from view
-         * 
-         * @param {Object} view object sent from view, containing information needed to create the data
-         * @param {*} isNew (optional) flag to indicate that this is a new object (maybe we can remove this...)
-         * 
-         * @returns new data object, mapped from view
-         */
-        function fromView(objFromView)
-        { 
-            // in this case the object coming in is already formatted so we don't need to do anything
-            return {
-                data: objFromView
-            }
-        }
-
-        /**
-         * 
-         * will be called when creating the view from the data (not implemented yet)
-         * 
-         * @param {Object} data object sent from model to create the view
-         */
-        function fromData(data) {
-            return {
-                view: {
-                    
-                }
-            }
-        }
-
-         // used to sort child objects
-         function comparator (a,b) {
-            return (a.time < b.time ? -1 : (a.time == b.time ? 0 : 1))
-        }
-
-    
-        return {
-            className,
-            palette,
-            fromView,
-            fromData,
-            comparator
-        }
-
-}
 
 /**
  * 
@@ -145,7 +94,7 @@ const uiDef = function(renderer_api)
 
         return {
             key: "svg",
-            val: viewDisplay(25, 25, default_r, 25, 0)
+            val: viewDisplay(`${className}-pal-disp`, 25, 25, default_r, 25, 0)
         }
     }
 
@@ -166,6 +115,8 @@ const uiDef = function(renderer_api)
         
     }
 
+
+    // could probably incorporate this into elementToData, but the element will need to be created first
     function mapToData(viewData, container)
     {
         const containerDisplay = container.querySelector('.display');
@@ -217,9 +168,9 @@ const uiDef = function(renderer_api)
 
     }
 
-    function mapToView(data, container)
+    function mapToView(data, container, id, overwrite = true)
     {
-        console.log('data', data);
+       // console.log('data', data);
         const containerDisplay = container.querySelector('.display');
         const bbox = containerDisplay.getBoundingClientRect();
 
@@ -229,32 +180,47 @@ const uiDef = function(renderer_api)
         const x2 = cx + Math.sin(data.azim) * default_dist;
         const y2 = cy + Math.cos(data.azim) * default_dist;
 
-        return viewDisplay(cx, cy, default_r, x2, y2)
+        return viewDisplay(id, cx, cy, default_r, x2, y2, overwrite)
             
     }
 
 
     // do we need a separate one for creating a new object from data? (i.e. from udp)
+    // problem here is that we overwrite the element, which deletes the handle
     function updateFromDataset(element)
     {
         // assuming that we have all the data
-        let data = { ...element.dataset };
+        let data = element.dataset;
         const container = element.closest('.container');
 
-        console.log(element, 'container', container);
-        let newView = mapToView(data, container);
-        console.log('newView', newView);
+        const id = element.id;
+        const parent = element.parentNode.id;
+
+        let newView = mapToView(data, container, id, false);
+        
+         // send out before sending to drawsocket, because we overwrite the element
+         renderer_api.sendToController({
+            key: "update",
+            val: {
+                id,
+                parent,
+                class: [...element.classList],
+                ...data
+            }
+        })
 
         renderer_api.drawsocketInput({
             key: "svg",
             val: {
-                id: element.id,
-                parent: element.parentNode.id,
+//                id, // id is in the view now
+                parent,
                 class: element.classList,
                 ...newView,
                 ...renderer_api.dataToHTML(data)
             }
-        })
+        });
+
+
 
     }
 
@@ -268,8 +234,8 @@ const uiDef = function(renderer_api)
      */
     function creatNewFromMouseEvent(event)
     {
-        const cx = event.clientX;
-        const cy = event.clientY;
+        const cx = event.pageX;
+        const cy = event.pageY;
         const r = default_r; 
 
         const uniqueID = `${className}_u_${renderer_api.fairlyUniqueString()}`;
@@ -294,7 +260,7 @@ const uiDef = function(renderer_api)
                             time: dataObj.time + 0.1, 
                             pitch: dataObj.pitch, 
                             azim: dataObj.azim + 1
-                       }, container );
+                       }, container, uniqueID+'_test' );
 
        
         // create new symbol in view
@@ -307,9 +273,8 @@ const uiDef = function(renderer_api)
                 key: "svg",
                 val: {
                     class: `${className} symbol`,
-                    id: uniqueID,
                     parent: eventElement.id,
-                    ...viewDisplay(cx, cy, r, cx + r, cy - 10),
+                    ...viewDisplay(uniqueID, cx, cy, r, cx + r, cy - 10),
                     ...renderer_api.dataToHTML(dataObj)//,
                     //onclick: function(e){ console.log('ello', e)}
 
@@ -319,7 +284,6 @@ const uiDef = function(renderer_api)
                 key: "svg",
                 val: {
                     class: `${className} symbol`,
-                    id: uniqueID+'_test',
                     parent: eventElement.id,
                     ...viewObj
                 }
@@ -342,7 +306,7 @@ const uiDef = function(renderer_api)
 
     function move(e)
     {
-        if( e.metaKey )
+        if( e.metaKey && m_mode == "palette" )
         {
 
             let sprite = document.getElementById(`${className}-sprite`);
@@ -354,13 +318,13 @@ const uiDef = function(renderer_api)
                 let circle = sprite.querySelector('circle');
                 cx = circle.getAttribute('cx');
                 cy = circle.getAttribute('cy');
-                azim = Math.atan2( e.clientX - cx, e.clientY - cy );
+                azim = Math.atan2( e.pageX - cx, e.pageY - cy );
                 //${className}-sprite
             }
             else
             {
-                cx = e.clientX;
-                cy = e.clientY;
+                cx = e.pageX;
+                cy = e.pageY;
                 azim = 0;
             }
 
@@ -381,12 +345,14 @@ const uiDef = function(renderer_api)
 
             dataObj.azim = azim;
 
-            let viewObj = mapToView(dataObj, container);
+            let viewObj = mapToView(dataObj, container, `${className}-sprite-disp`);
 
             drawsocket.input({
                 key: "svg", 
                 val: {
                     id: `${className}-sprite`,
+                    class: 'sprite',
+                    parent: 'symbolist_overlay',
                     new: "g",
                     children: [
                         viewObj, //viewDisplay(cx, cy, r, cx + r, cy - 10),
@@ -404,6 +370,7 @@ const uiDef = function(renderer_api)
                 }
             })
         }
+       
     }
 
     function selected(element)
@@ -416,11 +383,14 @@ const uiDef = function(renderer_api)
 
     function deselected(element)
     {
+ 
         console.log('deselected');
+               /*
         renderer_api.drawsocketInput({
             key: "remove", 
-            val: `${element.id}-rotation-handle`
+            val: [`${element.id}-rotation-handle`, `${className}-sprite`]
         })
+        */
     }
 
     function applyTransformToData(element)
@@ -455,71 +425,38 @@ const uiDef = function(renderer_api)
     }
 
 
-    function rotate(element, delta_pos)
+    function rotate(element, event)
     {
 
-        let azim = Math.atan2( delta_pos.x, delta_pos.y );
-
-        let transformlist = element.transform.baseVal; 
-
-        let matrix = element.getCTM();
-        matrix.rotateSelf(azim, 0, 0);
-
-        const transformMatrix = svgObj.createSVGTransformFromMatrix(matrix);
-        transformlist.initialize( transformMatrix );
-
-
-        return;
-        /*
-        
         let line = element.querySelector('line');
 
         let x1 = parseFloat(line.getAttribute('x1'));
         let y1 = parseFloat(line.getAttribute('y1'));
+        
         let x2 = parseFloat(line.getAttribute('x2'));
         let y2 = parseFloat(line.getAttribute('y2'));
 
-        
-        let azim = Math.atan2( delta_pos.x, delta_pos.y );
+        let azim = Math.atan2( event.clientX - x1, event.clientY - y1);
+
         let newX = x1 + Math.sin(azim) * default_dist;
         let newY = y1 + Math.cos(azim) * default_dist;
 
         line.setAttribute('x2', newX);
         line.setAttribute('y2', newY);
+
         element.dataset.azim = azim;
 
-        renderer_api.drawsocketInput({
-            key: 'svg',
-            val: {
-                id: `${element.id}-rotation-handle`,
-                x: newX,
-                y: newY
-            }
-        })
-
-        
-
-        // display handles
-        // note: because these are just going into the main-svg the selection getTopLayer gets messed up 
-        // getting the top layer is still a good idea, but needs some improvement
         renderer_api.drawsocketInput({
             key: "svg", 
             val: {
                 id: `${element.id}-rotation-handle`,
-                new: "rect",
-                class: "handle",
-                parent: element.id, 
-                x: x2 - 4,
-                y: y2 - 4,
-                width: 8,
-                height: 8,
-                onclick: (event) => { console.log(test, event.target); },
-                onmousemove: (event) => {
-                    
+                x: newX - 4,
+                y: newY - 4
             }
         })
-        console.log('ello', element);
-        */
+
+        updateFromDataset(element);
+        
     }
 
 
@@ -535,7 +472,7 @@ const uiDef = function(renderer_api)
        
         if( m_mode == "edit" )
         {
-            rotate(element, delta_pos);
+            //rotate(element, delta_pos);
         }
         else
         {
@@ -618,11 +555,12 @@ const uiDef = function(renderer_api)
      * edit mode is when the symbols is when one symbol is selected (or when you hit [e]?)
      */
     function paletteSelected( enable = false ) {
-        m_mode = 'palette';
 
         console.log(`enter ${className} ${m_mode}`);
 
         if( enable ){
+            m_mode = 'palette';
+
             window.addEventListener("mousedown", down);
             window.addEventListener("mousemove", move);
             window.addEventListener("mouseup", up);
@@ -648,11 +586,18 @@ const uiDef = function(renderer_api)
         }
     }
 
-    function editMode( enable = false )
+    let cb = {};
+
+    // now passing element so that edit mode can be signaled from script
+    // but then how does the controlller know that it's in edit mode?
+    // maybe the controller should do less but provide key event handling and pass to scripts
+    function editMode( element, enable = false )
     {
+        //let element = renderer_api.getSelected()[0]; // first object only for now...
+
         if( enable )
         {
-            let element = renderer_api.getSelected()[0]; // first object only for now...
+            m_mode = 'edit';
 
             const line = element.querySelector('line')
             const x2 = parseFloat(line.getAttribute('x2'));
@@ -669,13 +614,39 @@ const uiDef = function(renderer_api)
                     y: y2 - 4,
                     width: 8,
                     height: 8,
-                    onclick: (event) => { console.log(test, event.target); }                        
+                    onmousedown: (event) => { 
+                        console.log('ello', element);
+                        console.log('register');
+
+                        document.addEventListener('mousemove', 
+                            cb[`${element.id}-moveHandler`] = function (event) {
+                                console.log(`${element.id}-moveHandler`);
+                                if( event.buttons == 1 ) {
+                                    rotate(element, event);
+                                }
+                            }
+                        );
+                    }                        
                 }
             })
+
+
+
         }
         else
         {
-           
+            console.log('deregister');
+
+            renderer_api.drawsocketInput({
+                key: "remove", 
+                val: `${element.id}-rotation-handle`,
+            }) 
+
+
+            document.removeEventListener('mousemove', cb[`${element.id}-moveHandler`]);
+            delete cb[`${element.id}-moveHandler`];
+//            console.log(`removing ${element.id}-moveHandler, ${cb[`${element.id}-moveHandler`]}`);
+
         }
         
     }
@@ -713,7 +684,18 @@ const uiDef = function(renderer_api)
 
 }
 
+/**
+ * 
+ * @param {Object} controller_api reference to object containing method functions for accessing the model and view if needed
+ * 
+ * @returns {Object} containing controller functions to be used in mapping to/from data-view
+ */
+const controllerDef = function( controller_api ) 
+{
+        // currently not used
+}
+
+
 module.exports = {
-    controller: controllerDef,
     ui: uiDef
 }

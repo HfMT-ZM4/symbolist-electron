@@ -124,3 +124,36 @@ best is if all symbols are wrapped in <g> tags, so that GUI elements can be cont
  for rotation, rectangles are special becuase they are defined by width and height, which means that we can't apply the rotation matrix to the object parameters, but need to use a transform, that means that the mapping has to use the transform also, which in turn means that the preview translation before we apply the values to the real object needs to be handled slightly differently. 
 
  the basic idea is that you apply the translation to the top group and then update the object values on mouse up, or cancel if you press escape
+
+- work on reducing the amount that the renderer is doing
+- clean up symbolist_event code (remove all of it?)
+- rename controllers?
+    "ui handler" ?
+        ui mapping scripts
+    "lookup handler" ?
+        lookup scripts (could also map)
+
+ - separate lookup scripts
+ - create proof of concept for lookup scripts
+
+ - proof of concept for score symbols
+    - frame notation as before 
+    - point with arrows pointing to direction, 
+        could also be several points/directions, using mc.granubuf style encoding the postion with the grains
+    - work on granular synth notation
+    - later modular synth notation
+        modular synth seems more complicated maybe
+
+    - alternative types of scores, like what?
+    - evolving score, that is defined by a weighted map
+        the map produces data objects, which are then notated
+
+    - data visualisation, using max or other process to create data, could be sensors also
+        how many points can the system handle?
+
+- need scrolling to work
+
+- for now  we can just use a single stave?
+    or create page object that groups container staves, and usually acts to show the synchronization between them
+
+ 

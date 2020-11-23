@@ -114,12 +114,16 @@ function loadInitFiles(folderArray)
             
             // load controller def
             let { controller } = require(filepath);
+            if( controller )
+            {
+                console.log(filepath);
+                // initialize def with api
+                let cntrlDef_ = controller(controller_api);
 
-            // initialize def with api
-            let cntrlDef_ = controller(controller_api);
-
-            // set into def map
-            defs.set(cntrlDef_.className, cntrlDef_);
+                // set into def map
+                defs.set(cntrlDef_.className, cntrlDef_);
+            }
+          
         }
     })
 

@@ -30,7 +30,7 @@ function getHTML_element(node)
     isNew = false;
   }
 
-  if( node.hasOwnProperty('new') )
+  if( node.hasOwnProperty('new') && typeof node.new != 'undefined')
   {
     if( el !== null){
       el.remove();
@@ -284,7 +284,7 @@ function d3_getElement(node)
   }
 
 // new tag means "make a new svg node"
-  if( node.hasOwnProperty('new') )
+  if( node.hasOwnProperty('new') && typeof node.new != 'undefined' )
   {
     if( el !== null){
     //  console.log("should delete", el.node());

@@ -3,7 +3,6 @@
 
 'use strict';
 
-//const sym_utils = root_require('utils')
 
 const className = "rectangleStave";
 
@@ -97,86 +96,6 @@ const viewContainer = function(x, y, width, height, id, parentID)
 const controllerDef = function( controller_api ) 
 {
 
-        /**
-         * 
-         * called in controller routing updates from view
-         * 
-         * @param {Object} view object sent from view, containing information needed to create the data
-         * @param {*} isNew (optional) flag to indicate that this is a new object (maybe we can remove this...)
-         * 
-         * @returns new data object, mapped from view
-         * 
-         * 
-         * from:
-         * {
-                id: uniqueID,
-                class: className,
-                parent: eventNode.id,
-                new: "rect",
-                x,
-                y,
-                width,
-                height
-         }
-
-         to: 
-            {
-                className,
-                id,
-                parent,
-
-                // container objects 
-                contents = [],
-                
-                time: 0,
-                duration: 1
-            }
-         */
-        function fromView(viewObj)
-        { 
-            let parentData = controller_api.modelGet( viewObj.parent );
-
-            let dataObj;
-            
-            if( controller_api.modelHas( viewObj.id ) )
-                dataObj = controller_api.modelGet( viewObj.id )
-            else
-            {
-                dataObj = {
-                    id: viewObj.id,
-                    class: viewObj.class,
-                    parent: viewObj.parent,
-                    contents: []
-                }
-            }
-
-            let time = 0; //(viewObj.x * x2time) + parentData.time + parentData.duration;
-
-            let data = {
-                ...dataObj,
-                time,
-                duration: 1
-            }
-
-            return {
-                data
-            }
-        }
-
-        /**
-         * 
-         * will be called when creating the view from the data (not implemented yet)
-         * 
-         * @param {Object} data object sent from model to create the view
-         */
-        function fromData(data) {
-            return {
-                view: {
-                    
-                }
-            }
-        }
-
          // used to sort child objects
          function comparator (a,b) {
             return (a.time < b.time ? -1 : (a.time == b.time ? 0 : 1))
@@ -184,10 +103,10 @@ const controllerDef = function( controller_api )
 
     
         return {
-            className,
-            palette,
-            fromView,
-            fromData,
+            //className,
+            //palette,
+            //fromView,
+            //fromData,
             comparator
         }
 
@@ -207,7 +126,11 @@ const controllerDef = function( controller_api )
 const uiDef = function(renderer_api) 
 {
 
-    
+    function comparator (a, b) {
+        return (a.time < b.time ? -1 : (a.time == b.time ? 0 : 1))
+    }
+
+
 
     /**
      * called when drawing this symbol to draw into the palette 
@@ -232,11 +155,12 @@ const uiDef = function(renderer_api)
      * 
      * @returns drawsocket format object(s) to draw
      */
-    function getInfoDisplay(dataObj, viewElement)
+    function getInfoDisplay(viewElement)
     {
-        return renderer_api.makeDefaultInfoDisplay(dataObj, viewElement.getBoundingClientRect() );
+        renderer_api.drawsocketInput(
+            renderer_api.makeDefaultInfoDisplay(viewElement)
+        )
     }
-
 
 
     /**
@@ -248,8 +172,8 @@ const uiDef = function(renderer_api)
      */
     function creatNewFromMouseEvent(event)
     {
-        const x = event.clientX;
-        const y = event.clientY;
+        const x = event.pageX;
+        const y = event.pageY;
         const width = 800; // default w
         const height = 600; // default h
 
@@ -259,13 +183,31 @@ const uiDef = function(renderer_api)
         const eventElement = container.querySelector('.contents');
 
 
+        const insertAtIndex = renderer_api.insertIndex(
+            { x, y, width, height, right: x+width }, eventElement.children,
+            (a,b) => {
+                const bbox = b.getBoundingClientRect();
+                return (a.y < bbox.y && bbox.x < a.right) ? -1 : 1;
+            });
+
+        
+        console.log('insertAtIndex', insertAtIndex, eventElement.children);
+
+
+        let prevStaveEndTime = 0;
+        if( insertAtIndex > -1 ){
+            const prevStave = eventElement.children[insertAtIndex];
+            prevStaveEndTime = parseFloat(prevStave.dataset.time) + parseFloat(prevStave.dataset.duration);
+        }
+            
+        
         // figure out the time value of this container
         // ideally this should be determined by the parent container, but we don't have a top level container yet
         // let allOfThisType = container.querySelectAll(`.${className}.container`);
         // for now the events will just be relative to their container
 
         let dataObj = {
-            time: 0,
+            time: prevStaveEndTime,
             duration: 1
         }
         // create new symbol in view
@@ -283,8 +225,13 @@ const uiDef = function(renderer_api)
             }
         ])
 
+      
+        let newItem = document.getElementById(uniqueID);
+        eventElement.children[insertAtIndex+1].before( newItem );
+       
+
         //let t = document.getElementById(uniqueID);
-        //console.log('test value', t.dataset.test);
+        console.log('removed sprite');
 
 
         const containerDisplay = container.querySelector('.display');
@@ -312,8 +259,10 @@ const uiDef = function(renderer_api)
             drawsocket.input({
                 key: "svg", 
                 val: {
+                    parent: "symbolist_overlay",
                     id: 'rectangleStave-sprite',
-                    ...viewDisplay(e.clientX, e.clientY, 800, 600)
+                    class: 'sprite',
+                    ...viewDisplay(e.pageX, e.pageY, 800, 600)
                 }
             })
         }

@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 896.0, 79.0, 665.0, 702.0 ],
+		"rect" : [ 189.0, 107.0, 665.0, 702.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -43,11 +43,13 @@
 					"fontface" : 0,
 					"fontsize" : 12.0,
 					"id" : "obj-2",
+					"linecount" : 7,
 					"maxclass" : "o.display",
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 183.0, 441.0, 363.0, 34.0 ]
+					"patching_rect" : [ 183.0, 441.0, 363.0, 116.0 ],
+					"text" : "/id : \"rectangleStaveAzimuth_u_dv2od8q6p5_test\",\n/class : \"rectangleStaveAzimuth symbol\",\n/parent : \"rectangleStave_u_529e6getoz0-contents\",\n/time : 0.186,\n/pitch : 87.8417,\n/azim : -2.5221"
 				}
 
 			}
