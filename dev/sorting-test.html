@@ -1,0 +1,77 @@
+<div id="group">
+    <div class="item" id="1">1</div>
+    <div class="item" id="3">3</div>
+    <div class="item" id="4">4</div>
+    <div class="item" id="2">5</div>    
+</div>
+
+
+<script>
+
+
+/**
+ * 
+ * @param {*} element element to insert
+ * @param {Array} array array to insert into
+ * @param {Function} comparitor function to use for comparison, returing a value of -1, 0, 1 
+ * @param {index} start (optional) start index, used internally
+ * @param {index} end (optional) end index, used internallly
+ */
+ function locationOf(element, array, comparer, start, end) {
+    if (array.length === 0)
+        return -1;
+
+    start = start || 0;
+    end = end || array.length;
+    var pivot = (start + end) >> 1;  // should be faster than dividing by 2
+
+    var c = comparer(element, array[pivot]);
+    if (end - start <= 1) return c == -1 ? pivot - 1 : pivot;
+
+    switch (c) {
+        case -1: return locationOf(element, array, comparer, start, pivot);
+        case 0: return pivot;
+        case 1: return locationOf(element, array, comparer, pivot, end);
+    };
+}
+
+
+function defaultComparitor(a,b)
+{
+    return (a < b ? -1 : (a == b ? 0 : 1));
+}
+
+/**
+ *  
+ * @param {Array} array array to insert into (modifies array)
+ * @param {*} element element to insert
+ * @param {Function} comparitor_fn function to use for comparison, returing a value of -1, 0, 1 (defaults to increasing numbers)
+ */
+function insertSorted(array, element, comparitor_fn = defaultComparitor) {
+    array.splice( locationOf(element, array, comparitor_fn) + 1, 0, element);
+    return array;
+}
+ 
+function insertSortedHTML(collection, element, comparitor_fn)
+{
+    collection[ locationOf(element, collection, comparitor_fn) ].after( element );   
+}
+
+
+
+let group = document.getElementById('group');
+let newItem = document.createElement('div');
+newItem.id = "2";
+newItem.innerHTML = 2;
+
+insertSortedHTML(group.children, newItem, (a,b) =>{
+    const ax = parseInt(a.id);
+    const bx = parseInt(b.id);
+    console.log( b.getBoundingClientRect() );
+    return ax < bx ? -1 : ( ax == bx ? 0 : 1);
+})
+
+
+
+
+</script>
