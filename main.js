@@ -1,22 +1,7 @@
 
 const cluster = require('cluster');
+const utils = require('./lib/main_utils')
 
-
-const parseAsync = (obj_str) => {
-  return Promise.resolve().then( () => {
-    if( typeof obj_str == 'String' )
-      return JSON.parse( obj_str )  // max sends a trailing comma for some reason
-    else
-    {
-      let _str = obj_str.toString('utf8');
-      return JSON.parse(_str.slice( 0, _str.lastIndexOf('}')+1 ));
-    }/*
-    else
-    {
-      return obj_str;
-    }*/
-  })
-}
 
 if( cluster.isMaster )
 {
@@ -79,24 +64,21 @@ if( cluster.isMaster )
         {
         // console.log('result', result)
         
-          // could send directly to renderer here also
-          win.webContents.send('load-ui-defs', result.filePaths);
+          let files = utils.getFilesFromMenuFolderArray(result.filePaths);
+          win.webContents.send('load-ui-defs', files );
+/*
+          // << later send to io controller for user lookup scripts
 
           io_controller_proc.send({
             key: "loadInitFiles",
             val: result.filePaths
           })
+*/          
         }
       
       }).catch(err => {
         console.log(err)
       })
-
-      /*
-      io_controller_proc.send({
-        key: 'init'
-      });
-      */
 
     })
   })
@@ -122,125 +104,42 @@ if( cluster.isMaster )
 
   /**
    * messages from io_controller
+   * (currently assumes all messages are meant for the ui controller)
    */
   io_controller_proc.on('message', (msg)=> {
+   
+    if( !Array.isArray(msg) )
+      msg = [ msg ];
 
-    // remove this draw thing
-    if( msg.key == 'draw' )
-    {
-   //   console.log('main recieved and sending', JSON.stringify(msg.val, null, 2));
-
-      win.webContents.send('draw-input', msg.val);
-    }
-    else
-    {
-      // general catch all
-      
-      // maybe better to wrap array in object rather than iterated in main thread
-      if( !Array.isArray(msg) )
-        msg = [ msg ];
-
-      msg.forEach( m => win.webContents.send(m.key, m.val) )
+    msg.forEach( m => win.webContents.send(m.key, m.val) )
       
 
-    }
-    
-
-  //  console.log('main recieved', msg);
   });
   
  
   /**
-   * messages from ui to io controller (menu events are )
+   * messages from ui to io controller
    */
-
   ipcMain.on('renderer-event', (event, arg) => {
     io_controller_proc.send(arg)
   })
-
+/*
   ipcMain.handle('query-event', async (event, ...args) => {
     const result = await somePromise(...args)
     return result
   })
-
+*/
 }
 else if (cluster.isWorker) 
 {
   const io_controller = require('./io_controller')
 
-  const osc = require('osc')
-
-  /**
-   * UDP I/O
-   */
-  const dgram = require('dgram');
-  const server = dgram.createSocket('udp4');
-    
-  server.on('error', (err) => {
-    console.log(`server error:\n${err.stack}`);
-    server.close();
-  });
-
-
-  server.on('message', (msg, rinfo) => {    
-    parseAsync(msg)
-      .then( obj_ => {
-        console.log(`parsed message ${obj_}`) 
-       // win.webContents.send('draw-input', obj_ )
-      }).catch( err => {
-        console.log(`parse error: ${err}\n for message ${msg}`) 
-      })
-
-  });
-
-  server.on('listening', () => {
-    const address = server.address();
-    console.log(`server listening ${address.address}:${address.port}`);
-  });
-
-  server.bind(8888);
-
-  const client = dgram.createSocket('udp4');
-
-  let buffer = osc.writePacket({
-      timeTag: osc.timeTag(0),
-
-      packets: [
-          {
-              address: "/carrier/frequency",
-              args: [
-                  {
-                      type: "f",
-                      value: 440
-                  }
-              ]
-          },
-          {
-              address: "/carrier/amplitude",
-              args: [
-                  {
-                      type: "f",
-                      value: 0.5
-                  }
-              ]
-          }
-      ]
-  });
-
-  client.send(buffer, 7777, (err) => {
-    console.error('send err', err);
-  });
-  
-  io_controller.setUDP(server);
-
   // messages from UI
-  process.on("message", (_msg) => {
-    
+  process.on("message", (_msg) => {  
     io_controller.input(_msg);
-   
   });
 
-
+  io_controller.initUDP();
 
 }
 

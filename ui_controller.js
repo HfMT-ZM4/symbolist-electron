@@ -5,6 +5,19 @@
  * 
  * every major event in the general use sequence should have the option of a callback in the defs
  * for example, selection, and on setting the context
+ * 
+
+ move mouse handling to separate file
+    which is the main document UX 
+ clean up calls to defs, consodidate somehow?
+    or move to separate file
+
+ui_controller should mainly start up the ui system, and handle loading the files
+
+move GUI transforms to new file
+
+
+
  */
 
 
@@ -40,6 +53,7 @@ let currentContext = svgObj;
 let currentPaletteClass =  "";
 
 let selectedClass = currentPaletteClass;
+let initDef;
 
 let currentMode = "palette";
 
@@ -75,33 +89,48 @@ function getSelected()
     return selected;
 }
 
-ipcRenderer.on('load-ui-defs', (event, arg) => {
+ipcRenderer.on('load-ui-defs', (event, folder) => {
 
-    console.log('loading files:', arg);
+   const path = folder.path;
 
-    // load controller def
-    let { ui } = require(arg);
+   folder.files.forEach( f => {
+       
+        const filepath = `${path}/${f.file}`;
 
-    // initialize def with api
-    let cntrlDef_ = ui(renderer_api);
+        const exists = require.resolve(filepath); 
+        if( exists )
+            delete require.cache[ exists ];
+            
+        if( f.type == 'js')
+        {
+            // load controller def
+            let { ui } = require(filepath);
 
-    // set into def map
-    uiDefs.set(cntrlDef_.className, cntrlDef_);
+            // initialize def with api
+            let cntrlDef_ = ui(renderer_api);
+        
+            // set into def map
+            uiDefs.set(cntrlDef_.className, cntrlDef_);
+        }
+        else if(f.type == 'json')
+        {
+            // there can be only one json file in the folder
+            initDef = require(filepath);
+        }
+  
+    })
    
+    initPalette();
 })
 
-ipcRenderer.on('init', (event, filepath) => {
 
-    const exists = require.resolve(filepath); 
-    if( exists )
-        delete require.cache[ exists ];
 
-    let init = require(filepath)
-
-    if( init.hasOwnProperty('palette') )
+function initPalette()
+{
+    if( initDef.hasOwnProperty('palette') )
     {
         let drawMsgs = [];
-        init.palette.forEach( el => {
+        initDef.palette.forEach( el => {
             let def_ = uiDefs.get(el);
 
             const def_classname = def_.className;
@@ -141,8 +170,8 @@ ipcRenderer.on('init', (event, filepath) => {
     }
 
     // in controller there is a defautlContext class, probably we should do the same
-    console.log('initFile', init);
-})
+    console.log('initFile', initDef);
+}
 
 
 /**
@@ -252,6 +281,7 @@ function dataToHTML(data_)
         args: data
     } 
  */
+/*
 ipcRenderer.on('signal-gui-script', (event, arg) => {
     if( arg.call )
     {
@@ -265,7 +295,7 @@ ipcRenderer.on('signal-gui-script', (event, arg) => {
     }
     
 })
-
+*/
 
 
 
@@ -295,33 +325,6 @@ ipcRenderer.on('menu-call', (event, arg) => {
     }
     console.log(`menu call received ${arg}`);
 })
-
-ipcRenderer.on('enter-custom-ui', (event, arg) => {
-    console.log('starting custom ui');
-    enterCustomUI(arg);
-})
-
-/**
- *  listener receives all forwarded messages from drawsocket
- */
- 
- /*
-drawsocket.setInputListener( (key, objarr, wasHandled) => {
-// or no default because we listen to all messages to drawsocket... ?
-    if( wasHandled == false )
-    {
-        switch (key) {
-            case "symbolist_log":
-                symbolist_set_log(objarr); // << prob need to iterate obj array...
-            break;
-            default: 
-                symbolist_set_log(`${key} message not handlded by symbolist or drawsocket`);
-            break;
-        }
-    }
-   // console.log("called", key);
-});
-*/
 
 /** 
  * API -- make namespace here ?
@@ -432,33 +435,6 @@ function symbolist_send(obj)
     ipcRenderer.send('symbolist_event', obj);
 }
 
-function getCurrentContextJSON()
-{
-    let view = elementToJSON(currentContext);
-    view.bbox = cloneObj(currentContext.getBoundingClientRect());
-    return view;
-}
-
-
-// could be improved with html.closest()
-function getObjViewContext(obj)
-{
-    let elm = obj;
-    while(  elm != svgObj && 
-        elm.parentNode && 
-        elm.parentNode.id != 'main-svg' && 
-        elm.parentNode.id != 'palette' && 
-        //elm.parentNode.id != 'symbolist_overlay' && 
-        (currentContext != svgObj && (!elm.parentNode.classList.contains('stave') || 
-            !elm.parentNode.classList.contains('stave-events'))) ) 
-    {
-        elm = elm.parentNode;
-    }
-
-    let view = elementToJSON(elm);
-    view.bbox = cloneObj(elm.getBoundingClientRect());
-    return view;
-}
 
  /**
   * internal methods
@@ -830,65 +806,6 @@ function cancelTransform(element)
     element.removeAttribute('transform');   
 }
 
-function matrixMultiply(a, b) {
-    var result = [0, 0, 0, 0, 0, 0, 0, 0, 0];
-    
-    var a11 = a[0];
-    var a12 = a[1];
-    var a13 = a[2];
-    var a21 = a[3];
-    var a22 = a[4];
-    var a23 = a[5];
-    var a31 = a[6];
-    var a32 = a[7];
-    var a33 = a[8];
-    
-    var b11 = b[0];
-    var b12 = b[1];
-    var b13 = b[2];
-    var b21 = b[3];
-    var b22 = b[4];
-    var b23 = b[5];
-    var b31 = b[6];
-    var b32 = b[7];
-    var b33 = b[8];
-
-    result[0] = a11*b11 + a12*b21 + a13*b31;
-    result[1] = a11*b12 + a12*b22 + a13*b32;
-    result[2] = a11*b13 + a12*b23 + a13*b33;
-
-    result[3] = a21*b11 + a22*b21 + a23*b31;
-    result[4] = a21*b12 + a22*b22 + a23*b32;
-    result[5] = a21*b13 + a22*b23 + a23*b33;
-    
-    result[6] = a31*b11 + a32*b21 + a33*b31;
-    result[7] = a31*b12 + a32*b22 + a33*b32;
-    result[8] = a31*b13 + a32*b23 + a33*b33;
-    
-    return result;
-}
-
-function matrixTranslate(m, x, y) {
-    var n = [
-        1, 0, x,
-        0, 1, y,
-        0, 0, 1
-    ];
-    
-    return matrixMultiply(n, m);
-}
-
-function matrixRotate(m, theta) {
-    var n = [
-        Math.cos(theta), -Math.sin(theta), 0,
-        Math.sin(theta), Math.cos(theta), 0,
-        0, 0, 1
-    ];
-    
-    return matrixMultiply(n, m);
-}
-
-
 function rotate(obj, mouse_pos)
 {
 
@@ -1072,13 +989,18 @@ function isNumeric(value) {
     return !isNaN(value - parseFloat(value));
 }
 
+const { v4 } = require('uuid');
+
 function fairlyUniqueString() {
-    return (
-      Number(String(Math.random()).slice(2)) + 
-      Date.now() + 
-      Math.round(performance.now())
-    ).toString(36);
-  }
+    return v4();//(performance.now().toString(36)+Math.random().toString(36)).replace(/\./g,"");
+}
+/*
+function uid() {
+    let a = new Uint32Array(3);
+    window.crypto.getRandomValues(a);
+    return (performance.now().toString(36)+Array.from(a).map(A => A.toString(36)).join("")).replace(/\./g,"");
+};
+*/
 
 function makeUniqueID(obj)
 {
@@ -2123,7 +2045,6 @@ module.exports = {
     setClass: symbolist_setClass, 
     setContext: symbolist_setContext,
 
-    getObjViewContext,
     getCurrentContext,
     
     elementToJSON,
