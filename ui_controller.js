@@ -84,6 +84,8 @@ let renderer_api = {
 }
 
 
+
+
 function getSelected()
 {
     return selected;
@@ -306,12 +308,6 @@ ipcRenderer.on('signal-gui-script', (event, arg) => {
 function drawsocketInput(obj){
     drawsocket.input(obj)
 }
-
-ipcRenderer.on('draw-input', (event, arg) => {
-    console.log(`received ${arg}`);
-    
-    drawsocket.input(arg)
-})
 
 /**
  * handler for special commands from menu that require info about state of view/selection
@@ -2010,14 +2006,8 @@ function sendToController(obj)
 
 }
 
-/**
- * 
- * @param {String} id id to lookup in data model
- * 
- * returns Promise for result, can be used with await,
- * or with .then( (result) => {}) etc.
- * 
- */
+/*
+// not used now but could be useful if we want to deal with the lookup system from the gui
 async function getDataForID(id)
 {
     return ipcRenderer.invoke('query-event', id);
@@ -2034,6 +2024,39 @@ function asyncQuery(id, query, calllbackFn)
         query
     });
 }
+*/
+
+
+function dataToView(obj_)
+{
+    // figure out which container to put the data in
+    console.log('data to view', obj_);
+
+        const def = uiDefs.get(obj_.class);
+        const container_def = uiDefs.get(obj_.container);
+
+        let container = container_def.getContainerForData( obj_ );
+
+        def.fromData(obj_, container);
+
+     
+
+
+}
+/**
+ * routes all message from the io controller
+ */
+ipcRenderer.on('io-message', (event, obj) => {
+    switch(obj.key){
+        case 'data':
+            dataToView(obj.val);
+            break;
+        default:
+            break;
+    }
+})
+
+
 
 module.exports = { 
     drawsocketInput,

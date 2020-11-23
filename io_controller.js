@@ -35,12 +35,9 @@ function initUDP()
 
 
     udp_server.on('message', (msg, rinfo) => {  
-        console.log(msg);
 
-        // now only osc, and will be synchronous
+        // not using osc yet, because of missing subbundles
         let str = msg.toString('utf-8');
-       // console.log(str); // boolean
-
         if( str.startsWith('#bundle'))
         {
             try {
@@ -83,8 +80,8 @@ function udpSend(msg)
 function udpRecieve(msg)
 {
     switch(msg.key){
-        case 'create':
-            createNode(msg.val);
+        case 'data':
+            sendData(msg.val);
             break;
         case 'lookup':
             break;
@@ -93,18 +90,20 @@ function udpRecieve(msg)
     }
 }
 
-function createNode(val)
+function sendData(val)
 {
     val = Array.isArray(val) ? val : [val];
 
     val.forEach( v => {
         if( typeof v.id == "undefined")
         {
-            v.id = v.new+'_u_'+sym_util.fairlyUniqueString();
+            v.id = v.class+'_u_'+sym_util.fairlyUniqueString();
         }
 
-        console.log(v);
-
+        process.send({
+            key: 'data',
+            val: v
+        })
         // send back to caller with id after creation
     });
 

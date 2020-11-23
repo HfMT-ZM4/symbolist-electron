@@ -89,31 +89,6 @@ const viewContainer = function(x, y, width, height, id, parentID)
 
 /**
  * 
- * @param {Object} controller_api reference to object containing method functions for accessing the model and view if needed
- * 
- * @returns {Object} containing controller functions to be used in mapping to/from data-view
- */
-const controllerDef = function( controller_api ) 
-{
-
-         // used to sort child objects
-         function comparator (a,b) {
-            return (a.time < b.time ? -1 : (a.time == b.time ? 0 : 1))
-        }
-
-    
-        return {
-            //className,
-            //palette,
-            //fromView,
-            //fromData,
-            comparator
-        }
-
-}
-
-/**
- * 
  * UI is called in the browser, and has access to the symbolist and drawsocket global modules
  * (could be nicer to have the same interface as the controller, and pass the api objects as an argument)
  * 
@@ -162,6 +137,17 @@ const uiDef = function(renderer_api)
         )
     }
 
+    function getContainerForData(dataObj)
+    {
+        let containers = document.querySelectorAll(`.${className}.symbol`);
+        const insertAtIndex = renderer_api.insertIndex(
+            dataObj, containers,
+            (a,b) => {
+                return (a.time < b.dataset.time) ? -1 : (a.time == b.dataset.time ? 0 : 1) ;
+            });
+        
+        return containers[insertAtIndex];
+    }
 
     /**
      * called when new instance of this object is created by a mouse down event
@@ -329,7 +315,44 @@ const uiDef = function(renderer_api)
 
     }
 
-  
+   // do we need a separate one for creating a new object from data? (i.e. from udp)
+    // problem here is that we overwrite the element, which deletes the handle
+    function updateFromDataset(element)
+    {
+        // assuming that we have all the data
+        let data = element.dataset;
+        const container = element.closest('.container');
+
+        const id = element.id;
+        const parent = element.parentNode.id;
+
+        let newView = mapToView(data, container, id, false);
+        
+         // send out before sending to drawsocket, because we overwrite the element
+         renderer_api.sendToController({
+            key: "update",
+            val: {
+                id,
+                parent,
+                class: [...element.classList],
+                ...data
+            }
+        })
+
+        renderer_api.drawsocketInput({
+            key: "svg",
+            val: {
+//                id, // id is in the view now
+                parent,
+                class: element.classList,
+                ...newView,
+                ...renderer_api.dataToHTML(data)
+            }
+        });
+
+
+
+    }
 
     // exported functions used by the symbolist renderer
     return {
@@ -338,13 +361,16 @@ const uiDef = function(renderer_api)
         getPaletteIcon,
         getInfoDisplay,
        // newFromClick,
-        paletteSelected
+        paletteSelected,
+        
+        // updateFromDataset, //<< not implemented
+
+        getContainerForData
     }
 
 }
 
 module.exports = {
-    controller: controllerDef,
     ui: uiDef
 }
 

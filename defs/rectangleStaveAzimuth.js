@@ -185,6 +185,43 @@ const uiDef = function(renderer_api)
     }
 
 
+    function fromData(dataObj, container)
+    {
+        const contentElement = container.querySelector('.contents');
+
+        // filtering the dataObj since the id and parent aren't stored in the dataset
+        const dataset = {
+            time: dataObj.time,
+            pitch: dataObj.pitch,
+            azim: dataObj.azim
+        }
+
+        let isNew = true;
+        
+        let currentElement =  document.getElementById(dataObj.id) ;
+        console.log(currentElement);
+
+        if(currentElement) {
+            isNew = false;
+        }
+
+        let newView = mapToView(dataset, container, dataObj.id, isNew );
+
+        console.log(newView);
+
+
+        renderer_api.drawsocketInput({
+            key: "svg",
+            val: {
+                parent: contentElement.id,
+                class: `${className} symbol`,
+                ...newView,
+                ...renderer_api.dataToHTML(dataset)
+            }
+        });
+
+    }
+
     // do we need a separate one for creating a new object from data? (i.e. from udp)
     // problem here is that we overwrite the element, which deletes the handle
     function updateFromDataset(element)
@@ -656,6 +693,8 @@ const uiDef = function(renderer_api)
     return {
         className,
         palette,
+
+        fromData,
 
         getPaletteIcon,
         

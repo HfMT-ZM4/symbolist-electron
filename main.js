@@ -8,6 +8,8 @@ if( cluster.isMaster )
   const { app, BrowserWindow, ipcMain, globalShortcut, dialog } = require('electron')
   const menu = require('./menu-actions/menu') // init after creating cluster and win
 
+  const symbolist_config = require('./symbolist-config.json');
+
   const io_controller_proc = cluster.fork();
   let win = null
   
@@ -48,37 +50,48 @@ if( cluster.isMaster )
     // note: did-finish-load is called on browser refresh
     win.webContents.on('did-finish-load', () => {
 
-      dialog.showOpenDialog(win, {
-        message: "Please select Symbolist init folder",
-        properties: ['openDirectory', ]//, //'openFile', 'multiSelections'
-        /*filters: [{ 
-          name: "JavaScript", 
-          extensions: ['js'] 
-        }]*/
-      }).then(result => {
-        if( result.canceled )
-        {
-          console.log( 'selection canceled, now what?')
-        }
-        else
-        {
-        // console.log('result', result)
-        
-          let files = utils.getFilesFromMenuFolderArray(result.filePaths);
-          win.webContents.send('load-ui-defs', files );
-/*
-          // << later send to io controller for user lookup scripts
+      if( symbolist_config )
+      {
+        let files = utils.getFilesFromMenuFolderArray(symbolist_config['default-init-folder']);
 
-          io_controller_proc.send({
-            key: "loadInitFiles",
-            val: result.filePaths
-          })
-*/          
-        }
+        console.log('symbolist_config', files);
+        win.webContents.send('load-ui-defs', files );
+      }
+      else
+      {
+        dialog.showOpenDialog(win, {
+          message: "Please select Symbolist init folder",
+          properties: ['openDirectory', ]//, //'openFile', 'multiSelections'
+          /*filters: [{ 
+            name: "JavaScript", 
+            extensions: ['js'] 
+          }]*/
+        }).then(result => {
+          if( result.canceled )
+          {
+            console.log( 'selection canceled, now what?')
+          }
+          else
+          {
+          // console.log('result', result)
+          
+            let files = utils.getFilesFromMenuFolderArray(result.filePaths[0]);
+            win.webContents.send('load-ui-defs', files );
+  /*
+            // << later send to io controller for user lookup scripts
+  
+            io_controller_proc.send({
+              key: "loadInitFiles",
+              val: result.filePaths
+            })
+  */          
+          }
+        
+        }).catch(err => {
+          console.log(err)
+        })
+      }
       
-      }).catch(err => {
-        console.log(err)
-      })
 
     })
   })
@@ -111,7 +124,7 @@ if( cluster.isMaster )
     if( !Array.isArray(msg) )
       msg = [ msg ];
 
-    msg.forEach( m => win.webContents.send(m.key, m.val) )
+    msg.forEach( m => win.webContents.send('io-message', m ) )
       
 
   });
