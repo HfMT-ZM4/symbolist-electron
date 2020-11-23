@@ -9,6 +9,8 @@ const className = "rectangleStave";
 const palette = [ "rectangleStaveEvent", "rectangleStaveAzimuth" ]; //, "otherRectangleStaveEvent"
 
 
+const default_duration = 1;
+
 let x2time = 0.001;
 let time2x = 1000;
 
@@ -160,7 +162,7 @@ const uiDef = function(renderer_api)
     {
         const x = event.pageX;
         const y = event.pageY;
-        const width = 800; // default w
+        const width = default_duration * time2x; // default w
         const height = 600; // default h
 
         const uniqueID = `${className}_u_${renderer_api.fairlyUniqueString()}`;
@@ -248,7 +250,7 @@ const uiDef = function(renderer_api)
                     parent: "symbolist_overlay",
                     id: 'rectangleStave-sprite',
                     class: 'sprite',
-                    ...viewDisplay(e.pageX, e.pageY, 800, 600)
+                    ...viewDisplay(e.pageX, e.pageY, default_duration * x2time, 600)
                 }
             })
         }
