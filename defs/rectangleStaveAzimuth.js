@@ -78,7 +78,7 @@ const viewDisplay = function(id, cx, cy, r, x2, y2, overwrite = true)
  * the uiDef defines the behaviour of mouse interaction, and maniuputing the view information
  * 
  */
-const uiDef = function(renderer_api) 
+const uiDef = function(symbolist_ui) 
 {
 
     // UI mode, "creation" or "edit", passed from renderer
@@ -109,8 +109,8 @@ const uiDef = function(renderer_api)
      */
     function getInfoDisplay( viewElement )
     {
-        renderer_api.drawsocketInput(
-            renderer_api.makeDefaultInfoDisplay(viewElement)
+        symbolist_ui.drawsocketInput(
+            symbolist_ui.makeDefaultInfoDisplay(viewElement, symbolist_ui.scrollOffset)
         )
         
     }
@@ -210,13 +210,13 @@ const uiDef = function(renderer_api)
         console.log(newView);
 
 
-        renderer_api.drawsocketInput({
+        symbolist_ui.drawsocketInput({
             key: "svg",
             val: {
                 parent: contentElement.id,
                 class: `${className} symbol`,
                 ...newView,
-                ...renderer_api.dataToHTML(dataset)
+                ...symbolist_ui.dataToHTML(dataset)
             }
         });
 
@@ -236,7 +236,7 @@ const uiDef = function(renderer_api)
         let newView = mapToView(data, container, id, false);
         
          // send out before sending to drawsocket, because we overwrite the element
-         renderer_api.sendToController({
+         symbolist_ui.sendToController({
             key: "update",
             val: {
                 id,
@@ -246,14 +246,14 @@ const uiDef = function(renderer_api)
             }
         })
 
-        renderer_api.drawsocketInput({
+        symbolist_ui.drawsocketInput({
             key: "svg",
             val: {
 //                id, // id is in the view now
                 parent,
                 class: element.classList,
                 ...newView,
-                ...renderer_api.dataToHTML(data)
+                ...symbolist_ui.dataToHTML(data)
             }
         });
 
@@ -271,13 +271,13 @@ const uiDef = function(renderer_api)
      */
     function creatNewFromMouseEvent(event)
     {
-        const cx = event.pageX;
-        const cy = event.pageY;
+        const cx = event.pageX - symbolist_ui.scrollOffset.x;
+        const cy = event.pageY - symbolist_ui.scrollOffset.y;
         const r = default_r; 
 
-        const uniqueID = `${className}_u_${renderer_api.fairlyUniqueString()}`;
+        const uniqueID = `${className}_u_${symbolist_ui.fairlyUniqueString()}`;
 
-        const container = renderer_api.getCurrentContext();
+        const container = symbolist_ui.getCurrentContext();
         const eventElement = container.querySelector('.contents');
 
       //  console.log('eventElement', eventElement);
@@ -301,7 +301,7 @@ const uiDef = function(renderer_api)
 
        
         // create new symbol in view
-        renderer_api.drawsocketInput([
+        symbolist_ui.drawsocketInput([
             {
                 key: "remove", 
                 val: `${className}-sprite`
@@ -312,7 +312,7 @@ const uiDef = function(renderer_api)
                     class: `${className} symbol`,
                     parent: eventElement.id,
                     ...viewDisplay(uniqueID, cx, cy, r, cx + r, cy - 10),
-                    ...renderer_api.dataToHTML(dataObj)//,
+                    ...symbolist_ui.dataToHTML(dataObj)//,
                     //onclick: function(e){ console.log('ello', e)}
 
                 }
@@ -328,7 +328,7 @@ const uiDef = function(renderer_api)
         ])
 
         // send out
-        renderer_api.sendToController({
+        symbolist_ui.sendToController({
             key: "new",
             val: {
                 class: `${className} symbol`,
@@ -348,6 +348,9 @@ const uiDef = function(renderer_api)
 
             let sprite = document.getElementById(`${className}-sprite`);
 
+            const x = e.pageX - symbolist_ui.scrollOffset.x;
+            const y = e.pageY - symbolist_ui.scrollOffset.y;
+
             let cx, cy, azim;
 
             if( sprite && e.altKey )
@@ -355,20 +358,20 @@ const uiDef = function(renderer_api)
                 let circle = sprite.querySelector('circle');
                 cx = circle.getAttribute('cx');
                 cy = circle.getAttribute('cy');
-                azim = Math.atan2( e.pageX - cx, e.pageY - cy );
+                azim = Math.atan2( x - cx, y - cy );
                 //${className}-sprite
             }
             else
             {
-                cx = e.pageX;
-                cy = e.pageY;
+                cx = x;
+                cy = y;
                 azim = 0;
             }
 
          
             const r = default_r; 
     
-            const container = renderer_api.getCurrentContext();
+            const container = symbolist_ui.getCurrentContext();
         
             let dataObj = mapToData({
                     cx, 
@@ -423,7 +426,7 @@ const uiDef = function(renderer_api)
  
         console.log('deselected');
                /*
-        renderer_api.drawsocketInput({
+        symbolist_ui.drawsocketInput({
             key: "remove", 
             val: [`${element.id}-rotation-handle`, `${className}-sprite`]
         })
@@ -433,21 +436,21 @@ const uiDef = function(renderer_api)
     function applyTransformToData(element)
     {
         let matrix = element.getCTM();
-        renderer_api.applyTransform(element, matrix);
+        symbolist_ui.applyTransform(element, matrix);
 
         let data = elementToData(element);
 
 
-        renderer_api.drawsocketInput({
+        symbolist_ui.drawsocketInput({
             key: "svg",
             val: {
                 id: element.id,
-                ...renderer_api.dataToHTML(data)
+                ...symbolist_ui.dataToHTML(data)
             }
         })
 
         // send out
-        renderer_api.sendToController({
+        symbolist_ui.sendToController({
             key: "update",
             val: {
                 id: element.id,
@@ -483,7 +486,7 @@ const uiDef = function(renderer_api)
 
         element.dataset.azim = azim;
 
-        renderer_api.drawsocketInput({
+        symbolist_ui.drawsocketInput({
             key: "svg", 
             val: {
                 id: `${element.id}-rotation-handle`,
@@ -514,7 +517,7 @@ const uiDef = function(renderer_api)
         else
         {
                 // maybe rename... sets translation in transform matrix, but doesn't apply it
-            renderer_api.translate(element, delta_pos);
+            symbolist_ui.translate(element, delta_pos);
         
             const circ = element.querySelector('circle');
             const line = element.querySelector('line');
@@ -537,7 +540,7 @@ const uiDef = function(renderer_api)
             ); //mapToData(cx, cy, default_r, x2, y2, container);
             
 
-            renderer_api.drawsocketInput({
+            symbolist_ui.drawsocketInput({
                 key: "svg",
                 val: {
                     new: "text",
@@ -577,7 +580,7 @@ const uiDef = function(renderer_api)
     {
         if( e.key == "Meta" )
         {
-            renderer_api.drawsocketInput({
+            symbolist_ui.drawsocketInput({
                 key: "remove", 
                 val: `${className}-sprite`
             })
@@ -608,7 +611,7 @@ const uiDef = function(renderer_api)
         {
             console.log(`exit ${className} ${m_mode}`);
 
-            renderer_api.drawsocketInput({
+            symbolist_ui.drawsocketInput({
                 key: "remove", 
                 val: `${className}-sprite`
             })            
@@ -630,7 +633,7 @@ const uiDef = function(renderer_api)
     // maybe the controller should do less but provide key event handling and pass to scripts
     function editMode( element, enable = false )
     {
-        //let element = renderer_api.getSelected()[0]; // first object only for now...
+        //let element = symbolist_ui.getSelected()[0]; // first object only for now...
 
         if( enable )
         {
@@ -640,7 +643,7 @@ const uiDef = function(renderer_api)
             const x2 = parseFloat(line.getAttribute('x2'));
             const y2 = parseFloat(line.getAttribute('y2'));
     
-            renderer_api.drawsocketInput({
+            symbolist_ui.drawsocketInput({
                 key: "svg", 
                 val: {
                     id: `${element.id}-rotation-handle`,
@@ -674,7 +677,7 @@ const uiDef = function(renderer_api)
         {
             console.log('deregister');
 
-            renderer_api.drawsocketInput({
+            symbolist_ui.drawsocketInput({
                 key: "remove", 
                 val: `${element.id}-rotation-handle`,
             }) 

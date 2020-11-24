@@ -50,6 +50,7 @@ if( cluster.isMaster )
     // note: did-finish-load is called on browser refresh
     win.webContents.on('did-finish-load', () => {
 
+
       if( symbolist_config )
       {
         let files = utils.getFilesFromMenuFolderArray(symbolist_config['default-init-folder']);
@@ -92,6 +93,7 @@ if( cluster.isMaster )
         })
       }
       
+      console.log();
 
     })
   })

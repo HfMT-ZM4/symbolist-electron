@@ -32,6 +32,11 @@ body {
   height: 100vh;
 }
 
+#floating-forms {
+  z-index: 100;
+}
+
+
 .symbolist_selected {
   stroke-width: 1 !important;
   stroke: blue !important;

@@ -100,7 +100,7 @@ const viewContainer = function(x, y, width, height, id, parentID)
  * the uiDef defines the behaviour of mouse interaction, and maniuputing the view information
  * 
  */
-const uiDef = function(renderer_api) 
+const uiDef = function( symbolist_ui ) 
 {
 
     function comparator (a, b) {
@@ -134,15 +134,15 @@ const uiDef = function(renderer_api)
      */
     function getInfoDisplay(viewElement)
     {
-        renderer_api.drawsocketInput(
-            renderer_api.makeDefaultInfoDisplay(viewElement)
+        symbolist_ui.drawsocketInput(
+            symbolist_ui.makeDefaultInfoDisplay(viewElement, symbolist_ui.scrollOffset)
         )
     }
 
     function getContainerForData(dataObj)
     {
         let containers = document.querySelectorAll(`.${className}.symbol`);
-        const insertAtIndex = renderer_api.insertIndex(
+        const insertAtIndex = symbolist_ui.insertIndex(
             dataObj, containers,
             (a,b) => {
                 return (a.time < b.dataset.time) ? -1 : (a.time == b.dataset.time ? 0 : 1) ;
@@ -160,22 +160,27 @@ const uiDef = function(renderer_api)
      */
     function creatNewFromMouseEvent(event)
     {
-        const x = event.pageX;
-        const y = event.pageY;
+        const x = event.pageX - symbolist_ui.scrollOffset.x;
+        const y = event.pageY - symbolist_ui.scrollOffset.y;
         const width = default_duration * time2x; // default w
         const height = 600; // default h
 
-        const uniqueID = `${className}_u_${renderer_api.fairlyUniqueString()}`;
+        const uniqueID = `${className}_u_${symbolist_ui.fairlyUniqueString()}`;
 
-        const container = renderer_api.getCurrentContext();
+        const container = symbolist_ui.getCurrentContext();
         const eventElement = container.querySelector('.contents');
 
+        const prevLen = eventElement.children.length;
 
-        const insertAtIndex = renderer_api.insertIndex(
+/*
+        ax < bx
+*/
+
+        const insertAtIndex = symbolist_ui.insertIndex(
             { x, y, width, height, right: x+width }, eventElement.children,
             (a,b) => {
                 const bbox = b.getBoundingClientRect();
-                return (a.y < bbox.y && bbox.x < a.right) ? -1 : 1;
+                return (a.y >= bbox.bottom || a.x >= bbox.right ) ? 1 : -1;
             });
 
         
@@ -188,18 +193,13 @@ const uiDef = function(renderer_api)
             prevStaveEndTime = parseFloat(prevStave.dataset.time) + parseFloat(prevStave.dataset.duration);
         }
             
-        
-        // figure out the time value of this container
-        // ideally this should be determined by the parent container, but we don't have a top level container yet
-        // let allOfThisType = container.querySelectAll(`.${className}.container`);
-        // for now the events will just be relative to their container
-
+      
         let dataObj = {
             time: prevStaveEndTime,
-            duration: 1
+            duration: default_duration
         }
         // create new symbol in view
-        renderer_api.drawsocketInput([
+        symbolist_ui.drawsocketInput([
             {
                 key: "remove", 
                 val: 'rectangleStave-sprite'
@@ -208,26 +208,29 @@ const uiDef = function(renderer_api)
                 key: "svg",
                 val: {
                     ...viewContainer(x, y, width, height, uniqueID, eventElement.id),
-                    ...renderer_api.dataToHTML(dataObj)
+                    ...symbolist_ui.dataToHTML(dataObj)
                 }
             }
         ])
-
-      
+        
+        const nextID = insertAtIndex+1;
         let newItem = document.getElementById(uniqueID);
-        eventElement.children[insertAtIndex+1].before( newItem );
-       
+        eventElement.children[nextID].before( newItem );
 
-        //let t = document.getElementById(uniqueID);
-        console.log('removed sprite');
+        if( insertAtIndex != -1 && insertAtIndex < prevLen )
+        {   
+            const newLen = eventElement.children.length;
+            for( let i = nextID+1; i < newLen; i++ )
+            {
+                const currenttime = parseFloat(eventElement.children[i].dataset.time);
+                console.log(i, currenttime);
+                eventElement.children[i].dataset.time = currenttime + dataObj.duration;
+                // no need to update positions, but we could do that here if needed
+            }
+        }
+        
 
-
-        const containerDisplay = container.querySelector('.display');
-        const bbox = containerDisplay.getBoundingClientRect();
-
-        // make relative for controller
-        // the send command should be wrapped in the controller probably
-        renderer_api.sendToController({
+        symbolist_ui.sendToController({
             key: "toData",
             val: {
                 class: className,
@@ -242,15 +245,23 @@ const uiDef = function(renderer_api)
 
     function move(e)
     {
-        if( e.metaKey && renderer_api.getCurrentContext().classList[0] != className )
+        if( e.metaKey && symbolist_ui.getCurrentContext().classList[0] != className )
         {
+            const x = e.pageX - symbolist_ui.scrollOffset.x;
+            const y = e.pageY - symbolist_ui.scrollOffset.y;
+            let preview = viewDisplay(x, y, default_duration * time2x, 600);
+
+            preview.style.fill = "none";
+            preview.style.stroke = "white";
+            preview.style['stroke-width'] = 1;
+
             drawsocket.input({
                 key: "svg", 
                 val: {
                     parent: "symbolist_overlay",
                     id: 'rectangleStave-sprite',
                     class: 'sprite',
-                    ...viewDisplay(e.pageX, e.pageY, default_duration * x2time, 600)
+                    ...preview
                 }
             })
         }
@@ -276,13 +287,14 @@ const uiDef = function(renderer_api)
     {
         if( e.key == "Meta" )
         {
-            renderer_api.drawsocketInput({
+            symbolist_ui.drawsocketInput({
                 key: "remove", 
                 val: 'rectangleStave-sprite'
             })
 
         }
     }
+
 
 
 
@@ -299,10 +311,12 @@ const uiDef = function(renderer_api)
             window.addEventListener("mouseup", up);
             document.body.addEventListener("keydown", keyDown);
             document.body.addEventListener("keyup", keyUp);
+
+
         }
         else
         {
-            renderer_api.drawsocketInput({
+            symbolist_ui.drawsocketInput({
                 key: "remove", 
                 val: `${className}-sprite`
             })            
@@ -331,7 +345,7 @@ const uiDef = function(renderer_api)
         let newView = mapToView(data, container, id, false);
         
          // send out before sending to drawsocket, because we overwrite the element
-         renderer_api.sendToController({
+         symbolist_ui.sendToController({
             key: "update",
             val: {
                 id,
@@ -341,14 +355,14 @@ const uiDef = function(renderer_api)
             }
         })
 
-        renderer_api.drawsocketInput({
+        symbolist_ui.drawsocketInput({
             key: "svg",
             val: {
 //                id, // id is in the view now
                 parent,
                 class: element.classList,
                 ...newView,
-                ...renderer_api.dataToHTML(data)
+                ...symbolist_ui.dataToHTML(data)
             }
         });
 
@@ -362,10 +376,14 @@ const uiDef = function(renderer_api)
         palette,
         getPaletteIcon,
         getInfoDisplay,
-       // newFromClick,
+       // newFromClick, << I guess should/could be defined in mouse handler
         paletteSelected,
         
         // updateFromDataset, //<< not implemented
+
+        // selected
+        // drag
+        // contextSelected
 
         getContainerForData
     }

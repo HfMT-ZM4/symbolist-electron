@@ -156,4 +156,4 @@ best is if all symbols are wrapped in <g> tags, so that GUI elements can be cont
 - for now  we can just use a single stave?
     or create page object that groups container staves, and usually acts to show the synchronization between them
 
- 
+- add init ping from browser (or in did-load) to send data from server side

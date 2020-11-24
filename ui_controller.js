@@ -49,6 +49,9 @@ let selectedCopy = [];
 let mousedown_pos = {x: 0, y: 0};
 let mouse_pos = {x: 0, y: 0};
 
+let scrollOffset = {x: 0, y: 0};
+
+
 let currentContext = svgObj;
 let currentPaletteClass =  "";
 
@@ -77,6 +80,7 @@ let renderer_api = {
     applyTransform,
     
     svgObj,
+    scrollOffset,
 
     insertSorted, 
     insertSortedHTML,
@@ -1503,58 +1507,6 @@ function callbackCustomUI( event )
     
 }
 
-function symbolist_mousemove(event)
-{         
-    if( currentMode == "edit" )
-        return;
-    
-    console.log('symbolist_mousemove');
-    const _eventTarget = getTopLevel( event.target );
-
-    if( prevEventTarget === null )
-        prevEventTarget = _eventTarget;
-
-    const pt = { x: event.pageX, y: event.pageY };
-    const mouseDelta = deltaPt(pt, mousedown_pos);
-
-    if( event.buttons == 1 )
-    {
-        if( clickedObj )
-        {
-            if( event.shiftKey )
-                rotate_selected( pt )
-            else
-                translate_selected( mouseDelta );
-        }
-        else 
-        {
-            if( !event.shiftKey )
-                deselectAll();
-
-            if( event.metaKey ){
-                event.symbolistAction = "newFromClick_drag";
-            }
-            else
-            {
-                let dragRegion = getDragRegion(event);
-
-                selectAllInRegion( dragRegion, mainSVG );
-    
-                drawDragRegion(dragRegion);
-            }
-
-
-        }
-    }
-
-    
-    mouse_pos = { x: event.pageX, y: event.pageY };
-    prevEventTarget = _eventTarget;
-
-    sendMouseEvent(event, "mousemove");
-
-}
-
 function callEnterEditMode(element)
 {
     if( uiDefs.has( element.classList[0] ) )
@@ -1702,6 +1654,58 @@ function callUpdateFromDataset(element)
     }
 }
 
+function symbolist_mousemove(event)
+{         
+    if( currentMode == "edit" )
+        return;
+    
+    //console.log('symbolist_mousemove', event.pageX, event.pageY, event.screenX, event.screenY);
+    const _eventTarget = getTopLevel( event.target );
+
+    if( prevEventTarget === null )
+        prevEventTarget = _eventTarget;
+
+    const pt = { x: event.pageX, y: event.pageY };
+    const mouseDelta = deltaPt(pt, mousedown_pos);
+
+    if( event.buttons == 1 )
+    {
+        if( clickedObj )
+        {
+            if( event.shiftKey )
+                rotate_selected( pt )
+            else
+                translate_selected( mouseDelta );
+        }
+        else 
+        {
+            if( !event.shiftKey )
+                deselectAll();
+
+            if( event.metaKey ){
+                event.symbolistAction = "newFromClick_drag";
+            }
+            else
+            {
+                let dragRegion = getDragRegion(event);
+
+                selectAllInRegion( dragRegion, mainSVG );
+    
+                drawDragRegion(dragRegion);
+            }
+
+
+        }
+    }
+
+    
+    mouse_pos = { x: event.pageX, y: event.pageY };
+    prevEventTarget = _eventTarget;
+
+    sendMouseEvent(event, "mousemove");
+
+}
+
 function symbolist_mouseup(event)
 {   
     console.log('symbolist_mouseup');
@@ -1797,18 +1801,19 @@ function symbolist_scroll(event)
 
 }
 
-let currentOffset = {x: 0, y: 0};
 
 function symbolist_wheel(event)
 {
 
-   // gsap.set(mainSVG, {x: `-=${event.deltaX}`, y: `-=${event.deltaY}`});
+
+    scrollOffset.x -= event.deltaX;
+    scrollOffset.y -= event.deltaY;
+
+    gsap.set("#main-div", scrollOffset);
+   // let bgColor = gsap.getProperty(mainSVG, "transform");
 
 
-    return;
 
-    currentOffset.x += event.deltaX;
-    currentOffset.y += event.deltaY;
 
    // let matrix = mainDiv.getCTM();
 
@@ -1818,7 +1823,8 @@ function symbolist_wheel(event)
    // let translation_ = svgObj.createSVGTransform();
    // translation_.setMatrix( matrix );
 
-    mainDiv.style.transform = `translate(${currentOffset.x}px, ${currentOffset.y}px)`;
+   //mainSVG.setAttributeNS(null, 'transform', `matrix(1, 0, 0, 1, ${currentOffset.x}, ${currentOffset.y})`);
+   //mainSVG.style['transform-origin'] = `0px 0px`;
 
     //svgObj.transform.setMatrix(matrix);
     //svgObj.transform.baseVal.getItem(0)
@@ -2032,12 +2038,12 @@ function dataToView(obj_)
     // figure out which container to put the data in
     console.log('data to view', obj_);
 
-        const def = uiDefs.get(obj_.class);
-        const container_def = uiDefs.get(obj_.container);
+    const def = uiDefs.get(obj_.class);
+    const container_def = uiDefs.get(obj_.container);
 
-        let container = container_def.getContainerForData( obj_ );
+    let container = container_def.getContainerForData( obj_ );
 
-        def.fromData(obj_, container);
+    def.fromData(obj_, container);
 
      
 
