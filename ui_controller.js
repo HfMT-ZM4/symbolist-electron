@@ -35,8 +35,9 @@ const { insertSorted, insertSortedHTML, insertIndex } = require('./lib/sorted-ar
  */
 const svgObj = document.getElementById("svg");
 const mainSVG = document.getElementById("main-svg");
+const mainDiv = document.getElementById("main-div");
+
 const overlay = document.getElementById('symbolist_overlay');
-let mainDiv = document.getElementById('main-div');
 
 let symbolist_log = document.getElementById("symbolist_log");;
 
@@ -50,7 +51,8 @@ let mousedown_pos = {x: 0, y: 0};
 let mouse_pos = {x: 0, y: 0};
 
 let scrollOffset = {x: 0, y: 0};
-
+let zoomLevel = 0;
+let default_zoom_step = 0.1;
 
 let currentContext = svgObj;
 let currentPaletteClass =  "";
@@ -321,10 +323,33 @@ ipcRenderer.on('menu-call', (event, arg) => {
         case 'deleteSelected':
             removeSelected();
             break;
+        case 'zoomIn':
+            symbolist_zoom(default_zoom_step);
+            break;
+        case 'zoomOut':
+            symbolist_zoom(-default_zoom_step);
+            break;
+        case 'zoomReset':
+            symbolist_zoomReset()
+            break;
 
     }
     console.log(`menu call received ${arg}`);
 })
+
+/**
+ * routes message from the io controller
+ */
+ipcRenderer.on('io-message', (event, obj) => {
+    switch(obj.key){
+        case 'data':
+            dataToView(obj.val);
+            break;
+        default:
+            break;
+    }
+})
+
 
 /** 
  * API -- make namespace here ?
@@ -1235,6 +1260,9 @@ function symbolist_keydownhandler(event)
             if( removeSelected() ) // returns true if should really delete (and not in infobox)
                 event.symbolistAction = "removeSelected";
             break;
+        case "+":
+            console.log('plus');
+        break;
 
     }
 
@@ -1801,62 +1829,37 @@ function symbolist_scroll(event)
 
 }
 
+function symbolist_zoomReset()
+{
+    zoomLevel = 0;
+    gsap.set(mainDiv, { scale: Math.pow( Math.E, zoomLevel) } );
+}
+
+
+function symbolist_zoom(offset)
+{
+    zoomLevel += offset;
+    gsap.set(mainDiv, { scale: Math.pow( Math.E, zoomLevel) } );
+}
 
 function symbolist_wheel(event)
 {
-
-
     scrollOffset.x -= event.deltaX;
     scrollOffset.y -= event.deltaY;
 
-    gsap.set("#main-div", scrollOffset);
-   // let bgColor = gsap.getProperty(mainSVG, "transform");
+    gsap.set(mainDiv, scrollOffset);
+   
+    var style = window.getComputedStyle(mainDiv);
+    var matrix = new WebKitCSSMatrix(style.transform);
 
-
-
-
-   // let matrix = mainDiv.getCTM();
-
-    //matrix.e += event.deltaX;
-    //matrix.f += event.deltaY;
-    
-   // let translation_ = svgObj.createSVGTransform();
-   // translation_.setMatrix( matrix );
-
-   //mainSVG.setAttributeNS(null, 'transform', `matrix(1, 0, 0, 1, ${currentOffset.x}, ${currentOffset.y})`);
-   //mainSVG.style['transform-origin'] = `0px 0px`;
-
-    //svgObj.transform.setMatrix(matrix);
-    //svgObj.transform.baseVal.getItem(0)
-
-
-
-    //const transformMatrix = svgObj.createSVGTransformFromMatrix(matrix);
-    //transformlist.initialize( transformMatrix );
-
-    
-/*
-    let viewbox = svgObj.getAttributeNS(null, 'viewbox');
-
-    if( !viewbox )
-    {
-        viewbox = [];
-        viewbox[0] = event.deltaX;
-        viewbox[1] = event.deltaY;
-        viewbox[2] = svgObj.clientWidth;
-        viewbox[3] = svgObj.clientHeight;
-    }
-    else
-    {
-        viewbox = viewbox.split(" ");
-        viewbox[0] = parseFloat(viewbox[0]) + event.deltaX;
-        viewbox[1] = parseFloat(viewbox[1]) + event.deltaY;
-        viewbox[2] = svgObj.clientWidth;
-        viewbox[3] = svgObj.clientHeight;
-    }
-    
-    svgObj.setAttributeNS(null, "viewbox",  viewbox.join(" ") )
+    console.log(matrix);
+    /*
+    console.log('translateX: ', matrix.m41);
+    console.log('translateY: ', matrix.m42);
+    console.log( mainDiv.transform.baseVal );
 */
+
+    // >> maybe do something like this if it's too many messages
 
 /*
     last_known_scroll_position = window.scrollY;
@@ -2049,18 +2052,6 @@ function dataToView(obj_)
 
 
 }
-/**
- * routes all message from the io controller
- */
-ipcRenderer.on('io-message', (event, obj) => {
-    switch(obj.key){
-        case 'data':
-            dataToView(obj.val);
-            break;
-        default:
-            break;
-    }
-})
 
 
 

@@ -1,16 +1,16 @@
 const {ipcMain, dialog} = require('electron')
 
 
-let controller_proc = null;
+let io_proc = null;
 let win = null;
 
-function init(_controller, _win)
+function init(_io_proc, _win)
 {
-    controller_proc = _controller;
-    win = _win;
+  io_proc = _io_proc;
+  win = _win;
 }
 
-function loadFiles()
+async function loadFiles()
 {
       dialog.showOpenDialog( {
         properties: ['openFile', 'openDirectory']
@@ -27,21 +27,24 @@ function copyFromHTML()
    
 }
 
-function deleteSelected()
+async function deleteSelected()
 {
   win.webContents.send('menu-call', 'deleteSelected');
+  // also delete in io_data
 }
 
 
-function buildModelLookup()
+async function buildModelLookup()
 {
-  controller_proc.send({
+  io_proc.send({
     key: 'symbolistEvent',
     val : {
       symbolistAction: 'buildModelLookup'
     }
   });
 }
+
+
 
 module.exports = {
     init,
