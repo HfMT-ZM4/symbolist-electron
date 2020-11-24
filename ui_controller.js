@@ -35,6 +35,9 @@ const { insertSorted, insertSortedHTML, insertIndex } = require('./lib/sorted-ar
  */
 const svgObj = document.getElementById("svg");
 const mainSVG = document.getElementById("main-svg");
+const mainHTML = document.getElementById("main-html");
+
+
 const mainDiv = document.getElementById("main-div");
 
 const overlay = document.getElementById('symbolist_overlay');
@@ -1687,7 +1690,7 @@ function symbolist_mousemove(event)
     if( currentMode == "edit" )
         return;
     
-    //console.log('symbolist_mousemove', event.pageX, event.pageY, event.screenX, event.screenY);
+    console.log('symbolist_mousemove', event.pageX, event.pageY, event.screenX, event.screenY);
     const _eventTarget = getTopLevel( event.target );
 
     if( prevEventTarget === null )
@@ -1810,70 +1813,75 @@ function symbolist_mouseleave(event)
     prevEventTarget = null;
 }
 
-let ticking = false;
-
-function symbolist_scroll(event)
-{
-
-    last_known_scroll_position = window.scrollY;
-  
-    if (!ticking) {
-      window.requestAnimationFrame(function() {
-        //doSomething(last_known_scroll_position);
-        console.log('symbolist_scroll', window.scrollX, window.scrollY);
-        ticking = false;
-      });
-  
-      ticking = true;
-    }
-
-}
 
 function symbolist_zoomReset()
 {
+    if( zoomLevel == 0 )
+    {
+        scrollOffset = {x: 0, y: 0};
+        gsap.set( mainSVG,  scrollOffset );
+        gsap.set( mainHTML, scrollOffset );
+    }
+
     zoomLevel = 0;
-    gsap.set(mainDiv, { scale: Math.pow( Math.E, zoomLevel) } );
+    const scale = Math.pow( Math.E, zoomLevel);
+    gsap.set( mainSVG,  { scale } );
+    gsap.set( mainHTML, { scale } );
 }
 
 
 function symbolist_zoom(offset)
 {
     zoomLevel += offset;
-    gsap.set(mainDiv, { scale: Math.pow( Math.E, zoomLevel) } );
+    const scale = Math.pow( Math.E, zoomLevel);
+
+    var style = window.getComputedStyle(mainSVG);
+    var matrix = new WebKitCSSMatrix(style.transform);
+
+    let offsetPt = calcTransform(matrix, mouse_pos);
+
+    let bbox = mainSVG.getBoundingClientRect();
+
+    // (1 - scale) * currentPosition
+    var pad_x = ((bbox.width * scale) - bbox.width) / 2;
+    var pad_y = ((bbox.height * scale) - bbox.height) / 2;
+
+
+    let padX = (1 - scale) * mouse_pos.x;
+    let padY = (1 - scale) * mouse_pos.y;
+
+    const transformOrigin = `${padX}px ${padY}px`;//`${(offsetPt.x / bbox.width) * 100}% ${(offsetPt.y / bbox.height) * 100}%`;
+    console.log(offsetPt);
+    gsap.set( mainSVG,  { scale, transformOrigin  } );
+    gsap.set( mainHTML, { scale, transformOrigin  } );
+
 }
+
+let ticking = false;
 
 function symbolist_wheel(event)
 {
     scrollOffset.x -= event.deltaX;
     scrollOffset.y -= event.deltaY;
 
-    gsap.set(mainDiv, scrollOffset);
-   
-    var style = window.getComputedStyle(mainDiv);
-    var matrix = new WebKitCSSMatrix(style.transform);
+    // >> slowing the update down a litte, which was causing some jittery behavior
 
-    console.log(matrix);
-    /*
-    console.log('translateX: ', matrix.m41);
-    console.log('translateY: ', matrix.m42);
-    console.log( mainDiv.transform.baseVal );
-*/
-
-    // >> maybe do something like this if it's too many messages
-
-/*
-    last_known_scroll_position = window.scrollY;
-  
     if (!ticking) {
-      window.requestAnimationFrame(function() {
-        //doSomething(last_known_scroll_position);
-        console.log('symbolist_scroll', window.scrollX, window.scrollY);
+      window.requestAnimationFrame( function() {
+
+        gsap.set( mainSVG,  scrollOffset );
+        gsap.set( mainHTML, scrollOffset );
+       
+        var style = window.getComputedStyle(mainSVG);
+        var matrix = new WebKitCSSMatrix(style.transform);
+    
+        console.log(matrix);
+
         ticking = false;
       });
   
       ticking = true;
     }
-*/
 }
 
 

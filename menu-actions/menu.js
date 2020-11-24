@@ -89,7 +89,7 @@ function createTemplate()
         { role: 'toggledevtools' },
         { type: 'separator' },
         { 
-          label: 'Zoom Reset', 
+          label: 'Zoom/Scroll Reset', 
           accelerator: 'CommandOrControl+0',
           click: async () => {
             win.webContents.send('menu-call', 'zoomReset')
