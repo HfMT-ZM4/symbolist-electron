@@ -271,8 +271,10 @@ const uiDef = function(symbolist_ui)
      */
     function creatNewFromMouseEvent(event)
     {
-        const cx = event.pageX - symbolist_ui.scrollOffset.x;
-        const cy = event.pageY - symbolist_ui.scrollOffset.y;
+
+        const pt = symbolist_ui.getSVGCoordsFromEvent(event);
+        const cx = pt.x;
+        const cy = pt.y;
         const r = default_r; 
 
         const uniqueID = `${className}_u_${symbolist_ui.fairlyUniqueString()}`;
@@ -348,8 +350,12 @@ const uiDef = function(symbolist_ui)
 
             let sprite = document.getElementById(`${className}-sprite`);
 
-            const x = e.pageX - symbolist_ui.scrollOffset.x;
-            const y = e.pageY - symbolist_ui.scrollOffset.y;
+            const pt = symbolist_ui.getSVGCoordsFromEvent(e);
+
+            console.log(e.pageX, e.pageY, pt);
+
+            const x = pt.x;
+            const y = pt.y;
 
             let cx, cy, azim;
 
@@ -392,7 +398,7 @@ const uiDef = function(symbolist_ui)
                 val: {
                     id: `${className}-sprite`,
                     class: 'sprite',
-                    parent: 'symbolist_overlay',
+                    //parent: 'symbolist_overlay',
                     new: "g",
                     children: [
                         viewObj, //viewDisplay(cx, cy, r, cx + r, cy - 10),
@@ -435,7 +441,7 @@ const uiDef = function(symbolist_ui)
 
     function applyTransformToData(element)
     {
-        let matrix = element.getCTM();
+        let matrix = element.getScreenCTM();
         symbolist_ui.applyTransform(element, matrix);
 
         let data = elementToData(element);

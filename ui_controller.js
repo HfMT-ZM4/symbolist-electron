@@ -83,7 +83,9 @@ let renderer_api = {
     makeDefaultInfoDisplay,
     translate,
     applyTransform,
-    
+
+    getSVGCoordsFromEvent,
+
     svgObj,
     scrollOffset,
 
@@ -743,7 +745,14 @@ function deltaPt(ptA, ptB)
 }
 
 
-function calcTransform(matrix, pt)
+
+function getSVGCoordsFromEvent(event)
+{
+    return transformPoint(mainSVG.getScreenCTM().inverse(), { x: event.pageX, y: event.pageY} );
+}
+
+
+function transformPoint(matrix, pt)
 {  
     return { 
         x: matrix.a * pt.x + matrix.c * pt.y + matrix.e, 
@@ -754,13 +763,16 @@ function calcTransform(matrix, pt)
 /**
  * 
  * @param {Object} obj element to transform
- * @param {Object} matrix transform matrix
+ * @param {Object} matrix transform matrix (read only ok)
  * 
  * the function gets the tranformation matrix and adjusts the SVG parameters to the desired values
  * 
  */
 function applyTransform(obj, matrix)
 {    
+    let svgMatrix = mainSVG.getScreenCTM();
+    let adjustedMatrix = matrix.multiply(svgMatrix.inverse());
+
     let x, y;
 // add scaling eventually
     switch ( obj.tagName )
@@ -776,7 +788,7 @@ function applyTransform(obj, matrix)
             {
                 x = obj.getAttribute("cx");
                 y = obj.getAttribute("cy");
-                const newpt = calcTransform(matrix, { x, y } )
+                const newpt = transformPoint(adjustedMatrix, { x, y } )
                 obj.setAttribute("cx", newpt.x );
                 obj.setAttribute("cy", newpt.y );
             }
@@ -785,7 +797,7 @@ function applyTransform(obj, matrix)
             {
                 x = obj.getAttribute("x");
                 y = obj.getAttribute("y");
-                const newpt = calcTransform(matrix, { x, y } )
+                let newpt = transformPoint( adjustedMatrix, { x, y } );
                 obj.setAttribute("x", newpt.x );
                 obj.setAttribute("y", newpt.y );
             }
@@ -794,13 +806,13 @@ function applyTransform(obj, matrix)
             {
                 x = obj.getAttribute("x1");
                 y = obj.getAttribute("y1");
-                const newpt = calcTransform(matrix, { x, y } )
+                const newpt = transformPoint(adjustedMatrix, { x, y } )
                 obj.setAttribute("x1", newpt.x );
                 obj.setAttribute("y1", newpt.y );
 
                 x = obj.getAttribute("x2");
                 y = obj.getAttribute("y2");
-                const newpt2 = calcTransform(matrix, { x, y } )
+                const newpt2 = transformPoint(adjustedMatrix, { x, y } )
                 obj.setAttribute("x2", newpt2.x );
                 obj.setAttribute("y2", newpt2.y );
             }
@@ -820,8 +832,7 @@ function applyTransformToSelected()
     {
         if( !callApplyTransformToData(selected[i]) )
         {
-            let matrix = selected[i].getCTM();
-            console.log('apply', matrix);
+            let matrix = selected[i].getScreenCTM();
             applyTransform(selected[i], matrix);
         }
         
@@ -931,7 +942,7 @@ function translate(obj, delta_pos)
 
     let transformlist = obj.transform.baseVal; 
 
-    let matrix = obj.getCTM();
+    let matrix = obj.getScreenCTM();
     matrix.e = delta_pos.x;
     matrix.f = delta_pos.y;
 
@@ -979,7 +990,7 @@ function makeRelative(obj, container)
     let containerBBox = container.getBoundingClientRect();
 
     // assumes that the translation has been applied already
-    let matrix = obj.getCTM();
+    let matrix = obj.getScreenCTM();
     matrix.e = -containerBBox.x;
     matrix.f = -containerBBox.y;
 
@@ -1690,7 +1701,7 @@ function symbolist_mousemove(event)
     if( currentMode == "edit" )
         return;
     
-    console.log('symbolist_mousemove', event.pageX, event.pageY, event.screenX, event.screenY);
+    //console.log('symbolist_mousemove', event.pageX, event.pageY, event.screenX, event.screenY);
     const _eventTarget = getTopLevel( event.target );
 
     if( prevEventTarget === null )
@@ -1838,7 +1849,7 @@ function symbolist_zoom(offset)
     var style = window.getComputedStyle(mainSVG);
     var matrix = new WebKitCSSMatrix(style.transform);
 
-    let offsetPt = calcTransform(matrix, mouse_pos);
+    let offsetPt = transformPoint(matrix, mouse_pos);
 
     let bbox = mainSVG.getBoundingClientRect();
 
@@ -1872,10 +1883,9 @@ function symbolist_wheel(event)
         gsap.set( mainSVG,  scrollOffset );
         gsap.set( mainHTML, scrollOffset );
        
-        var style = window.getComputedStyle(mainSVG);
-        var matrix = new WebKitCSSMatrix(style.transform);
-    
-        console.log(matrix);
+       // var style = window.getComputedStyle(mainSVG);
+        //var matrix = new WebKitCSSMatrix(style.transform);
+      //  console.log(matrix);
 
         ticking = false;
       });

@@ -1,0 +1,161 @@
+
+<script src="../node_modules/gsap/dist/gsap.min.js"></script>
+
+
+ <svg id="svg" class="svg" viewBox="0 0 200 200" width="50%" height="50%">
+
+    <g id="viewport">
+        <rect x="100" y="100" width="100" height="100" fill="black" />
+    </g>  
+</svg>
+  
+  <div class="controls">  
+    <button id="reset">Reset</button>
+  </div>
+
+<script>
+
+
+var svg = document.querySelector("#svg");
+var reset = document.querySelector("#reset");
+
+var point = svg.createSVGPoint();
+var viewBox = svg.viewBox.baseVal;
+
+var cachedViewBox = {
+  x: viewBox.x,
+  y: viewBox.y,
+  width: viewBox.width,
+  height: viewBox.height
+};
+
+reset.addEventListener("click", resetView);
+window.addEventListener("click", onClick);
+
+//window.addEventListener("wheel", onWheel);
+
+/*
+function onWheel(event) {
+  
+  //event.preventDefault();
+    
+  var normalized;  
+  var delta = event.wheelDelta;
+
+  console.log(delta);
+
+  if (delta) {
+    normalized = (delta % 120) == 0 ? delta / 120 : delta / 12;
+  } else {
+    delta = event.deltaY || event.detail || 0;
+    normalized = -(delta % 3 ? delta * 10 : delta / 3);
+  }
+  
+  var scaleFactor = 1.6;
+  var scaleDelta = normalized > 0 ? 1 / scaleFactor : scaleFactor;
+  
+  point.x = event.clientX;
+  point.y = event.clientY;
+  
+  var startPoint = point.matrixTransform(svg.getScreenCTM().inverse());
+      
+  var fromVars = {
+    x: viewBox.x,
+    y: viewBox.y,
+    width: viewBox.width,
+    height: viewBox.height
+  };
+  
+  viewBox.x -= (startPoint.x - viewBox.x) * (scaleDelta - 1);
+  viewBox.y -= (startPoint.y - viewBox.y) * (scaleDelta - 1);
+  viewBox.width *= scaleDelta;
+  viewBox.height *= scaleDelta;
+    
+  gsap.quickSetter(viewBox, fromVars);  
+}
+
+function resetView() {
+  
+  TweenLite.to(viewBox, 0.4, {
+    x: cachedViewBox.x,
+    y: cachedViewBox.y,
+    width: cachedViewBox.width,
+    height: cachedViewBox.height,
+  });
+}
+*/
+console.clear();
+
+function onClick(event) {
+  
+ // event.preventDefault();
+  
+ // window.removeEventListener("click", onClick);
+//window.addEventListener("click", resetView);
+    
+//   var normalized;  
+//   var delta = event.wheelDelta;
+
+//   if (delta) {
+//     normalized = (delta % 120) == 0 ? delta / 120 : delta / 12;
+//   } else {
+//     delta = event.deltaY || event.detail || 0;
+//     normalized = -(delta % 3 ? delta * 10 : delta / 3);
+//   }
+  
+  // var scaleFactor = 1.6;
+  var scaleFactor = 3;
+//   var scaleDelta = normalized > 0 ? 1 / scaleFactor : scaleFactor;
+  var scaleDelta = 1 / scaleFactor;
+  
+  point.x = event.clientX;
+  point.y = event.clientY;
+  
+  var startPoint = point.matrixTransform( svg.getScreenCTM().inverse() );
+  
+
+  let matrix = svg.getScreenCTM();
+
+  let matrix2 = matrix.multiply( matrix.inverse() );
+
+  console.log(matrix, matrix2);
+
+
+  console.log(svg.getScreenCTM(), point, startPoint);
+  
+  var fromVars = {
+    x: viewBox.x,
+    y: viewBox.y,
+    width: viewBox.width,
+    height: viewBox.height,
+    ease: Power2.easeOut
+  };
+  
+  viewBox.x -= (startPoint.x - viewBox.x) * (scaleDelta - 1);
+  viewBox.y -= (startPoint.y - viewBox.y) * (scaleDelta - 1);
+  viewBox.width *= scaleDelta;
+  viewBox.height *= scaleDelta;
+    
+  gsap.quickSetter(viewBox, fromVars);  
+}
+
+function resetView() {
+  
+  // window.removeEventListener("click", resetView);
+  // window.addEventListener("click", onClick);
+  
+  TweenLite.to(viewBox, 0.4, {
+    x: cachedViewBox.x,
+    y: cachedViewBox.y,
+    width: cachedViewBox.width,
+    height: cachedViewBox.height,
+    onComplete: function() {
+      window.removeEventListener("click", resetView);
+      window.addEventListener("click", onClick);
+    }
+  });
+}
+
+
+
+  </script>
