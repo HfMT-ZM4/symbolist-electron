@@ -11,6 +11,8 @@ const palette = [ "rectangleStaveEvent", "rectangleStaveAzimuth" ]; //, "otherRe
 
 const default_duration = 1;
 
+const default_height = 200;
+
 let x2time = 0.001;
 let time2x = 1000;
 
@@ -165,7 +167,7 @@ const uiDef = function( symbolist_ui )
         const x = mousePt.x;
         const y = mousePt.y;
         const width = default_duration * time2x; // default w
-        const height = 600; // default h
+        const height = default_height; // default h
 
         const uniqueID = `${className}_u_${symbolist_ui.fairlyUniqueString()}`;
 
@@ -181,8 +183,9 @@ const uiDef = function( symbolist_ui )
         const insertAtIndex = symbolist_ui.insertIndex(
             { x, y, width, height, right: x+width }, eventElement.children,
             (a,b) => {
-                const bbox = b.getBoundingClientRect();
-                return (a.y >= bbox.bottom || a.x >= bbox.right ) ? 1 : -1;
+                const bbox = symbolist_ui.getBBoxAdjusted(b);
+                console.log(`${a.y} > ${bbox.bottom}) || (${a.x} >= ${bbox.right})`);
+                return ( (a.y > bbox.y) || (a.x >= bbox.right) ) ? 1 : -1;
             });
 
         
@@ -194,12 +197,12 @@ const uiDef = function( symbolist_ui )
             const prevStave = eventElement.children[insertAtIndex];
             prevStaveEndTime = parseFloat(prevStave.dataset.time) + parseFloat(prevStave.dataset.duration);
         }
-            
       
         let dataObj = {
             time: prevStaveEndTime,
             duration: default_duration
         }
+        
         // create new symbol in view
         symbolist_ui.drawsocketInput([
             {
@@ -215,18 +218,29 @@ const uiDef = function( symbolist_ui )
             }
         ])
         
-        const nextID = insertAtIndex+1;
-        let newItem = document.getElementById(uniqueID);
-        eventElement.children[nextID].before( newItem );
 
-        if( insertAtIndex != -1 && insertAtIndex < prevLen )
+        let newItem = document.getElementById(uniqueID);
+        if( insertAtIndex == -1 )
+            eventElement.prepend( newItem )
+        else
+        {
+            eventElement.children[insertAtIndex].after( newItem );
+        }
+
+
+        const ourID = insertAtIndex+1;
+            
+     //   eventElement.children[nextID].before( newItem );
+
+        if( insertAtIndex != -1 && ourID < prevLen )
         {   
             const newLen = eventElement.children.length;
-            for( let i = nextID+1; i < newLen; i++ )
+            let nextTime = dataObj.time + dataObj.duration;
+
+            for( let i = ourID+1; i < newLen; i++ )
             {
-                const currenttime = parseFloat(eventElement.children[i].dataset.time);
-                console.log(i, currenttime);
-                eventElement.children[i].dataset.time = currenttime + dataObj.duration;
+                eventElement.children[i].dataset.time = nextTime;
+                nextTime += parseFloat(eventElement.children[i].dataset.duration);
                 // no need to update positions, but we could do that here if needed
             }
         }
@@ -251,7 +265,7 @@ const uiDef = function( symbolist_ui )
         {
             const mousePt = symbolist_ui.getSVGCoordsFromEvent(e);
 
-            let preview = viewDisplay(mousePt.x, mousePt.y, default_duration * time2x, 600);
+            let preview = viewDisplay(mousePt.x, mousePt.y, default_duration * time2x, default_height);
 
             preview.style.fill = "none";
             preview.style.stroke = "white";

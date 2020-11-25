@@ -113,7 +113,7 @@ const controllerDef = function( controller_api )
  * the uiDef defines the behaviour of mouse interaction, and maniuputing the view information
  * 
  */
-const uiDef = function(renderer_api) 
+const uiDef = function(symbolist_ui) 
 {
 
     /**
@@ -140,13 +140,13 @@ const uiDef = function(renderer_api)
      */
     function getInfoDisplay(dataObj, viewElement)
     {
-        return renderer_api.makeDefaultInfoDisplay(dataObj, viewElement.getBoundingClientRect() );
+        return symbolist_ui.makeDefaultInfoDisplay(dataObj, symbolist_ui.getBBoxAdjusted(viewElement) );
     }
 
     function mapToData(cx, cy, r, container)
     {
         const containerDisplay = container.querySelector('.display');
-        const bbox = containerDisplay.getBoundingClientRect();
+        const bbox = symbolist_ui.getBBoxAdjusted(containerDisplay);
 
         const time = ((cx-bbox.x) * x2time) + parseFloat(container.dataset.time);// + parseFloat(container.dataset.duration);
         const pitch = (1 - ((cy-bbox.y) / bbox.height)) * y2pitch; 
@@ -160,7 +160,7 @@ const uiDef = function(renderer_api)
     function mapToView(time, pitch, container)
     {
         const containerDisplay = container.querySelector('.display');
-        const bbox = containerDisplay.getBoundingClientRect();
+        const bbox = symbolist_ui.getBBoxAdjusted(containerDisplay);
 
         const cx = bbox.x + ((time - parseFloat(container.dataset.time)) * time2x);
         const cy = bbox.y + ((1. - (pitch * pitch2y)) * bbox.height);
@@ -183,9 +183,9 @@ const uiDef = function(renderer_api)
         const cy = event.clientY;
         const r = default_r; 
 
-        const uniqueID = `${className}_u_${renderer_api.fairlyUniqueString()}`;
+        const uniqueID = `${className}_u_${symbolist_ui.fairlyUniqueString()}`;
 
-        const container = renderer_api.getCurrentContext();
+        const container = symbolist_ui.getCurrentContext();
         const eventElement = container.querySelector('.contents');
 
       //  console.log('eventElement', eventElement);
@@ -198,7 +198,7 @@ const uiDef = function(renderer_api)
         viewObject.cx = parseFloat(viewObject.cx) + 10;
 
         // create new symbol in view
-        renderer_api.drawsocketInput([
+        symbolist_ui.drawsocketInput([
             {
                 key: "remove", 
                 val: `${className}-sprite`
@@ -210,7 +210,7 @@ const uiDef = function(renderer_api)
                     id: uniqueID,
                     parent: eventElement.id,
                     ...viewDisplay(cx, cy, r),
-                    ...renderer_api.dataToHTML(dataObj)//,
+                    ...symbolist_ui.dataToHTML(dataObj)//,
                     //onclick: function(e){ console.log('ello', e)}
 
                 }
@@ -222,14 +222,14 @@ const uiDef = function(renderer_api)
                     id: uniqueID+'test',
                     parent: eventElement.id,
                     ...viewObject,
-                    ...renderer_api.dataToHTML(dataObj)//,
+                    ...symbolist_ui.dataToHTML(dataObj)//,
 
                 }
             }
         ])
 
         // send out
-        renderer_api.sendToController({
+        symbolist_ui.sendToController({
             key: "new",
             val: {
                 class: className,
@@ -251,7 +251,7 @@ const uiDef = function(renderer_api)
             const cy = e.clientY;
             const r = default_r; 
     
-            const container = renderer_api.getCurrentContext();
+            const container = symbolist_ui.getCurrentContext();
         
             const dataObj = mapToData(cx, cy, r, container)
 
@@ -297,7 +297,7 @@ const uiDef = function(renderer_api)
     {
         if( e.key == "Meta" )
         {
-            renderer_api.drawsocketInput({
+            symbolist_ui.drawsocketInput({
                 key: "remove", 
                 val: `${className}-sprite`
             })
@@ -317,7 +317,7 @@ const uiDef = function(renderer_api)
 
     function exit (){
         
-        renderer_api.drawsocketInput({
+        symbolist_ui.drawsocketInput({
             key: "remove", 
             val: `${className}-sprite`
         })

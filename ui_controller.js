@@ -86,10 +86,13 @@ let renderer_api = {
     applyTransform,
 
     getSVGCoordsFromEvent,
+    getBBoxAdjusted,
+
 
     svgObj,
     scrollOffset,
 
+    
     insertSorted, 
     insertSortedHTML,
     insertIndex
@@ -755,6 +758,33 @@ function getSVGCoordsFromEvent(event)
     return pt.matrixTransform( mainSVG.getScreenCTM().inverse() ); 
 }
 
+function getBBoxAdjusted(element)
+{
+    let bbox = cloneObj( element.getBoundingClientRect() );
+
+    const topLeft = svgObj.createSVGPoint();
+    const bottomRight = svgObj.createSVGPoint();
+
+    topLeft.x = bbox.x;
+    topLeft.y = bbox.y;
+    bottomRight.x = bbox.right;
+    bottomRight.y = bbox.bottom;
+    
+    let xy = topLeft.matrixTransform( mainSVG.getScreenCTM().inverse() );
+    let br = bottomRight.matrixTransform( mainSVG.getScreenCTM().inverse() );
+
+    return {
+        x: xy.x,
+        y: xy.y,
+        left: xy.x,
+        top: xy.y,
+        right: br.x,
+        bottom: br.y,
+        width: bbox.width,
+        height: bbox.height
+    }
+}
+
 
 function transformPoint(matrix, pt)
 {  
@@ -988,9 +1018,7 @@ function translate(obj, delta_pos)
     
     gsap.set(obj, delta_pos);
 
-    
-    console.log(window.getComputedStyle(obj).transform);
-
+/*
     return;
 
     let transformlist = obj.transform.baseVal; 
@@ -1010,7 +1038,7 @@ function translate(obj, delta_pos)
     transformlist.initialize( transformMatrix );
 
     //transformlist.insertItemBefore(translation_, 1);
-
+*/
 }
 
 
@@ -2127,7 +2155,7 @@ function asyncQuery(id, query, calllbackFn)
 function dataToView(obj_)
 {
     // figure out which container to put the data in
-    console.log('data to view', obj_);
+//    console.log('data to view', obj_);
 
     const def = uiDefs.get(obj_.class);
     const container_def = uiDefs.get(obj_.container);

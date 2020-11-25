@@ -16,7 +16,7 @@ const time2x = 1000;
 const y2pitch = 127.; // y is normalized 0-1
 const pitch2y = 1 / 127.;
 
-const default_r = 4;
+const default_r = 2;
 const default_dist = 10;
 
 let dataInstace = {
@@ -120,7 +120,7 @@ const uiDef = function(symbolist_ui)
     function mapToData(viewData, container)
     {
         const containerDisplay = container.querySelector('.display');
-        const bbox = containerDisplay.getBoundingClientRect();
+        const bbox = symbolist_ui.getBBoxAdjusted(containerDisplay);
 
         const time = ((viewData.cx-bbox.x) * x2time) + parseFloat(container.dataset.time);// + parseFloat(container.dataset.duration);
         
@@ -172,7 +172,8 @@ const uiDef = function(symbolist_ui)
     {
        // console.log('data', data);
         const containerDisplay = container.querySelector('.display');
-        const bbox = containerDisplay.getBoundingClientRect();
+        const bbox = symbolist_ui.getBBoxAdjusted(containerDisplay);
+        
 
         const cx = bbox.x + ((data.time - parseFloat(container.dataset.time)) * time2x);
         const cy = bbox.y + ((1. - (data.pitch * pitch2y)) * bbox.height);
@@ -199,7 +200,7 @@ const uiDef = function(symbolist_ui)
         let isNew = true;
         
         let currentElement =  document.getElementById(dataObj.id) ;
-        console.log(currentElement);
+       // console.log(currentElement);
 
         if(currentElement) {
             isNew = false;
@@ -207,7 +208,7 @@ const uiDef = function(symbolist_ui)
 
         let newView = mapToView(dataset, container, dataObj.id, isNew );
 
-        console.log(newView);
+      //  console.log(newView);
 
 
         symbolist_ui.drawsocketInput({
@@ -351,8 +352,6 @@ const uiDef = function(symbolist_ui)
             let sprite = document.getElementById(`${className}-sprite`);
 
             const pt = symbolist_ui.getSVGCoordsFromEvent(e);
-
-            console.log(e.pageX, e.pageY, pt);
 
             const x = pt.x;
             const y = pt.y;
