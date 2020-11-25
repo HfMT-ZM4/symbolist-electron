@@ -50,11 +50,12 @@ let prevEventTarget = null;
 let selected = [];
 let selectedCopy = [];
 
-let mousedown_pos = {x: 0, y: 0};
-let mouse_pos = {x: 0, y: 0};
+let mousedown_pos = svgObj.createSVGPoint();
+let mousedown_page_pos = svgObj.createSVGPoint();
+let mouse_pos = svgObj.createSVGPoint();
 
 let scrollOffset = {x: 0, y: 0};
-let zoomLevel = 0;
+let m_scale = 1;
 let default_zoom_step = 0.1;
 
 let currentContext = svgObj;
@@ -748,7 +749,10 @@ function deltaPt(ptA, ptB)
 
 function getSVGCoordsFromEvent(event)
 {
-    return transformPoint(mainSVG.getScreenCTM().inverse(), { x: event.pageX, y: event.pageY} );
+    let pt = svgObj.createSVGPoint();
+    pt.x = event.pageX;
+    pt.y = event.pageY;
+    return pt.matrixTransform( mainSVG.getScreenCTM().inverse() ); 
 }
 
 
@@ -760,20 +764,59 @@ function transformPoint(matrix, pt)
     }   
 }
 
+
+function getComputedMatrix(element)
+{
+    const style = window.getComputedStyle(element)
+    const matrix = new WebKitCSSMatrix( style.transform );
+   // console.log('getComputedMatrix ', style.transform );
+
+    let svgMatrix = svgObj.createSVGMatrix();
+
+    svgMatrix.a = matrix.a;
+    svgMatrix.b = matrix.b;
+    svgMatrix.c = matrix.c;
+    svgMatrix.d = matrix.d;
+    svgMatrix.e = matrix.e;
+    svgMatrix.f = matrix.f;
+
+  //  console.log('getComputedMatrix ', element, matrix, svgMatrix);
+
+    return svgMatrix;
+}
+
 /**
  * 
  * @param {Object} obj element to transform
- * @param {Object} matrix transform matrix (read only ok)
+ * @param {Object} matrix transform matrix, if undefined gets computed transform matrix of element
  * 
  * the function gets the tranformation matrix and adjusts the SVG parameters to the desired values
  * 
+ * transform matrix is in SVG coordinates, before scalling and scrolling of main view
+ * 
  */
-function applyTransform(obj, matrix)
+function applyTransform(obj, matrix = null)
 {    
-    let svgMatrix = mainSVG.getScreenCTM();
-    let adjustedMatrix = matrix.multiply(svgMatrix.inverse());
+    if( !matrix )
+        matrix = getComputedMatrix(obj);
 
-    let x, y;
+   /*
+    const transform = style.transform;
+
+    // if not a matrix we're in trouble
+
+  // Can either be 2d or 3d transform
+    const matrixType = transform.includes('3d') ? '3d' : '2d'
+    let matrixValues = transform.match(/matrix.*\((.+)\)/)[1].split(', ').map( v => parseFloat(v) );
+
+    console.log(matrixValues);
+
+    let svgMatrix = mainSVG.getScreenCTM();
+    let adjustedMatrix = matrix.multiply( svgMatrix.inverse() );
+*/
+   // let x, y;
+    let pt = svgObj.createSVGPoint();
+
 // add scaling eventually
     switch ( obj.tagName )
     {
@@ -786,35 +829,35 @@ function applyTransform(obj, matrix)
             break;
         case "circle":
             {
-                x = obj.getAttribute("cx");
-                y = obj.getAttribute("cy");
-                const newpt = transformPoint(adjustedMatrix, { x, y } )
-                obj.setAttribute("cx", newpt.x );
-                obj.setAttribute("cy", newpt.y );
+                pt.x = obj.getAttribute("cx");
+                pt.y = obj.getAttribute("cy");
+                let newPt = pt.matrixTransform(matrix);
+                obj.setAttribute("cx", newPt.x );
+                obj.setAttribute("cy", newPt.y );
             }
             break;
         case "rect":
             {
-                x = obj.getAttribute("x");
-                y = obj.getAttribute("y");
-                let newpt = transformPoint( adjustedMatrix, { x, y } );
-                obj.setAttribute("x", newpt.x );
-                obj.setAttribute("y", newpt.y );
+                pt.x = obj.getAttribute("x");
+                pt.y = obj.getAttribute("y");
+                let newPt = pt.matrixTransform(matrix);
+                obj.setAttribute("x", newPt.x );
+                obj.setAttribute("y", newPt.y );
             }
             break;
         case "line":
             {
-                x = obj.getAttribute("x1");
-                y = obj.getAttribute("y1");
-                const newpt = transformPoint(adjustedMatrix, { x, y } )
-                obj.setAttribute("x1", newpt.x );
-                obj.setAttribute("y1", newpt.y );
+                pt.x = obj.getAttribute("x1");
+                pt.y = obj.getAttribute("y1");
+                let newPt = pt.matrixTransform(matrix);
+                obj.setAttribute("x1", newPt.x );
+                obj.setAttribute("y1", newPt.y );
 
-                x = obj.getAttribute("x2");
-                y = obj.getAttribute("y2");
-                const newpt2 = transformPoint(adjustedMatrix, { x, y } )
-                obj.setAttribute("x2", newpt2.x );
-                obj.setAttribute("y2", newpt2.y );
+                pt.x = obj.getAttribute("x2");
+                pt.y = obj.getAttribute("y2");
+                let newPt2 = pt.matrixTransform(matrix);
+                obj.setAttribute("x2", newPt2.x );
+                obj.setAttribute("y2", newPt2.y );
             }
             break;
         case "path":
@@ -823,7 +866,8 @@ function applyTransform(obj, matrix)
             break;
     }
 
-    obj.removeAttribute('transform');
+    if( obj.hasAttribute('transform'))
+        obj.removeAttribute('transform');
 }
 
 function applyTransformToSelected()
@@ -832,7 +876,7 @@ function applyTransformToSelected()
     {
         if( !callApplyTransformToData(selected[i]) )
         {
-            let matrix = selected[i].getScreenCTM();
+            let matrix = getComputedMatrix(selected[i]);
             applyTransform(selected[i], matrix);
         }
         
@@ -938,13 +982,23 @@ function translate(obj, delta_pos)
 //    let svg = document.getElementById("svg");
     if( obj === svgObj )
         return;
-        
+    
+    gsap.set(obj, delta_pos);
+
+    
+    console.log(window.getComputedStyle(obj).transform);
+
+    return;
 
     let transformlist = obj.transform.baseVal; 
 
-    let matrix = obj.getScreenCTM();
+    let matrix = svgObj.createSVGMatrix();//obj.getScreenCTM().multiply( mainSVG.getScreenCTM().inverse() );
+    // delta position is prescaled in svg coordinates
+    // keep scale/rotation transform as is 
     matrix.e = delta_pos.x;
     matrix.f = delta_pos.y;
+
+    
 
     //let translation_ = svgObj.createSVGTransform();
     //translation_.setTranslate( delta_pos.x,  delta_pos.y );
@@ -1441,85 +1495,6 @@ function symbolsit_dblclick(event)
 }
 
 
-function symbolist_mousedown(event)
-{          
-    if( currentMode == "edit" )
-        return;
-
-    console.log(`mouse down> current context: ${currentContext.id}\n event target ${event.target}`); 
-
-    const _eventTarget = getTopLevel( event.target );
-
-    console.log(_eventTarget);
-    
-    console.log(`mouse down ${_eventTarget.id} was ${JSON.stringify(elementToJSON(event.target))}`); 
-    
-    if( prevEventTarget === null )
-        prevEventTarget = _eventTarget;
-
-
-    if( (_eventTarget == currentContext) || (!event.shiftKey && !event.altKey) )
-        deselectAll();
-
-
-    if( event.metaKey )
-    {
-        event.symbolistAction = "newFromClick_down";
-
-        if( uiDefs.has(currentPaletteClass) )
-        {
-            const def_ = uiDefs.get(currentPaletteClass);
-            if( def_.hasOwnProperty('newFromClick') )
-                def_.newFromClick(event);
-        }
-
-
-        clickedObj = null;
-        selectedClass = currentPaletteClass; // later, get from palette selection
-    }
-    else
-    {
-        if( _eventTarget != svgObj && _eventTarget != currentContext )
-        {
-            
-            addToSelection( _eventTarget );
-            clickedObj = _eventTarget;
-            clickedObjBoundsPreTransform = cloneObj( clickedObj.getBoundingClientRect() );
-            
-            event.symbolistAction = "selection";
-    
-            console.log(`selected object ${clickedObj} selection, event ${_eventTarget.classList}, context ${currentContext.classList}` );
-    
-    //        selectedClass =  clickedObj.classList[0]; // hopefully this will always be correct! not for sure though
-    
-            if( event.altKey )
-            {
-                copySelected();
-                //clickedObj = copyObjectAndAddToParent(_eventTarget);       
-                //addToSelection( clickedObj );
-            }
-            else if( event.altKey && event.metaKey )
-            {
-                event.symbolistAction = "create_menu";
-            }
-    
-        }
-        else
-            console.log(`not selected object ${_eventTarget.id} selection, event ${_eventTarget.classList}, context ${currentContext.classList}` );
-
-    }
-
-    mousedown_pos = { x: event.pageX, y: event.pageY };
-    mouse_pos = mousedown_pos;
-
-    prevEventTarget = _eventTarget;
-    
-   // sendMouseEvent(event, "mousedown");
-
-   // callbackCustomUI( event );
-
-}
-
 /**
  * 
  * @param {SymbolistMouseEventObject} event passed from mouse event, contains information about context, class etc.
@@ -1707,15 +1682,16 @@ function symbolist_mousemove(event)
     if( prevEventTarget === null )
         prevEventTarget = _eventTarget;
 
-    const pt = { x: event.pageX, y: event.pageY };
-    const mouseDelta = deltaPt(pt, mousedown_pos);
+    mouse_pos = getSVGCoordsFromEvent(event);//{ x: event.pageX, y: event.pageY };
+    const mouseDelta = deltaPt(mouse_pos, mousedown_pos);
+  //  console.log('symbolist_mousemove', mouseDelta, mouse_pos);
 
     if( event.buttons == 1 )
     {
         if( clickedObj )
         {
             if( event.shiftKey )
-                rotate_selected( pt )
+                rotate_selected( mouse_pos )
             else
                 translate_selected( mouseDelta );
         }
@@ -1741,12 +1717,97 @@ function symbolist_mousemove(event)
     }
 
     
-    mouse_pos = { x: event.pageX, y: event.pageY };
     prevEventTarget = _eventTarget;
 
     sendMouseEvent(event, "mousemove");
 
 }
+
+
+function symbolist_mousedown(event)
+{          
+    if( currentMode == "edit" )
+        return;
+
+ //   console.log(`mouse down> current context: ${currentContext.id}\n event target ${event.target}`); 
+
+    const _eventTarget = getTopLevel( event.target );
+
+    console.log(_eventTarget);
+    
+   // console.log(`mouse down ${_eventTarget.id} was ${JSON.stringify(elementToJSON(event.target))}`); 
+    
+    if( prevEventTarget === null )
+        prevEventTarget = _eventTarget;
+
+
+    if( (_eventTarget == currentContext) || (!event.shiftKey && !event.altKey) )
+        deselectAll();
+
+
+    if( event.metaKey )
+    {
+        event.symbolistAction = "newFromClick_down";
+
+        if( uiDefs.has(currentPaletteClass) )
+        {
+            const def_ = uiDefs.get(currentPaletteClass);
+            if( def_.hasOwnProperty('newFromClick') )
+                def_.newFromClick(event);
+        }
+
+
+        clickedObj = null;
+        selectedClass = currentPaletteClass; // later, get from palette selection
+    }
+    else
+    {
+        if( _eventTarget != svgObj && _eventTarget != currentContext )
+        {
+            
+            addToSelection( _eventTarget );
+            clickedObj = _eventTarget;
+            clickedObjBoundsPreTransform = cloneObj( clickedObj.getBoundingClientRect() );
+            
+            event.symbolistAction = "selection";
+    
+            console.log(`selected object ${clickedObj} selection, event ${_eventTarget.classList}, context ${currentContext.classList}` );
+    
+    //        selectedClass =  clickedObj.classList[0]; // hopefully this will always be correct! not for sure though
+    
+            if( event.altKey )
+            {
+                copySelected();
+                //clickedObj = copyObjectAndAddToParent(_eventTarget);       
+                //addToSelection( clickedObj );
+            }
+            else if( event.altKey && event.metaKey )
+            {
+                event.symbolistAction = "create_menu";
+            }
+    
+        }
+        else
+            console.log(`not selected object ${_eventTarget.id} selection, event ${_eventTarget.classList}, context ${currentContext.classList}` );
+
+    }
+
+//    mousedown_pos = getSVGCoordsFromEvent(event);
+
+    mousedown_page_pos.x = event.pageX;
+    mousedown_page_pos.y = event.pageY;
+    mousedown_pos = mousedown_page_pos.matrixTransform( mainSVG.getScreenCTM().inverse() ); 
+
+    mouse_pos = mousedown_pos;
+
+    prevEventTarget = _eventTarget;
+    
+   // sendMouseEvent(event, "mousedown");
+
+   // callbackCustomUI( event );
+
+}
+
 
 function symbolist_mouseup(event)
 {   
@@ -1790,7 +1851,7 @@ function symbolist_mouseup(event)
 
     
     
-    mouse_pos = { x: event.pageX, y: event.pageY };
+    mouse_pos = getSVGCoordsFromEvent(event);//{ x: event.pageX, y: event.pageY };
     event.mousedownPos = mousedown_pos;
 
     sendMouseEvent(event, "mouseup");
@@ -1827,25 +1888,28 @@ function symbolist_mouseleave(event)
 
 function symbolist_zoomReset()
 {
-    if( zoomLevel == 0 )
+    if( m_scale == 1 )
     {
         scrollOffset = {x: 0, y: 0};
         gsap.set( mainSVG,  scrollOffset );
         gsap.set( mainHTML, scrollOffset );
     }
 
-    zoomLevel = 0;
-    const scale = Math.pow( Math.E, zoomLevel);
-    gsap.set( mainSVG,  { scale } );
-    gsap.set( mainHTML, { scale } );
+    m_scale = 1;
+   // const scale = Math.pow( Math.E, m_scale);
+    gsap.set( mainSVG,  { scale: 1 } );
+    gsap.set( mainHTML, { scale: 1 } );
+
+    mousedown_pos = mousedown_page_pos.matrixTransform( mainSVG.getScreenCTM().inverse() ); 
+
 }
 
 
 function symbolist_zoom(offset)
 {
-    zoomLevel += offset;
-    const scale = Math.pow( Math.E, zoomLevel);
-
+    m_scale += offset;
+    //const scale = Math.pow( Math.E, m_scale);
+/*
     var style = window.getComputedStyle(mainSVG);
     var matrix = new WebKitCSSMatrix(style.transform);
 
@@ -1863,8 +1927,11 @@ function symbolist_zoom(offset)
 
     const transformOrigin = `${padX}px ${padY}px`;//`${(offsetPt.x / bbox.width) * 100}% ${(offsetPt.y / bbox.height) * 100}%`;
     console.log(offsetPt);
-    gsap.set( mainSVG,  { scale, transformOrigin  } );
-    gsap.set( mainHTML, { scale, transformOrigin  } );
+    */
+    gsap.set( mainSVG,  { scale: m_scale } );
+    gsap.set( mainHTML, { scale: m_scale } );
+
+    mousedown_pos = mousedown_page_pos.matrixTransform( mainSVG.getScreenCTM().inverse() ); 
 
 }
 

@@ -441,8 +441,7 @@ const uiDef = function(symbolist_ui)
 
     function applyTransformToData(element)
     {
-        let matrix = element.getScreenCTM();
-        symbolist_ui.applyTransform(element, matrix);
+        symbolist_ui.applyTransform(element);
 
         let data = elementToData(element);
 
@@ -515,6 +514,7 @@ const uiDef = function(symbolist_ui)
      */
     function translate(element, delta_pos = {x:0,y:0}) 
     {
+        // delta_pos needes to be adjusted for scale also
        
         if( m_mode == "edit" )
         {
