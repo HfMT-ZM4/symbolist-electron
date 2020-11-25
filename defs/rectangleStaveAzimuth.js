@@ -481,7 +481,9 @@ const uiDef = function(symbolist_ui)
         let x2 = parseFloat(line.getAttribute('x2'));
         let y2 = parseFloat(line.getAttribute('y2'));
 
-        let azim = Math.atan2( event.clientX - x1, event.clientY - y1);
+        let mousePt = symbolist_ui.getSVGCoordsFromEvent(event);
+
+        let azim = Math.atan2( mousePt.x - x1, mousePt.y - y1);
 
         let newX = x1 + Math.sin(azim) * default_dist;
         let newY = y1 + Math.cos(azim) * default_dist;

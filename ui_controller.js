@@ -783,6 +783,23 @@ function getComputedMatrix(element)
   //  console.log('getComputedMatrix ', element, matrix, svgMatrix);
 
     return svgMatrix;
+
+
+   /*
+    const transform = style.transform;
+
+    // if not a matrix we're in trouble
+
+  // Can either be 2d or 3d transform
+    const matrixType = transform.includes('3d') ? '3d' : '2d'
+    let matrixValues = transform.match(/matrix.*\((.+)\)/)[1].split(', ').map( v => parseFloat(v) );
+
+    console.log(matrixValues);
+
+    let svgMatrix = mainSVG.getScreenCTM();
+    let adjustedMatrix = matrix.multiply( svgMatrix.inverse() );
+*/
+
 }
 
 /**
@@ -800,21 +817,7 @@ function applyTransform(obj, matrix = null)
     if( !matrix )
         matrix = getComputedMatrix(obj);
 
-   /*
-    const transform = style.transform;
-
-    // if not a matrix we're in trouble
-
-  // Can either be 2d or 3d transform
-    const matrixType = transform.includes('3d') ? '3d' : '2d'
-    let matrixValues = transform.match(/matrix.*\((.+)\)/)[1].split(', ').map( v => parseFloat(v) );
-
-    console.log(matrixValues);
-
-    let svgMatrix = mainSVG.getScreenCTM();
-    let adjustedMatrix = matrix.multiply( svgMatrix.inverse() );
-*/
-   // let x, y;
+    // using svgPoint so we can use the matrixTransform function
     let pt = svgObj.createSVGPoint();
 
 // add scaling eventually

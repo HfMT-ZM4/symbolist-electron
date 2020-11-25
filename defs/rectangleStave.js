@@ -160,8 +160,10 @@ const uiDef = function( symbolist_ui )
      */
     function creatNewFromMouseEvent(event)
     {
-        const x = event.pageX - symbolist_ui.scrollOffset.x;
-        const y = event.pageY - symbolist_ui.scrollOffset.y;
+        const mousePt = symbolist_ui.getSVGCoordsFromEvent(event);
+
+        const x = mousePt.x;
+        const y = mousePt.y;
         const width = default_duration * time2x; // default w
         const height = 600; // default h
 
@@ -247,9 +249,9 @@ const uiDef = function( symbolist_ui )
     {
         if( e.metaKey && symbolist_ui.getCurrentContext().classList[0] != className )
         {
-            const x = e.pageX - symbolist_ui.scrollOffset.x;
-            const y = e.pageY - symbolist_ui.scrollOffset.y;
-            let preview = viewDisplay(x, y, default_duration * time2x, 600);
+            const mousePt = symbolist_ui.getSVGCoordsFromEvent(e);
+
+            let preview = viewDisplay(mousePt.x, mousePt.y, default_duration * time2x, 600);
 
             preview.style.fill = "none";
             preview.style.stroke = "white";
@@ -258,7 +260,6 @@ const uiDef = function( symbolist_ui )
             drawsocket.input({
                 key: "svg", 
                 val: {
-                    parent: "symbolist_overlay",
                     id: 'rectangleStave-sprite',
                     class: 'sprite',
                     ...preview
