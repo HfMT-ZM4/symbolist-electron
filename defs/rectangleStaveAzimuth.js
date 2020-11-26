@@ -397,7 +397,7 @@ const uiDef = function(symbolist_ui)
                 val: {
                     id: `${className}-sprite`,
                     class: 'sprite',
-                    //parent: 'symbolist_overlay',
+                    parent: 'symbolist_overlay',
                     new: "g",
                     children: [
                         viewObj, //viewDisplay(cx, cy, r, cx + r, cy - 10),

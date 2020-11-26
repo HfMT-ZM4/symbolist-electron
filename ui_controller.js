@@ -1913,6 +1913,12 @@ function symbolist_mouseleave(event)
 {           
     //console.log('symbolist_mouseleave');
     //clearDragRegionRect();
+
+    drawsocketInput({
+        key: "clear",
+        val: "symbolist_overlay"
+    })
+
     prevEventTarget = null;
 }
 
@@ -2032,6 +2038,37 @@ function removeSymbolistKeyListeners()
   document.body.removeEventListener("keyup", symbolist_keyuphandler);
 }
 
+
+var hidden, visibilityChange; 
+if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support 
+    hidden = "hidden";
+    visibilityChange = "visibilitychange";
+} else if (typeof document.msHidden !== "undefined") {
+    hidden = "msHidden";
+    visibilityChange = "msvisibilitychange";
+} else if (typeof document.webkitHidden !== "undefined") {
+    hidden = "webkitHidden";
+    visibilityChange = "webkitvisibilitychange";
+}
+
+function visibility_handler(event)
+{
+    console.log('hidden', document[hidden] );
+}
+
+function addFocusListner()
+{   
+    document.addEventListener(visibilityChange, visibility_handler);
+
+}
+
+function removeFocusListner()
+{
+    // probably not necessary
+}
+
+
+
 function onChange(event)
 {
     console.log('changer', event);
@@ -2090,6 +2127,8 @@ function startDefaultEventHandlers()
     startObserver();
 
     addSymbolistKeyListeners();
+
+    addFocusListner();
 }
 
 function stopDefaultEventHandlers()

@@ -180,18 +180,18 @@ const uiDef = function( symbolist_ui )
         ax < bx
 */
 
-        console.log(eventElement);
+    //    console.log(eventElement);
 
         const insertAtIndex = symbolist_ui.insertIndex(
             { x, y, width, height, right: x+width }, eventElement.children,
             (a,b) => {
                 const bbox = symbolist_ui.getBBoxAdjusted(b);
-                console.log(a,b,    `${a.y} > ${bbox.bottom}) || (${a.x} >= ${bbox.right})`);
+//                    console.log(a,b,    `${a.y} > ${bbox.bottom}) || (${a.x} >= ${bbox.right})`);
                 return ( (a.y > bbox.y) || (a.x >= bbox.right) ) ? 1 : -1;
             });
 
         
-        console.log('insertAtIndex', insertAtIndex, eventElement.children);
+//        console.log('insertAtIndex', insertAtIndex, eventElement.children);
 
 
         let prevStaveEndTime = 0;
@@ -209,7 +209,7 @@ const uiDef = function( symbolist_ui )
         symbolist_ui.drawsocketInput([
             {
                 key: "remove", 
-                val: 'rectangleStave-sprite'
+                val: `${className}-sprite`
             },
             {
                 key: "svg",
@@ -276,8 +276,9 @@ const uiDef = function( symbolist_ui )
             drawsocket.input({
                 key: "svg", 
                 val: {
-                    id: 'rectangleStave-sprite',
+                    id: `${className}-sprite`,
                     class: 'sprite',
+                    parent: 'symbolist_overlay',
                     ...preview
                 }
             })
@@ -306,7 +307,7 @@ const uiDef = function( symbolist_ui )
         {
             symbolist_ui.drawsocketInput({
                 key: "remove", 
-                val: 'rectangleStave-sprite'
+                val: `${className}-sprite`
             })
 
         }
