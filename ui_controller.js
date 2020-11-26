@@ -53,6 +53,7 @@ let selectedCopy = [];
 let mousedown_pos = svgObj.createSVGPoint();
 let mousedown_page_pos = svgObj.createSVGPoint();
 let mouse_pos = svgObj.createSVGPoint();
+let mouse_page_pos = svgObj.createSVGPoint();
 
 let scrollOffset = {x: 0, y: 0};
 let m_scale = 1;
@@ -1669,6 +1670,9 @@ function symbolist_mousemove(event)
     if( prevEventTarget === null )
         prevEventTarget = _eventTarget;
 
+    mouse_page_pos.x = event.clientX;
+    mouse_page_pos.y = event.clientY;
+
     mouse_pos = getSVGCoordsFromEvent(event);//{ x: event.pageX, y: event.pageY };
     const mouseDelta = deltaPt(mouse_pos, mousedown_pos);
   //  console.log('symbolist_mousemove', mouseDelta, mouse_pos);
@@ -1900,29 +1904,26 @@ function symbolist_zoomReset()
 
 function symbolist_zoom(offset)
 {
+
+    const visible_w = window.innerWidth / m_scale;
+    const visible_h = window.innerHeight / m_scale;
+
     m_scale += offset;
-    //const scale = Math.pow( Math.E, m_scale);
-/*
-    var style = window.getComputedStyle(mainSVG);
-    var matrix = new WebKitCSSMatrix(style.transform);
 
-    let offsetPt = transformPoint(matrix, mouse_pos);
+    const next_visible_w = window.innerWidth / m_scale;
+    const next_visible_h = window.innerHeight / m_scale;
 
-    let bbox = mainSVG.getBoundingClientRect();
+    const offset_x = next_visible_w - visible_w;
+    const offset_y = next_visible_h - visible_h;
 
-    // (1 - scale) * currentPosition
-    var pad_x = ((bbox.width * scale) - bbox.width) / 2;
-    var pad_y = ((bbox.height * scale) - bbox.height) / 2;
+    if( offset_x < 0 )
+        scrollOffset.x += offset_x * 0.5;
+    if( offset_y < 0 )
+        scrollOffset.y += offset_y * 0.5;
 
-
-    let padX = (1 - scale) * mouse_pos.x;
-    let padY = (1 - scale) * mouse_pos.y;
-
-    const transformOrigin = `${padX}px ${padY}px`;//`${(offsetPt.x / bbox.width) * 100}% ${(offsetPt.y / bbox.height) * 100}%`;
-    console.log(offsetPt);
-    */
-    gsap.set( mainSVG,  { scale: m_scale } );
-    gsap.set( mainHTML, { scale: m_scale } );
+    gsap.set( mainSVG,  { ...scrollOffset, scale: m_scale } );
+    gsap.set( mainHTML, { ...scrollOffset, scale: m_scale } );
+    
 
     mousedown_pos = mousedown_page_pos.matrixTransform( mainSVG.getScreenCTM().inverse() ); 
 
@@ -1932,6 +1933,7 @@ let ticking = false;
 
 function symbolist_wheel(event)
 {
+
     scrollOffset.x -= event.deltaX;
     scrollOffset.y -= event.deltaY;
 
@@ -1942,10 +1944,6 @@ function symbolist_wheel(event)
 
         gsap.set( mainSVG,  scrollOffset );
         gsap.set( mainHTML, scrollOffset );
-       
-       // var style = window.getComputedStyle(mainSVG);
-        //var matrix = new WebKitCSSMatrix(style.transform);
-      //  console.log(matrix);
 
         ticking = false;
       });
