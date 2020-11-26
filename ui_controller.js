@@ -668,7 +668,7 @@ function addToSelection( element )
     // copy with selected tag to deal with comparison later
     selectedCopy.push( element.cloneNode(true) );
 
-    callSelected(element);
+    callSymbolMethod(element, "selected");
 
 }
 
@@ -722,8 +722,11 @@ function deselectAll()
     document.querySelectorAll('.symbolist_selected').forEach( el => {
         el.classList.remove("symbolist_selected");
         
-        // call class method
-        callDeselected(el);
+        
+        callSymbolMethod(el, "selected", false);
+        callSymbolMethod(el, "editMode", false);
+
+        
     })
 
     selected = [];
@@ -734,8 +737,8 @@ function deselectAll()
     })
 
     drawsocket.input({
-        key: "remove",
-        val: 'bounds-group'
+        key: "clear",
+        val: "symbolist_overlay"
     })
 
 }
@@ -907,7 +910,8 @@ function applyTransformToSelected()
 {
     for( let i = 0; i < selected.length; i++)
     {
-        if( !callApplyTransformToData(selected[i]) )
+        
+        if( !callSymbolMethod(selected[i], "applyTransformToData" ) )
         {
             let matrix = getComputedMatrix(selected[i]);
             applyTransform(selected[i], matrix);
@@ -1047,7 +1051,7 @@ function translate_selected(delta_pos)
     for( let i = 0; i < selected.length; i++)
     {
        
-        if( !callTranslate(selected[i], delta_pos) )
+        if( !callSymbolMethod(selected[i], "translate", delta_pos))
         {
            // console.log('translate_selected', selected[i]); 
             translate(selected[i], delta_pos);
@@ -1338,9 +1342,8 @@ function symbolist_keydownhandler(event)
         case "i":
             if( nmods == 0 && selected.length > 0 ){                
 
-                callGetInfoDisplayForSelected();
-                console.log("i key getInfo");
-                event.symbolistAction = "getInfo";
+                callMethodForSelected("getInfoDisplay");
+                
             }
             break;
         case "e":
@@ -1555,6 +1558,34 @@ function callbackCustomUI( event )
     
 }
 
+/**
+ * 
+ * @param {Element} element HTML/SVG symbol element to call method on
+ * @param {String} methodName name of method (e.g. editMode, selected.. )
+ * @param {Object} args arguments to pass to method, could be anything, but probably an object
+ * 
+ * returns true if there is a method name defined in the def, false if not
+ * 
+ * if false, there is a possibility of using the default handlers for translate, etc.
+ * but I think we're going to remove most of the default handlers
+ */
+function callSymbolMethod( element, methodName, args )
+{
+    if( uiDefs.has( element.classList[0] ) )
+    {
+        const def_ = uiDefs.get( element.classList[0] );
+
+        if( def_.hasOwnProperty(methodName) )
+        {
+            def_[methodName](element, args);
+            return true;
+        }        
+    }
+
+    return false;
+
+}
+/*
 function callEnterEditMode(element)
 {
     if( uiDefs.has( element.classList[0] ) )
@@ -1584,11 +1615,26 @@ function callExitEditMode(element)
 
     return false;
 }
+*/
+
+
+/**
+ * 
+ * @param {String} methodName method name
+ * @param {*} args args (optional)
+ * 
+ * simple wrapper to call method for all selected objects
+ */
+function callMethodForSelected(methodName, args)
+{
+    selected.forEach( sel => callSymbolMethod(sel, methodName, args) )
+
+}
 
 function callEnterEditModeForSelected()
 {
     selected.forEach( sel => {
-        if( callEnterEditMode(sel) )
+        if( callSymbolMethod(sel, "editMode", true) )
             currentMode = "edit"
     })
 }
@@ -1597,7 +1643,7 @@ function callExitEditModeForSelected()
 {
     let check = true;
     selected.forEach( sel => {
-        if( !callExitEditMode(sel) )
+        if( !callSymbolMethod(sel, "editMode", false)  )
             check = false;
     })
 
@@ -1610,96 +1656,6 @@ function callExitEditModeForSelected()
     console.log('callExitEditModeForSelected now ', currentMode );
 
 
-}
-
-function callGetInfoDisplay(element)
-{
-    if( uiDefs.has( element.classList[0] ))
-    {
-        const def_ = uiDefs.get( element.classList[0] );
-        if( def_.hasOwnProperty('getInfoDisplay') )
-        {
-            def_.getInfoDisplay(element);
-            return true;
-        }        
-    }
-
-    return false;
-}
-
-function callGetInfoDisplayForSelected()
-{
-    selected.forEach( sel => callGetInfoDisplay(sel) )
-}
-
-function callTranslate(element, delta_pos)
-{
-    if( uiDefs.has( element.classList[0] ))
-    {
-        const def_ = uiDefs.get( element.classList[0] );
-        if( def_.hasOwnProperty('translate') )
-        {
-            return def_.translate(element, delta_pos);
-        }        
-    }
-
-    return false;
-}
-
-function callApplyTransformToData(element)
-{
-    if( uiDefs.has( element.classList[0] ))
-    {
-        const def_ = uiDefs.get( element.classList[0] );
-        if( def_.hasOwnProperty('applyTransformToData') )
-        {
-            return def_.applyTransformToData(element);
-        }        
-    }
-
-    return false;
-}
-
-function callSelected(element)
-{
-    if( uiDefs.has( element.classList[0] ))
-    {
-        const def_ = uiDefs.get( element.classList[0] );
-        if( def_.hasOwnProperty('selected') )
-        {
-            def_.selected(element);
-        }        
-    }
-}
-
-function callDeselected(element)
-{
-    if( uiDefs.has( element.classList[0] ) )
-    {
-        const def_ = uiDefs.get( element.classList[0] );
-        if( def_.hasOwnProperty('deselected') )
-        {
-            def_.deselected(element);
-        }
-
-        if( def_.hasOwnProperty('editMode') )
-        {
-            def_.editMode(element, false);
-        }
-    }
-}
-
-
-function callUpdateFromDataset(element)
-{
-    if( uiDefs.has( element.classList[0] ))
-    {
-        const def_ = uiDefs.get( element.classList[0] );
-        if( def_.hasOwnProperty('updateFromDataset') )
-        {
-            def_.updateFromDataset(element);
-        }        
-    }
 }
 
 function symbolist_mousemove(event)
@@ -2231,6 +2187,6 @@ module.exports = {
     stopDefaultEventHandlers,
     getContextConstraintsForPoint,
 
-    callUpdateFromDataset
+    callSymbolMethod
 
  }

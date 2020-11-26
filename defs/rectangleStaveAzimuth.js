@@ -17,7 +17,7 @@ const y2pitch = 127.; // y is normalized 0-1
 const pitch2y = 1 / 127.;
 
 const default_r = 2;
-const default_dist = 10;
+const default_dist = 5;
 
 let dataInstace = {
     // class name, refering to the definition below
@@ -94,7 +94,7 @@ const uiDef = function(symbolist_ui)
 
         return {
             key: "svg",
-            val: viewDisplay(`${className}-pal-disp`, 25, 25, default_r, 25, 0)
+            val: viewDisplay(`${className}-pal-disp`, 25, 25, default_r, 25, 25 - 10)
         }
     }
 
@@ -295,13 +295,14 @@ const uiDef = function(symbolist_ui)
             }, 
             container 
         );
-
+/*
+// example of creating an extra point via internal scripting
         let viewObj = mapToView({
                             time: dataObj.time + 0.1, 
                             pitch: dataObj.pitch, 
                             azim: dataObj.azim + 1
                        }, container, uniqueID+'_test' );
-
+*/
        
         // create new symbol in view
         symbolist_ui.drawsocketInput([
@@ -319,7 +320,9 @@ const uiDef = function(symbolist_ui)
                     //onclick: function(e){ console.log('ello', e)}
 
                 }
-            },
+            }
+            /* // example of creating an extra point via internal scripting
+            ,
             { 
                 key: "svg",
                 val: {
@@ -327,7 +330,7 @@ const uiDef = function(symbolist_ui)
                     parent: eventElement.id,
                     ...viewObj
                 }
-            }
+            }*/
         ])
 
         // send out
@@ -418,25 +421,12 @@ const uiDef = function(symbolist_ui)
        
     }
 
-    function selected(element)
+    function selected(element, state)
     {
-
-        return;
+        console.log('select state', state);
 
     }
 
-
-    function deselected(element)
-    {
- 
-        console.log('deselected');
-               /*
-        symbolist_ui.drawsocketInput({
-            key: "remove", 
-            val: [`${element.id}-rotation-handle`, `${className}-sprite`]
-        })
-        */
-    }
 
     function applyTransformToData(element)
     {
@@ -552,6 +542,7 @@ const uiDef = function(symbolist_ui)
                 val: {
                     new: "text",
                     id: `${className}-sprite`,
+                    parent: "symbolist_overlay",
                     x: cx,
                     y: cy - 20,
                     text: JSON.stringify(dataObj),
@@ -725,7 +716,6 @@ const uiDef = function(symbolist_ui)
     //    exit,
 
         selected,
-        deselected,
         
         translate,
         applyTransformToData
