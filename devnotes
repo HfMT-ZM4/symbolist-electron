@@ -152,7 +152,8 @@ best is if all symbols are wrapped in <g> tags, so that GUI elements can be cont
         how many points can the system handle?
 
 - need scrolling to work
-
+    done -- mostly
+    
 - for now  we can just use a single stave?
     or create page object that groups container staves, and usually acts to show the synchronization between them
 

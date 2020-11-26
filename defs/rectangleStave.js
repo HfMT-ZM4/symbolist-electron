@@ -180,11 +180,13 @@ const uiDef = function( symbolist_ui )
         ax < bx
 */
 
+        console.log(eventElement);
+
         const insertAtIndex = symbolist_ui.insertIndex(
             { x, y, width, height, right: x+width }, eventElement.children,
             (a,b) => {
                 const bbox = symbolist_ui.getBBoxAdjusted(b);
-                console.log(`${a.y} > ${bbox.bottom}) || (${a.x} >= ${bbox.right})`);
+                console.log(a,b,    `${a.y} > ${bbox.bottom}) || (${a.x} >= ${bbox.right})`);
                 return ( (a.y > bbox.y) || (a.x >= bbox.right) ) ? 1 : -1;
             });
 
