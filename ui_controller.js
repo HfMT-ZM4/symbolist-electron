@@ -77,7 +77,7 @@ let uiDefs = new Map();
 
 let renderer_api = {
     drawsocketInput,
-    sendToController, // renderer-event
+    sendToServer, // renderer-event
     fairlyUniqueString,
     getCurrentContext,
     getSelected,
@@ -113,7 +113,7 @@ ipcRenderer.on('load-ui-defs', (event, folder) => {
 
    folder.files.forEach( f => {
        
-        const filepath = `${path}/${f.file}`;
+        const filepath = `${path}/${f.name}`;
 
         const exists = require.resolve(filepath); 
         if( exists )
@@ -122,10 +122,10 @@ ipcRenderer.on('load-ui-defs', (event, folder) => {
         if( f.type == 'js')
         {
             // load controller def
-            let { ui } = require(filepath);
+            let { ui_def } = require(filepath);
 
             // initialize def with api
-            let cntrlDef_ = ui(renderer_api);
+            let cntrlDef_ = ui_def(renderer_api);
         
             // set into def map
             uiDefs.set(cntrlDef_.className, cntrlDef_);
@@ -2118,7 +2118,7 @@ function getCurrentContext(){
  * 
  * @param {Object} obj object to send to controller
  */
-function sendToController(obj)
+function sendToServer(obj)
 {
     ipcRenderer.send('renderer-event', obj);
 
@@ -2145,10 +2145,16 @@ function asyncQuery(id, query, calllbackFn)
 */
 
 
+// accept arrays?
+// probably we'll need some kind of container / conents ordering
+// start at top level and descend through container/contents id lists
+// will need to identify containers in the model
+// will also need the sorting mechanism
+
 function dataToView(obj_)
 {
     // figure out which container to put the data in
-//    console.log('data to view', obj_);
+    console.log('data to view', obj_);
 
     const def = uiDefs.get(obj_.class);
     const container_def = uiDefs.get(obj_.container);
@@ -2157,16 +2163,13 @@ function dataToView(obj_)
 
     def.fromData(obj_, container);
 
-     
-
-
 }
 
 
 
 module.exports = { 
     drawsocketInput,
-    sendToController, // renderer-event
+    sendToServer, // renderer-event
     fairlyUniqueString,
 
     send: symbolist_send,

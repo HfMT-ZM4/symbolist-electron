@@ -4,13 +4,13 @@
 		"appversion" : 		{
 			"major" : 8,
 			"minor" : 1,
-			"revision" : 9,
+			"revision" : 8,
 			"architecture" : "x64",
 			"modernui" : 1
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 248.0, 199.0, 1155.0, 879.0 ],
+		"rect" : [ 165.0, 82.0, 1155.0, 879.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -39,6 +39,55 @@
 		"subpatcher_template" : "",
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
+				"box" : 				{
+					"id" : "obj-43",
+					"maxclass" : "button",
+					"numinlets" : 1,
+					"numoutlets" : 1,
+					"outlettype" : [ "bang" ],
+					"parameter_enable" : 0,
+					"patching_rect" : [ 315.0, 193.0, 24.0, 24.0 ]
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"format" : 6,
+					"id" : "obj-41",
+					"maxclass" : "flonum",
+					"numinlets" : 1,
+					"numoutlets" : 2,
+					"outlettype" : [ "", "bang" ],
+					"parameter_enable" : 0,
+					"patching_rect" : [ 160.0, 177.0, 50.0, 22.0 ]
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-39",
+					"maxclass" : "newobj",
+					"numinlets" : 1,
+					"numoutlets" : 1,
+					"outlettype" : [ "FullPacket" ],
+					"patching_rect" : [ 160.0, 211.0, 73.0, 22.0 ],
+					"text" : "o.pack /time"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-38",
+					"maxclass" : "newobj",
+					"numinlets" : 2,
+					"numoutlets" : 1,
+					"outlettype" : [ "FullPacket" ],
+					"patching_rect" : [ 160.0, 251.0, 130.0, 22.0 ],
+					"text" : "o.pack /val /key lookup"
+				}
+
+			}
+, 			{
 				"box" : 				{
 					"id" : "obj-35",
 					"maxclass" : "newobj",
@@ -177,9 +226,9 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"patching_rect" : [ 797.0, 361.5, 309.0, 133.0 ],
-					"saved_bundle_data" : [ 35, 98, 117, 110, 100, 108, 101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -60, 47, 118, 97, 108, 0, 0, 0, 0, 44, 46, 0, 0, 0, 0, 0, -76, 35, 98, 117, 110, 100, 108, 101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 47, 97, 122, 105, 109, 0, 0, 0, 44, 100, 0, 0, 64, 5, 44, -104, -96, 0, 0, 0, 0, 0, 0, 20, 47, 116, 105, 109, 101, 0, 0, 0, 44, 100, 0, 0, 64, 4, -103, 50, 96, 0, 0, 0, 0, 0, 0, 16, 47, 112, 105, 116, 99, 104, 0, 0, 44, 105, 0, 0, 0, 0, 0, 63, 0, 0, 0, 36, 47, 99, 108, 97, 115, 115, 0, 0, 44, 115, 0, 0, 114, 101, 99, 116, 97, 110, 103, 108, 101, 83, 116, 97, 118, 101, 65, 122, 105, 109, 117, 116, 104, 0, 0, 0, 0, 0, 0, 32, 47, 99, 111, 110, 116, 97, 105, 110, 101, 114, 0, 0, 44, 115, 0, 0, 114, 101, 99, 116, 97, 110, 103, 108, 101, 83, 116, 97, 118, 101, 0, 0, 0, 0, 0, 16, 47, 97, 109, 112, 0, 0, 0, 0, 44, 105, 0, 0, 0, 0, 0, 1, 0, 0, 0, 20, 47, 107, 101, 121, 0, 0, 0, 0, 44, 115, 0, 0, 100, 97, 116, 97, 0, 0, 0, 0 ],
+					"saved_bundle_data" : [ 35, 98, 117, 110, 100, 108, 101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -60, 47, 118, 97, 108, 0, 0, 0, 0, 44, 46, 0, 0, 0, 0, 0, -76, 35, 98, 117, 110, 100, 108, 101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 47, 97, 122, 105, 109, 0, 0, 0, 44, 100, 0, 0, 64, 8, -17, 33, -32, 0, 0, 0, 0, 0, 0, 20, 47, 116, 105, 109, 101, 0, 0, 0, 44, 100, 0, 0, 63, -46, -91, 74, -96, 0, 0, 0, 0, 0, 0, 16, 47, 112, 105, 116, 99, 104, 0, 0, 44, 105, 0, 0, 0, 0, 0, 76, 0, 0, 0, 36, 47, 99, 108, 97, 115, 115, 0, 0, 44, 115, 0, 0, 114, 101, 99, 116, 97, 110, 103, 108, 101, 83, 116, 97, 118, 101, 65, 122, 105, 109, 117, 116, 104, 0, 0, 0, 0, 0, 0, 32, 47, 99, 111, 110, 116, 97, 105, 110, 101, 114, 0, 0, 44, 115, 0, 0, 114, 101, 99, 116, 97, 110, 103, 108, 101, 83, 116, 97, 118, 101, 0, 0, 0, 0, 0, 16, 47, 97, 109, 112, 0, 0, 0, 0, 44, 105, 0, 0, 0, 0, 0, 1, 0, 0, 0, 20, 47, 107, 101, 121, 0, 0, 0, 0, 44, 115, 0, 0, 100, 97, 116, 97, 0, 0, 0, 0 ],
 					"saved_bundle_length" : 240,
-					"text" : "/val : {\n\t/azim : 2.64678,\n\t/time : 2.5748,\n\t/pitch : 63,\n\t/class : \"rectangleStaveAzimuth\",\n\t/container : \"rectangleStave\",\n\t/amp : 1\n},\n/key : \"data\""
+					"text" : "/val : {\n\t/azim : 3.11676,\n\t/time : 0.291339,\n\t/pitch : 76,\n\t/class : \"rectangleStaveAzimuth\",\n\t/container : \"rectangleStave\",\n\t/amp : 1\n},\n/key : \"data\""
 				}
 
 			}
@@ -381,13 +430,13 @@
 					"fontface" : 0,
 					"fontsize" : 12.0,
 					"id" : "obj-2",
-					"linecount" : 6,
+					"linecount" : 2,
 					"maxclass" : "o.display",
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 253.0, 804.0, 551.0, 102.0 ],
-					"text" : "/id : \"rectangleStaveAzimuth_u_3f6e03fd-627b-4f57-8eb6-63f4df0067bd\",\n/class : \"rectangleStaveAzimuth symbol\",\n/parent : \"rectangleStave_u_ab268bd1-a07c-4000-852b-353dfc9b0af2-contents\",\n/time : 1.29712,\n/pitch : 96.5325,\n/azim : 3.08221"
+					"patching_rect" : [ 253.0, 804.0, 551.0, 48.0 ],
+					"text" : "/0 : \"[object Object]\",\n/1 : \"[object Object]\""
 				}
 
 			}
@@ -423,13 +472,13 @@
 , 			{
 				"box" : 				{
 					"id" : "obj-10",
-					"linecount" : 20,
+					"linecount" : 10,
 					"maxclass" : "message",
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 116.0, 580.0, 109.0, 277.0 ],
-					"text" : "\"{\n\t\\\"val\\\" : \t{\n\t\t\\\"azim\\\" : 2.646775484085083,\n\t\t\\\"time\\\" : 2.574803113937378,\n\t\t\\\"pitch\\\" : 63,\n\t\t\\\"class\\\" : \\\"rectangleStaveAzimuth\\\",\n\t\t\\\"container\\\" : \\\"rectangleStave\\\",\n\t\t\\\"amp\\\" : 1\n\t}\n,\n\t\\\"key\\\" : \\\"data\\\"\n}\n\""
+					"patching_rect" : [ 116.0, 580.0, 109.0, 143.0 ],
+					"text" : "\"{\n\t\\\"val\\\" : \t{\n\t\t\\\"time\\\" : 0.100000001490116\n\t}\n,\n\t\\\"key\\\" : \\\"lookup\\\"\n}\n\""
 				}
 
 			}
@@ -701,7 +750,35 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-5", 0 ],
+					"source" : [ "obj-38", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-38", 0 ],
+					"source" : [ "obj-39", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-5", 0 ],
 					"source" : [ "obj-4", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-39", 0 ],
+					"source" : [ "obj-41", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-41", 0 ],
+					"source" : [ "obj-43", 0 ]
 				}
 
 			}

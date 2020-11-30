@@ -49,11 +49,11 @@ const viewDisplay = function(cx, cy, r)
 
 /**
  * 
- * @param {Object} controller_api reference to object containing method functions for accessing the model and view if needed
+ * @param {Object} io_api reference to object containing method functions for accessing the model and view if needed
  * 
  * @returns {Object} containing controller functions to be used in mapping to/from data-view
  */
-const controllerDef = function( controller_api ) 
+const io_def = function( io_api ) 
 {
         /**
          * 
@@ -113,7 +113,7 @@ const controllerDef = function( controller_api )
  * the uiDef defines the behaviour of mouse interaction, and maniuputing the view information
  * 
  */
-const uiDef = function(symbolist_ui) 
+const ui_def = function(ui_api) 
 {
 
     /**
@@ -140,13 +140,13 @@ const uiDef = function(symbolist_ui)
      */
     function getInfoDisplay(dataObj, viewElement)
     {
-        return symbolist_ui.makeDefaultInfoDisplay(dataObj, symbolist_ui.getBBoxAdjusted(viewElement) );
+        return ui_api.makeDefaultInfoDisplay(dataObj, ui_api.getBBoxAdjusted(viewElement) );
     }
 
     function mapToData(cx, cy, r, container)
     {
         const containerDisplay = container.querySelector('.display');
-        const bbox = symbolist_ui.getBBoxAdjusted(containerDisplay);
+        const bbox = ui_api.getBBoxAdjusted(containerDisplay);
 
         const time = ((cx-bbox.x) * x2time) + parseFloat(container.dataset.time);// + parseFloat(container.dataset.duration);
         const pitch = (1 - ((cy-bbox.y) / bbox.height)) * y2pitch; 
@@ -160,7 +160,7 @@ const uiDef = function(symbolist_ui)
     function mapToView(time, pitch, container)
     {
         const containerDisplay = container.querySelector('.display');
-        const bbox = symbolist_ui.getBBoxAdjusted(containerDisplay);
+        const bbox = ui_api.getBBoxAdjusted(containerDisplay);
 
         const cx = bbox.x + ((time - parseFloat(container.dataset.time)) * time2x);
         const cy = bbox.y + ((1. - (pitch * pitch2y)) * bbox.height);
@@ -183,9 +183,9 @@ const uiDef = function(symbolist_ui)
         const cy = event.clientY;
         const r = default_r; 
 
-        const uniqueID = `${className}_u_${symbolist_ui.fairlyUniqueString()}`;
+        const uniqueID = `${className}_u_${ui_api.fairlyUniqueString()}`;
 
-        const container = symbolist_ui.getCurrentContext();
+        const container = ui_api.getCurrentContext();
         const eventElement = container.querySelector('.contents');
 
       //  console.log('eventElement', eventElement);
@@ -198,7 +198,7 @@ const uiDef = function(symbolist_ui)
         viewObject.cx = parseFloat(viewObject.cx) + 10;
 
         // create new symbol in view
-        symbolist_ui.drawsocketInput([
+        ui_api.drawsocketInput([
             {
                 key: "remove", 
                 val: `${className}-sprite`
@@ -210,7 +210,7 @@ const uiDef = function(symbolist_ui)
                     id: uniqueID,
                     parent: eventElement.id,
                     ...viewDisplay(cx, cy, r),
-                    ...symbolist_ui.dataToHTML(dataObj)//,
+                    ...ui_api.dataToHTML(dataObj)//,
                     //onclick: function(e){ console.log('ello', e)}
 
                 }
@@ -222,15 +222,15 @@ const uiDef = function(symbolist_ui)
                     id: uniqueID+'test',
                     parent: eventElement.id,
                     ...viewObject,
-                    ...symbolist_ui.dataToHTML(dataObj)//,
+                    ...ui_api.dataToHTML(dataObj)//,
 
                 }
             }
         ])
 
         // send out
-        symbolist_ui.sendToController({
-            key: "new",
+        ui_api.sendToController({
+            key: "data",
             val: {
                 class: className,
                 id: uniqueID,
@@ -251,7 +251,7 @@ const uiDef = function(symbolist_ui)
             const cy = e.clientY;
             const r = default_r; 
     
-            const container = symbolist_ui.getCurrentContext();
+            const container = ui_api.getCurrentContext();
         
             const dataObj = mapToData(cx, cy, r, container)
 
@@ -297,7 +297,7 @@ const uiDef = function(symbolist_ui)
     {
         if( e.key == "Meta" )
         {
-            symbolist_ui.drawsocketInput({
+            ui_api.drawsocketInput({
                 key: "remove", 
                 val: `${className}-sprite`
             })
@@ -317,7 +317,7 @@ const uiDef = function(symbolist_ui)
 
     function exit (){
         
-        symbolist_ui.drawsocketInput({
+        ui_api.drawsocketInput({
             key: "remove", 
             val: `${className}-sprite`
         })
@@ -343,8 +343,8 @@ const uiDef = function(symbolist_ui)
 }
 
 module.exports = {
-    controller: controllerDef,
-    ui: uiDef
+    io_def,
+    ui_def
 }
 
 

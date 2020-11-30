@@ -19,6 +19,8 @@ const pitch2y = 1 / 127.;
 const default_r = 2;
 const default_dist = 5;
 
+const default_duration = 0.1;
+
 let dataInstace = {
     // class name, refering to the definition below
     className,
@@ -69,16 +71,14 @@ const viewDisplay = function(id, cx, cy, r, x2, y2, overwrite = true)
 
 /**
  * 
- * UI is called in the browser, and has access to the symbolist and drawsocket global modules
- * (could be nicer to have the same interface as the controller, and pass the api objects as an argument)
+ * @param {Object} ui_api api object passed in to def on initialization from ui controller
  * 
- * optionally could use require here like:
- * const ui = require('myCoolUI.js')
+ * ui def defines sorting and interaction scripts that run in the editor browser
  * 
- * the uiDef defines the behaviour of mouse interaction, and maniuputing the view information
+ * returns methods which can be called by the ui controller
  * 
  */
-const uiDef = function(symbolist_ui) 
+const ui_def = function(ui_api) 
 {
 
     // UI mode, "creation" or "edit", passed from renderer
@@ -109,8 +109,8 @@ const uiDef = function(symbolist_ui)
      */
     function getInfoDisplay( viewElement )
     {
-        symbolist_ui.drawsocketInput(
-            symbolist_ui.makeDefaultInfoDisplay(viewElement, symbolist_ui.scrollOffset)
+        ui_api.drawsocketInput(
+            ui_api.makeDefaultInfoDisplay(viewElement, ui_api.scrollOffset)
         )
         
     }
@@ -120,7 +120,7 @@ const uiDef = function(symbolist_ui)
     function mapToData(viewData, container)
     {
         const containerDisplay = container.querySelector('.display');
-        const bbox = symbolist_ui.getBBoxAdjusted(containerDisplay);
+        const bbox = ui_api.getBBoxAdjusted(containerDisplay);
 
         const time = ((viewData.cx-bbox.x) * x2time) + parseFloat(container.dataset.time);// + parseFloat(container.dataset.duration);
         
@@ -129,10 +129,13 @@ const uiDef = function(symbolist_ui)
         const azim = Math.atan2(viewData.x2 - viewData.cx, 
                                 viewData.y2 - viewData.cy )
 
+        const duration = default_duration;
+
         return {
             time, 
             pitch,
-            azim
+            azim,
+            duration
         }
     }
 
@@ -172,7 +175,7 @@ const uiDef = function(symbolist_ui)
     {
        // console.log('data', data);
         const containerDisplay = container.querySelector('.display');
-        const bbox = symbolist_ui.getBBoxAdjusted(containerDisplay);
+        const bbox = ui_api.getBBoxAdjusted(containerDisplay);
         
 
         const cx = bbox.x + ((data.time - parseFloat(container.dataset.time)) * time2x);
@@ -194,7 +197,8 @@ const uiDef = function(symbolist_ui)
         const dataset = {
             time: dataObj.time,
             pitch: dataObj.pitch,
-            azim: dataObj.azim
+            azim: dataObj.azim,
+            duration: default_duration
         }
 
         let isNew = true;
@@ -211,13 +215,13 @@ const uiDef = function(symbolist_ui)
       //  console.log(newView);
 
 
-        symbolist_ui.drawsocketInput({
+        ui_api.drawsocketInput({
             key: "svg",
             val: {
                 parent: contentElement.id,
                 class: `${className} symbol`,
                 ...newView,
-                ...symbolist_ui.dataToHTML(dataset)
+                ...ui_api.dataToHTML(dataset)
             }
         });
 
@@ -237,24 +241,23 @@ const uiDef = function(symbolist_ui)
         let newView = mapToView(data, container, id, false);
         
          // send out before sending to drawsocket, because we overwrite the element
-         symbolist_ui.sendToController({
-            key: "update",
+         ui_api.sendToServer({
+            key: "data",
             val: {
                 id,
-                parent,
-                class: [...element.classList],
+                container: [...container.classList],
+                class: className,
                 ...data
             }
         })
 
-        symbolist_ui.drawsocketInput({
+        ui_api.drawsocketInput({
             key: "svg",
             val: {
-//                id, // id is in the view now
-                parent,
+                parent, // parent is an id
                 class: element.classList,
-                ...newView,
-                ...symbolist_ui.dataToHTML(data)
+                ...newView, // note view has id internally
+                ...ui_api.dataToHTML(data)
             }
         });
 
@@ -273,28 +276,19 @@ const uiDef = function(symbolist_ui)
     function creatNewFromMouseEvent(event)
     {
 
-        const pt = symbolist_ui.getSVGCoordsFromEvent(event);
+        const pt = ui_api.getSVGCoordsFromEvent(event);
         const cx = pt.x;
         const cy = pt.y;
         const r = default_r; 
+        const x2 = cx + r;
+        const y2 = cy - 10;
 
-        const uniqueID = `${className}_u_${symbolist_ui.fairlyUniqueString()}`;
+        const uniqueID = `${className}_u_${ui_api.fairlyUniqueString()}`;
 
-        const container = symbolist_ui.getCurrentContext();
+        const container = ui_api.getCurrentContext();
         const eventElement = container.querySelector('.contents');
 
-      //  console.log('eventElement', eventElement);
-
-        const dataObj = mapToData(
-            {
-                cx, 
-                cy, 
-                r, 
-                x2: cx + r, 
-                y2: cy - 10
-            }, 
-            container 
-        );
+        const dataObj = mapToData({ cx, cy, r, x2, y2 }, container );
 /*
 // example of creating an extra point via internal scripting
         let viewObj = mapToView({
@@ -305,7 +299,7 @@ const uiDef = function(symbolist_ui)
 */
        
         // create new symbol in view
-        symbolist_ui.drawsocketInput([
+        ui_api.drawsocketInput([
             {
                 key: "remove", 
                 val: `${className}-sprite`
@@ -316,7 +310,7 @@ const uiDef = function(symbolist_ui)
                     class: `${className} symbol`,
                     parent: eventElement.id,
                     ...viewDisplay(uniqueID, cx, cy, r, cx + r, cy - 10),
-                    ...symbolist_ui.dataToHTML(dataObj)//,
+                    ...ui_api.dataToHTML(dataObj)//,
                     //onclick: function(e){ console.log('ello', e)}
 
                 }
@@ -334,12 +328,12 @@ const uiDef = function(symbolist_ui)
         ])
 
         // send out
-        symbolist_ui.sendToController({
-            key: "new",
+        ui_api.sendToServer({
+            key: "data",
             val: {
-                class: `${className} symbol`,
+                class: className,
                 id: uniqueID,
-                parent: eventElement.id,
+                container: [ ...container.classList ],
                 ...dataObj
             }
         })
@@ -354,7 +348,7 @@ const uiDef = function(symbolist_ui)
 
             let sprite = document.getElementById(`${className}-sprite`);
 
-            const pt = symbolist_ui.getSVGCoordsFromEvent(e);
+            const pt = ui_api.getSVGCoordsFromEvent(e);
 
             const x = pt.x;
             const y = pt.y;
@@ -379,7 +373,7 @@ const uiDef = function(symbolist_ui)
          
             const r = default_r; 
     
-            const container = symbolist_ui.getCurrentContext();
+            const container = ui_api.getCurrentContext();
         
             let dataObj = mapToData({
                     cx, 
@@ -430,26 +424,26 @@ const uiDef = function(symbolist_ui)
 
     function applyTransformToData(element)
     {
-        symbolist_ui.applyTransform(element);
+        ui_api.applyTransform(element);
 
         let data = elementToData(element);
 
 
-        symbolist_ui.drawsocketInput({
+        ui_api.drawsocketInput({
             key: "svg",
             val: {
                 id: element.id,
-                ...symbolist_ui.dataToHTML(data)
+                ...ui_api.dataToHTML(data)
             }
         })
 
         // send out
-        symbolist_ui.sendToController({
-            key: "update",
+        ui_api.sendToServer({
+            key: "data",
             val: {
                 id: element.id,
-                class: `${className} symbol`,
-                parent: element.parentNode.id,
+                class: className,
+                container: [ ...element.parentNode.classList ],
                 ...data
             }
         })
@@ -470,7 +464,7 @@ const uiDef = function(symbolist_ui)
         let x2 = parseFloat(line.getAttribute('x2'));
         let y2 = parseFloat(line.getAttribute('y2'));
 
-        let mousePt = symbolist_ui.getSVGCoordsFromEvent(event);
+        let mousePt = ui_api.getSVGCoordsFromEvent(event);
 
         let azim = Math.atan2( mousePt.x - x1, mousePt.y - y1);
 
@@ -482,7 +476,7 @@ const uiDef = function(symbolist_ui)
 
         element.dataset.azim = azim;
 
-        symbolist_ui.drawsocketInput({
+        ui_api.drawsocketInput({
             key: "svg", 
             val: {
                 id: `${element.id}-rotation-handle`,
@@ -514,7 +508,7 @@ const uiDef = function(symbolist_ui)
         else
         {
                 // maybe rename... sets translation in transform matrix, but doesn't apply it
-            symbolist_ui.translate(element, delta_pos);
+            ui_api.translate(element, delta_pos);
         
             const circ = element.querySelector('circle');
             const line = element.querySelector('line');
@@ -537,7 +531,7 @@ const uiDef = function(symbolist_ui)
             ); //mapToData(cx, cy, default_r, x2, y2, container);
             
 
-            symbolist_ui.drawsocketInput({
+            ui_api.drawsocketInput({
                 key: "svg",
                 val: {
                     new: "text",
@@ -578,7 +572,7 @@ const uiDef = function(symbolist_ui)
     {
         if( e.key == "Meta" )
         {
-            symbolist_ui.drawsocketInput({
+            ui_api.drawsocketInput({
                 key: "remove", 
                 val: `${className}-sprite`
             })
@@ -609,7 +603,7 @@ const uiDef = function(symbolist_ui)
         {
             console.log(`exit ${className} ${m_mode}`);
 
-            symbolist_ui.drawsocketInput({
+            ui_api.drawsocketInput({
                 key: "remove", 
                 val: `${className}-sprite`
             })            
@@ -631,7 +625,7 @@ const uiDef = function(symbolist_ui)
     // maybe the controller should do less but provide key event handling and pass to scripts
     function editMode( element, enable = false )
     {
-        //let element = symbolist_ui.getSelected()[0]; // first object only for now...
+        //let element = ui_api.getSelected()[0]; // first object only for now...
 
         if( enable )
         {
@@ -641,7 +635,7 @@ const uiDef = function(symbolist_ui)
             const x2 = parseFloat(line.getAttribute('x2'));
             const y2 = parseFloat(line.getAttribute('y2'));
     
-            symbolist_ui.drawsocketInput({
+            ui_api.drawsocketInput({
                 key: "svg", 
                 val: {
                     id: `${element.id}-rotation-handle`,
@@ -675,7 +669,7 @@ const uiDef = function(symbolist_ui)
         {
             console.log('deregister');
 
-            symbolist_ui.drawsocketInput({
+            ui_api.drawsocketInput({
                 key: "remove", 
                 val: `${element.id}-rotation-handle`,
             }) 
@@ -723,18 +717,62 @@ const uiDef = function(symbolist_ui)
 
 }
 
+
+
 /**
  * 
- * @param {Object} controller_api reference to object containing method functions for accessing the model and view if needed
+ * @param {Object} io_api api object passed in to def on initialization from io controller
  * 
- * @returns {Object} containing controller functions to be used in mapping to/from data-view
+ * io def defines sorting and lookup scripts to be run on the server-side
  */
-const controllerDef = function( controller_api ) 
-{
-        // currently not used
+const io_def = (io_api) => {
+
+    /**
+     * 
+     * @param {Object} a 
+     * @param {Object} b 
+     * 
+     * comparator for sorting instances of this class type (rectangleStaveAzimuth)
+     */
+    function comparator (a, b) {
+        return (a.time < b.time ? -1 : (a.time == b.time ? 0 : 1))
+    }
+
+    /**
+      * 
+      * @param {Object} dataObj data object that has been looked up
+      * 
+      * script here is called when looking up symbols, and potentially could respond with
+      * generative values in realtime
+      * 
+      * return null if lookup params don't match the obj_ref
+      * 
+      */
+    function lookup( lookup_params, obj_ref )
+    {
+        const start = obj_ref.time;
+        const end = start + obj_ref.duration;
+//        console.log( start, end, lookup_params.time);
+        if( start <= lookup_params.time && end >= lookup_params.time )
+        {
+            return {
+                ...obj_ref,
+                phase: (lookup_params.time - start) / obj_ref.duration
+            }
+        }
+
+        return null;
+    }
+ 
+
+    return {
+        className,
+        comparator,
+        lookup
+    }
 }
 
-
 module.exports = {
-    ui: uiDef
+    ui_def,
+    io_def
 }

@@ -119,16 +119,6 @@ function onClick(event) {
   
   var startPoint = point.matrixTransform( svg.getScreenCTM().inverse() );
   
-
-  let matrix = svg.getScreenCTM();
-
-  let matrix2 = matrix.multiply( matrix.inverse() );
-
-  console.log(matrix, matrix2);
-
-
-  console.log(svg.getScreenCTM(), point, startPoint);
-  
   var fromVars = {
     x: viewBox.x,
     y: viewBox.y,

@@ -158,3 +158,37 @@ best is if all symbols are wrapped in <g> tags, so that GUI elements can be cont
     or create page object that groups container staves, and usually acts to show the synchronization between them
 
 - add init ping from browser (or in did-load) to send data from server side
+
+for lookup 
+// start at top level and descend through container/contents id lists
+// will need to identify containers in the model
+    maybe keep a separate array of container id's
+
+// will also need the sorting mechanism
+    for finding the right container if the user doesn't know or include an id when sending data in via UDP
+
+symbols should define the sorting mechanism that sorts themselves, not their children (afaict)
+better if each type defines the method for sorting that type
+
+
+
+
+    /**
+     * if there is a parent id already known we can speed this up a bit and just lookup by id
+     * without having to find which container instance is the right one
+     * 
+     * on the other hand, we don't always actually need to know the container instance,
+     * e.g. in cases of continued staves in new systems. In these cases, it's even better
+     * not to use the container info to lookup the event symbol info
+     * 
+     * but if the output is dependent on information in the container instance, then the id 
+     * will be needed to lookup the value. 
+     * 
+     * So, what we can do here is check if the parent is an ID, and if it is, get the classType?
+     * 
+     * no: what ever the parent is will be the way that the system tries to find the symbol
+     * so if the parent is an id, the system will lookup by id and get the value at the right time
+     * based on the lookup script. 
+     * 
+     * 
+     */

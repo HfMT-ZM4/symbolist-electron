@@ -56,7 +56,15 @@ if( cluster.isMaster )
         let files = utils.getFilesFromMenuFolderArray(symbolist_config['default-init-folder']);
 
         console.log('symbolist_config', files);
+        //send to editor ui
         win.webContents.send('load-ui-defs', files );
+
+        //send to io controller
+        io_controller_proc.send({
+          key: "load-io-defs",
+          val: files
+        })
+
       }
       else
       {
@@ -78,14 +86,13 @@ if( cluster.isMaster )
           
             let files = utils.getFilesFromMenuFolderArray(result.filePaths[0]);
             win.webContents.send('load-ui-defs', files );
-  /*
             // << later send to io controller for user lookup scripts
   
             io_controller_proc.send({
-              key: "loadInitFiles",
+              key: "load-io-defs",
               val: result.filePaths
             })
-  */          
+
           }
         
         }).catch(err => {
