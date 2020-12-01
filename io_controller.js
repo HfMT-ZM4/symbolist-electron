@@ -1,11 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 const sym_util = require('./lib/utils')
-const { js2osc } = require('./lib/js2osc.js')
-const { serializeIntoBuffer, getOSCSize, obj2osc } = require('./lib/o')
+const { obj2osc, osc2obj } = require('./lib/o')
 
 const dgram = require('dgram');
-const osc = require('osc/src/osc');
 
 global.root_require = function(path) {
     return require(__dirname + '/' + path);
@@ -53,6 +51,8 @@ function initUDP()
         let str = msg.toString('utf-8');
         if( str.startsWith('#bundle'))
         {
+            udpRecieve( osc2obj(msg) );
+            /*
             try {
                 let osc_bundle = osc.readPacket(msg, { metadata: true });
                 console.log(osc_bundle);
@@ -62,6 +62,7 @@ function initUDP()
             catch(err) {
                 console.error('malformed osc bundle', err);
             }
+            */
         }
         else
         {
@@ -73,6 +74,7 @@ function initUDP()
     });
 
     udp_server.on('listening', () => {
+        udp_server.setSendBufferSize(65507);
         const address = udp_server.address();
         console.log(`server listening ${address.address}:${address.port}`);
     });
@@ -81,7 +83,10 @@ function initUDP()
         console.error('udp send err', err);
     });
 
+
+
     udp_server.bind(8888);
+
 
 }
 
@@ -99,8 +104,13 @@ function udpSend(msg)
         console.log(`${i} \t${buf[i]} \t${String.fromCharCode(buf[i]) }` )
     }
 */
+    const bndl = obj2osc(msg);
+    if( bndl.length > 65507 )
+        console.error(`udp_server error, buffer too large ${bndl.length}`)
 
-    udp_server.send( obj2osc(msg), sendPort);
+    udp_server.send( bndl, sendPort, (err) => {
+        if( err ) console.error(`udp_server ${err} (size ${bndl.length})`);
+      });
 }
 
 function addIDifMIssing(v)
@@ -225,7 +235,7 @@ function loadDefFiles(folder)
 
 function addToModel( dataobj )
 {
-    console.log('setting val into model', dataobj )
+   // console.log('setting val into model', dataobj )
 
     // set object into flat model array
     if( model.has(dataobj.id) )

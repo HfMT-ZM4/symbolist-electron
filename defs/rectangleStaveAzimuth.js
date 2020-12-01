@@ -34,7 +34,7 @@ let dataInstace = {
     id : `${className}-0`,
     
     time: 0,
-    duration: 1,
+    duration: 0.1,
     pitch: 60,
     amp: 1,
     azim: 0
