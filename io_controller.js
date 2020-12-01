@@ -87,10 +87,10 @@ function initUDP()
 
 function udpSend(msg)
 {
-    let size = getOSCSize(msg);
-    let buf = Buffer.alloc( size, '\0' );
+   // let size = getOSCSize(msg);
+    //let buf = Buffer.alloc( size, '\0' );
     
-    serializeIntoBuffer( msg, buf, size );
+    //serializeIntoBuffer( msg, buf, size );
 
    // console.log('sending size', size, buf.length);
 /*
@@ -99,7 +99,8 @@ function udpSend(msg)
         console.log(`${i} \t${buf[i]} \t${String.fromCharCode(buf[i]) }` )
     }
 */
-    udp_server.send(buf, sendPort);
+
+    udp_server.send( obj2osc(msg), sendPort);
 }
 
 function addIDifMIssing(v)
@@ -507,7 +508,10 @@ function buildModelLookup()
 function lookupResonseUDP(params)
 {
    let ret = lookup(params);
-
+   udpSend({
+       lookup: ret 
+    }) ;
+   /*
  //  console.log('lookupResonseUDP', ret);
    if( Array.isArray(ret) )
    {
@@ -517,6 +521,7 @@ function lookupResonseUDP(params)
    {
         udpSend( ret ) 
    }
+   */
 }
 
 /**
