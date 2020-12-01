@@ -21,6 +21,11 @@ const default_dist = 5;
 
 const default_duration = 0.1;
 
+
+/**
+ * maybe eventually we will want to use this dataInstance signature 
+ * to conform data when it arrives via udp
+ */
 let dataInstace = {
     // class name, refering to the definition below
     className,
@@ -28,16 +33,15 @@ let dataInstace = {
     // unique id for this instance
     id : `${className}-0`,
     
-    // container objects 
-    contents: [],
-    
-    // container objects 
     time: 0,
     duration: 1,
     pitch: 60,
     amp: 1,
     azim: 0
 }
+
+// container objects no longer have the contents in the data object, but rather the contents
+// are in the containers lookup object in the io controller
 
 // all symbols must be wrapped in <g> containers
 // any additional UI elements will be grouped with the symbol,  so that when somehting is clicked it is still

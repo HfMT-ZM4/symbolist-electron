@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const sym_util = require('./lib/utils')
 const { js2osc } = require('./lib/js2osc.js')
+const { serializeIntoBuffer, getOSCSize, obj2osc } = require('./lib/o')
 
 const dgram = require('dgram');
 const osc = require('osc/src/osc');
@@ -86,7 +87,14 @@ function initUDP()
 
 function udpSend(msg)
 {
-    udp_server.send( js2osc(msg), sendPort );
+    let size = getOSCSize(msg);
+    let buf = Buffer.alloc( size, '\0' );
+    
+    serializeIntoBuffer( msg, buf, size );
+
+    console.log('sending size', size, buf.length);
+
+    udp_server.send(buf, 0, size, sendPort, '127.0.0.1' );
 }
 
 function addIDifMIssing(v)
