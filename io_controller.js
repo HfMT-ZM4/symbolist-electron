@@ -92,9 +92,14 @@ function udpSend(msg)
     
     serializeIntoBuffer( msg, buf, size );
 
-    console.log('sending size', size, buf.length);
-
-    udp_server.send(buf, 0, size, sendPort, '127.0.0.1' );
+   // console.log('sending size', size, buf.length);
+/*
+    for( let i = 0; i < size; i++)
+    {
+        console.log(`${i} \t${buf[i]} \t${String.fromCharCode(buf[i]) }` )
+    }
+*/
+    udp_server.send(buf, sendPort);
 }
 
 function addIDifMIssing(v)
