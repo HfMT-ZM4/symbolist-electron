@@ -21,6 +21,7 @@ if( cluster.isMaster )
       width: 800,
       height: 600,
       title: 'symbolist',
+      backgroundColor: `rgb(50, 50, 50)`,
       webPreferences: {
         nodeIntegration: true
       }
