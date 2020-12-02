@@ -45,9 +45,24 @@ async function buildModelLookup()
 }
 
 
+async function newScore()
+{
+    //send to io controller
+    io_proc.send({
+      key: "newScore"
+    })
+
+    win.webContents.send('menu-call', 'newScore');
+
+
+}
+
 
 module.exports = {
-    init,
+    init, // internal for initializing the module
+
+    // actions:
+    newScore,
     loadFiles,
     deleteSelected,
     buildModelLookup

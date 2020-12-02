@@ -107,6 +107,30 @@ function getSelected()
     return selected;
 }
 
+
+// accept arrays?
+// probably we'll need some kind of container / conents ordering
+// start at top level and descend through container/contents id lists
+// will need to identify containers in the model
+// will also need the sorting mechanism
+
+function dataToView(obj_)
+{
+    // figure out which container to put the data in
+    console.log('data to view', obj_);
+
+    const def = uiDefs.get(obj_.class);
+    const container_def = uiDefs.get(obj_.container);
+
+    let container = container_def.getContainerForData( obj_ );
+
+    def.fromData(obj_, container);
+
+}
+
+
+
+
 ipcRenderer.on('load-ui-defs', (event, folder) => {
 
    const path = folder.path;
@@ -139,6 +163,10 @@ ipcRenderer.on('load-ui-defs', (event, folder) => {
     })
    
     initPalette();
+
+    sendToServer({ 
+        key: 'data-refresh' 
+    });
 })
 
 
@@ -171,10 +199,10 @@ function initPalette()
                     class: `${def_classname} palette-icon`,
                     id: `${def_classname}-paletteIcon`,
                     parent: "palette-clefs",
-                    onclick: `
-                            console.log('select ${def_classname}'); 
-                            symbolist.setClass('${def_classname}');
-                        `,
+                    onclick: () => {
+                            console.log(`select ${def_classname}`); 
+                            symbolist_setContainerClass(def_classname);
+                    },
                     children: def_palette_display
                 }
             })
@@ -247,34 +275,6 @@ function makeSymbolPalette(class_array)
 }
 
 
-/**
- *  load ui file into map
- * 
- * format:
- * {
- *      classname: 'foo',
- *      filepath: '/usr/local/scripts/.../foo-ui.js'
- * }
- */
-/*
-ipcRenderer.on('load-ui-file', (event, arg) => {
-    console.log('loading custom ui', arg.classname, arg.filepath);
-
-    // should exit in case we are already running a custom script here?
-    const removeUI = require.resolve(arg.filepath); // lookup loaded instance of module
-    if( removeUI )
-        delete require.cache[ removeUI ];
-
-
-    const userInterface = require(arg.filepath);
-    
-    if( userInterface ){
-        uiDefs.set(arg.classname, userInterface)
-    }
-
-})
-*/
-
 
 /**
  * 
@@ -293,29 +293,6 @@ function dataToHTML(data_)
 }
 
 
-/*
-    {
-        call: "enterEditMode",
-        args: data
-    } 
- */
-/*
-ipcRenderer.on('signal-gui-script', (event, arg) => {
-    if( arg.call )
-    {
-        console.log('check', arg);
-        if( uiDefs.has(currentPaletteClass) )
-        {
-            console.log('check check', arg.call);
-
-            uiDefs.get(currentPaletteClass)[arg.call](arg.args)
-        }
-    }
-    
-})
-*/
-
-
 
 /**
  * 
@@ -323,6 +300,17 @@ ipcRenderer.on('signal-gui-script', (event, arg) => {
  */
 function drawsocketInput(obj){
     drawsocket.input(obj)
+}
+
+function symbolist_newScore()
+{
+    deselectAll();
+    setDefaultContext();
+
+    drawsocketInput({
+        key: "clear",
+        val: ["palette-symbols", "top-svg-contents", "top-html-contents", "symbolist_overlay", "floating-forms", "floating-overlay"]
+    })
 }
 
 /**
@@ -341,6 +329,9 @@ ipcRenderer.on('menu-call', (event, arg) => {
             break;
         case 'zoomReset':
             symbolist_zoomReset()
+            break;
+        case 'newScore':
+            symbolist_newScore();
             break;
 
     }
@@ -369,6 +360,16 @@ function symbolist_set_log(msg)
 {
     symbolist_log.innerHTML = `<span>${msg}</span>`;
 }
+
+function symbolist_setContainerClass(_class)
+{
+    drawsocketInput({
+        key: "clear",
+        val: "palette-symbols"
+    })
+    symbolist_setClass(_class);
+}
+
 
 /**
  * 
@@ -905,6 +906,9 @@ function applyTransform(obj, matrix = null)
 
     if( obj.hasAttribute('transform'))
         obj.removeAttribute('transform');
+    
+    if( obj.dataset.svgOrigin )
+        delete obj.dataset.svgOrigin;
 }
 
 function applyTransformToSelected()
@@ -1277,6 +1281,7 @@ function cloneObj(obj) {
     return JSON.parse(JSON.stringify(obj));
 }
 
+/*
 function symbolost_sendKeyEvent(event, caller)
 {
     if( typeof event.symbolistAction === 'undefined' )
@@ -1317,7 +1322,7 @@ function symbolost_sendKeyEvent(event, caller)
         }
     });
 }
-
+*/
 
 function escapeModes()
 {
@@ -1379,7 +1384,7 @@ function symbolist_keyuphandler(event)
   //  symbolost_sendKeyEvent(event, "keyup");
 }
 
-
+/*
 function sendMouseEvent(event, caller)
 {  
 
@@ -1440,6 +1445,7 @@ function sendMouseEvent(event, caller)
     ipcRenderer.send( 'symbolist_event', obj );
 
 }
+*/
 
 function getDragRegion(event)
 {
@@ -1710,7 +1716,7 @@ function symbolist_mousemove(event)
     
     prevEventTarget = _eventTarget;
 
-    sendMouseEvent(event, "mousemove");
+   // sendMouseEvent(event, "mousemove");
 
 }
 
@@ -1845,7 +1851,7 @@ function symbolist_mouseup(event)
     mouse_pos = getSVGCoordsFromEvent(event);//{ x: event.pageX, y: event.pageY };
     event.mousedownPos = mousedown_pos;
 
-    sendMouseEvent(event, "mouseup");
+    //sendMouseEvent(event, "mouseup");
 
     clickedObj = null;
     selectedClass = currentPaletteClass;
@@ -2094,6 +2100,7 @@ function stopDefaultEventHandlers()
 startDefaultEventHandlers();
 
 
+
 function getContextConstraintsForPoint(pt)
 {
     if( uiDefs.has( currentContext.classList[0]) )
@@ -2143,27 +2150,6 @@ function asyncQuery(id, query, calllbackFn)
     });
 }
 */
-
-
-// accept arrays?
-// probably we'll need some kind of container / conents ordering
-// start at top level and descend through container/contents id lists
-// will need to identify containers in the model
-// will also need the sorting mechanism
-
-function dataToView(obj_)
-{
-    // figure out which container to put the data in
-    console.log('data to view', obj_);
-
-    const def = uiDefs.get(obj_.class);
-    const container_def = uiDefs.get(obj_.container);
-
-    let container = container_def.getContainerForData( obj_ );
-
-    def.fromData(obj_, container);
-
-}
 
 
 

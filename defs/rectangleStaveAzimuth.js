@@ -237,7 +237,7 @@ const ui_def = function(ui_api)
     {
         // assuming that we have all the data
         let data = element.dataset;
-        const container = element.closest('.container');
+        const container = element.parentNode.closest('.container');
 
         const id = element.id;
         const parent = element.parentNode.id;
@@ -431,7 +431,6 @@ const ui_def = function(ui_api)
         ui_api.applyTransform(element);
 
         let data = elementToData(element);
-
 
         ui_api.drawsocketInput({
             key: "svg",

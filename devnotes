@@ -192,3 +192,15 @@ better if each type defines the method for sorting that type
      * 
      * 
      */
+
+
+structure idea:
+staves are one object, that visually separate chunks of time into segments to fit the formatting of a page. this is great for printing and reading, however is not directly part of the playback information of the score.
+
+therefore the structure of the score is that there is one container (stave) for a given set of points.
+
+in other types of scores, maybe there could be some kind of structural meaning for the segmentation of the events into separate blocks. in this case the container becomes a symbol (that may or may not be a container of other events)
+
+what this means is that "staves" in the palette create a single structure that multiple events can exist inside. if staves allow you to make multiple instances, they are actaully connected, since they are container objects.
+
+maybe both types of objects can be top level, and we don't need the separation of the stave and symbol in the pallette, but for now i'll try this approach

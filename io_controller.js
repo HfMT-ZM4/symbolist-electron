@@ -32,6 +32,13 @@ let model = new Map();
  */
 let containers = new Map(); 
 
+
+function newScore(){
+    model = new Map();
+    containers = new Map();
+}
+
+
 function initUDP()
 {
 
@@ -105,12 +112,19 @@ function udpSend(msg)
     }
 */
     const bndl = obj2osc(msg);
-    if( bndl.length > 65507 )
-        console.error(`udp_server error, buffer too large ${bndl.length}`)
-
-    udp_server.send( bndl, sendPort, (err) => {
-        if( err ) console.error(`udp_server ${err} (size ${bndl.length})`);
-      });
+    if( bndl.length > 65507 ){
+       // console.error(`udp_server error, buffer too large ${bndl.length}`)
+        udp_server.send( obj2osc({
+            sendError: `udp_server error, buffer too large ${bndl.length}`
+        }), sendPort);
+    }
+    else
+    {
+        udp_server.send( bndl, sendPort, (err) => {
+            if( err ) console.error(`udp_server ${err} (size ${bndl.length})`);
+          });
+    }
+    
 }
 
 function addIDifMIssing(v)
@@ -269,6 +283,7 @@ function addToStructuredLookup( dataobj )
 
  if( Array.isArray(dataobj.class) && dataobj.class.includes('container') )
  {
+     console.log('adding container');
      // def className must be first of classList
      let container_class = dataobj.class[0];
      let container_def = defs.get(container_class) 
@@ -491,9 +506,13 @@ function lookup(params)
 
 function sendModelToUI()
 {
+    console.log('data-refresh');
     process.send({
-        key: 'refresh-model',
-        val: model
+        key: 'data',
+        val: {
+            model: Object.fromEntries(model),
+            containers: Object.fromEntries(containers)
+        }
     }) 
 }
 
@@ -581,7 +600,7 @@ function input(_obj)
 
     switch (key) //must have key!
     {
-        case 'refresh':
+        case 'data-refresh':
             sendModelToUI();
         break;
 
@@ -596,8 +615,8 @@ function input(_obj)
             udpSend(val);
             break;
        
-        case 'init':
-            init();
+        case 'newScore':
+            newScore();
             break;
 
         case 'load-io-defs':

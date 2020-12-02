@@ -1,6 +1,14 @@
 
 // make time/pixel scalar something that can be adjusted in the UI
 
+/**
+ * new version, where staves are joined into a single object
+ * or maybe for now dont' allow multiple staves??
+ * 
+ * staves serve a *visual* function, in that their spatial placement is for reading on pages
+ * therefore they need to contain some visual information in their dataset
+ */
+
 'use strict';
 
 
@@ -10,54 +18,78 @@ const palette = [ "rectangleStaveEvent", "rectangleStaveAzimuth" ]; //, "otherRe
 
 
 const default_duration = 1;
-
 const default_height = 200;
 
 let x2time = 0.001;
 let time2x = 1000;
 
-let objectDataTypes = {
-    time: "Number",
-    duration: "Number"
+/**
+ * maybe eventually we will want to use this dataInstance signature 
+ * to conform data when it arrives via udp
+ */
+let dataInstace = {
+    // class name, refering to the definition below
+    className,
+
+    // unique id for this instance
+    id : `${className}-0`,
+    
+    time: 0,
+    duration: 1,
+    x: 100,
+    y: 100
 }
 
 
-
-const viewDisplay = function(x, y, width, height)
+/** 
+ * viewDisplay is just the view part, for containers, it's used for sprites, palette, but the viewContainer is what is used in the DOM
+ */
+const viewDisplay = function(id, x, y, width, height, overwrite = true)
 {
     return {
-        new: "rect",
-        x,
-        y,
-        width,
-        height,
-        style: {
-            fill: "white"
-        }
+        new: (overwrite ? "g" : undefined),
+        id,
+        class: `${className} display`, // the display container, using the 'display' class as a selector
+        children: [{
+            new: (overwrite ? "rect" : undefined),
+            id: `${id}-rect`,
+            x,
+            y,
+            width,
+            height,
+            style: {
+                fill: "white"
+            }
+        }]
     }
+
 }
 
-const viewContainer = function(x, y, width, height, id, parentID) 
+/*
+*/
+const viewContainer = function(id, x, y, width, height, overwrite = true) 
 {
-    // prepend data to keys
+    /**
+     * container objects us a group to contain their child objects, separate from their display
+     * if overwriting, the whole container will be rewritten, which will also remove all the events
+     * 
+     * on update from data, the view might change, and the dataset, but not the conents
+     * therefore it's more useful to have the id for the viewDisplay system rather than the display <g>
+     * 
+     */
     return {
-        new: "g", // container objects us a group to contain their child objects, separate from their display
+        new: (overwrite ? "g" : undefined), 
         id, // use same reference id as data object
         class: `${className} symbol container`, // the top level container, using the 'container' class for type selection if needed
-        parent: parentID,
         children: [
+            viewDisplay(`${id}-display`, x, y, width, height, overwrite),
             {
-                new: "g",
-                class: `${className} display`, // the display container, using the 'display' class as a selector
-                children : viewDisplay(x,y,width,height)
-            },
-            {
-                new: "g",
+                new: (overwrite ? "g" : undefined),
                 id: `${id}-contents`,
-                class: `${className} contents`, // the contents container, using the 'contents' class as a selector
-                children: [] // empty for now
+                class: `${className} contents` // the contents container, using the 'contents' class as a selector
+                // removed empty children array since if we are updating the object, we don't want to overwrite the children
             }
-            ]  
+        ]  
     }
 }
 
@@ -108,7 +140,7 @@ const ui_def = function( ui_api )
     {
         return {
             key: "svg",
-            val: viewDisplay(0, 0, 25, 25)
+            val: viewDisplay(`${className}-pal-disp`, 0, 0, 25, 25)
         }
     }
 
@@ -127,6 +159,26 @@ const ui_def = function( ui_api )
         ui_api.drawsocketInput(
             ui_api.makeDefaultInfoDisplay(viewElement, ui_api.scrollOffset)
         )
+    }
+
+
+    function mapToView(data, container, id, overwrite = true)
+    {
+
+        const containerDisplay = container.querySelector('.display');
+        const bbox = ui_api.getBBoxAdjusted(containerDisplay);
+
+        const x = bbox.x + parseFloat(data.x);
+        const y = bbox.y + parseFloat(data.y);
+
+        const width = parseFloat(data.duration) * time2x;
+        const height = default_height;
+
+        console.log('width', width, container);
+
+        return viewContainer(id, x, y, width, height, overwrite)
+        //viewDisplay(id, x, y, width, height, overwrite);
+            
     }
 
     function getContainerForData(dataObj)
@@ -190,7 +242,9 @@ const ui_def = function( ui_api )
       
         let dataObj = {
             time: prevStaveEndTime,
-            duration: default_duration
+            duration: default_duration,
+            x: x,
+            y: y
         }
         
         // create new symbol in view
@@ -202,7 +256,8 @@ const ui_def = function( ui_api )
             {
                 key: "svg",
                 val: {
-                    ...viewContainer(x, y, width, height, uniqueID, eventElement.id),
+                    parent: eventElement.id,
+                    ...viewContainer(uniqueID, x, y, width, height ),
                     ...ui_api.dataToHTML(dataObj)
                 }
             }
@@ -253,22 +308,60 @@ const ui_def = function( ui_api )
     }
 
 
+    function fromData(dataObj, container)
+    {
+        const contentElement = container.querySelector('.contents');
+
+        // filtering the dataObj since the id and parent aren't stored in the dataset
+        let dataset = {
+            time: dataObj.time,
+            duration: dataObj.duration,
+            x: dataObj.x,
+            y: dataObj.y
+        }
+
+        let isNew = true;
+        
+        let currentElement =  document.getElementById(dataObj.id) ;
+       // console.log(currentElement);
+
+        if(currentElement) {
+            isNew = false;
+        }
+
+        let newView = mapToView(dataset, container, dataObj.id, isNew );
+
+      //  console.log(newView);
+
+
+        ui_api.drawsocketInput({
+            key: "svg",
+            val: {
+                parent: contentElement.id,
+                class: `${className} symbol`,
+                ...newView,
+                ...ui_api.dataToHTML(dataset)
+            }
+        });
+
+    }
+
+
     function move(e)
     {
         if( e.metaKey && ui_api.getCurrentContext().classList[0] != className )
         {
             const mousePt = ui_api.getSVGCoordsFromEvent(e);
 
-            let preview = viewDisplay(mousePt.x, mousePt.y, default_duration * time2x, default_height);
+            let preview = viewDisplay(`${className}-sprite`, mousePt.x, mousePt.y, default_duration * time2x, default_height);
 
-            preview.style.fill = "none";
-            preview.style.stroke = "white";
-            preview.style['stroke-width'] = 1;
+            preview.children[0].style.fill = "none";
+            preview.children[0].style.stroke = "white";
+            preview.children[0].style['stroke-width'] = 1;
 
             drawsocket.input({
                 key: "svg", 
                 val: {
-                    id: `${className}-sprite`,
                     class: 'sprite',
                     parent: 'symbolist_overlay',
                     ...preview
@@ -347,7 +440,9 @@ const ui_def = function( ui_api )
     {
         // assuming that we have all the data
         let data = element.dataset;
-        const container = element.closest('.container');
+
+        // this is a container, so to get the enclosing container, we need to go to the parent first
+        const container = element.parentNode.closest('.container');
 
         const id = element.id;
         const parent = element.parentNode.id;
@@ -389,7 +484,8 @@ const ui_def = function( ui_api )
        // newFromClick, << I guess should/could be defined in mouse handler
         paletteSelected,
         
-        // updateFromDataset, //<< not implemented
+        updateFromDataset,
+        fromData,
 
         // selected
         // drag

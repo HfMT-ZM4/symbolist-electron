@@ -29,19 +29,24 @@ function createTemplate()
     {
       label: 'File',
       submenu: [
-        isMac ? { role: 'close' } : { role: 'quit' },
-          { 
-              label: 'Load Defs...',
-              click: async () => {
-                  actions.loadFiles();
-              }
-          },
+        {
+          label: "New",
+          accelerator: 'CommandOrControl+N',
+          click: async () => { actions.newScore() }
+        },
+        { 
+          label: 'Load Defs...',
+          click: async () => {
+              actions.loadFiles();
+          }
+        },          
           { 
             label: 'Build Model Lookup...',
             click: async () => {
                 actions.buildModelLookup();
             }
-        }
+        },
+        isMac ? { role: 'close' } : { role: 'quit' }
       ]
     },
     // { role: 'editMenu' }
