@@ -114,17 +114,43 @@ function getSelected()
 // will need to identify containers in the model
 // will also need the sorting mechanism
 
-function dataToView(obj_)
+function parseDataModelFromServer(data)
+{
+    console.log('data to view', data);
+
+    const containerKeys = Object.keys(data.containers);
+    for( const k of containerKeys )
+    {
+        let obj = data.model[k];
+        if( typeof data.model[k] == 'undefined' )
+            dataToView( data.model[k] )
+
+        if( obj.container && 
+            !skip.has(obj.container) && 
+            typeof data.model[obj.container] != "undefined" )
+        {
+            dataToView( data.model[obj.container] );
+            skip.add(obj.container)
+        }
+
+        dataToView( obj );
+
+    }
+}
+
+
+function dataToView(obj)
 {
     // figure out which container to put the data in
-    console.log('data to view', obj_);
 
-    const def = uiDefs.get(obj_.class);
-    const container_def = uiDefs.get(obj_.container);
+    const def = uiDefs.get(obj.class);
+    
+    // get the container refernece 
+    const container_def = uiDefs.get(obj.container);
+    let container = container_def.getContainerForData( obj );
 
-    let container = container_def.getContainerForData( obj_ );
+    def.fromData(obj, container);
 
-    def.fromData(obj_, container);
 
 }
 
@@ -345,6 +371,9 @@ ipcRenderer.on('io-message', (event, obj) => {
     switch(obj.key){
         case 'data':
             dataToView(obj.val);
+            break;
+        case 'model':
+            parseDataModelFromServer(obj.val);
             break;
         default:
             break;

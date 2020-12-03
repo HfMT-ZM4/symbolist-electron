@@ -184,12 +184,15 @@ const ui_def = function( ui_api )
     function getContainerForData(dataObj)
     {
         let containers = document.querySelectorAll(`.${className}.symbol`);
-        const insertAtIndex = ui_api.insertIndex(
+        let insertAtIndex = ui_api.insertIndex(
             dataObj, containers,
             (a,b) => {
                 return (a.time < b.dataset.time) ? -1 : (a.time == b.dataset.time ? 0 : 1) ;
             });
         
+        if( insertAtIndex < 0 ) 
+            insertAtIndex = 0;
+
         return containers[insertAtIndex];
     }
 
@@ -346,7 +349,6 @@ const ui_def = function( ui_api )
 
     }
 
-
     function move(e)
     {
         if( e.metaKey && ui_api.getCurrentContext().classList[0] != className )
@@ -478,6 +480,7 @@ const ui_def = function( ui_api )
     // exported functions used by the symbolist renderer
     return {
         className,
+        dataInstace,
         palette,
         getPaletteIcon,
         getInfoDisplay,

@@ -508,7 +508,7 @@ function sendModelToUI()
 {
     console.log('data-refresh');
     process.send({
-        key: 'data',
+        key: 'model',
         val: {
             model: Object.fromEntries(model),
             containers: Object.fromEntries(containers)

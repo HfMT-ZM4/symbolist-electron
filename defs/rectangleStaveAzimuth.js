@@ -690,6 +690,8 @@ const ui_def = function(ui_api)
     // exported functions used by the symbolist renderer
     return {
         className,
+        dataInstace,
+        
         palette,
 
         fromData,
