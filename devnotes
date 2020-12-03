@@ -204,3 +204,17 @@ in other types of scores, maybe there could be some kind of structural meaning f
 what this means is that "staves" in the palette create a single structure that multiple events can exist inside. if staves allow you to make multiple instances, they are actaully connected, since they are container objects.
 
 maybe both types of objects can be top level, and we don't need the separation of the stave and symbol in the pallette, but for now i'll try this approach
+
+
+containers of containers:
+    palette should keep expanding if the context gets set, rather than having fixed "stave" and "symbol" palettets.
+
+    like modes, each esc should go back one level (or just jump to default context on esc)
+
+
+/**
+ setting the container class as container reference is nice in theory, but hard to think though
+
+
+
+*/

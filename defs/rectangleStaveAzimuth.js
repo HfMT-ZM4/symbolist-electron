@@ -245,6 +245,7 @@ const ui_def = function(ui_api)
         let newView = mapToView(data, container, id, false);
         
          // send out before sending to drawsocket, because we overwrite the element
+         
          ui_api.sendToServer({
             key: "data",
             val: {
@@ -691,7 +692,7 @@ const ui_def = function(ui_api)
     return {
         className,
         dataInstace,
-        
+
         palette,
 
         fromData,

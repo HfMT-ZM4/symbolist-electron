@@ -1,21 +1,9 @@
-
-// make time/pixel scalar something that can be adjusted in the UI
-
-/**
- * new version, where staves are joined into a single object
- * or maybe for now dont' allow multiple staves??
- * 
- * staves serve a *visual* function, in that their spatial placement is for reading on pages
- * therefore they need to contain some visual information in their dataset
- */
-
 'use strict';
 
 
-const className = "rectangleStave";
+const className = "containerContainer";
 
-const palette = [ "rectangleStaveEvent", "rectangleStaveAzimuth" ]; //, "otherRectangleStaveEvent"
-
+const palette = [ "rectangleStave" ]; //, "otherRectangleStaveEvent"
 
 const default_duration = 1;
 const default_height = 200;
@@ -42,7 +30,12 @@ let dataInstace = {
 
 
 /** 
- * viewDisplay is just the view part, for containers, it's used for sprites, palette, but the viewContainer is what is used in the DOM
+ * viewDisplay
+ * 
+ * used internally only, as a template for creating view diplay of this symbol type
+ * 
+ * (and since it's only used internally the function arguments can be changed as need)
+ * 
  */
 const viewDisplay = function(id, x, y, width, height, overwrite = true)
 {
@@ -52,7 +45,7 @@ const viewDisplay = function(id, x, y, width, height, overwrite = true)
         class: `${className} display`, // the display container, using the 'display' class as a selector
         children: [{
             new: (overwrite ? "rect" : undefined),
-            id: `${id}-rect`,
+            id: `${id}-background`,
             x,
             y,
             width,
@@ -60,6 +53,11 @@ const viewDisplay = function(id, x, y, width, height, overwrite = true)
             style: {
                 fill: "white"
             }
+        },
+        {
+            new: (overwrite ? "path" : undefined),
+            id: `${id}-bracket`,
+            d: `M ${x+20} ${y+10} h -10 v ${height - 20} h 10`
         }]
     }
 

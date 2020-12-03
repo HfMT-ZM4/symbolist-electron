@@ -928,6 +928,26 @@ function applyTransform(obj, matrix = null)
             }
             break;
         case "path":
+            let d = obj.getAttribute('d');
+            let points = SVGPoints.toPoints({
+                type: 'path',
+                d: d
+              });
+              
+            let adjusted = points.map( p => {
+                pt.x = p.x;
+                pt.y = p.y;
+                let newPt = pt.matrixTransform(matrix);
+
+                return {
+                    ...p,
+                    x: newPt.x,
+                    y: newPt.y
+                }
+            })
+         //   console.log("points", points, adjusted, SVGPoints.toPath(adjusted) );
+            obj.setAttribute('d', SVGPoints.toPath(adjusted) );
+
             break;                
         default:
             break;
