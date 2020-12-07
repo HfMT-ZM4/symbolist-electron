@@ -114,16 +114,40 @@ function getSelected()
 // will need to identify containers in the model
 // will also need the sorting mechanism
 
+
+function recusiveIterateContainers(id_array, context = null)
+{
+
+}
+
+
+// new idea, the browser can use the hierarchial arrangement to create the objects from file
+// then once created we have the DOM system to lookup by id
+// on the server side we use a MAP for DOM-esque lookup, and the hierarchy format has object-references to the id MAP
+// so on sending to client, the object will copy the values from the Map storage automatically (with stringify or whatever Electron is doing)
 function parseDataModelFromServer(data)
 {
     console.log('data to view', data);
+
+    setDefaultContext();
 
     const containerKeys = Object.keys(data.containers);
     for( const k of containerKeys )
     {
         let obj = data.model[k];
-        if( typeof data.model[k] == 'undefined' )
-            dataToView( data.model[k] )
+        if( typeof obj == 'undefined' )
+        { // must be a class name
+            if( uiDefs.has(k) )
+            {
+                
+                uiDefs.get(k).newDefault();
+            }
+        }
+        else
+        {
+            dataToView( obj );
+
+        }
 
         if( obj.container && 
             !skip.has(obj.container) && 
@@ -133,7 +157,6 @@ function parseDataModelFromServer(data)
             skip.add(obj.container)
         }
 
-        dataToView( obj );
 
     }
 }
@@ -180,6 +203,19 @@ ipcRenderer.on('load-ui-defs', (event, folder) => {
             // set into def map
             uiDefs.set(cntrlDef_.className, cntrlDef_);
         }
+        else if( f.type == "css" )
+        {
+            let head = document.getElementsByTagName("head");
+            if( !document.querySelector(`link[href="${filepath}"]`) )
+            {
+                var cssFileRef = document.createElement("link");
+                cssFileRef.rel = "stylesheet";
+                cssFileRef.type = "text/css";
+                cssFileRef.href = filepath;
+                head[0].appendChild(cssFileRef);
+            }
+            
+        }
         else if(f.type == 'json')
         {
             // there can be only one json file in the folder
@@ -188,6 +224,8 @@ ipcRenderer.on('load-ui-defs', (event, folder) => {
   
     })
    
+    initDocument();
+
     initPalette();
 
     sendToServer({ 
@@ -195,7 +233,14 @@ ipcRenderer.on('load-ui-defs', (event, folder) => {
     });
 })
 
+function initDocument()
+{
+    if( initDef.hasOwnProperty('setup') )
+    {
 
+    }
+
+}
 
 function initPalette()
 {
@@ -387,7 +432,10 @@ ipcRenderer.on('io-message', (event, obj) => {
 
 function symbolist_set_log(msg)
 {
-    symbolist_log.innerHTML = `<span>${msg}</span>`;
+    if( symbolist_log )
+    {
+        symbolist_log.innerHTML = `<span>${msg}</span>`;
+    }
 }
 
 function symbolist_setContainerClass(_class)
@@ -647,6 +695,7 @@ function getUnionBounds()
 
 }
 
+// try : getIntersectionList()
 function hitTest(regionRect, obj)
 {
     const objBBox = obj.getBoundingClientRect();
@@ -905,6 +954,9 @@ function applyTransform(obj, matrix = null)
             break;
         case "rect":
             {
+                // note that SVG rectangles can't be rotated
+                // if we need rotation, the rotation has to be part of the user script
+                // or make it a path instead
                 pt.x = obj.getAttribute("x");
                 pt.y = obj.getAttribute("y");
                 let newPt = pt.matrixTransform(matrix);
@@ -933,10 +985,11 @@ function applyTransform(obj, matrix = null)
                 type: 'path',
                 d: d
               });
-              
+
             let adjusted = points.map( p => {
                 pt.x = p.x;
                 pt.y = p.y;
+                // check for curve also...
                 let newPt = pt.matrixTransform(matrix);
 
                 return {

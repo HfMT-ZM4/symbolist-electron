@@ -18,9 +18,10 @@ let sendPort = 7777;
 let defs = new Map();
 
 /**
- * model : flat hash table stored by id, with data, containers include 'contents' field
+ * model : flat hash table DOM like lookup by ID
  * 
- *  or maybe the sorted contents field should be in the container map
+ * if item is a container, a contents array is used to store 
+ * 
  */
 let model = new Map(); 
 
@@ -30,7 +31,26 @@ let model = new Map();
  * could also put the contents here instead of above
  * so the model is a flat array, and the other sets up the hierarchy
  */
-let containers = new Map(); 
+
+
+/*
+    {
+        data: {
+                className,
+                ...
+            },
+        contents: [{
+            data: {
+                className,
+                ...
+            }
+            contents: []
+        }
+    }
+
+*/
+
+let containers = new Map();
 
 
 function newScore(){
@@ -226,7 +246,7 @@ function loadDefFiles(folder)
         {
             initFile = filepath;
         }
-        else
+        else if( file.type == 'js' )
         {
             
             // load controller def
@@ -268,6 +288,15 @@ function addToModel( dataobj )
     addToStructuredLookup(dataobj);
 }
 
+
+/**
+ * 
+ * @param {Object} dataobj data object to store
+ * 
+ * maybe best would be to store by class name, sorted
+ * then the container structure would be ok
+ * 
+ */
 
 function addToStructuredLookup( dataobj )
 {

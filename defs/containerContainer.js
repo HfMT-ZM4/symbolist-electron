@@ -48,10 +48,12 @@ const viewDisplay = function(id, x, y, width, height, overwrite = true)
             id: `${id}-background`,
             x,
             y,
-            width,
             height,
             style: {
-                fill: "white"
+                'min-width' : "400px",
+                fill: "white",
+                'width' : '100%',
+                'height' : '100%'
             }
         },
         {
@@ -309,6 +311,13 @@ const ui_def = function( ui_api )
     }
 
 
+
+    function newDefault()
+    {
+        let container = ui_api.getCurrentContext();
+        return fromData( dataInstace, container );
+    }
+
     function fromData(dataObj, container)
     {
         const contentElement = container.querySelector('.contents');
@@ -346,6 +355,8 @@ const ui_def = function( ui_api )
         });
 
     }
+
+
 
     function move(e)
     {
@@ -478,7 +489,8 @@ const ui_def = function( ui_api )
     // exported functions used by the symbolist renderer
     return {
         className,
-        dataInstace,
+        newDefault,
+
         palette,
         getPaletteIcon,
         getInfoDisplay,

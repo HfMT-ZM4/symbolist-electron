@@ -2,5 +2,26 @@
     "about" : "symbolist will read a json file to configure the palette setup, this can be used to dynamically change also (eventually)",
     "name" : "first layout",
     "tools" : [],
-    "palette" : [ "containerContainer", "rectangleStave" ]
+    "palette" : [ "containerContainer" ],
+    "setup": { 
+        "id" : "trio",
+        "class" : "systemContainer",
+        "x": 100,
+        "y": 100,
+        "contents" : [{
+            "id" : "oboe",
+            "class" : "rectangleStave",
+            "contents" : []
+        },
+        {
+            "id" : "bassoon",
+            "class" : "rectangleStave",
+            "contents" : []
+        },
+        {
+            "id" : "synth",
+            "class" : "rectangleStave",
+            "contents" : []
+        }]
+    }
 }

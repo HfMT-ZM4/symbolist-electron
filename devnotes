@@ -212,9 +212,170 @@ containers of containers:
     like modes, each esc should go back one level (or just jump to default context on esc)
 
 
-/**
- setting the container class as container reference is nice in theory, but hard to think though
+container of container objects:
+
+1) typical system, a retangular block, that can have muliple rectanges inside that are all the same width, the height can vary. inside each internal rectangle is an instrumental field, which can have it's own notation -- the container defines a structure to the symbols and the symbols are (must be?) defined within the context of these particular systems.
+
+    within an instrumental line, there can be clef changes, which change the type of notations used
+    so in a way these internal blocks are staves, with a given clef. the clef changes the possible notes that are used. so if the symbols can be resused with different clefs, the symbols need to get information about the clef (i.e. pitch range)
+        this would be a good test, make some simple range clefs and switch them for playback.
+    
+    clefs are context symbols, and are constrained to a specific vertical position, but are slide-able in the time axis
+
+    some clefs will also be connected to specific symbols, so they should still specify which symbols are supported in their sub-palette. So the clefs are like a layer between the main container form and the event form.  therefore, again the symbols are really part of the clef, like a plot key. but it could be that some clefs share the same symbols (like bass and treble clefs), just that in cases where multiple clefs might use the same symbols, the symbols need to lookup what the clef range is -- OR we need some kind of nested reference system.
+
+    in the case of spatial trajectories etc, there can be some element that relates to the time organization of the top container block.
+
+how should staves be inserted into system?
+    one option would be to make a template in a json file, and just declare the container as having specific instances of the staves, like say: 
+    { 
+        id: systemTemplate,
+        class: containerContainer,
+        contents: [{
+                id: flute,
+                class: rectangleStave
+            }, {
+                id: ob,
+                class: rectangleStave
+            }, {
+                id: cl,
+                class: otherWeirdStave
+            }]
+    }
+
+    system
+        instrumental part -- stave/stafflines, could be multiple staves, like a piano etc.
+            clef(s) -- sub definition in the stave
+                events: notes, dynamics, other markings
+
+2) laban notation style, reading veritcally upwards, but really similar to musical scores, since the rectangles are corresponding.
+
+3) playhead based systems, a bit like Xannix
+    radial loop, or spiral, with radar like 
+    playhead with hit detection
+
+    in these cases, time is not defined in a rectangle, but more freely
+
+    could also be 3D, but SVG is mainly 2D
+
+3a) bouncing ball kind of scores, like ryan ross smith?
+    defining animations with paths, then playing back
+
+4) interactive
+    generaitve scores that refine themselves in realtime
+        via clicking on things or via sensor input routed via udp server
+            in the case of UDP input, the definitions could be in the server, but could also be displayed in the editor
+
+5) tools
+    for example, a note drawing tool like in scriptographer:
+        click creates a note drag to extend duration, or other interface to add flags etc.
+            could also provide tools for drawing that has no meaning
+            these symbols would have no playback lookup script and so would be ignored.
+
+maybe some objects can't be moved, like top level container?
+right, in some cases we might want to define the score layout, this is what I do all the time anyway
+with a set number of player parts, it could be in some cases, the layout of the score is more 
+visual, so then maybe there would be no preset frame, but in most typical scores, 
+you could easily one long stave with the orchestra layed out, and never actually move, transpose
+that main system (but of course you can zoom/scroll).
+
+hopefully the way the system is setup, it is still very possible to design other scenarios, but
+I think this makes sense for a basic starter. and then it solves some other questions, like
+how do you define multiple instances of the same type of container (like a player part), and only change
+the name of the part 
+    (ok, I guess the name can be a parameter, but then you'd need to look up that stave to add notes
+    and the class type would be the same, even if you add a second layer in the classname, it's 
+    basically the same thing as looking up by class name AND ID each time)
+with regards to IDs if there is only one of each type of container, we can use the class name as the ID also
+
+the ID system is really only for internal lookup hash, for the composer, id's seem hard to work with
+unless you have a specific system, but then if you delete a note, does that mean all the notes have to be
+updated?
+
+the storage format makes the most sense in arrays, keeping track of the ordering, and then actually maybe the ID can be left out?
+    maybe, but it's not so bad to require an id... but on the other hand it can easily be difficult to manage
+
+in def file:
 
 
 
-*/
+{
+    "setup": { 
+        "ensembleContainer" : "containerContainer",
+        "contents": {
+            "flute" : "rectangleStave",
+            "oboe": "retangleStave"
+        }
+    }
+}
+
+or:
+
+
+{
+    "setup": { 
+        "id" : "trio",
+        "class" : "systemContainer",
+        x: 100,
+        y: 100,
+        "contents" : [{
+            "id" : "oboe",
+            "class" : "rectangleStave",
+            "contents" : []
+        },
+        {
+            "id" : "bassoon",
+            "class" : "rectangleStave",
+            "contents" : []
+        },
+        {
+            "id" : "synth",
+            "class" : "rectangleStave",
+            "contents" : []
+        }]
+    }
+}
+
+on load:
+
+symbolist will load the top class type, and optionally create an instance of this type, since that is the document setup. maybe the setup should be called layout? IDK
+
+or maybe it is ok if there is always some kind of canvas starter background layout, like in illustrator.
+
+then the score can build on this starter structure.
+
+note: I guess the params can just be in the main object, rather than wrapped in a params sub object
+
+{
+    "setup": { 
+        "id" : "trio",
+        "class" : "systemContainer",
+        x: 100,
+        y: 100,
+        "contents" : [{
+            "id" : "oboe",
+            "class" : "rectangleStave",
+            "contents" : [{
+                id: "note-1",
+                class: "weirdNote",
+                pitch: "A4",
+                duration: 1.5
+            }]
+        },
+        {
+            "id" : "bassoon",
+            "class" : "rectangleStave",
+            "contents" : []
+        },
+        {
+            "id" : "synth",
+            "class" : "rectangleStave",
+            "contents" : []
+        }]
+    }
+}
+
+would be nice if containers could adjust to fit the contents (especially containerContainer types)
+maybe one idea would be to use a CSS file also to set class display defaults on the fly?
+
+could also be set in drawsocket style from json file.
