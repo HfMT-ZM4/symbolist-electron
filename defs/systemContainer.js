@@ -8,7 +8,7 @@ const palette = []; //, "otherRectangleStaveEvent"
 const default_duration = 1;
 const default_height = 200;
 
-
+const margin = 20;
 
 let x2time = 0.001;
 let time2x = 1000;
@@ -42,6 +42,7 @@ let dataInstace = {
  */
 const viewDisplay = function(id, x, y, width, height, overwrite = true) 
 {
+    const half_margin = margin / 2.;
     return {
         new: (overwrite ? "g" : undefined),
         id,
@@ -60,7 +61,7 @@ const viewDisplay = function(id, x, y, width, height, overwrite = true)
         {
             new: (overwrite ? "path" : undefined),
             id: `${id}-bracket`,
-            d: `M ${x+20} ${y+10} h -10 v ${height - 20} h 10`
+            d: `M ${x+margin} ${y+half_margin} h -${half_margin} v ${height - margin} h ${half_margin}`
         }]
     }
 
@@ -135,8 +136,8 @@ const ui_def = function( ui_api )
         const x = bbox.x + parseFloat(data.x);
         const y = bbox.y + parseFloat(data.y);
 
-        const width = parseFloat(data.duration) * time2x;
-        const height = (typeof data.height != 'undefined') ? parseFloat(data.height) : default_height;
+        const width = (2 * margin) + parseFloat(data.duration) * time2x;
+        const height = margin + (typeof data.height != 'undefined' ? parseFloat(data.height) : default_height);
 
         return viewContainer(id, x, y, width, height, overwrite)       
     }
@@ -180,6 +181,7 @@ const ui_def = function( ui_api )
         let dataset = {
             time: dataObj.time,
             duration: dataObj.duration,
+            height: dataObj.height,
             x: dataObj.x,
             y: dataObj.y
         }

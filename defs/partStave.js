@@ -17,6 +17,7 @@ const default_duration = 1;
 const default_height = 100;
 
 const left_margin = 20;
+const top_margin = 20;
 
 let x2time = 0.001;
 let time2x = 1000;
@@ -25,7 +26,7 @@ let time2x = 1000;
  * maybe eventually we will want to use this dataInstance signature 
  * to conform data when it arrives via udp
  */
-let dataInstace = {
+let dataInstance = {
     // class name, refering to the definition below
     className,
 
@@ -46,7 +47,7 @@ const viewDisplay = function(id, x, y, width, height, overwrite = true)
 {
     return {
         new: (overwrite ? "g" : undefined),
-        id,
+        id: `${id}-display`,
         class: `${className} display`, // the display container, using the 'display' class as a selector
         children: [{
             new: (overwrite ? "rect" : undefined),
@@ -58,6 +59,18 @@ const viewDisplay = function(id, x, y, width, height, overwrite = true)
             style: {
                 fill: "rgba(255,255,255,0.1)"
             }
+        },
+        {
+            new: (overwrite ? "text" : undefined),
+            id: `${id}-label`,
+            x: x - left_margin,
+            y: y + (height / 2),
+            text: id,
+            'text-anchor': 'end',
+            style: {
+                fill: 'white'
+            }
+
         }]
     }
 
@@ -71,7 +84,7 @@ const viewContainer = function(id, x, y, width, height, overwrite = true)
         id, // use same reference id as data object
         class: `${className} symbol container`, // the top level container, using the 'container' class for type selection if needed
         children: [
-            viewDisplay(`${id}-display`, x, y, width, height, overwrite),
+            viewDisplay(id, x, y, width, height, overwrite),
             {
                 new: (overwrite ? "g" : undefined),
                 id: `${id}-contents`,
@@ -131,34 +144,13 @@ const ui_def = function( ui_api )
         let y_offset = 0;
         if( num_siblings > 0 )
         {
-            y_offset += ui_api.getBBoxAdjusted(contents.children[ num_siblings - 1 ]).bottom - bbox.y;
+            y_offset = top_margin + ui_api.getBBoxAdjusted(contents.children[ num_siblings - 1 ]).bottom - bbox.y;
         }
 
         const y = bbox.y + y_offset; 
 
         const width = parseFloat(container.dataset.duration) * time2x;
         const height = parseFloat(data.height);
-
-   //     console.log('mapToView', num_siblings, y_offset, y, container);
-
-        /**
-         * to do: call parent container to get placement, the placement is dependent on 
-         * the number of staves, and this height
-         * 
-         * probably we could use CSS to do this automatically, but it's maybe better to
-         * do it in JS to keep it simpler
-         * 
-         * //container.children.length
-         * 
-         * 
-         * or another option here maybe is to make the parts and the system at the 
-         * same time in the same def, using a list of names to create the parts,
-         * that might be easier, because it's hard to figure which part you are in if they
-         * all come at different times, and then what if you get them out of order?
-         * how would you know what the top position should be?
-         * 
-         */
-
 
         return viewContainer(id, x, y, width, height, overwrite)
             
@@ -197,8 +189,8 @@ const ui_def = function( ui_api )
         // filtering the dataObj since the id and parent aren't stored in the dataset
         // note in this case the dataObject needs to include all of the dataset items!
         let dataset = {
-            time: dataObj.time,
-            duration: dataObj.duration,
+            time: container.dataset.time,
+            duration: container.dataset.duration,
             height: dataObj.height
         }
 
@@ -213,7 +205,7 @@ const ui_def = function( ui_api )
 
         let newView = mapToView(dataset, container, dataObj.id, isNew );
 
-      //  console.log(newView);
+        console.log('fromData', newView, dataset);
 
 
         ui_api.drawsocketInput({
@@ -293,7 +285,7 @@ const ui_def = function( ui_api )
     // exported functions used by the symbolist renderer
     return {
         className,
-        dataInstace,
+        dataInstance,
         palette,
 
         getPaletteIcon,

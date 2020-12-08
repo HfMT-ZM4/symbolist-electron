@@ -9,6 +9,7 @@
         "x": 100,
         "y": 100,
         "duration": 1,
+        "time": 0,
         "contents" : [{
             "id" : "oboe",
             "class" : "partStave",
