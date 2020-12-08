@@ -110,59 +110,6 @@ function getSelected()
 }
 
 
-// accept arrays?
-// probably we'll need some kind of container / conents ordering
-// start at top level and descend through container/contents id lists
-// will need to identify containers in the model
-// will also need the sorting mechanism
-
-
-function recusiveIterateContainers(id_array, context = null)
-{
-
-}
-
-
-// new idea, the browser can use the hierarchial arrangement to create the objects from file
-// then once created we have the DOM system to lookup by id
-// on the server side we use a MAP for DOM-esque lookup, and the hierarchy format has object-references to the id MAP
-// so on sending to client, the object will copy the values from the Map storage automatically (with stringify or whatever Electron is doing)
-function parseDataModelFromServer(data)
-{
-    console.log('data to view', data);
-
-    setDefaultContext();
-
-    const containerKeys = Object.keys(data.containers);
-    for( const k of containerKeys )
-    {
-        let obj = data.model[k];
-        if( typeof obj == 'undefined' )
-        { // must be a class name
-            if( uiDefs.has(k) )
-            {
-                
-                uiDefs.get(k).newDefault();
-            }
-        }
-        else
-        {
-            dataToView( obj );
-
-        }
-
-        if( obj.container && 
-            !skip.has(obj.container) && 
-            typeof data.model[obj.container] != "undefined" )
-        {
-            dataToView( data.model[obj.container] );
-            skip.add(obj.container)
-        }
-
-
-    }
-}
-
 
 function dataToView(obj)
 {
@@ -175,7 +122,6 @@ function dataToView(obj)
     let container = container_def.getContainerForData( obj );
 
     def.fromData(obj, container);
-
 
 }
 
@@ -203,8 +149,8 @@ ipcRenderer.on('load-ui-defs', (event, folder) => {
             let cntrlDef_ = ui_def(renderer_api);
         
             // set into def map
-            uiDefs.set(cntrlDef_.className, cntrlDef_);
-            console.log('added ', cntrlDef_.className);
+            uiDefs.set(cntrlDef_.class, cntrlDef_);
+            console.log('added ', cntrlDef_.class);
         }
         else if( f.type == "css" )
         {
@@ -227,10 +173,14 @@ ipcRenderer.on('load-ui-defs', (event, folder) => {
   
     })
    
-    initDocument();
+ //   initDocument();
 
     initPalette();
 
+    sendToServer({
+        key: 'data-refresh'
+    })
+    
 })
 
 
@@ -248,6 +198,7 @@ function iterateContents(contents, context_element = null)
     const contents_arr = Array.isArray(contents) ? contents : [ contents ];
 
     contents_arr.forEach( data => {
+        console.log('iterateContents', data);
         uiDefs.get(data.class).fromData( data, context_element );
     })
 
@@ -323,7 +274,7 @@ function initPalette()
         initDef.palette.forEach( el => {
             let def_ = uiDefs.get(el);
 
-            const def_classname = def_.className;
+            const def_classname = def_.class;
             let def_palette_display = def_.getPaletteIcon();
 
             if( def_palette_display.key == "svg" )
@@ -495,7 +446,7 @@ ipcRenderer.on('io-message', (event, obj) => {
             break;
         case 'score':
             console.log('score');
-            fromDataRescursive(obj.val);
+            iterateContents(obj.val);
             break;
         default:
             break;

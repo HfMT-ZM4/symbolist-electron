@@ -28,7 +28,7 @@ const default_duration = 0.1;
  */
 let dataInstace = {
     // class name, refering to the definition below
-    className,
+    class: className,
 
     // unique id for this instance
     id : `${className}-0`,
@@ -254,7 +254,7 @@ const ui_def = function(ui_api)
             key: "data",
             val: {
                 id,
-                container: [...container.classList],
+                container: container.id,
                 class: className,
                 ...data
             }
@@ -342,7 +342,7 @@ const ui_def = function(ui_api)
             val: {
                 class: className,
                 id: uniqueID,
-                container: [ ...container.classList ],
+                container: container.id,
                 ...dataObj
             }
         })
@@ -451,7 +451,7 @@ const ui_def = function(ui_api)
             val: {
                 id: element.id,
                 class: className,
-                container: [ ...element.parentNode.classList ],
+                container: element.parentNode.closest('.container').id,
                 ...data
             }
         })
@@ -694,7 +694,7 @@ const ui_def = function(ui_api)
 
     // exported functions used by the symbolist renderer
     return {
-        className,
+        class: className,
         dataInstace,
 
         palette,
@@ -776,7 +776,7 @@ const io_def = (io_api) => {
  
 
     return {
-        className,
+        class: className,
         comparator,
         lookup
     }

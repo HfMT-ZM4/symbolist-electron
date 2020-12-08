@@ -28,7 +28,7 @@ let time2x = 1000;
  */
 let dataInstance = {
     // class name, refering to the definition below
-    className,
+    class: className,
 
     // unique id for this instance
     id : `${className}-0`,
@@ -284,7 +284,7 @@ const ui_def = function( ui_api )
 
     // exported functions used by the symbolist renderer
     return {
-        className,
+        class: className,
         dataInstance,
         palette,
 
@@ -351,7 +351,7 @@ const io_def = (io_api) => {
 
 
     return {
-        className,
+        class: className,
         comparator,
         lookup
     }

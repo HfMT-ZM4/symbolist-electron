@@ -258,7 +258,7 @@ function loadDefFiles(folder)
                 let cntrlDef_ = io_def(io_api);
 
                 // set into def map
-                defs.set(cntrlDef_.className, cntrlDef_);
+                defs.set(cntrlDef_.class, cntrlDef_);
             }
           
         }
@@ -272,7 +272,7 @@ function loadDefFiles(folder)
 
 function addToModel( dataobj )
 {
-   // console.log('setting val into model', dataobj )
+   console.log('setting val into model', dataobj )
 
     // set object into flat model array
     if( model.has(dataobj.id) )
@@ -288,7 +288,39 @@ function addToModel( dataobj )
         model.set( dataobj.id, dataobj );
     }
 
-    addToStructuredLookup(dataobj);
+    addToScore(dataobj);
+//    addToStructuredLookup(dataobj);
+}
+
+function addToScore( dataobj )
+{
+    let container = model.get(dataobj.container);
+
+    let container_def = defs.get(container.class)
+
+    console.log(container, container_def);
+    
+    if( typeof container.contents === "undefined" )
+    {
+        container.contents = [];
+    }
+
+    if( !container_def.hasOwnProperty('comparator') )
+    {
+        console.log(`no comparator for ${JSON.stringify(container_def, null, 2)}`);
+    }
+    else
+    {
+        sym_util.insertSorted(dataobj, container.contents, (a,b) => {
+            const test_b = model.get(b);
+            if( typeof test_b === "undefined"  ) return 0;
+    
+            return container_def.comparator( dataobj, test_b )
+            // we already have the data object, so we don't need to look it up everytime
+        })
+    }
+
+   
 }
 
 
