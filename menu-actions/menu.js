@@ -34,6 +34,16 @@ function createTemplate()
           accelerator: 'CommandOrControl+N',
           click: async () => { actions.newScore() }
         },
+        {
+          label: "Open...",
+          accelerator: 'CommandOrControl+O',
+          click: async () => { actions.open() }
+        },
+        {
+          label: "Save as...",
+          accelerator: 'CommandOrControl+Shift+S',
+          click: async () => { actions.save() }
+        },
         { 
           label: 'Load Defs...',
           click: async () => {

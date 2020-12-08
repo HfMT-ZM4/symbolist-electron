@@ -446,6 +446,7 @@ ipcRenderer.on('io-message', (event, obj) => {
             break;
         case 'score':
             console.log('score');
+            symbolist_newScore();
             iterateContents(obj.val);
             break;
         default:

@@ -4,6 +4,7 @@ const sym_util = require('./lib/utils')
 const { obj2osc, osc2obj } = require('./lib/o')
 
 const dgram = require('dgram');
+const { parseAsync } = require('./lib/utils');
 
 global.root_require = function(path) {
     return require(__dirname + '/' + path);
@@ -225,6 +226,48 @@ function addScoreToModelRecursive(obj)
         })
     }
 
+}
+
+function saveScore(filepath)
+{
+    let writeScore = initFile;
+    writeScore.score = score;
+
+    fs.writeFile(filepath, JSON.stringify(writeScore), (err) => {
+        if( err )
+        {
+            console.error(err);
+        }
+        else
+        {
+            console.log('saved', filepath);
+        }
+    })
+}
+
+function loadScore(filepath)
+{
+    fs.readFile(filepath, (err, data) => {
+        if( err )
+        {
+            console.error(err);
+        }
+        else
+        {
+            try {
+                initFile = JSON.parse(data);
+                console.log('loaded', initFile);
+
+                newScore();
+                sendScoreToUI();
+
+            }
+            catch(e) {
+                console.error(e);
+            }
+            
+        }
+    })
 }
 
 function newScore(){
@@ -705,6 +748,14 @@ function input(_obj)
         case 'signal-gui-script':
             signalGUI(val);
             break;
+
+        case 'saveScore':
+            saveScore(val);
+        break;
+
+        case 'loadScore':
+            loadScore(val);
+        break;
 
         default:
             console.log('controller, unhandled key', key);

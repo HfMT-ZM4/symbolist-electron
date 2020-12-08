@@ -54,13 +54,59 @@ async function newScore()
 
     win.webContents.send('menu-call', 'newScore');
 
+}
 
+async function save()
+{
+
+  dialog.showSaveDialog( {
+    properties: ['showOverwriteConfirmation', 'createDirectory'],
+    filters: [{
+      name: 'JSON',
+      extensions: ['json']
+    }]
+  }).then(result => {
+    console.log(result.canceled)
+    console.log(result.filePath)
+
+    io_proc.send({
+      key: "saveScore",
+      val: result.filePath
+    })
+
+  }).catch(err => {
+    console.error('save error', err)
+  })
+
+}
+
+async function open()
+{
+  dialog.showOpenDialog( {
+    properties: ['openFile'],
+    filters: [{
+      name: 'JSON',
+      extensions: ['json']
+    }]
+  }).then(result => {
+    console.log(result.canceled)
+    console.log(result.filePaths)
+
+    io_proc.send({
+      key: "loadScore",
+      val: result.filePaths[0]
+    })
+
+  }).catch(err => {
+    console.log(err)
+  })
 }
 
 
 module.exports = {
     init, // internal for initializing the module
-
+    save,
+    open,
     // actions:
     newScore,
     loadFiles,
