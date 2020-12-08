@@ -76,6 +76,8 @@ let currentMode = "palette";
 let uiDefs = new Map();
 
 let renderer_api = {
+    uiDefs, // access to the defs in the defs
+
     drawsocketInput,
     sendToServer, // renderer-event
     fairlyUniqueString,
@@ -202,6 +204,7 @@ ipcRenderer.on('load-ui-defs', (event, folder) => {
         
             // set into def map
             uiDefs.set(cntrlDef_.className, cntrlDef_);
+            console.log('added ', cntrlDef_.className);
         }
         else if( f.type == "css" )
         {
@@ -228,16 +231,86 @@ ipcRenderer.on('load-ui-defs', (event, folder) => {
 
     initPalette();
 
-    sendToServer({ 
-        key: 'data-refresh' 
-    });
 })
+
+
+/**
+ * 
+ * @param {Object} data object with perceptual parameters
+ * @param {Element} context_element HTML/SVG element container, 
+ * 
+ * iterates each layer of container first, then calls updateAfterContents
+ * then iterates the contents of each container
+ * 
+ */
+function iterateContents(contents, context_element = null)
+{
+    const contents_arr = Array.isArray(contents) ? contents : [ contents ];
+
+    contents_arr.forEach( data => {
+        uiDefs.get(data.class).fromData( data, context_element );
+    })
+
+    if( context_element )
+    {
+        console.log(context_element.classList[0]);
+        const container_class_def = uiDefs.get( context_element.classList[0] );
+        if( typeof container_class_def.updateAfterContents != "undefined" )
+        {
+            container_class_def.updateAfterContents(context_element);
+        }
+    }
+
+    contents_arr.forEach( data => {
+        const newEl = document.getElementById(data.id);
+        if( newEl && data.hasOwnProperty('contents') )
+        {
+
+            iterateContents(data.contents, newEl )
+        }
+    })
+   
+}
+
+/**
+ * 
+ * @param {Object} data object with perceptual parameters
+ * @param {Element} context_element HTML/SVG element container, 
+ * 
+ * if context_element is null then fromData is expected to get the appropriate context 
+ * (i.e. top-html-container, or top-html-container)
+ * 
+ * currently depth first iteration, but eventually we might want it to descend by layer,
+ * so that all siblings are in place before adding children, in case of cross relation
+ * 
+ */
+function fromDataRescursive(data, context_element = null)
+{
+    let def = null;
+    if( uiDefs.has(data.class) )
+    {
+        def = uiDefs.get(data.class);
+        def.fromData(data, context_element);
+    }
+
+    let newEl = document.getElementById(data.id);
+    if( newEl && data.hasOwnProperty('contents') )
+    {
+        const contents = Array.isArray(data.contents) ? data.contents : [ data.contents ];
+        contents.forEach( dat => {
+            fromDataRescursive(dat, newEl )
+        })
+
+    }
+}
 
 function initDocument()
 {
-    if( initDef.hasOwnProperty('setup') )
+    console.log('initDocument');
+    if( initDef.hasOwnProperty('score') )
     {
-
+        const init = initDef.score;
+        iterateContents(init, null);
     }
 
 }
@@ -418,7 +491,11 @@ ipcRenderer.on('io-message', (event, obj) => {
             dataToView(obj.val);
             break;
         case 'model':
-            parseDataModelFromServer(obj.val);
+           // parseDataModelFromServer(obj.val);
+            break;
+        case 'score':
+            console.log('score');
+            fromDataRescursive(obj.val);
             break;
         default:
             break;
@@ -452,7 +529,7 @@ function symbolist_setContainerClass(_class)
  * 
  * @param {string} _class sets current selected palette class
  * 
- * this functions also could/should tell the controller to send the linked interface js file?
+ * called on click from the palette icon
  * 
  */
 function symbolist_setClass(_class)
@@ -1792,7 +1869,11 @@ function symbolist_mousemove(event)
             if( event.shiftKey )
                 rotate_selected( mouse_pos )
             else
-                translate_selected( mouseDelta );
+            {
+                // now only translating if the def has a translate function
+                callMethodForSelected("translate", mouseDelta );
+            //    translate_selected( mouseDelta );
+            }
         }
         else 
         {

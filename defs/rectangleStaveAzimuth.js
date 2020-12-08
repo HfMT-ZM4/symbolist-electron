@@ -231,8 +231,12 @@ const ui_def = function(ui_api)
 
     }
 
-    // do we need a separate one for creating a new object from data? (i.e. from udp)
-    // problem here is that we overwrite the element, which deletes the handle
+   /**
+     * 
+     * @param {Element} element element to use for update
+     * 
+     * called from info panel edit boxes -- the datset is used to update the graphics
+     */
     function updateFromDataset(element)
     {
         // assuming that we have all the data

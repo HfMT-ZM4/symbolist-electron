@@ -272,6 +272,8 @@ how should staves be inserted into system?
             could also provide tools for drawing that has no meaning
             these symbols would have no playback lookup script and so would be ignored.
 
+( backup note to self: staves serve a *visual* function, in that their spatial placement is for reading on pages therefore they need to contain some visual information in their dataset )
+
 maybe some objects can't be moved, like top level container?
 right, in some cases we might want to define the score layout, this is what I do all the time anyway
 with a set number of player parts, it could be in some cases, the layout of the score is more 
@@ -377,5 +379,35 @@ note: I guess the params can just be in the main object, rather than wrapped in 
 
 would be nice if containers could adjust to fit the contents (especially containerContainer types)
 maybe one idea would be to use a CSS file also to set class display defaults on the fly?
+    (ok now added)
 
-could also be set in drawsocket style from json file.
+ok, so let's say the top level is a system for example
+what is the palette then?
+the top level becomes the default context? 
+    mabye but when you click outside the object, the background SVG picks up the clicks
+
+
+/**
+* to do: call parent container to get placement, the placement is dependent on 
+* the number of staves, and this height
+* 
+* probably we could use CSS to do this automatically, but it's maybe better to
+* do it in JS to keep it simpler
+* 
+* //container.children.length
+* 
+* 
+* or another option here maybe is to make the parts and the system at the 
+* same time in the same def, using a list of names to create the parts,
+* that might be easier, because it's hard to figure which part you are in if they
+* all come at different times, and then what if you get them out of order?
+* how would you know what the top position should be?
+* 
+*/
+
+with the new system, the init file becomes the basis for the score, so this is actually the "containers" object in the io_controller.
+
+was considering adding a post child addition update call to container, but actually that's not good because sometimes the children use the parent info to calculate their info, which means the parents need to be done already.
+
+but this will work if the parsing is not depth first, but in layers
+    added updateAfterContents()

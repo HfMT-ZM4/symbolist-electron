@@ -8,13 +8,15 @@
 'use strict';
 
 
-const className = "rectangleStave";
+const className = "partStave";
 
 const palette = [ "rectangleStaveEvent", "rectangleStaveAzimuth" ]; //, "otherRectangleStaveEvent"
 
 
 const default_duration = 1;
-const default_height = 200;
+const default_height = 100;
+
+const left_margin = 20;
 
 let x2time = 0.001;
 let time2x = 1000;
@@ -32,8 +34,8 @@ let dataInstace = {
     
     time: 0,
     duration: 1,
-    x: 100,
-    y: 100
+    height: 100
+ 
 }
 
 
@@ -61,18 +63,9 @@ const viewDisplay = function(id, x, y, width, height, overwrite = true)
 
 }
 
-/*
-*/
 const viewContainer = function(id, x, y, width, height, overwrite = true) 
 {
-    /**
-     * container objects us a group to contain their child objects, separate from their display
-     * if overwriting, the whole container will be rewritten, which will also remove all the events
-     * 
-     * on update from data, the view might change, and the dataset, but not the conents
-     * therefore it's more useful to have the id for the viewDisplay system rather than the display <g>
-     * 
-     */
+
     return {
         new: (overwrite ? "g" : undefined), 
         id, // use same reference id as data object
@@ -89,35 +82,6 @@ const viewContainer = function(id, x, y, width, height, overwrite = true)
     }
 }
 
-
-/**
- * view container model (stave/page/etc)
- * 
- * svg:
- * <g class='className symbol container' data-time="0.1" data-duration="1" >
- *      <g class='className display'></g>
- *      <g class='className contents'></g>
- * </g>
- * 
- * html:
- * <div class='className symbol container'>
- *      <div class='className display'></div>
- *      <div class='className contents'></div>
- * </div>
- * 
- * regular objects can be any node type
- * usually they will be in a container
- * 
- * <g class"className symbol" data-time="0.1" data-duration="1">
- *     <circle .... />
- * </g>
- * 
- * 
- * sent to browser using drawsocket format
- * 
- */
-
-
 /**
  * 
  * @param {Object} ui_api api object passed in to def on initialization from ui controller
@@ -132,13 +96,7 @@ const ui_def = function( ui_api )
      * 
      * @returns drawsocket format object which will sit inside an HTML div
      */
-    function getPaletteIcon()
-    {
-        return {
-            key: "svg",
-            val: viewDisplay(`${className}-pal-disp`, 0, 0, 25, 25)
-        }
-    }
+    function getPaletteIcon(){}
 
 
     /**
@@ -162,18 +120,47 @@ const ui_def = function( ui_api )
     {
 
         const containerDisplay = container.querySelector('.display');
+        const contents = container.querySelector('.contents');
+
         const bbox = ui_api.getBBoxAdjusted(containerDisplay);
 
-        const x = bbox.x + parseFloat(data.x);
-        const y = bbox.y + parseFloat(data.y);
+        const x = bbox.x + left_margin;
 
-        const width = parseFloat(data.duration) * time2x;
-        const height = default_height;
+        const num_siblings = contents.children.length;
 
-        console.log('width', width, container);
+        let y_offset = 2;
+        if( num_siblings > 0 )
+        {
+            y_offset += ui_api.getBBoxAdjusted(contents.children[ num_siblings - 1 ]).bottom - bbox.y;
+        }
+
+        const y = bbox.y + y_offset; 
+
+        const width = parseFloat(container.dataset.duration) * time2x;
+        const height = parseFloat(data.height);
+
+   //     console.log('mapToView', num_siblings, y_offset, y, container);
+
+        /**
+         * to do: call parent container to get placement, the placement is dependent on 
+         * the number of staves, and this height
+         * 
+         * probably we could use CSS to do this automatically, but it's maybe better to
+         * do it in JS to keep it simpler
+         * 
+         * //container.children.length
+         * 
+         * 
+         * or another option here maybe is to make the parts and the system at the 
+         * same time in the same def, using a list of names to create the parts,
+         * that might be easier, because it's hard to figure which part you are in if they
+         * all come at different times, and then what if you get them out of order?
+         * how would you know what the top position should be?
+         * 
+         */
+
 
         return viewContainer(id, x, y, width, height, overwrite)
-        //viewDisplay(id, x, y, width, height, overwrite);
             
     }
 
@@ -192,120 +179,6 @@ const ui_def = function( ui_api )
         return containers[insertAtIndex];
     }
 
-    /**
-     * called when new instance of this object is created by a mouse down event
-     * 
-     * @param {Object} event mouse event from click
-     * 
-     * returns new view object in drawsocket format, to be drawn
-     */
-    function creatNewFromMouseEvent(event)
-    {
-        const mousePt = ui_api.getSVGCoordsFromEvent(event);
-
-        const x = mousePt.x;
-        const y = mousePt.y;
-        const width = default_duration * time2x; // default w
-        const height = default_height; // default h
-
-        const uniqueID = `${className}_u_${ui_api.fairlyUniqueString()}`;
-
-        const container = ui_api.getCurrentContext();
-        const eventElement = container.querySelector('.contents');
-
-        const prevLen = eventElement.children.length;
-
-/*
-        ax < bx
-*/
-
-    //    console.log(eventElement);
-
-        const insertAtIndex = ui_api.insertIndex(
-            { x, y, width, height, right: x+width }, eventElement.children,
-            (a,b) => {
-                const bbox = ui_api.getBBoxAdjusted(b);
-//                    console.log(a,b,    `${a.y} > ${bbox.bottom}) || (${a.x} >= ${bbox.right})`);
-                return ( (a.y > bbox.y) || (a.x >= bbox.right) ) ? 1 : -1;
-            });
-
-        
-//        console.log('insertAtIndex', insertAtIndex, eventElement.children);
-
-
-        let prevStaveEndTime = 0;
-        if( insertAtIndex > -1 ){
-            const prevStave = eventElement.children[insertAtIndex];
-            prevStaveEndTime = parseFloat(prevStave.dataset.time) + parseFloat(prevStave.dataset.duration);
-        }
-      
-        let dataObj = {
-            time: prevStaveEndTime,
-            duration: default_duration,
-            x: x,
-            y: y
-        }
-        
-        // create new symbol in view
-        ui_api.drawsocketInput([
-            {
-                key: "remove", 
-                val: `${className}-sprite`
-            },
-            {
-                key: "svg",
-                val: {
-                    parent: eventElement.id,
-                    ...viewContainer(uniqueID, x, y, width, height ),
-                    ...ui_api.dataToHTML(dataObj)
-                }
-            }
-        ])
-        
-
-        let newItem = document.getElementById(uniqueID);
-        if( insertAtIndex == -1 )
-            eventElement.prepend( newItem )
-        else
-        {
-            eventElement.children[insertAtIndex].after( newItem );
-        }
-
-
-        const ourID = insertAtIndex+1;
-            
-     //   eventElement.children[nextID].before( newItem );
-
-        if( insertAtIndex != -1 && ourID < prevLen )
-        {   
-            const newLen = eventElement.children.length;
-            let nextTime = dataObj.time + dataObj.duration;
-
-            for( let i = ourID+1; i < newLen; i++ )
-            {
-                eventElement.children[i].dataset.time = nextTime;
-                nextTime += parseFloat(eventElement.children[i].dataset.duration);
-                // no need to update positions, but we could do that here if needed
-            }
-        }
-        
-
-        /*
-        note: server uses container instead of parent, currently, to reinforce that the container can be a differnt value
-        either the class name or the id        
-        */
-        ui_api.sendToServer({
-            key: "data",
-            val: {
-                class: [className, "container"],
-                id: uniqueID,
-                container: [ ...container.classList], 
-                ...dataObj
-            }
-        })
-
-    }
-
 
     /**
      * 
@@ -314,17 +187,19 @@ const ui_def = function( ui_api )
      * 
      * called when creating new element, or updating values 
      * 
+     * 
      */
     function fromData(dataObj, container)
     {
         const contentElement = container.querySelector('.contents');
 
+
         // filtering the dataObj since the id and parent aren't stored in the dataset
+        // note in this case the dataObject needs to include all of the dataset items!
         let dataset = {
             time: dataObj.time,
             duration: dataObj.duration,
-            x: dataObj.x,
-            y: dataObj.y
+            height: dataObj.height
         }
 
         let isNew = true;
@@ -353,92 +228,22 @@ const ui_def = function( ui_api )
 
     }
 
-    function move(e)
-    {
-        if( e.metaKey && ui_api.getCurrentContext().classList[0] != className )
-        {
-            const mousePt = ui_api.getSVGCoordsFromEvent(e);
+    function move(e) {}
 
-            let preview = viewDisplay(`${className}-sprite`, mousePt.x, mousePt.y, default_duration * time2x, default_height);
+    function down(e) {}
 
-            preview.children[0].style.fill = "none";
-            preview.children[0].style.stroke = "white";
-            preview.children[0].style['stroke-width'] = 1;
-
-            drawsocket.input({
-                key: "svg", 
-                val: {
-                    class: 'sprite',
-                    parent: 'symbolist_overlay',
-                    ...preview
-                }
-            })
-        }
-
-    }
-
-    function down(e) 
-    {
-        if( e.metaKey )
-        {
-            creatNewFromMouseEvent(e);
-        }
-
-    }
-
-    function up(e){
-       
-    }
+    function up(e){}
 
     function keyDown(e){}
     
-    function keyUp(e)
-    {
-        if( e.key == "Meta" )
-        {
-            ui_api.drawsocketInput({
-                key: "remove", 
-                val: `${className}-sprite`
-            })
-
-        }
-    }
-
-
+    function keyUp(e){}
 
 
     /**
      * 
      * @param {Element} obj selected element
      */
-    function paletteSelected (enable = false)
-    {
-
-        if( enable ){
-            window.addEventListener("mousedown", down);
-            window.addEventListener("mousemove", move);
-            window.addEventListener("mouseup", up);
-            document.body.addEventListener("keydown", keyDown);
-            document.body.addEventListener("keyup", keyUp);
-
-
-        }
-        else
-        {
-            ui_api.drawsocketInput({
-                key: "remove", 
-                val: `${className}-sprite`
-            })            
-
-            window.removeEventListener("mousedown", down);
-            window.removeEventListener("mousemove", move);
-            window.removeEventListener("mouseup", up);
-            document.body.removeEventListener("keydown", keyDown);
-            document.body.removeEventListener("keyup", keyUp);
-
-        }
-
-    }
+    function paletteSelected (enable = false) {}
 
    /**
      * 

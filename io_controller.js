@@ -14,6 +14,7 @@ let udp_server;
 let sendToIP = '127.0.0.1';
 let sendPort = 7777;
 
+let initFile = null;
 
 let defs = new Map();
 
@@ -21,6 +22,15 @@ let defs = new Map();
  * model : flat hash table DOM like lookup by ID
  * 
  * if item is a container, a contents array is used to store 
+ * 
+ * maybe rename this to "hash" since basically the score object
+ * will also contain all of the data.
+ * 
+ * the lookup model is really only for fast lookup by id
+ * maybe not even really needed unless there are non-linear lookup approaches
+ * oh, but actually it's useful for when inputting data point by point
+ * e.g. specifiying the container by id, we can then look it up quickly and
+ * add the new data point.
  * 
  */
 let model = new Map(); 
@@ -50,13 +60,7 @@ let model = new Map();
 
 */
 
-let containers = new Map();
-
-
-function newScore(){
-    model = new Map();
-    containers = new Map();
-}
+let score = initFile;
 
 
 function initUDP()
@@ -119,18 +123,6 @@ function initUDP()
 
 function udpSend(msg)
 {
-   // let size = getOSCSize(msg);
-    //let buf = Buffer.alloc( size, '\0' );
-    
-    //serializeIntoBuffer( msg, buf, size );
-
-   // console.log('sending size', size, buf.length);
-/*
-    for( let i = 0; i < size; i++)
-    {
-        console.log(`${i} \t${buf[i]} \t${String.fromCharCode(buf[i]) }` )
-    }
-*/
     const bndl = obj2osc(msg);
     if( bndl.length > 65507 ){
        // console.error(`udp_server error, buffer too large ${bndl.length}`)
@@ -169,16 +161,6 @@ function sendDataToUI(val)
     });
 
 }
-
-
-
-// to do: automate adding symbols to stave palette def, so we can load files dynamically
-/*
-const theremin = require('./thereminStave')
-const notelines = require('./thereminStave.noteline')
-
-theremin.palette.push( notelines.class );
-*/
 
 
 /**
@@ -232,19 +214,37 @@ const io_api = {
 }
 
 
+function addScoreToModelRecursive(obj)
+{
+    model.set(obj.id, obj);
+    if( obj.contents )
+    {
+        const arr = ( Array.isArray(obj.contents) ? obj.contents : [ obj.contents ]  );
+        arr.forEach( item => {
+            addScoreToModelRecursive(item);
+        })
+    }
+
+}
+
+function newScore(){
+    score = initFile.score;
+    model = new Map();
+
+    addScoreToModelRecursive(score);
+}
+
 function loadDefFiles(folder)
 {
     console.log('loadUserFolder', folder);
     
-    let initFile = null;
-
     folder.files.forEach( file => {
         
         let filepath = `${folder.path}/${file.name}`;
 
         if( file.type == 'json' )
         {
-            initFile = filepath;
+            initFile = require(filepath);
         }
         else if( file.type == 'js' )
         {
@@ -264,6 +264,9 @@ function loadDefFiles(folder)
         }
     })
 
+    if( !score ){
+        newScore();
+    }
 }
 
 
@@ -545,6 +548,17 @@ function sendModelToUI()
     }) 
 }
 
+
+function sendScoreToUI()
+{
+    console.log('data-refresh');
+    process.send({
+        key: 'score',
+        val: score
+    }) 
+}
+
+
 function signalGUI(obj)
 {
     process.send({
@@ -630,7 +644,7 @@ function input(_obj)
     switch (key) //must have key!
     {
         case 'data-refresh':
-            sendModelToUI();
+            sendScoreToUI();
         break;
 
         case 'data':
