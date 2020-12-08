@@ -158,6 +158,10 @@ const ui_def = function( ui_api )
 
     function getContainerForData(dataObj)
     {
+
+        return document.getElementById(dataObj.container);
+
+        /*
         let containers = document.querySelectorAll(`.${className}.symbol`);
         let insertAtIndex = ui_api.insertIndex(
             dataObj, containers,
@@ -169,6 +173,7 @@ const ui_def = function( ui_api )
             insertAtIndex = 0;
 
         return containers[insertAtIndex];
+        */
     }
 
 

@@ -30,7 +30,7 @@ function createTemplate()
       label: 'File',
       submenu: [
         {
-          label: "New",
+          label: "New From Template...",
           accelerator: 'CommandOrControl+N',
           click: async () => { actions.newScore() }
         },

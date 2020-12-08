@@ -126,61 +126,63 @@ function dataToView(obj)
 }
 
 
+function loadUIDefs(folder)
+{
+    const path = folder.path;
+
+    folder.files.forEach( f => {
+        
+         const filepath = `${path}/${f.name}`;
+ 
+         const exists = require.resolve(filepath); 
+         if( exists )
+             delete require.cache[ exists ];
+             
+         if( f.type == 'js')
+         {
+             // load controller def
+             let { ui_def } = require(filepath);
+ 
+             // initialize def with api
+             let cntrlDef_ = ui_def(renderer_api);
+         
+             // set into def map
+             uiDefs.set(cntrlDef_.class, cntrlDef_);
+             console.log('added ', cntrlDef_.class);
+         }
+         else if( f.type == "css" )
+         {
+             let head = document.getElementsByTagName("head");
+             if( !document.querySelector(`link[href="${filepath}"]`) )
+             {
+                 var cssFileRef = document.createElement("link");
+                 cssFileRef.rel = "stylesheet";
+                 cssFileRef.type = "text/css";
+                 cssFileRef.href = filepath;
+                 head[0].appendChild(cssFileRef);
+             }
+             
+         }
+         else if(f.type == 'json')
+         {
+             // there can be only one json file in the folder
+             initDef = require(filepath);
+         }
+   
+     })
+    
+  //   initDocument();
+ 
+     initPalette();
+ 
+     sendToServer({
+         key: 'data-refresh'
+     })
+}
 
 
 ipcRenderer.on('load-ui-defs', (event, folder) => {
-
-   const path = folder.path;
-
-   folder.files.forEach( f => {
-       
-        const filepath = `${path}/${f.name}`;
-
-        const exists = require.resolve(filepath); 
-        if( exists )
-            delete require.cache[ exists ];
-            
-        if( f.type == 'js')
-        {
-            // load controller def
-            let { ui_def } = require(filepath);
-
-            // initialize def with api
-            let cntrlDef_ = ui_def(renderer_api);
-        
-            // set into def map
-            uiDefs.set(cntrlDef_.class, cntrlDef_);
-            console.log('added ', cntrlDef_.class);
-        }
-        else if( f.type == "css" )
-        {
-            let head = document.getElementsByTagName("head");
-            if( !document.querySelector(`link[href="${filepath}"]`) )
-            {
-                var cssFileRef = document.createElement("link");
-                cssFileRef.rel = "stylesheet";
-                cssFileRef.type = "text/css";
-                cssFileRef.href = filepath;
-                head[0].appendChild(cssFileRef);
-            }
-            
-        }
-        else if(f.type == 'json')
-        {
-            // there can be only one json file in the folder
-            initDef = require(filepath);
-        }
-  
-    })
-   
- //   initDocument();
-
-    initPalette();
-
-    sendToServer({
-        key: 'data-refresh'
-    })
-    
+    loadUIDefs(folder);
 })
 
 
@@ -411,7 +413,10 @@ function symbolist_newScore()
 /**
  * handler for special commands from menu that require info about state of view/selection
  */
-ipcRenderer.on('menu-call', (event, arg) => {
+ipcRenderer.on('menu-call', (event, ...args) => {
+    console.log(`menu call received ${args}`);
+
+    let arg = args[0];
     switch(arg) {
         case 'deleteSelected':
             removeSelected();
@@ -428,9 +433,11 @@ ipcRenderer.on('menu-call', (event, arg) => {
         case 'newScore':
             symbolist_newScore();
             break;
+        case 'load-ui-defs':
+            loadUIDefs(args[1]);
+            break;
 
     }
-    console.log(`menu call received ${arg}`);
 })
 
 /**
@@ -1254,6 +1261,7 @@ function isNumeric(value) {
 }
 
 const { v4 } = require('uuid');
+const { loadFiles } = require('./menu-actions/actions');
 
 function fairlyUniqueString() {
     return v4();//(performance.now().toString(36)+Math.random().toString(36)).replace(/\./g,"");

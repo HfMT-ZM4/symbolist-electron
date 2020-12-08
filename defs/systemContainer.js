@@ -149,7 +149,9 @@ const ui_def = function( ui_api )
      * used for finding instance across instances (e.g. system breaks)
      * 
      */
-    function getContainerForData(dataObj) {}
+    function getContainerForData(dataObj) {
+        return document.getElementById(dataObj.container);
+    }
     // currenlty not used but maybe could be used when spitting systems
 
 

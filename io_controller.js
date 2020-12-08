@@ -4,7 +4,7 @@ const sym_util = require('./lib/utils')
 const { obj2osc, osc2obj } = require('./lib/o')
 
 const dgram = require('dgram');
-const { parseAsync } = require('./lib/utils');
+const { parseAsync, cloneObj } = require('./lib/utils');
 
 global.root_require = function(path) {
     return require(__dirname + '/' + path);
@@ -255,10 +255,16 @@ function loadScore(filepath)
         else
         {
             try {
-                initFile = JSON.parse(data);
-                console.log('loaded', initFile);
+                let newFile = JSON.parse(data);
+                console.log('loaded', newFile);
 
-                newScore();
+                //newScore();
+
+                score = cloneObj( newFile.score );
+                model = new Map();
+
+                addScoreToModelRecursive(score);
+
                 sendScoreToUI();
 
             }
@@ -271,7 +277,8 @@ function loadScore(filepath)
 }
 
 function newScore(){
-    score = initFile.score;
+    score = cloneObj( initFile.score );
+    console.log(score);
     model = new Map();
 
     addScoreToModelRecursive(score);

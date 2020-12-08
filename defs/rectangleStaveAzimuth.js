@@ -180,7 +180,6 @@ const ui_def = function(ui_api)
        // console.log('data', data);
         const containerDisplay = container.querySelector('.display');
         const bbox = ui_api.getBBoxAdjusted(containerDisplay);
-        
 
         const cx = bbox.x + ((data.time - parseFloat(container.dataset.time)) * time2x);
         const cy = bbox.y + ((1. - (data.pitch * pitch2y)) * bbox.height);
@@ -216,7 +215,7 @@ const ui_def = function(ui_api)
 
         let newView = mapToView(dataset, container, dataObj.id, isNew );
 
-      //  console.log(newView);
+          console.log('newView', newView);
 
 
         ui_api.drawsocketInput({
