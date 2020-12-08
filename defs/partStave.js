@@ -56,7 +56,7 @@ const viewDisplay = function(id, x, y, width, height, overwrite = true)
             width,
             height,
             style: {
-                fill: "white"
+                fill: "rgba(255,255,255,0.1)"
             }
         }]
     }
@@ -128,7 +128,7 @@ const ui_def = function( ui_api )
 
         const num_siblings = contents.children.length;
 
-        let y_offset = 2;
+        let y_offset = 0;
         if( num_siblings > 0 )
         {
             y_offset += ui_api.getBBoxAdjusted(contents.children[ num_siblings - 1 ]).bottom - bbox.y;

@@ -27,7 +27,8 @@ let dataInstace = {
     time: 0,
     duration: 1,
     x: 100,
-    y: 100
+    y: 100,
+    height: default_height
 }
 
 
@@ -135,7 +136,7 @@ const ui_def = function( ui_api )
         const y = bbox.y + parseFloat(data.y);
 
         const width = parseFloat(data.duration) * time2x;
-        const height = default_height;
+        const height = (typeof data.height != 'undefined') ? parseFloat(data.height) : default_height;
 
         return viewContainer(id, x, y, width, height, overwrite)       
     }
@@ -221,20 +222,25 @@ const ui_def = function( ui_api )
     function updateFromDataset(element){}
 
 
-    function updateAfterContents( container )
+    function updateAfterContents( element )
     {
-        const contents = container.querySelector('.contents');
-        console.log( ui_api.getBBoxAdjusted(contents) );
+        const contents = element.querySelector('.contents');
+        const contents_bbox = ui_api.getBBoxAdjusted(contents);
 
+        let dataObj = {
+            duration: element.dataset.duration,
+            x: element.dataset.x,
+            y: parseFloat(element.dataset.y) - 20,
+            height: contents_bbox.height + 40
+        }
 
-
-        let newView = mapToView( dataObj, container, container.id, false );
+        let newView = mapToView( dataObj, element.parentNode.closest('.container'), element.id, false );
+        //console.log( element, dataObj, newView, );
 
         ui_api.drawsocketInput({
             key: "svg",
             val: newView
         });
-
 
     }
     // exported functions used by the symbolist renderer
