@@ -28,7 +28,9 @@ let dataInstace = {
     duration: 1,
     x: 100,
     y: 100,
-    height: default_height
+    height: default_height,
+
+    x_offset: margin * 2
 }
 
 
@@ -49,7 +51,7 @@ const viewDisplay = function(id, x, y, width, height, overwrite = true)
         class: `${className} display`, // the display container, using the 'display' class as a selector
         children: [{
             new: (overwrite ? "rect" : undefined),
-            id: `${id}-background`,
+            id: `${id}-rect`,
             x,
             y,
             height,
@@ -136,6 +138,8 @@ const ui_def = function( ui_api )
         const x = bbox.x + parseFloat(data.x);
         const y = bbox.y + parseFloat(data.y);
 
+        data.x_offset = x;
+
         const width = (2 * margin) + parseFloat(data.duration) * time2x;
         const height = margin + (typeof data.height != 'undefined' ? parseFloat(data.height) : default_height);
 
@@ -185,7 +189,9 @@ const ui_def = function( ui_api )
             duration: dataObj.duration,
             height: dataObj.height,
             x: dataObj.x,
-            y: dataObj.y
+            y: dataObj.y,
+            x_offset: 0 //<< updated in mapToView
+
         }
 
         let isNew = true;
@@ -235,7 +241,9 @@ const ui_def = function( ui_api )
             duration: element.dataset.duration,
             x: element.dataset.x,
             y: parseFloat(element.dataset.y) - 20,
-            height: contents_bbox.height + 40
+            height: contents_bbox.height + 40,
+            x_offset: element.dataset.x_offset
+
         }
 
         let newView = mapToView( dataObj, element.parentNode.closest('.container'), element.id, false );
@@ -243,7 +251,10 @@ const ui_def = function( ui_api )
 
         ui_api.drawsocketInput({
             key: "svg",
-            val: newView
+            val: {
+                ...newView,
+                ...ui_api.dataToHTML(dataObj)
+            }
         });
 
     }

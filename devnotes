@@ -424,3 +424,7 @@ next issue is that the bbox of the stave isn't necessarily the start point for t
 so the parent/child system needs to know what to do
 in the case of the systemContainer I can add a x_time_start in the dataset
 the bbox is taking into account the text labels etc.
+
+ok now, we can use the id-rect of the part stave, this is easy enough, but for more complicated situations maybe later the bbox will be useful.
+
+at first I added the an offset x_time_start like element, but then decided that it shouldn't be in the score data unless we really need it. I suppose that the layout parameters are important for the score... some combination of visual layout and content information is probably inevitable.

@@ -123,12 +123,20 @@ const ui_def = function(ui_api)
     // could probably incorporate this into elementToData, but the element will need to be created first
     function mapToData(viewData, container)
     {
-        const containerDisplay = container.querySelector('.display');
-        const bbox = ui_api.getBBoxAdjusted(containerDisplay);
+        const containerRect = document.getElementById(`${container.id}-rect`);
+       
+//        console.log('data', data, containerRect);
 
-        const time = ((viewData.cx-bbox.x) * x2time) + parseFloat(container.dataset.time);// + parseFloat(container.dataset.duration);
+        // don't need bbox now, since the rect has the info we need
+        //const bbox = ui_api.getBBoxAdjusted(containerDisplay);
+
+        const bbox_x = parseFloat(containerRect.getAttribute('x'));
+        const bbox_y = parseFloat(containerRect.getAttribute('y'));
+        const bbox_height = parseFloat(containerRect.getAttribute('height'));
+
+        const time = ((viewData.cx-bbox_x) * x2time) + parseFloat(container.dataset.time);// + parseFloat(container.dataset.duration);
         
-        const pitch = (1 - ((viewData.cy-bbox.y) / bbox.height)) * y2pitch; 
+        const pitch = (1 - ((viewData.cy-bbox_y) / bbox_height)) * y2pitch; 
         
         const azim = Math.atan2(viewData.x2 - viewData.cx, 
                                 viewData.y2 - viewData.cy )
@@ -177,12 +185,18 @@ const ui_def = function(ui_api)
 
     function mapToView(data, container, id, overwrite = true)
     {
-       // console.log('data', data);
-        const containerDisplay = container.querySelector('.display');
-        const bbox = ui_api.getBBoxAdjusted(containerDisplay);
+        const containerRect = document.getElementById(`${container.id}-rect`);
+       // console.log('data', data, containerRect);
 
-        const cx = bbox.x + ((data.time - parseFloat(container.dataset.time)) * time2x);
-        const cy = bbox.y + ((1. - (data.pitch * pitch2y)) * bbox.height);
+        // don't need bbox now, since the rect has the info we need
+        //const bbox = ui_api.getBBoxAdjusted(containerDisplay);
+
+        const bbox_x = parseFloat(containerRect.getAttribute('x'));
+        const bbox_y = parseFloat(containerRect.getAttribute('y'));
+        const bbox_height = parseFloat(containerRect.getAttribute('height'));
+
+        const cx = bbox_x + ((data.time - parseFloat(container.dataset.time)) * time2x);
+        const cy = bbox_y + ((1. - (data.pitch * pitch2y)) * bbox_height);
 
         const x2 = cx + Math.sin(data.azim) * default_dist;
         const y2 = cy + Math.cos(data.azim) * default_dist;

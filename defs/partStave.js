@@ -35,8 +35,7 @@ let dataInstance = {
     
     time: 0,
     duration: 1,
-    height: 100
- 
+    height: 100 
 }
 
 
@@ -138,6 +137,9 @@ const ui_def = function( ui_api )
         const bbox = ui_api.getBBoxAdjusted(containerDisplay);
 
         const x = bbox.x + left_margin;
+
+        //  maybe later use x_offset for setting position?
+        //const x_ref = parseFloat(container.dataset.x_ref);
 
         const num_siblings = contents.children.length;
 

@@ -1,0 +1,80 @@
+{
+    "about": "symbolist will read a json file to configure the palette setup, this can be used to dynamically change also (eventually)",
+    "name": "first layout",
+    "tools": [],
+    "palette": [],
+    "score": {
+        "id": "trio",
+        "class": "systemContainer",
+        "x": 100,
+        "y": 100,
+        "duration": 1,
+        "time": 0,
+        "contents": [
+            {
+                "id": "oboe",
+                "class": "partStave",
+                "height": 100,
+                "contents": [
+                    {
+                        "class": "rectangleStaveAzimuth",
+                        "id": "rectangleStaveAzimuth_u_3ded1c4f-9d19-43d5-b8cb-6ef02a05c0eb",
+                        "container": "oboe",
+                        "time": 0.11040625,
+                        "pitch": 92.71,
+                        "azim": 2.9441970937399127,
+                        "duration": 0.1
+                    },
+                    {
+                        "class": "rectangleStaveAzimuth",
+                        "id": "rectangleStaveAzimuth_u_1d9d0c80-6d42-40ba-9592-8ae55f7756e6",
+                        "container": "oboe",
+                        "time": 0.12540625,
+                        "pitch": 81.28,
+                        "azim": 2.9441970937399127,
+                        "duration": 0.1
+                    },
+                    {
+                        "class": "rectangleStaveAzimuth",
+                        "id": "rectangleStaveAzimuth_u_65f067ed-c904-4036-aa87-d6f9bbf23c45",
+                        "container": "oboe",
+                        "time": 0.18040625,
+                        "pitch": 62.23,
+                        "azim": 2.9441970937399127,
+                        "duration": 0.1
+                    },
+                    {
+                        "class": "rectangleStaveAzimuth",
+                        "id": "rectangleStaveAzimuth_u_a4882f8e-b5ee-4b64-8b26-97f11f8183e0",
+                        "container": "oboe",
+                        "time": 0.20540625,
+                        "pitch": 66.04,
+                        "azim": 2.9441970937399127,
+                        "duration": 0.1
+                    },
+                    {
+                        "class": "rectangleStaveAzimuth",
+                        "id": "rectangleStaveAzimuth_u_7e594617-74dc-4544-8f15-18cb2a84034b",
+                        "container": "oboe",
+                        "time": 0.14740625000000002,
+                        "pitch": 63.5,
+                        "azim": 2.9441970937399127,
+                        "duration": 0.1
+                    }
+                ]
+            },
+            {
+                "id": "bassoon",
+                "class": "partStave",
+                "height": 100,
+                "contents": []
+            },
+            {
+                "id": "synth",
+                "class": "partStave",
+                "height": 200,
+                "contents": []
+            }
+        ]
+    }
+}
