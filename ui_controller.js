@@ -118,7 +118,7 @@ function dataToView(obj)
     const def = uiDefs.get(obj.class);
     
     // get the container refernece 
-    const container_def = uiDefs.get(obj.container);
+    const container_def = uiDefs.get( document.getElementById(obj.container).classList[0] );
     let container = container_def.getContainerForData( obj );
 
     def.fromData(obj, container);
@@ -200,7 +200,7 @@ function iterateContents(contents, context_element = null)
     const contents_arr = Array.isArray(contents) ? contents : [ contents ];
 
     contents_arr.forEach( data => {
-        console.log('iterateContents', data);
+        //console.log('iterateContents', data);
         uiDefs.get(data.class).fromData( data, context_element );
     })
 

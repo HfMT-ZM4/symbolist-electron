@@ -215,7 +215,7 @@ const ui_def = function(ui_api)
 
         let newView = mapToView(dataset, container, dataObj.id, isNew );
 
-          console.log('newView', newView);
+       //   console.log('newView', newView);
 
 
         ui_api.drawsocketInput({
@@ -757,16 +757,16 @@ const io_def = (io_api) => {
       * return null if lookup params don't match the obj_ref
       * 
       */
-    function lookup( lookup_params, obj_ref )
+    function lookup( params, obj_ref )
     {
         const start = obj_ref.time;
         const end = start + obj_ref.duration;
-//        console.log( start, end, lookup_params.time);
-        if( start <= lookup_params.time && end >= lookup_params.time )
+     //   console.log( start, end, params.time);
+        if( start <= params.time && end >= params.time )
         {
             return {
                 ...obj_ref,
-                phase: (lookup_params.time - start) / obj_ref.duration
+                phase: (params.time - start) / obj_ref.duration
             }
         }
 

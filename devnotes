@@ -411,3 +411,16 @@ was considering adding a post child addition update call to container, but actua
 
 but this will work if the parsing is not depth first, but in layers
     added updateAfterContents()
+
+need to redo the lookup now with the new score format
+
+lookups will be in a single container, so we can use an id for reference.
+generally you should be able to do a sub-container look up as well, but in most cases
+the top-level container will be the lookup target
+
+lookup now working seems like
+
+next issue is that the bbox of the stave isn't necessarily the start point for time
+so the parent/child system needs to know what to do
+in the case of the systemContainer I can add a x_time_start in the dataset
+the bbox is taking into account the text labels etc.

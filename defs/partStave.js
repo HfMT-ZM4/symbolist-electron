@@ -210,7 +210,7 @@ const ui_def = function( ui_api )
 
         let newView = mapToView(dataset, container, dataObj.id, isNew );
 
-        console.log('fromData', newView, dataset);
+        //console.log('fromData', newView, dataset);
 
 
         ui_api.drawsocketInput({
@@ -335,10 +335,34 @@ const io_def = (io_api) => {
       * generative values in realtime
       * 
       */
-    function lookup( lookup_params, obj_ref )
+    function lookup( params, obj_ref )
     {
-        return null; // we aren't using the lookup for staves, so we can return null here,
-        // or alternatively dont' define a lookup
+        let ret = [];
+
+        if( typeof obj_ref.contents != "undefined" )
+        {
+            obj_ref.contents.forEach(obj => {
+                const def = io_api.defGet(obj.class);
+                const event = def.lookup(params, obj);
+                if( event )
+                {
+                    ret.push(event);
+                }
+            });
+        
+        }
+        else
+        {
+            ret = {
+                lookup_error: `no element with id "${params.id}" found`
+            };
+        }
+
+      //  console.log(`${className} ret ${JSON.stringify(ret)}`);
+        let ret_obj = {};
+        ret_obj[obj_ref.id] = ret;
+        
+        return ret_obj;
     }
 
 /**

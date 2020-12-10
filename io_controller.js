@@ -183,24 +183,24 @@ function sendDataToUI(val)
 
 
 
-function modelGet( classname )
+function modelGet( id )
 {
-    return model.get(classname);
+    return model.get(id);
 }
 
-function modelHas( classname )
+function modelHas( id )
 {
-    return model.has(classname);
+    return model.has(id);
 }
 
 function defGet( classname )
 {
-    return defs.get(classname);
+    return defs.get(Array.isArray(classname) ? classname[0] : classname);
 }
 
 function defHas( classname )
 {
-    return defs.has(classname);
+    return defs.has(Array.isArray(classname) ? classname[0] : classname);
 }
 
 
@@ -262,7 +262,8 @@ function loadScore(filepath)
 
                 score = cloneObj( newFile.score );
                 model = new Map();
-
+                model.set(score.id, score);
+                
                 addScoreToModelRecursive(score);
 
                 sendScoreToUI();
@@ -278,8 +279,9 @@ function loadScore(filepath)
 
 function newScore(){
     score = cloneObj( initFile.score );
-    console.log(score);
     model = new Map();
+
+    model.set(score.id, score);
 
     addScoreToModelRecursive(score);
 }
@@ -322,7 +324,7 @@ function loadDefFiles(folder)
 
 function addToModel( dataobj )
 {
-   console.log('setting val into model', dataobj )
+  // console.log('setting val into model', dataobj )
 
     // set object into flat model array
     if( model.has(dataobj.id) )
@@ -348,7 +350,7 @@ function addToScore( dataobj )
 
     let container_def = defs.get(container.class)
 
-    console.log(container, container_def);
+    //console.log(container, container_def);
     
     if( typeof container.contents === "undefined" )
     {
@@ -508,7 +510,41 @@ function removeSelected(event_)
  */
 function lookup(params)
 {
-    let ret = [];
+    let ret = null;
+
+    if( typeof params.id == "undefined" )
+    {
+        ret = {
+            lookup_error: 'no id tag found in lookup parameters'
+        };
+    }
+    else
+    {
+        if( modelHas(params.id) )
+        {
+            const obj = modelGet(params.id);
+            const def = defGet(obj.class);
+
+            ret = def.lookup(params, obj);
+        }
+        else
+        {
+            ret = {
+                lookup_error: `no element with id "${params.id}" found`
+            };
+        }
+
+    }
+
+    if( !ret )
+    {
+        ret = ''  
+    }
+
+    return ret;
+
+
+    // 
 
     // val contains the contents... maybe we don't need a named contents here...
     containers.forEach( (id_array, key) => {
@@ -615,19 +651,6 @@ function lookup(params)
     });
 
     return ret;
-}
-
-
-function sendModelToUI()
-{
-    console.log('data-refresh');
-    process.send({
-        key: 'model',
-        val: {
-            model: Object.fromEntries(model),
-            containers: Object.fromEntries(containers)
-        }
-    }) 
 }
 
 
