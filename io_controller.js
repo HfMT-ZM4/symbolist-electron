@@ -263,7 +263,7 @@ function loadScore(filepath)
                 score = cloneObj( newFile.score );
                 model = new Map();
                 model.set(score.id, score);
-                
+
                 addScoreToModelRecursive(score);
 
                 sendScoreToUI();
@@ -316,9 +316,8 @@ function loadDefFiles(folder)
         }
     })
 
-    if( !score ){
-        newScore();
-    }
+    newScore();
+
 }
 
 

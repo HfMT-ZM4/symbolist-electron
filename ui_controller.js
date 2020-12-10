@@ -401,6 +401,7 @@ function drawsocketInput(obj){
 
 function symbolist_newScore()
 {
+    console.log('newScore');
     deselectAll();
     setDefaultContext();
 
