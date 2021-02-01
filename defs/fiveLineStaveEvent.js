@@ -45,8 +45,10 @@ let dataInstace = {
     
     time: 0,
     duration: 0.1,
-    pitch: 60,
+    pitch: 'c:5',
+    midi: 60,
     ratio: 0,
+    accid: "natural",
     amp: 1
 }
 
@@ -95,7 +97,7 @@ const viewDisplay = function(id, cx, cy, r, x2, y2, accidental = false, overwrit
 			x : cx - 15,
             y : cy,
             style: {
-                'font-size' : "24pt",
+                'font-size' : "23pt", // make this more dynamic
 			    'font-family' : "Bravura"
             }
         })
@@ -158,33 +160,36 @@ const ui_def = function(ui_api)
     }
 
 
-    // could probably incorporate this into elementToData, but the element will need to be created first
     function mapToData(viewData, container)
     {
         const containerRect = document.getElementById(`${container.id}-rect`);
        
-//        console.log('data', data, containerRect);
+//       console.log('mapToData', viewData, containerRect);
 
         // don't need bbox now, since the rect has the info we need
         //const bbox = ui_api.getBBoxAdjusted(containerDisplay);
 
-        const bbox_x = parseFloat(containerRect.getAttribute('x'));
-        const bbox_y = parseFloat(containerRect.getAttribute('y'));
-        const bbox_height = parseFloat(containerRect.getAttribute('height'));
 
+        const middleLine = document.getElementById(`${container.id}-line-3`);
+        const stepSize = container.dataset.lineSpacing * 0.5;
+
+        const y_pix = viewData.cy - parseFloat(middleLine.getAttribute('y1'));
+
+        const pitch = y2midi(y_pix, stepSize); 
+//        console.log("midi", pitch);
+
+      //  const bbox_y = parseFloat(containerRect.getAttribute('y'));
+//        const bbox_height = parseFloat(containerRect.getAttribute('height'));
+
+        const bbox_x = parseFloat(containerRect.getAttribute('x'));
         const time = ((viewData.cx-bbox_x) * x2time) + parseFloat(container.dataset.time);// + parseFloat(container.dataset.duration);
         
-        const pitch = (1 - ((viewData.cy-bbox_y) / bbox_height)) * y2pitch; 
         
-        const azim = Math.atan2(viewData.x2 - viewData.cx, 
-                                viewData.y2 - viewData.cy )
-
         const duration = default_duration;
 
         return {
             time, 
             pitch,
-            azim,
             duration
         }
     }
@@ -225,13 +230,13 @@ const ui_def = function(ui_api)
     const sharpSteps =    [ 0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6 ];
     const flatSteps =     [ 0, 1, 2, 2, 3, 3, 4, 5, 5, 6, 6, 7 ];
     const chromaAccidList =   [ 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0 ];
+    const midiMiddleLine = 59;
 
     // maybe this should be in the parent stave? clef?
 
     function midi2y(midi, stepSpacing, accidentalType = "sharp")
     {
-        const middleLine = 59;
-        const midiNote = midi - middleLine;
+        const midiNote = midi - midiMiddleLine;
         let chroma = Math.floor(midiNote) % 12;
         if( chroma < 0 )
         {
@@ -248,7 +253,7 @@ const ui_def = function(ui_api)
         const lineYoffset = lineOffset[ chroma ] * stepSpacing;
         const octaveYoffset = oct * (stepSpacing * 7);
 
-        console.log(chroma, lineYoffset, octaveYoffset);
+//        console.log(chroma, lineYoffset, octaveYoffset);
         // add num ledgerlines here?
 
         const isAcc = chromaAccidList[ chroma ] ? accidentalType : null;
@@ -261,8 +266,15 @@ const ui_def = function(ui_api)
 
     function y2midi(y, stepSpacing, accidentalType = "sharp")
     {
+
+        const y_steps = Math.floor(y / stepSpacing);
+     //    console.log("y2midi", midiMiddleLine - y_steps);
+
+        return  midiMiddleLine - y_steps;
+        
+
         const middleLine = 59;
-        const midiNote = pitch - middleLine;
+        const midiNote = y - middleLine;
         const chroma = Math.floor(midiNote) % 12;
         
         const octShift = Number(midiNote < 0);
@@ -325,6 +337,19 @@ const ui_def = function(ui_api)
     function fromData(dataObj, container)
     {
         const contentElement = container.querySelector('.contents');
+
+        if( dataObj.pitch )
+        {
+
+        }
+        else if( dataObj.midi )
+        {
+
+        }
+        else if( dataObj.ratio )
+        {
+
+        }
 
         // filtering the dataObj since the id and parent aren't stored in the dataset
         const dataset = {
@@ -491,27 +516,26 @@ const ui_def = function(ui_api)
             const y = pt.y;
 
             let cx, cy, azim;
+            const container = ui_api.getCurrentContext();
+
+            const stepSpacing = parseFloat(container.dataset.lineSpacing) / 2.;
 
             if( sprite && e.altKey )
             {
                 let circle = sprite.querySelector('circle');
                 cx = circle.getAttribute('cx');
-                cy = circle.getAttribute('cy');
-                azim = Math.atan2( x - cx, y - cy );
+                cy = midi2y( y2midi(circle.getAttribute('cy'), stepSpacing), stepSpacing);                
                 //${className}-sprite
             }
             else
             {
                 cx = x;
-                cy = y;
-                azim = 0;
+                cy = midi2y( y2midi(y, stepSpacing), stepSpacing);  ;
             }
 
          
             const r = default_r; 
     
-            const container = ui_api.getCurrentContext();
-        
             let dataObj = mapToData({
                     cx, 
                     cy, 
@@ -643,18 +667,30 @@ const ui_def = function(ui_api)
         }
         else
         {
-                // maybe rename... sets translation in transform matrix, but doesn't apply it
-            ui_api.translate(element, delta_pos);
+            
+            let container = element.closest('.container');
+            
+            const stepSpacing = parseFloat(container.dataset.lineSpacing) / 2.;
+
+            const snapY = -midi2y( y2midi(delta_pos.y, stepSpacing), stepSpacing ).yOffset;
+
+            //console.log('container', container, delta_pos.y, parseFloat(container.dataset.lineSpacing) / 2., y2midi(delta_pos.y));
+            ui_api.translate(element, {
+                x: delta_pos.x,
+                y: snapY
+            });
         
+
+          //  console.log('snapY', snapY);
+
             const circ = element.querySelector('circle');
             const line = element.querySelector('line');
 
             const cx = parseFloat(circ.getAttribute('cx')) + delta_pos.x;
-            const cy = parseFloat(circ.getAttribute('cy')) + delta_pos.y;
+            const cy = parseFloat(circ.getAttribute('cy')) + snapY;
             const x2 = parseFloat(line.getAttribute('x2')) + delta_pos.x;
-            const y2 = parseFloat(line.getAttribute('y2')) + delta_pos.y;
+            const y2 = parseFloat(line.getAttribute('y2')) + snapY;
 
-            let container = element.closest('.container');
             let dataObj = mapToData(
                 { 
                     cx, 
@@ -686,7 +722,7 @@ const ui_def = function(ui_api)
         }
        
         // option for default translation
-       // console.log('translate', element, delta_pos);
+    //    console.log('translate', element, delta_pos, document.getElementById(`${className}-sprite`));
         return true; // return true if you are handling your own translation
     }
 

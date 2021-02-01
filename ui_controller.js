@@ -1001,6 +1001,15 @@ function applyTransform(obj, matrix = null)
                 obj.setAttribute("y", newPt.y );
             }
             break;
+        case "text":
+            {
+                pt.x = obj.getAttribute("x");
+                pt.y = obj.getAttribute("y");
+                let newPt = pt.matrixTransform(matrix);
+                obj.setAttribute("x", newPt.x );
+                obj.setAttribute("y", newPt.y );
+            }
+            break;
         case "line":
             {
                 pt.x = obj.getAttribute("x1");
