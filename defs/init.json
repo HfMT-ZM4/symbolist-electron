@@ -6,7 +6,7 @@
     "score": { 
         "id" : "trio",
         "class" : "systemContainer",
-        "x": 100,
+        "x": 200,
         "y": 100,
         "duration": 1,
         "time": 0,

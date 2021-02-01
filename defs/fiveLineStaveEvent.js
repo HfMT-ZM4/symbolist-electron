@@ -557,44 +557,6 @@ const ui_def = function(ui_api)
 
     }
 
-
-    function rotate(element, event)
-    {
-
-        let line = element.querySelector('line');
-
-        let x1 = parseFloat(line.getAttribute('x1'));
-        let y1 = parseFloat(line.getAttribute('y1'));
-        
-        let x2 = parseFloat(line.getAttribute('x2'));
-        let y2 = parseFloat(line.getAttribute('y2'));
-
-        let mousePt = ui_api.getSVGCoordsFromEvent(event);
-
-        let azim = Math.atan2( mousePt.x - x1, mousePt.y - y1);
-
-        let newX = x1 + Math.sin(azim) * default_dist;
-        let newY = y1 + Math.cos(azim) * default_dist;
-
-        line.setAttribute('x2', newX);
-        line.setAttribute('y2', newY);
-
-        element.dataset.azim = azim;
-
-        ui_api.drawsocketInput({
-            key: "svg", 
-            val: {
-                id: `${element.id}-rotation-handle`,
-                x: newX - 4,
-                y: newY - 4
-            }
-        })
-
-        updateFromDataset(element);
-        
-    }
-
-
     /**
      * 
      * @param {Element} element html/svg element to translate
@@ -604,68 +566,58 @@ const ui_def = function(ui_api)
      */
     function translate(element, delta_pos = {x:0,y:0}) 
     {
-        // delta_pos needes to be adjusted for scale also
-       
-        if( m_mode == "edit" )
-        {
-            //rotate(element, delta_pos);
-        }
-        else
-        {
-            
-            let container = element.closest('.container');
-            
-            const stepSpacing = parseFloat(container.dataset.lineSpacing) * 0.5;
-    
-            const snapY = Math.floor(delta_pos.y / stepSpacing) * stepSpacing;
+        
+        let container = element.closest('.container');
+        
+        const stepSpacing = parseFloat(container.dataset.lineSpacing) * 0.5;
 
-            //console.log('container', container, delta_pos.y, parseFloat(container.dataset.lineSpacing) / 2., y2midi(delta_pos.y));
-            ui_api.translate(element, {
-                x: delta_pos.x,
-                y: snapY
-            });
+        const snapY = Math.floor(delta_pos.y / stepSpacing) * stepSpacing;
+
+        //console.log('container', container, delta_pos.y, parseFloat(container.dataset.lineSpacing) / 2., y2midi(delta_pos.y));
+        ui_api.translate(element, {
+            x: delta_pos.x,
+            y: snapY
+        });
+    
+
+        const circ = element.querySelector('circle');
+        const line = element.querySelector('line');
+
+        const cx = parseFloat(circ.getAttribute('cx')) + delta_pos.x;
+        const cy = parseFloat(circ.getAttribute('cy')) + snapY;
+        const x2 = parseFloat(line.getAttribute('x2')) + delta_pos.x;
+        const y2 = cy;
+
+        //console.log('cy', cy);
+
+        let dataObj = mapToData(
+            { 
+                cx, 
+                cy, 
+                r: default_r, 
+                x2, 
+                y2 
+            }, 
+            container
+        ); //mapToData(cx, cy, default_r, x2, y2, container);
         
 
-            const circ = element.querySelector('circle');
-            const line = element.querySelector('line');
-
-            const cx = parseFloat(circ.getAttribute('cx')) + delta_pos.x;
-            const cy = parseFloat(circ.getAttribute('cy')) + snapY;
-            const x2 = parseFloat(line.getAttribute('x2')) + delta_pos.x;
-            const y2 = cy;
-
-            //console.log('cy', cy);
-
-            let dataObj = mapToData(
-                { 
-                    cx, 
-                    cy, 
-                    r: default_r, 
-                    x2, 
-                    y2 
-                }, 
-                container
-            ); //mapToData(cx, cy, default_r, x2, y2, container);
-            
-
-            ui_api.drawsocketInput({
-                key: "svg",
-                val: {
-                    new: "text",
-                    id: `${className}-sprite`,
-                    parent: "symbolist_overlay",
-                    x: cx,
-                    y: cy - 20,
-                    text: JSON.stringify(dataObj),
-                    style: {
-                        'font-size': '13px',
-                        'font-family': 'Helvetica sans-serif'
-                    }
+        ui_api.drawsocketInput({
+            key: "svg",
+            val: {
+                new: "text",
+                id: `${className}-sprite`,
+                parent: "symbolist_overlay",
+                x: cx,
+                y: cy - 20,
+                text: JSON.stringify(dataObj),
+                style: {
+                    'font-size': '13px',
+                    'font-family': 'Helvetica sans-serif'
                 }
-            })
-            
-        }
-       
+            }
+        })
+                
         // option for default translation
     //    console.log('translate', element, delta_pos, document.getElementById(`${className}-sprite`));
         return true; // return true if you are handling your own translation
@@ -735,71 +687,6 @@ const ui_def = function(ui_api)
         }
     }
 
-    let cb = {};
-
-    // now passing element so that edit mode can be signaled from script
-    // but then how does the controlller know that it's in edit mode?
-    // maybe the controller should do less but provide key event handling and pass to scripts
-    function editMode( element, enable = false )
-    {
-        //let element = ui_api.getSelected()[0]; // first object only for now...
-
-        if( enable )
-        {
-            m_mode = 'edit';
-
-            const line = element.querySelector('line')
-            const x2 = parseFloat(line.getAttribute('x2'));
-            const y2 = parseFloat(line.getAttribute('y2'));
-    
-            ui_api.drawsocketInput({
-                key: "svg", 
-                val: {
-                    id: `${element.id}-rotation-handle`,
-                    new: "rect",
-                    class: "handle",
-                    parent: element.id, 
-                    x: x2 - 4,
-                    y: y2 - 4,
-                    width: 8,
-                    height: 8,
-                    onmousedown: (event) => { 
-                        console.log('ello', element);
-                        console.log('register');
-
-                        document.addEventListener('mousemove', 
-                            cb[`${element.id}-moveHandler`] = function (event) {
-                                console.log(`${element.id}-moveHandler`);
-                                if( event.buttons == 1 ) {
-                                    rotate(element, event);
-                                }
-                            }
-                        );
-                    }                        
-                }
-            })
-
-
-
-        }
-        else
-        {
-            console.log('deregister');
-
-            ui_api.drawsocketInput({
-                key: "remove", 
-                val: `${element.id}-rotation-handle`,
-            }) 
-
-
-            document.removeEventListener('mousemove', cb[`${element.id}-moveHandler`]);
-            delete cb[`${element.id}-moveHandler`];
-//            console.log(`removing ${element.id}-moveHandler, ${cb[`${element.id}-moveHandler`]}`);
-
-        }
-        
-    }
-
 
     // exported functions used by the symbolist renderer
     return {
@@ -822,7 +709,6 @@ const ui_def = function(ui_api)
 
         paletteSelected, // arg true/false to enter exit
 
-        editMode, // 1/0 to enter/exit
 
         
     //    enter,
