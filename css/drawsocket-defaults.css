@@ -176,6 +176,7 @@ html, body {
 
 }
 
+/*
 line {
   stroke-width: 1;
   stroke: rgb(0,0,0);
@@ -208,7 +209,7 @@ path {
 .invisible {
   visibility: hidden;
 }
-
+*/
 @font-face {
     font-family: Bravura;
     src: url('fonts/Bravura.eot'); /* IE9 Compat Modes */

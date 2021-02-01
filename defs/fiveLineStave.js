@@ -8,9 +8,9 @@
 'use strict';
 
 
-const className = "partStave";
+const className = "fiveLineStave";
 
-const palette = [ "rectangleStaveEvent", "rectangleStaveAzimuth" ]; //, "otherRectangleStaveEvent"
+const palette = [ "fiveLineStaveEvent" ]; //, "otherRectangleStaveEvent"
 
 
 const default_duration = 1;
@@ -35,15 +35,18 @@ let dataInstance = {
     
     time: 0,
     duration: 1,
-    height: 100 
+    height: 100 ,
+    lineSpacing: 8
 }
 
 
 /** 
  * viewDisplay is just the view part, for containers, it's used for sprites, palette, but the viewContainer is what is used in the DOM
  */
-const viewDisplay = function(id, x, y, width, height, overwrite = true)
+const viewDisplay = function(id, x, y, width, height, lineSpacing, overwrite = true)
 {
+    let strokeWidth = 0.5;
+    let centerY = y + (height / 2);
     return {
         new: (overwrite ? "g" : undefined),
         id: `${id}-display`,
@@ -58,26 +61,92 @@ const viewDisplay = function(id, x, y, width, height, overwrite = true)
             style: {
                 fill: "none",
                 stroke: 'rgba(0, 0, 0, 0.1)',
-                'stroke-width' : 1
+                'stroke-width' : strokeWidth
             }
-        },
-        {
+        },{
             new: (overwrite ? "text" : undefined),
             id: `${id}-label`,
             x: x - left_margin,
-            y: y + (height / 2),
+            y: centerY,
             text: id,
             'text-anchor': 'end',
             style: {
                 fill: 'white'
             }
-
+        },
+        {
+            new: "g",
+            id: `${id}-staffline-group`,
+            children: [{
+                new: (overwrite ? "line" : undefined),
+                id: `${id}-staffline-1`,
+                class : "staffline",
+                x1: x,
+                y1: centerY - lineSpacing * 2,
+                x2: x + width,
+                y2: centerY - lineSpacing * 2,
+                style: {
+                    stroke: "black",
+                    'stroke-width' : strokeWidth
+                }
+            },
+            {
+                new: (overwrite ? "line" : undefined),
+                id: `${id}-line-2`,
+                class : "staffline",
+                x1: x,
+                y1: centerY - lineSpacing,
+                x2: x + width,
+                y2: centerY - lineSpacing,
+                style: {
+                    stroke: "black",
+                    'stroke-width' : strokeWidth
+                }
+            },
+            {
+                new: (overwrite ? "line" : undefined),
+                id: `${id}-line-3`,
+                class : "staffline",
+                x1: x,
+                y1: centerY,
+                x2: x + width,
+                y2: centerY,
+                style: {
+                    stroke: "black",
+                    'stroke-width' : strokeWidth
+                }
+            },
+            {
+                new: (overwrite ? "line" : undefined),
+                id: `${id}-line-4`,
+                class : "staffline",
+                x1: x,
+                y1: centerY + lineSpacing,
+                x2: x + width,
+                y2: centerY + lineSpacing,
+                style: {
+                    stroke: "black",
+                    'stroke-width' : strokeWidth
+                }
+            },
+            {
+                new: (overwrite ? "line" : undefined),
+                id: `${id}-line-5`,
+                x1: x,
+                y1: centerY + lineSpacing * 2,
+                x2: x + width,
+                y2: centerY + lineSpacing * 2,
+                style: {
+                    stroke: "black",
+                    'stroke-width' : strokeWidth
+                }
+            }]
         }]
     }
 
 }
 
-const viewContainer = function(id, x, y, width, height, overwrite = true) 
+const viewContainer = function(id, x, y, width, height, lineSpacing, overwrite = true) 
 {
 
     return {
@@ -85,7 +154,7 @@ const viewContainer = function(id, x, y, width, height, overwrite = true)
         id, // use same reference id as data object
         class: `${className} symbol container`, // the top level container, using the 'container' class for type selection if needed
         children: [
-            viewDisplay(id, x, y, width, height, overwrite),
+            viewDisplay(id, x, y, width, height, lineSpacing, overwrite),
             {
                 new: (overwrite ? "g" : undefined),
                 id: `${id}-contents`,
@@ -133,6 +202,7 @@ const ui_def = function( ui_api )
     function mapToView(data, container, id, overwrite = true)
     {
 
+       // console.log('mapToView', data);
         const containerDisplay = container.querySelector('.display');
         const contents = container.querySelector('.contents');
 
@@ -155,8 +225,9 @@ const ui_def = function( ui_api )
 
         const width = parseFloat(container.dataset.duration) * time2x;
         const height = parseFloat(data.height);
+        const lineSpacing = parseFloat(data.lineSpacing);
 
-        return viewContainer(id, x, y, width, height, overwrite)
+        return viewContainer(id, x, y, width, height, lineSpacing, overwrite)
             
     }
 
@@ -200,8 +271,10 @@ const ui_def = function( ui_api )
         let dataset = {
             time: container.dataset.time,
             duration: container.dataset.duration,
-            height: dataObj.height
+            height: dataObj.height,
+            lineSpacing: dataObj.lineSpacing
         }
+
 
         let isNew = true;
         

@@ -63,7 +63,12 @@ const viewDisplay = function(id, x, y, width, height, overwrite = true)
         {
             new: (overwrite ? "path" : undefined),
             id: `${id}-bracket`,
-            d: `M ${x+margin} ${y+half_margin} h -${half_margin} v ${height - margin} h ${half_margin}`
+            d: `M ${x+margin} ${y+half_margin} h -${half_margin} v ${height - margin} h ${half_margin}`,
+            style: {
+                fill: 'none',
+                stroke: 'black',
+                'stroke-width': 1
+            }
         }]
     }
 

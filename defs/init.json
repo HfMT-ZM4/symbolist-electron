@@ -12,8 +12,9 @@
         "time": 0,
         "contents" : [{
             "id" : "oboe",
-            "class" : "partStave",
+            "class" : "fiveLineStave",
             "height" : 100,
+            "lineSpacing" : 10,
             "contents" : []
         },
         {
