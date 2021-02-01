@@ -13,7 +13,7 @@ const palette = [ ] //"rectangleStaveAzim", "otherRectangleStaveEvent"
 const x2time = 0.001;
 const time2x = 1000;
 
-const y2pitch = 127.; // y is normalized 0-1
+//const y2pitch = 127.; // y is normalized 0-1
 //const pitch2y = 1 / 127.;
 
 const default_r = 2;
@@ -21,6 +21,16 @@ const default_dist = 5;
 
 const default_duration = 0.1;
 
+
+const accidentalLookup = {
+    flat : "&#xE260",
+    natural: "&#xE261",
+    sharp: "&#xE262",
+
+    'sharp-5': "&#xE2C3",
+    'flat-5': "&#xE2C2",
+    'natural-5': "&#xE2C1"
+}
 
 /**
  * maybe eventually we will want to use this dataInstance signature 
@@ -40,15 +50,7 @@ let dataInstace = {
     amp: 1
 }
 
-// container objects no longer have the contents in the data object, but rather the contents
-// are in the containers lookup object in the io controller
 
-// all symbols must be wrapped in <g> containers
-// any additional UI elements will be grouped with the symbol,  so that when somehting is clicked it is still
-// part of the symbol heirarchy, where the top level has includes the 'symbol' class
-
-// I added the id and overwrite here to deal with situations where you are storing a reference to the element
-// if new is undefined, drawsocket can use the id to update the values and keep the reference in place
 const viewDisplay = function(id, cx, cy, r, x2, y2, accidental = false, overwrite = true)
 {
     
@@ -58,6 +60,7 @@ const viewDisplay = function(id, cx, cy, r, x2, y2, accidental = false, overwrit
         children : [{
             id: `${id}-notehead`,
             new: (overwrite ? "circle" : undefined),
+            class: "notehead",
             cx,
             cy,
             r,
@@ -68,6 +71,7 @@ const viewDisplay = function(id, cx, cy, r, x2, y2, accidental = false, overwrit
         {
             new: (overwrite ? "line" : undefined),
             id: `${id}-duration`,
+            class: "duration-line",
             x1: cx,
             y1: cy,
             x2, 
@@ -81,9 +85,13 @@ const viewDisplay = function(id, cx, cy, r, x2, y2, accidental = false, overwrit
 
     if( accidental )
     {
+        let oldAcc = document.getElementById(`${id}-accidental`);
+
         obj.children.push({
-            new: (overwrite ? "text" : undefined),
-			text : "&#xE260",
+            new: (overwrite || !oldAcc ? "text" : undefined),
+            id: `${id}-accidental`,
+            text : accidentalLookup[accidental], //(accidental == "sharp" ? "&#xE262" : "&#xE260"),
+            class: "accidental",
 			x : cx - 15,
             y : cy,
             style: {
@@ -91,6 +99,12 @@ const viewDisplay = function(id, cx, cy, r, x2, y2, accidental = false, overwrit
 			    'font-family' : "Bravura"
             }
         })
+    }
+    else
+    {
+        let oldAcc = document.getElementById(`${id}-accidental`);
+        if( oldAcc )
+            oldAcc.remove();
     }
 
     return obj;
@@ -207,9 +221,45 @@ const ui_def = function(ui_api)
 
     }
 
+
+    const sharpSteps =    [ 0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6 ];
+    const flatSteps =     [ 0, 1, 2, 2, 3, 3, 4, 5, 5, 6, 6, 7 ];
+    const chromaAccidList =   [ 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0 ];
+
     // maybe this should be in the parent stave? clef?
 
-    function pitch2y(pitch, stepSpacing)
+    function midi2y(midi, stepSpacing, accidentalType = "sharp")
+    {
+        const middleLine = 59;
+        const midiNote = midi - middleLine;
+        let chroma = Math.floor(midiNote) % 12;
+        if( chroma < 0 )
+        {
+            chroma += 12;
+        }
+        
+        const octShift = Number(midiNote < 0);
+        const oct = Math.floor( midiNote / 12 );
+
+        // line offset from B natural
+
+        const lineOffset = accidentalType == "sharp" ? sharpSteps : flatSteps; 
+
+        const lineYoffset = lineOffset[ chroma ] * stepSpacing;
+        const octaveYoffset = oct * (stepSpacing * 7);
+
+        console.log(chroma, lineYoffset, octaveYoffset);
+        // add num ledgerlines here?
+
+        const isAcc = chromaAccidList[ chroma ] ? accidentalType : null;
+
+        return {
+            yOffset: octaveYoffset + lineYoffset,
+            isAcc
+        }
+    }
+
+    function y2midi(y, stepSpacing, accidentalType = "sharp")
     {
         const middleLine = 59;
         const midiNote = pitch - middleLine;
@@ -218,21 +268,27 @@ const ui_def = function(ui_api)
         const octShift = Number(midiNote < 0);
         const oct = Math.floor( midiNote / 12 );
 
-        const lineOffset =  [ 0, 1, 2, 2, 3, 3, 4, 5, 5, 6, 6, 7]; // would be different if using sharps
-        const flats =       [ 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0 ];
+        // line offset from B natural
+        const sharpSteps =    [ 0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6 ];
+        const flatSteps =     [ 0, 1, 2, 2, 3, 3, 4, 5, 5, 6, 6, 7 ];
 
-        const isFlat = flats[ chroma ]
-        
+        const chromaAccidList =   [ 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0 ];
+
+        const lineOffset = accidentalType == "sharp" ? sharpSteps : flatSteps; 
+
         const lineYoffset = lineOffset[ chroma ] * stepSpacing;
         const octaveYoffset = oct * (stepSpacing * 7);
 
-// do ledgerlines here?
+        // add num ledgerlines here?
+
+        const isAcc = chromaAccidList[ chroma ] ? accidentalType : null;
 
         return {
             yOffset: octaveYoffset - lineYoffset,
-            isFlat
+            isAcc
         }
     }
+
 
     function mapToView(data, container, id, overwrite = true)
     {
@@ -247,9 +303,9 @@ const ui_def = function(ui_api)
        
         const middleLine = document.getElementById(`${container.id}-line-3`);
         const stepSize = container.dataset.lineSpacing * 0.5;
-        const pitchInfo = pitch2y(data.pitch, stepSize);
+        const pitchInfo = midi2y(data.pitch, stepSize, "sharp");
 
-        const y_pix = parseFloat(middleLine.getAttribute('y1')) + pitchInfo.yOffset;
+        const y_pix = parseFloat(middleLine.getAttribute('y1')) - pitchInfo.yOffset;
        // console.log(middleLine, pitchInfo, y_pix);
 
         const cx = bbox_x + ((data.time - parseFloat(container.dataset.time)) * time2x);
@@ -261,7 +317,7 @@ const ui_def = function(ui_api)
         const r = stepSize - 2;
 
 
-        return viewDisplay(id, cx, cy, r, x2, y2, pitchInfo.isFlat, overwrite)
+        return viewDisplay(id, cx, cy, r, x2, y2, pitchInfo.isAcc, overwrite)
             
     }
 
