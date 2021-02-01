@@ -138,7 +138,7 @@ const ui_def = function(ui_api)
 
         return {
             key: "svg",
-            val: viewDisplay(`${className}-pal-disp`, 25, 25, default_r, 25, 25 - 10)
+            val: viewDisplay(`${className}-pal-disp`, 25, 25, default_r, 35, 25)
         }
     }
 
@@ -163,27 +163,11 @@ const ui_def = function(ui_api)
     function mapToData(viewData, container)
     {
         const containerRect = document.getElementById(`${container.id}-rect`);
-       
-//       console.log('mapToData', viewData, containerRect);
-
-        // don't need bbox now, since the rect has the info we need
-        //const bbox = ui_api.getBBoxAdjusted(containerDisplay);
-
-
-        const middleLine = document.getElementById(`${container.id}-line-3`);
-        const stepSize = container.dataset.lineSpacing * 0.5;
-
-        const y_pix = viewData.cy - parseFloat(middleLine.getAttribute('y1'));
-
-        const pitch = y2midi(y_pix, stepSize); 
-//        console.log("midi", pitch);
-
-      //  const bbox_y = parseFloat(containerRect.getAttribute('y'));
-//        const bbox_height = parseFloat(containerRect.getAttribute('height'));
+    
+        const pitch = y2midi(viewData.cy, container); 
 
         const bbox_x = parseFloat(containerRect.getAttribute('x'));
         const time = ((viewData.cx-bbox_x) * x2time) + parseFloat(container.dataset.time);// + parseFloat(container.dataset.duration);
-        
         
         const duration = default_duration;
 
@@ -264,48 +248,24 @@ const ui_def = function(ui_api)
         }
     }
 
-    function y2midi(y, stepSpacing, accidentalType = "sharp")
+    function y2midi(y, container, accidentalType = "sharp")
     {
+        const middleLine = document.getElementById(`${container.id}-line-3`);
+        const stepSize = container.dataset.lineSpacing * 0.5;
 
-        const y_steps = Math.floor(y / stepSpacing);
-     //    console.log("y2midi", midiMiddleLine - y_steps);
-
-        return  midiMiddleLine - y_steps;
+        const y_pix = parseFloat(middleLine.getAttribute('y1')) - y;
         
+        const y_steps = Math.floor( y_pix / stepSize);
 
-        const middleLine = 59;
-        const midiNote = y - middleLine;
-        const chroma = Math.floor(midiNote) % 12;
-        
-        const octShift = Number(midiNote < 0);
-        const oct = Math.floor( midiNote / 12 );
+        return  midiMiddleLine + y_steps;
 
-        // line offset from B natural
-        const sharpSteps =    [ 0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6 ];
-        const flatSteps =     [ 0, 1, 2, 2, 3, 3, 4, 5, 5, 6, 6, 7 ];
-
-        const chromaAccidList =   [ 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0 ];
-
-        const lineOffset = accidentalType == "sharp" ? sharpSteps : flatSteps; 
-
-        const lineYoffset = lineOffset[ chroma ] * stepSpacing;
-        const octaveYoffset = oct * (stepSpacing * 7);
-
-        // add num ledgerlines here?
-
-        const isAcc = chromaAccidList[ chroma ] ? accidentalType : null;
-
-        return {
-            yOffset: octaveYoffset - lineYoffset,
-            isAcc
-        }
     }
 
 
     function mapToView(data, container, id, overwrite = true)
     {
         const containerRect = document.getElementById(`${container.id}-rect`);
-        console.log('data', data, container);
+       // console.log('data', data, container);
 
 
         // don't need bbox now, since the rect has the info we need
@@ -436,29 +396,24 @@ const ui_def = function(ui_api)
      * returns new view object in drawsocket format, to be drawn
      */
     function creatNewFromMouseEvent(event)
-    {
+    {      
+        const container = ui_api.getCurrentContext();
+
+        const stepSpacing = parseFloat(container.dataset.lineSpacing) / 2.;
 
         const pt = ui_api.getSVGCoordsFromEvent(event);
         const cx = pt.x;
-        const cy = pt.y;
-        const r = default_r; 
-        const x2 = cx + r;
-        const y2 = cy - 10;
+        const cy = Math.floor( pt.y / stepSpacing) * stepSpacing ;
+        const r = stepSpacing - 2; 
+        const x2 = cx + dataInstace.duration * time2x;
+        const y2 = cy;
 
         const uniqueID = `${className}_u_${ui_api.fairlyUniqueString()}`;
-
-        const container = ui_api.getCurrentContext();
+        
         const eventElement = container.querySelector('.contents');
 
         const dataObj = mapToData({ cx, cy, r, x2, y2 }, container );
-/*
-// example of creating an extra point via internal scripting
-        let viewObj = mapToView({
-                            time: dataObj.time + 0.1, 
-                            pitch: dataObj.pitch, 
-                            azim: dataObj.azim + 1
-                       }, container, uniqueID+'_test' );
-*/
+
        
         // create new symbol in view
         ui_api.drawsocketInput([
@@ -471,7 +426,7 @@ const ui_def = function(ui_api)
                 val: {
                     class: `${className} symbol`,
                     parent: eventElement.id,
-                    ...viewDisplay(uniqueID, cx, cy, r, cx + r, cy - 10),
+                    ...viewDisplay(uniqueID, cx, cy, r, x2, cy ),
                     ...ui_api.dataToHTML(dataObj)//,
                     //onclick: function(e){ console.log('ello', e)}
 
@@ -520,28 +475,18 @@ const ui_def = function(ui_api)
 
             const stepSpacing = parseFloat(container.dataset.lineSpacing) / 2.;
 
-            if( sprite && e.altKey )
-            {
-                let circle = sprite.querySelector('circle');
-                cx = circle.getAttribute('cx');
-                cy = midi2y( y2midi(circle.getAttribute('cy'), stepSpacing), stepSpacing);                
-                //${className}-sprite
-            }
-            else
-            {
-                cx = x;
-                cy = midi2y( y2midi(y, stepSpacing), stepSpacing);  ;
-            }
-
-         
-            const r = default_r; 
+            cx = x;
+            cy = Math.floor(y / stepSpacing) * stepSpacing; 
+                 
+            console.log('cy', cy);
+            const r = stepSpacing - 2; 
     
             let dataObj = mapToData({
                     cx, 
                     cy, 
                     r, 
-                    x2: cx + r, 
-                    y2: cy - 10
+                    x2: cx + 10, 
+                    y2: cy
                 },
                 container
             );
@@ -670,9 +615,9 @@ const ui_def = function(ui_api)
             
             let container = element.closest('.container');
             
-            const stepSpacing = parseFloat(container.dataset.lineSpacing) / 2.;
-
-            const snapY = -midi2y( y2midi(delta_pos.y, stepSpacing), stepSpacing ).yOffset;
+            const stepSpacing = parseFloat(container.dataset.lineSpacing) * 0.5;
+    
+            const snapY = Math.floor(delta_pos.y / stepSpacing) * stepSpacing;
 
             //console.log('container', container, delta_pos.y, parseFloat(container.dataset.lineSpacing) / 2., y2midi(delta_pos.y));
             ui_api.translate(element, {
@@ -681,15 +626,15 @@ const ui_def = function(ui_api)
             });
         
 
-          //  console.log('snapY', snapY);
-
             const circ = element.querySelector('circle');
             const line = element.querySelector('line');
 
             const cx = parseFloat(circ.getAttribute('cx')) + delta_pos.x;
             const cy = parseFloat(circ.getAttribute('cy')) + snapY;
             const x2 = parseFloat(line.getAttribute('x2')) + delta_pos.x;
-            const y2 = parseFloat(line.getAttribute('y2')) + snapY;
+            const y2 = cy;
+
+            //console.log('cy', cy);
 
             let dataObj = mapToData(
                 { 
