@@ -211,9 +211,9 @@ const ui_def = function(ui_api)
     }
 
 
-    const sharpSteps =    [ 0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6 ];
-    const flatSteps =     [ 0, 1, 2, 2, 3, 3, 4, 5, 5, 6, 6, 7 ];
-    const chromaAccidList =   [ 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0 ];
+    const sharpSteps =          [ 0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6 ];
+    const flatSteps =           [ 0, 1, 2, 2, 3, 3, 4, 5, 5, 6, 6, 7 ];
+    const chromaAccidList =     [ 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1 ];
     const midiMiddleLine = 59;
 
     // maybe this should be in the parent stave? clef?
@@ -404,6 +404,7 @@ const ui_def = function(ui_api)
         const pt = ui_api.getSVGCoordsFromEvent(event);
         const cx = pt.x;
         const cy = Math.floor( pt.y / stepSpacing) * stepSpacing ;
+
         const r = stepSpacing - 2; 
         const x2 = cx + dataInstace.duration * time2x;
         const y2 = cy;
@@ -414,7 +415,10 @@ const ui_def = function(ui_api)
 
         const dataObj = mapToData({ cx, cy, r, x2, y2 }, container );
 
-       
+     //   console.log('new cy', cy, dataObj.pitch);
+
+        const newView = mapToView(dataObj, container, uniqueID);
+
         // create new symbol in view
         ui_api.drawsocketInput([
             {
@@ -426,7 +430,7 @@ const ui_def = function(ui_api)
                 val: {
                     class: `${className} symbol`,
                     parent: eventElement.id,
-                    ...viewDisplay(uniqueID, cx, cy, r, x2, cy ),
+                    ...newView,//viewDisplay(uniqueID, cx, cy, r, x2, cy ),
                     ...ui_api.dataToHTML(dataObj)//,
                     //onclick: function(e){ console.log('ello', e)}
 
@@ -478,7 +482,6 @@ const ui_def = function(ui_api)
             cx = x;
             cy = Math.floor(y / stepSpacing) * stepSpacing; 
                  
-            console.log('cy', cy);
             const r = stepSpacing - 2; 
     
             let dataObj = mapToData({
@@ -491,7 +494,7 @@ const ui_def = function(ui_api)
                 container
             );
 
-            dataObj.azim = azim;
+            console.log('cy', cy, dataObj.pitch);
 
             let viewObj = mapToView(dataObj, container, `${className}-sprite-disp`);
 
