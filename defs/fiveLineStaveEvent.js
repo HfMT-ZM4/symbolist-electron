@@ -3,8 +3,6 @@
 
 'use strict';
 
-const { drawsocketInput } = require("../ui_controller");
-
 
 //const sym_utils = root_require('utils')
 
@@ -360,16 +358,18 @@ const ui_def = function(ui_api)
         const y_pix = parseFloat(middleLine.getAttribute('y1')) - pitchInfo.yOffset;
        // console.log(middleLine, pitchInfo, y_pix);
 
-        const n_ledgerLines = Math.floor(pitchInfo.yOffset / lineSpacing) - 2;
+        const n_ledgerLines = Math.floor( Math.abs(pitchInfo.yOffset) / lineSpacing) - 2;
+        let sign = pitchInfo.yOffset < 0 ? -1 : 1;
 
-        let starty = parseFloat(middleLine.getAttribute('y1')) - (lineSpacing * 3);
+        let starty = parseFloat(middleLine.getAttribute('y1')) - (lineSpacing * 3) * sign;
+
         let ledgerLine_y = [];
         for( let i = 0; i < n_ledgerLines; i++)
         {
-            ledgerLine_y.push( starty - (i * lineSpacing) );
+            ledgerLine_y.push( starty - (i * lineSpacing) * sign );
         }
 
-        console.log('n_ledgerLines', ledgerLine_y);
+      //  console.log('n_ledgerLines', ledgerLine_y);
 
         const cx = bbox_x + ((data.time - parseFloat(container.dataset.time)) * time2x);
         const cy = y_pix;
