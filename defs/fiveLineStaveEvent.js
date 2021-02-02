@@ -3,6 +3,8 @@
 
 'use strict';
 
+const { drawsocketInput } = require("../ui_controller");
+
 
 //const sym_utils = root_require('utils')
 
@@ -27,15 +29,53 @@ const accidentalLookup = {
     natural: "&#xE261",
     sharp: "&#xE262",
 
-    'sharp-5': "&#xE2C3",
-    'flat-5': "&#xE2C2",
-    'natural-5': "&#xE2C1"
+// lowered 3rds for numerator (overtone) 
+
+    'flat-5^1o': "&#xE2C2",
+    'natural-5^1o': "&#xE2C1",
+    'sharp-5^1o': "&#xE2C3",
+
+    'flat-5^2o': "&#xE2CB",
+    'natural-5^2o': "&#xE2CC",
+    'sharp-5^2o': "&#xE2CD",
+
+    'flat-5^3o': "&#xE2CB",
+    'natural-5^3o': "&#xE2CC",
+    'sharp-5^3o': "&#xE2CD",
+
+// raised 3rds for denominator (undertone) (4/5, 16/25, 64/125)
+    'flat-5^1u': "&#xE2C6",
+    'natural-5^1u': "&#xE2C7",
+    'sharp-5^1u': "&#xE2C8",
+
+    'flat-5^2u': "&#xE2D0",
+    'natural-5^2u': "&#xE2D1",
+    'sharp-5^2u': "&#xE2D2",
+
+    'flat-5^3u': "&#xE2DA",
+    'natural-5^3u': "&#xE2DB",
+    'sharp-5^3u': "&#xE2DC",
+
+// 7ths
+
+    '7^1o': "&#xE2DE",
+    '7^2o': "&#xE2E0",
+
+    '7^2u': "&#xE2DF",
+    '7^2u': "&#xE2E1",
+
+// 11ths
+
+    '11^1u': "&#xE2E2",
+    '11^1o': "&#xE2E3",
+
+// 13th
+    '13^1o': "&#xE2E4",
+    '13^1u': "&#xE2E5"
 }
 
-/**
- * maybe eventually we will want to use this dataInstance signature 
- * to conform data when it arrives via udp
- */
+
+
 let dataInstace = {
     // class name, refering to the definition below
     class: className,
@@ -47,70 +87,12 @@ let dataInstace = {
     duration: 0.1,
     note: 'c:5',
     midi: 60,
-    ratio: 0,
+    ratio: '5/4',
+    hz_ref: 440, // later make this assignable to another note?
     accid: "natural",
     amp: 1
 }
 
-
-const viewDisplay = function(id, cx, cy, r, x2, y2, accidental = false, overwrite = true)
-{
-    
-    let obj = {
-        id,
-        new: (overwrite ? "g" : undefined),
-        children : [{
-            id: `${id}-notehead`,
-            new: (overwrite ? "circle" : undefined),
-            class: "notehead",
-            cx,
-            cy,
-            r,
-            style: {
-                fill : "black"
-            }
-        },
-        {
-            new: (overwrite ? "line" : undefined),
-            id: `${id}-duration`,
-            class: "duration-line",
-            x1: cx,
-            y1: cy,
-            x2, 
-            y2,
-            style: {
-                stroke: 'black',
-                'stroke-width' : 2
-            }
-        }]
-    };
-
-    if( accidental )
-    {
-        let oldAcc = document.getElementById(`${id}-accidental`);
-
-        obj.children.push({
-            new: (overwrite || !oldAcc ? "text" : undefined),
-            id: `${id}-accidental`,
-            text : accidentalLookup[accidental], //(accidental == "sharp" ? "&#xE262" : "&#xE260"),
-            class: "accidental",
-			x : cx - 15,
-            y : cy,
-            style: {
-                'font-size' : "23pt", // make this more dynamic
-			    'font-family' : "Bravura"
-            }
-        })
-    }
-    else
-    {
-        let oldAcc = document.getElementById(`${id}-accidental`);
-        if( oldAcc )
-            oldAcc.remove();
-    }
-
-    return obj;
-}
 
 
 /**
@@ -124,6 +106,103 @@ const viewDisplay = function(id, cx, cy, r, x2, y2, accidental = false, overwrit
  */
 const ui_def = function(ui_api) 
 {
+
+
+    const viewDisplay = function(id, cx, cy, r, x2, y2, ledgerLine_y = [], accidental = false, overwrite = true)
+    {
+        
+        let obj = {
+            id,
+            new: (overwrite ? "g" : undefined),
+            children : [{
+                id: `${id}-notehead`,
+                new: (overwrite ? "circle" : undefined),
+                class: "notehead",
+                cx,
+                cy,
+                r,
+                style: {
+                    fill : "black"
+                }
+            },
+            {
+                new: (overwrite ? "line" : undefined),
+                id: `${id}-duration`,
+                class: "duration-line",
+                x1: cx,
+                y1: cy,
+                x2, 
+                y2,
+                style: {
+                    stroke: 'black',
+                    'stroke-width' : 2
+                }
+            }]
+        };
+
+        if( accidental )
+        {
+            let oldAcc = document.getElementById(`${id}-accidental`);
+
+            obj.children.push({
+                new: (overwrite || !oldAcc ? "text" : undefined),
+                id: `${id}-accidental`,
+                text : accidentalLookup[accidental], //(accidental == "sharp" ? "&#xE262" : "&#xE260"),
+                class: "accidental",
+                x : cx - 15,
+                y : cy,
+                style: {
+                    'font-size' : "23pt", // make this more dynamic
+                    'font-family' : "Bravura"
+                }
+            })
+        }
+        else
+        {
+            let oldAcc = document.getElementById(`${id}-accidental`);
+            if( oldAcc )
+                oldAcc.remove();
+        }
+
+        let ledgerLine_g_exists = document.getElementById(`${id}-ledgerLines`);
+        if( ledgerLine_g_exists )
+        {
+            ui_api.drawsocketInput({
+                key: "clear",
+                val: `${id}-ledgerLines`
+            })
+        }
+
+        if( ledgerLine_y.length > 0 )
+        {
+
+            let ledgerLine_g = {
+                new: "g",
+                id: `${id}-ledgerLines`,
+                children: []  
+            }
+
+            ledgerLine_y.forEach( ledge_y => {
+                ledgerLine_g.children.push({
+                    new: "line",
+                    class : "staffline",
+                    x1: cx - 15,
+                    x2: cx + 15,
+                    y1: ledge_y,
+                    y2: ledge_y,
+                    style : {
+                        'stroke-width' : 0.5,
+                        stroke: 'black'
+                    }
+                })
+            })
+
+            obj.children.unshift( ledgerLine_g );
+        }
+       
+
+        return obj;
+    }
 
     // UI mode, "creation" or "edit", passed from renderer
     let m_mode = null;
@@ -214,7 +293,7 @@ const ui_def = function(ui_api)
     const sharpSteps =          [ 0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6 ];
     const flatSteps =           [ 0, 1, 2, 2, 3, 3, 4, 5, 5, 6, 6, 7 ];
     const chromaAccidList =     [ 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1 ];
-    const midiMiddleLine = 59;
+    const midiMiddleLine = 71;
 
     // maybe this should be in the parent stave? clef?
 
@@ -274,11 +353,23 @@ const ui_def = function(ui_api)
         const bbox_x = parseFloat(containerRect.getAttribute('x'));
        
         const middleLine = document.getElementById(`${container.id}-line-3`);
-        const stepSize = container.dataset.lineSpacing * 0.5;
-        const pitchInfo = midi2y(data.midi, stepSize, "sharp");
+        const lineSpacing = parseFloat(container.dataset.lineSpacing);
+        const stepSize = lineSpacing * 0.5;
 
+        const pitchInfo = midi2y( Math.round(data.midi), stepSize, "sharp");
         const y_pix = parseFloat(middleLine.getAttribute('y1')) - pitchInfo.yOffset;
        // console.log(middleLine, pitchInfo, y_pix);
+
+        const n_ledgerLines = Math.floor(pitchInfo.yOffset / lineSpacing) - 2;
+
+        let starty = parseFloat(middleLine.getAttribute('y1')) - (lineSpacing * 3);
+        let ledgerLine_y = [];
+        for( let i = 0; i < n_ledgerLines; i++)
+        {
+            ledgerLine_y.push( starty - (i * lineSpacing) );
+        }
+
+        console.log('n_ledgerLines', ledgerLine_y);
 
         const cx = bbox_x + ((data.time - parseFloat(container.dataset.time)) * time2x);
         const cy = y_pix;
@@ -288,20 +379,30 @@ const ui_def = function(ui_api)
 
         const r = stepSize - 2;
 
+        const accid = (data.accid ? data.accid : pitchInfo.isAcc);
 
-        return viewDisplay(id, cx, cy, r, x2, y2, pitchInfo.isAcc, overwrite)
+        return viewDisplay(id, cx, cy, r, x2, y2, ledgerLine_y,  accid, overwrite)
             
     }
 
 
     function fromData(dataObj, container)
     {
+
+         // filtering the dataObj since the id and parent aren't stored in the dataset
+         let dataset = {
+            time: dataObj.time,
+            duration: dataObj.duration
+        }
+
         const contentElement = container.querySelector('.contents');
         let midi = 0;
 
         if( dataObj.note ) // note name
         {
-            midi = ui_api.ntom(dataObj.note)
+            midi = ui_api.ntom(dataObj.note);
+            dataset.midi = midi;
+            dataset.note = note;
         }
         else if( dataObj.midi )
         {
@@ -310,14 +411,32 @@ const ui_def = function(ui_api)
         else if( dataObj.ratio )
         {
 
+            let ratio = ui_api.parseRatioStr( dataObj.ratio );
+            let primes = ui_api.getRatioPrimeCoefs(ratio[0], ratio[1]);
+
+            let accid = [];
+            Object.keys(primes.num).forEach( p => {
+                if( Number(p) > 2 )
+                    accid.push( `${(p == '5' ? 'sharp-' : '')}${p}^${primes.num[p]}o` )
+            })
+            
+            // sharp / flat needs refernece to base note pitch accidental 
+
+            Object.keys(primes.den).forEach( p => {
+                if( Number(p) > 2 )
+                    accid.push( `${(p == '5' ? 'flat-' : '')}${p}^${primes.num[p]}o` )
+            })
+            
+            console.log(accid, ui_api.reduceRatio(dataObj.ratio) );//could be way to use lookup for accidentals
+            midi = ui_api.ftom( ui_api.ratio2float( dataObj.ratio ) * 440 );
+
+            dataset.ratio = ratio;
+            dataset.midi = midi;
+            dataset.accid = accid;
+
         }
 
-        // filtering the dataObj since the id and parent aren't stored in the dataset
-        const dataset = {
-            time: dataObj.time,
-            midi,
-            duration: dataObj.duration
-        }
+       
 
         let isNew = true;
         

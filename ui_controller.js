@@ -30,7 +30,7 @@ const { makeDefaultInfoDisplay } = require('./lib/default-infopanel')
 
 const { insertSorted, insertSortedHTML, insertIndex } = require('./lib/sorted-array-utils')
 
-const { ntom, mton } = require('./lib/ntom-mton')
+const { ntom, mton, ftom, mtof, ratio2float, parseRatioStr, reduceRatio, getRatioPrimeCoefs } = require('./lib/ntom-mton')
 
 
 /**
@@ -104,7 +104,13 @@ let renderer_api = {
     insertIndex,
 
     ntom,
-    mton
+    mton,
+    ftom, 
+    mtof,
+    ratio2float,
+    reduceRatio,
+    getRatioPrimeCoefs,
+    parseRatioStr
 }
 
 
