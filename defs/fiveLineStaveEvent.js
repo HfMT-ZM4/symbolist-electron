@@ -45,7 +45,7 @@ let dataInstace = {
     
     time: 0,
     duration: 0.1,
-    pitch: 'c:5',
+    note: 'c:5',
     midi: 60,
     ratio: 0,
     accid: "natural",
@@ -164,7 +164,7 @@ const ui_def = function(ui_api)
     {
         const containerRect = document.getElementById(`${container.id}-rect`);
     
-        const pitch = y2midi(viewData.cy, container); 
+        const midi = y2midi(viewData.cy, container); 
 
         const bbox_x = parseFloat(containerRect.getAttribute('x'));
         const time = ((viewData.cx-bbox_x) * x2time) + parseFloat(container.dataset.time);// + parseFloat(container.dataset.duration);
@@ -173,7 +173,7 @@ const ui_def = function(ui_api)
 
         return {
             time, 
-            pitch,
+            midi,
             duration
         }
     }
@@ -275,7 +275,7 @@ const ui_def = function(ui_api)
        
         const middleLine = document.getElementById(`${container.id}-line-3`);
         const stepSize = container.dataset.lineSpacing * 0.5;
-        const pitchInfo = midi2y(data.pitch, stepSize, "sharp");
+        const pitchInfo = midi2y(data.midi, stepSize, "sharp");
 
         const y_pix = parseFloat(middleLine.getAttribute('y1')) - pitchInfo.yOffset;
        // console.log(middleLine, pitchInfo, y_pix);
@@ -297,14 +297,15 @@ const ui_def = function(ui_api)
     function fromData(dataObj, container)
     {
         const contentElement = container.querySelector('.contents');
+        let midi = 0;
 
-        if( dataObj.pitch )
+        if( dataObj.note ) // note name
         {
-
+            midi = ui_api.ntom(dataObj.note)
         }
         else if( dataObj.midi )
         {
-
+            midi = dataObj.midi;
         }
         else if( dataObj.ratio )
         {
@@ -314,7 +315,7 @@ const ui_def = function(ui_api)
         // filtering the dataObj since the id and parent aren't stored in the dataset
         const dataset = {
             time: dataObj.time,
-            pitch: dataObj.pitch,
+            midi,
             duration: dataObj.duration
         }
 
@@ -494,7 +495,7 @@ const ui_def = function(ui_api)
                 container
             );
 
-            console.log('cy', cy, dataObj.pitch);
+       //     console.log('cy', cy, dataObj.pitch);
 
             let viewObj = mapToView(dataObj, container, `${className}-sprite-disp`);
 

@@ -30,6 +30,9 @@ const { makeDefaultInfoDisplay } = require('./lib/default-infopanel')
 
 const { insertSorted, insertSortedHTML, insertIndex } = require('./lib/sorted-array-utils')
 
+const { ntom, mton } = require('./lib/ntom-mton')
+
+
 /**
  * globals
  */
@@ -98,7 +101,10 @@ let renderer_api = {
     
     insertSorted, 
     insertSortedHTML,
-    insertIndex
+    insertIndex,
+
+    ntom,
+    mton
 }
 
 
