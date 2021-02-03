@@ -83,7 +83,7 @@ let dataInstace = {
     
     time: 0,
     duration: 0.1,
-    note: 'c:5',
+    note: 'c5',
     midi: 60,
     ratio: '5/4',
     hz_ref: 440, // later make this assignable to another note?
