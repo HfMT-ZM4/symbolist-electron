@@ -371,8 +371,8 @@ const ui_def = function( ui_api )
     {
         if( typeof params.id != "undefined" && typeof params.time != "undefined" )
         {
-            let stave = document.getElementById(`${params.id}-staffline-group`);
-            let bbox = ui_api.getBBoxAdjusted(stave);
+            let rect = document.getElementById(`${params.id}-rect`);
+            let bbox = ui_api.getBBoxAdjusted(rect);
             ui_api.drawsocketInput({
                 key: "svg",
                 val: {

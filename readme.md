@@ -355,7 +355,7 @@ __Required__
 
 * `fromData` called from `ui_controller` when data is received and needs to be mapped to graphic representation.
 * `updateFromDataset` called from the inspector, when elements of the data should be updated.
-* `getContainerForData` required for container types [... complete this description later... ]
+* `getContainerForData` for container types, this function is called when a new data object is being set, if there are multiple containers of the same type, for example systems with line breaks, this function looks up teh container by a certain parameter, usually time.
         
 __Optional__
 * `editMode` (element, true/false)=> called from ui controller when entering edit mode
