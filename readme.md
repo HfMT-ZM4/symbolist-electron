@@ -49,15 +49,15 @@ See below for more information about the API for creating symbol definitions.
 ### Interface Components
 
 The `symbolist` graphic editor provides a set of basic tools for creating scores using the defined symbols and containers:
-* `document view`: the top level view of the applicaiton window.
+* `document view`: the top level view of the application window.
 * `menu bar`: the menu bar at the top of the screen or window, which provides access to various application functions.
 * `palette`: a set of buttons on in the side bar of the program which display icons of the `symbols` that have been defined for the current selected `container`. 
-* `tools`: (not yet implemented in the current version) a set of interactive tools that provide ways of creating new symbols, and applying transformations to exsisting elements (e.g. alignment of mulitple objects, or setting distributing objects, etc.)
-* `inspector`: a contextual menu for editing the semantic data of an object, which is then mapped to the graphic representatation.
+* `tools`: (not yet implemented in the current version) a set of interactive tools that provide ways of creating new symbols, and applying transformations to existing elements (e.g. alignment of multiple objects, or setting distributing objects, etc.)
+* `inspector`: a contextual menu for editing the semantic data of an object, which is then mapped to the graphic representation.
 
-On entering the application, the editor loads an configuration fie from the default load folder, or you can load a new config file after loading.
+On entering the application, the editor loads an configuration fie from the default load folder, or you can load a new config file after loading. The config file sets the top-level page setup and palette options.
 
-
+[ more details here ]
 
 ## JSON
 Data is stored in JSON format.
@@ -157,7 +157,7 @@ Score files load data into the editor view, and load tools and UI elements into 
 
 # API
 
-Each container's `definition` file has an attribute `palette` which lists the supportted `symbol` class names that can be used in the `container`.
+Each container's `definition` file has an attribute `palette` which lists the supported `symbol` class names that can be used in the `container`.
 
 eventually it would be great to have a GUI interface for defining a mapping definition.
 
