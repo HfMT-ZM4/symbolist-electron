@@ -169,16 +169,23 @@ There are two types of definition scripts:
 ## UI Definition
 
 
+### module.exports
 Values and UI handler callbacks defined and exported to the `UI controller` in the user scripts:
 
-* `class` the name of the class
-* `dataInstace` the default values for the semantic data
-* `palette` used for container classes, an array of names of other classes that can be used within this container type.
-* `getPaletteIcon` return the icon for display in the palette toolbar
-* `getInfoDisplay` return drawing commands for the inspector contextual menu (see `makeDefaultInfoDisplay` below).
+__Required__
+* `class` (string) the name of the class
+* `dataInstace` (object) the default values for the semantic data
+* `palette` (array) used for container classes, an array of names of other classes that can be used within this container type.
+* `getPaletteIcon` ()=> return the icon for display in the palette toolbar
+* `getInfoDisplay` ()=> return drawing commands for the inspector contextual menu (see `makeDefaultInfoDisplay` below).
 
-* `paletteSelected`: (true/false) used to trigger UI for creating new symbols from mouse data. Scripts should define mouse callbacks internally. Generally `cmd-click` is the way to create a new object.
+* `paletteSelected`: (true/false)=> called when the user clicks on the palette icon for this symbol, used to trigger custom UI for creating new symbols from mouse data. Scripts should define mouse callbacks internally. Generally `cmd-click` is the way to create a new object.
 
+
+* `fromData` map from data to graphic display
+* `updateFromDataset`
+        
+__Optional__
 * `editMode`, // 1/0 to enter/exit
 
 * `selected`,
@@ -186,12 +193,10 @@ Values and UI handler callbacks defined and exported to the `UI controller` in t
 * `translate`,
 * `applyTransformToData`
 
-* `fromData` map from data to graphic display
-* `updateFromDataset`
-        
 
 
-UI API helper functions:
+### UI API helper functions:
+The following functions are provided by the `ui_api` which is available to symbol definitions:
 * `uiDefs`, // access to the defs in the defs
 * `drawsocketInput`,
 * `sendToServer`, // renderer-event
