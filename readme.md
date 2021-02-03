@@ -214,7 +214,46 @@ html:
 
 # IO Messages
 
-`symbolist` has built in handlers for a set of features, which can be extended by user scripts.
+`symbolist` has built in handlers for a set of messages recived via OSC, which can be extended by user scripts, using a `key` / `val` syntax, where the `key` specifies the function to call, and the `val` are the parameter values to use for the call.
+
+For example, here is a `lookup` query to find elements that are returned by the parameters `time` in the `container` with the `id` "trio".
+
+
+```
+{
+    /key : "lookup:,
+    /val : {
+        /time : 0.1,
+        /id : "trio"
+    }
+}
+```
+
+The OSC message API supports the following keys:
+* `data`
+* `lookup`
+* `getLookupModel`
+
+* `call`: calls a function in the one or both of the class definitions. All of the paramaters in the `val` object will be passed to the function as an argument. Return values from the `io` controller are with the tag `return/io` and `return/ui` from the `ui`.
+  * `class` (required) class of the object to call
+  * `method` (required) name of object function to call
+
+```
+{
+    /key : "call",
+    /val : {
+        /function : "functionName",
+        /class : "className",
+        /id : "foo"
+        /someValue : 1,
+        /anotherValue : 2
+    }
+}
+```
+
+Note that the system will pass the same call to both definitions, so if both have a function of the same name they will both be called.
+
+
 
 # Library Definitions API
 
@@ -353,7 +392,7 @@ Values and handler callbacks defined and exported to the `IO Controller`:
 **Required**
 * `class`: (string) class name, corresponding to class name in UI Definition.
 * `comparator`: (a,b)=> comparator function to use to sort this symbol type, return -1, 0, or 1
-* `lookup`: (params, obj_ref) => hit detection function called when looking up from query point, returns information to send back to caller. `params` are user parameters included in the lookup query, `obj_ref` is the instance of this class type.
+* `lookup`: (params, obj_ref) => hit detection function called when looking up from query point, returns information to send back to caller. `params` are user parameters included in the lookup query, `obj_ref` is the instance of this class type. When the `lookup` key is received by the `io controller`, the system looks up the element by its `id`, generally the id will be of a container object. Then it is up to the container object's `lookup` function to iterate its child objects adn accumulate them into an output array to send back to the calling application.
 
 ### IO API helper functions:
 * `modelGet`

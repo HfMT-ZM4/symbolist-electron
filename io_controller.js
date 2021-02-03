@@ -687,17 +687,42 @@ function lookupResonseUDP(params)
    udpSend({
        lookup: ret 
     }) ;
-   /*
- //  console.log('lookupResonseUDP', ret);
-   if( Array.isArray(ret) )
-   {
-        ret.forEach( v => udpSend( v ) ); 
-   }
-   else
-   {
-        udpSend( ret ) 
-   }
-   */
+}
+
+
+function getLookupModelUDP(params)
+{
+    ;
+}
+
+function callFromIO(params)
+{
+    console.log('callFromIO', params);
+    if( typeof params.class != "undefined" && typeof params.method != "undefined" )
+    {
+
+        if( defs.has(params.class)  )
+        {  
+            const _def = defs.get(params.class);
+            if( typeof _def[params.method] != 'undefined')
+            {
+                const ret = _def[params.method](params);
+                if( ret )
+                {
+                    udpSend({
+                        'return/io': _def[params.method](params)
+                    })
+                }
+            }
+
+        }
+
+        // also sends to ui_controlller, so if the function has the same name in both defs it will be called in both places
+        process.send({
+            key: "call", 
+            val: params
+        })
+    }
 }
 
 /**
@@ -714,6 +739,12 @@ function udpRecieve(msg)
             break;
         case 'lookup':
             lookupResonseUDP(msg.val);
+            break;
+        case 'getLookupModel':
+            getLookupModelUDP(msg.val);
+            break;
+        case 'call':
+            callFromIO(msg.val);
             break;
         default:
             break;
@@ -761,7 +792,12 @@ function input(_obj)
         case 'update':
             udpSend(val);
             break;
-       
+
+        case 'io_out':
+            console.log('io_out', val);
+            udpSend(val);
+            break;    
+            
         case 'newScore':
             newScore();
             break;
@@ -785,6 +821,8 @@ function input(_obj)
         case 'loadScore':
             loadScore(val);
         break;
+
+        
 
         default:
             console.log('controller, unhandled key', key);

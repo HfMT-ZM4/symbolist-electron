@@ -291,6 +291,13 @@ const ui_def = function( ui_api )
 
     }
 
+    function test(params)
+    {
+        return {
+            yo: params
+        }
+    }
+
     // exported functions used by the symbolist renderer
     return {
         class: className,
@@ -306,7 +313,9 @@ const ui_def = function( ui_api )
         fromData,
 
 
-        getContainerForData
+        getContainerForData,
+
+        test
     }
 
 }
@@ -383,10 +392,19 @@ const io_def = (io_api) => {
      */
 
 
+    function test(params)
+    {
+        return {
+            yo: params
+        }
+    }
+
+
     return {
         class: className,
         comparator,
-        lookup
+        lookup,
+        test
     }
 }
 

@@ -469,10 +469,43 @@ ipcRenderer.on('io-message', (event, obj) => {
             symbolist_newScore();
             iterateContents(obj.val);
             break;
+        case 'call':
+            callFromIO(obj.val);
+            break;
         default:
             break;
     }
 })
+
+function io_out(msg)
+{
+    sendToServer({
+        key: 'io_out',
+        val: {
+            'return/ui' : msg
+        }
+    })
+}
+
+function callFromIO(params)
+{
+    if( typeof params.class != "undefined" && typeof params.method != "undefined" )
+    {
+
+        if( uiDefs.has(params.class)  )
+        {  
+            const _def = uiDefs.get(params.class);
+            if( typeof _def[params.method] != 'undefined')
+            {
+                const ret = _def[params.method](params);
+                if( ret )
+                {
+                    io_out(_def[params.method](params));
+                }
+            }
+        }
+    }
+}
 
 
 /** 

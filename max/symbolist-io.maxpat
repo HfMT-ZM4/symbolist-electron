@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 69.0, 417.0, 1612.0, 708.0 ],
+		"rect" : [ 119.0, 135.0, 1612.0, 708.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -376,13 +376,12 @@
 , 			{
 				"box" : 				{
 					"id" : "obj-66",
-					"linecount" : 2,
 					"maxclass" : "message",
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 193.0, 715.0, 177.0, 35.0 ],
-					"text" : "FullPacket 172 105553176057536"
+					"patching_rect" : [ 193.0, 715.0, 177.0, 22.0 ],
+					"text" : "FullPacket 228 6039343472"
 				}
 
 			}
@@ -830,8 +829,8 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 23.0, 537.0, 551.0, 102.0 ],
-					"text" : "/id : \"foo\",\n/class : \"fiveLineStaveEvent\",\n/container : \"oboe\",\n/time : 0.15922,\n/midi : 79.,\n/duration : 0.1"
+					"patching_rect" : [ 65.5, 766.0, 551.0, 102.0 ],
+					"text" : "/class : \"fiveLineStaveEvent\",\n/id : \"fiveLineStaveEvent_u_76542639-a7b4-4f44-970e-717294d604ef\",\n/container : \"oboe\",\n/time : 0.085,\n/midi : 74.,\n/duration : 0.1"
 				}
 
 			}
