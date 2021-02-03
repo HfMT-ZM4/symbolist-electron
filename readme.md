@@ -34,31 +34,28 @@ The `semantic data` is stored in a `model` or `score` which is a hierarchical da
   
 Containers function to frame their contents, giving them reference and context, like a plot graph frame, which provides a perspective for interpreting a set of data points.
 
+In most cases, to interpret a `symbol` from graphic to semantic representation, the interpreter will need information about the contextual parent `container` of the `symbol`, to define the orientation and scale for interpreting the graphics. 
+
 All symbols are stored in containers, where the top-level container is the score or browser window. 
 
 
 ## Editor
 The graphic user interface of `symbolist` is designed around the idea of symbol objects and containers. Graphic objects, or `symbols` are placed in `container` references which define a framing used to interpret the meaning of the `symbol`.
 
-In order to maintain an open and un-opinionated approach to authoring tools, `symbolist` tries not to specify how containers and symbols should look, act, or respond when you interact with them within the main application framework. Rather, the interaction and meanings of the symbols are defined in a library of object `definitions` which create these meanings through mapping semantic data to graphic drawing commands. Definitions can be shared and loaded to setup different composition environments.
+In order to maintain an open and un-opinionated approach to authoring tools, `symbolist` tries not to specify how containers and symbols should look, act, or respond when you interact with them within the application. Rather, the interaction and meanings of the symbols are defined in a library of object `definitions` which create these meanings through mapping semantic data to and from the graphic visualization. Definitions can be shared and loaded to setup different composition environments.
 
 See below for more information about the API for creating symbol definitions. 
 
-In most cases, to interpret a `symbol` from graphic to semantic representation the interpreter will need information about the parent `container`, which will usually defines an orientation for interpreting the graphics. For this reason, the `symbolist` editor is designed around the use of a symbol `palette` which displays the available `symbols` that are defined to be interpreted with a given `container`.
-
-the `container` as a way to set the contextual menu, which specifies which `symbols` may be used.
-
+### Interface Components
 
 The `symbolist` graphic editor provides a set of basic tools for creating scores using the defined symbols and containers:
-* `palette`: a set of icons on in the side bar of the program displays 
-* 
+* `document view`: the top level view of the applicaiton window.
+* `menu bar`: the menu bar at the top of the screen or window, which provides access to various application functions.
+* `palette`: a set of buttons on in the side bar of the program which display icons of the `symbols` that have been defined for the current selected `container`. 
+* `tools`: (not yet implemented in the current version) a set of interactive tools that provide ways of creating new symbols, and applying transformations to exsisting elements (e.g. alignment of mulitple objects, or setting distributing objects, etc.)
+* `inspector`: a contextual menu for editing the semantic data of an object, which is then mapped to the graphic representatation.
 
-
-
-For example, a `score` can be thought of as a hierarchy of containers
-
-To place an object in a 
-
+On entering the application, the editor loads an configuration fie from the default load folder, or you can load a new config file after loading.
 
 
 
@@ -159,6 +156,8 @@ Score files load data into the editor view, and load tools and UI elements into 
 
 
 # API
+
+Each container's `definition` file has an attribute `palette` which lists the supportted `symbol` class names that can be used in the `container`.
 
 eventually it would be great to have a GUI interface for defining a mapping definition.
 
