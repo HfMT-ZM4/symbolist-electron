@@ -57,7 +57,18 @@ The `symbolist` graphic editor provides a set of basic tools for creating scores
 
 On entering the application, the editor loads a score or initialization file from the default load folder, or you can load a new config file after loading. The config file sets the top-level page setup and palette options.
 
-[ more details here ]
+A typical sequence of creating a score might be as follows:
+
+1. the user opens a workspace, with one or more containers displayed on the screen, for example an empty rectangle which is like a piece of paper.
+2. selecting the "paper" container rectangle, the user then sets the container as the new `context`, by pressing the `[s]` key (or selecting from the appicaiton menu).
+3. once setting the context, the `palette` toolbar is populated with icons of symbols that are defined with the selected container context type.
+4. clicking on one of the symbol icons, puts the interface into "creation" or "palette mode", where the mouse interaction is now designed for use with this specific symbol type.
+5. holding the CMD button, creates a preview of the symbol how it will appear when you click, and some text is displayed near the mouse that shows the semantic data associated with the graphic representation.
+6. after clicking the symbol is placed in the container.
+7. depending on the symbol type, you may be able to drag the symbol to a new place in the container, and the associated data is updated as a result.
+8. selecting the symbol and hitting the `[i]` button, brings up the inspector window, where you can edit the data and see the graphics updated in response.
+9. selecting and pressing the `[e]` button enters "edit mode" which is a modal context where different user interaction could change the values of the symbol in different ways. For example in edit mode you might be able to rotate an object in a certain way, or be able to visualize different connections to the graphic representation to other elements of the score which are not usually highlighted in the score view.
+
 
 ## JSON
 Data is stored in JSON format.
@@ -419,9 +430,18 @@ Values and handler callbacks defined and exported to the `IO Controller`:
 * `defHas`
 
 
+# Definition Logic
 
+## Mapping in Symbols vs. Containers 
+There are many different possible mappings, relationships and arrangements between containers and symbols, containers and other containers, between symbols and other symbols etc. In some cases, the container is a simple two dimensional outlining of a graphic plot, in the x and y axis, and the symbol placed in the graph may have a have higher number of parameters associated with it. In other cases, like a musical key signature, the container might have a higher degree of informaton than the symbol, just like a the key signature may have many sharps or flats, which are then inherited by the symbol.
 
+Conceptually it makes sense that the container is can be like a clef that defines an interpretation, and therefore the mapping script definition of the container should dictate the interpretation of the symbol. One the other hand, the symbols that exist in a container could potentially represent many more dimensions than the container, for example in a standard key signature, notesheads may mean diffent things, or even create a second order of container or context within the larger container, for example gestural notation of breath, or bowing that exists in time, but only loosely connected to the key signature of the stave.
 
+For the creation of `symbolist` definitions there are no rules! But there seems to be a slight affordance towards the placement of mapping logic in the symbol rather than the container, where on creation the symbol looks to the container for reference information, but performs its own mapping logic within the symbol scriipt. These are just observations in case they might be useful.
+
+## Program Logic
+
+give details of which functions get called in the typical sequence of events
 
 [ ... documentation in process! please excuse spelling and fragmentation ... ]
 
