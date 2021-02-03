@@ -690,14 +690,32 @@ function lookupResonseUDP(params)
 }
 
 
-function getLookupModelUDP(params)
+function getFormattedLookupUDP(params)
 {
-    ;
+    if( typeof params.class != "undefined" && typeof params.method != "undefined" )
+    {
+
+        if( defs.has(params.class)  )
+        {  
+            const _def = defs.get(params.class);
+            if( typeof _def.formattedLookup != 'undefined')
+            {
+                const ret = _def.formattedLookup(params);
+                if( ret )
+                {
+                    udpSend({
+                        'formatted': ret
+                    })
+                }
+            }
+
+        }
+    }
 }
 
 function callFromIO(params)
 {
-    console.log('callFromIO', params);
+   // console.log('callFromIO', params);
     if( typeof params.class != "undefined" && typeof params.method != "undefined" )
     {
 
@@ -710,7 +728,7 @@ function callFromIO(params)
                 if( ret )
                 {
                     udpSend({
-                        'return/io': _def[params.method](params)
+                        'return/io': ret
                     })
                 }
             }
@@ -740,8 +758,8 @@ function udpRecieve(msg)
         case 'lookup':
             lookupResonseUDP(msg.val);
             break;
-        case 'getLookupModel':
-            getLookupModelUDP(msg.val);
+        case 'getFormattedLookup':
+            getFormattedLookupUDP(msg.val);
             break;
         case 'call':
             callFromIO(msg.val);
