@@ -323,11 +323,12 @@ function loadDefFiles(folder)
 
 function addToModel( dataobj )
 {
-  // console.log('setting val into model', dataobj )
+//    console.log('setting val into model', dataobj )
 
     // set object into flat model array
     if( model.has(dataobj.id) )
     {
+        console.log('updating exsiting val in model', dataobj )
         let ref = model.get(dataobj.id);
         for (const [key, value] of Object.entries(dataobj)) 
         {
@@ -337,9 +338,9 @@ function addToModel( dataobj )
     }
     else {
         model.set( dataobj.id, dataobj );
+        addToScore(dataobj);
     }
 
-    addToScore(dataobj);
 //    addToStructuredLookup(dataobj);
 }
 
@@ -675,7 +676,7 @@ function buildModelLookup()
 {
     console.log('buildModelLookup');
 
-    containers.forEach( (val, key ) => {
+    model.forEach( (val, key ) => {
         console.log( `${key} : ${val}` );
     })
 }
@@ -692,24 +693,26 @@ function lookupResonseUDP(params)
 
 function getFormattedLookupUDP(params)
 {
-    if( typeof params.class != "undefined" && typeof params.method != "undefined" )
+    if( typeof params.id != "undefined"  )
     {
 
-        if( defs.has(params.class)  )
-        {  
-            const _def = defs.get(params.class);
-            if( typeof _def.formattedLookup != 'undefined')
+        if( modelHas(params.id) )
+        {
+            const obj = modelGet(params.id);
+            const def = defGet(obj.class);
+
+            if( typeof def.getFormattedLookup != 'undefined')
             {
-                const ret = _def.formattedLookup(params);
+                const ret = def.getFormattedLookup(params, obj);
                 if( ret )
                 {
                     udpSend({
                         'formatted': ret
                     })
                 }
-            }
-
+            }      
         }
+
     }
 }
 

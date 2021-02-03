@@ -251,7 +251,8 @@ The OSC message API supports the following keys:
 ```
 * `lookup`: looks up a point in a container, based on a sorting function specified in the definition. For example, this can be used to get all events active at a given time. Parameters:
   * `id`: (required) the `id` of the container to lookup in. Containers will generally iterate all child objects, so for example if you use the `id` of the top level score you should be looking up in to all sub-containers.
-* `getFormattedLookup`: optional function that might be defined in an `io` script that outputs an object formatted for a differnt type of player/render. For example, this function might return a list of `/x` and `/y` values for use with the `o.lookup~` Max object, or create a MIDI file export etc. All parameters included in the `val` object will be sent to the `getFormattedLookup` as a parameters object.
+* `getFormattedLookup`: optional function that might be defined in an `io` script that outputs an object formatted for a differnt type of player/render. For example, this function might return a list of `/x` and `/y` values for use with the `o.lookup~` Max object, or create a MIDI file export etc. All parameters included in the `val` object will be sent to the `getFormattedLookup` as a parameters object. Parameters:
+  * `id`: (required)
 * `call`: calls a function in the one or both of the class definitions. All of the paramaters in the `val` object will be passed to the function as an argument. Return values from the `io` controller are with the tag `return/io` and `return/ui` from the `ui`.
   * `class` (required) class of the object to call
   * `method` (required) name of object function to call

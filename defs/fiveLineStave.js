@@ -442,24 +442,42 @@ const io_def = (io_api) => {
         return ret_obj;
     }
 
-/**
-     * 
-     * @param {Object} params values to use for the lookup, user definable
-     * 
-     * in the current example, the only params we use are time, but there could
-     * be others in future, for example, by angle, or ???
-     * 
-     * could use the same comparator as above
-     * if comparator(params, prev_obj) == -1 && comparator(params, obj) >= 0 
-     *      => note_on
-     * 
-     */
+    function getFormattedLookup(params, obj_ref )
+    {
+        let ret = [];
+
+        if( typeof obj_ref.contents != "undefined" )
+        {
+            obj_ref.contents.forEach(obj => {
+                const def = io_api.defGet(obj.class);
+                const event = def.getFormattedLookup(params, obj);
+                if( event )
+                {
+                    ret.push(event);
+                }
+            });
+        
+        }
+        else
+        {
+            ret = {
+                lookup_error: `no element with id "${params.id}" found`
+            };
+        }
+
+      //  console.log(`${className} ret ${JSON.stringify(ret)}`);
+        let ret_obj = {};
+        ret_obj[obj_ref.id] = ret;
+        
+        return ret_obj;
+    }
 
 
     return {
         class: className,
         comparator,
-        lookup
+        lookup,
+        getFormattedLookup
     }
 }
 

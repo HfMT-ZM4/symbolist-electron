@@ -389,7 +389,8 @@ const ui_def = function(ui_api)
     function fromData(dataObj, container)
     {
 
-         // filtering the dataObj since the id and parent aren't stored in the dataset
+        console.log(dataObj);
+        // filtering the dataObj since the id and parent aren't stored in the dataset
          let dataset = {
             time: dataObj.time,
             duration: dataObj.duration
@@ -398,15 +399,14 @@ const ui_def = function(ui_api)
         const contentElement = container.querySelector('.contents');
         let midi = 0;
 
-        if( dataObj.note ) // note name
+        if( typeof dataObj.note != "undefined") // note name
         {
-            midi = ui_api.ntom(dataObj.note);
-            dataset.midi = midi;
-            dataset.note = note;
+            dataset.midi = ui_api.ntom(dataObj.note);
+            dataset.note = dataObj.note;
         }
-        else if( dataObj.midi )
+        else if( typeof dataObj.midi != "undefined")
         {
-            midi = dataObj.midi;
+            dataset.midi = dataObj.midi;
         }
         else if( dataObj.ratio )
         {
@@ -449,7 +449,7 @@ const ui_def = function(ui_api)
 
         let newView = mapToView(dataset, container, dataObj.id, isNew );
 
-       //   console.log('newView', newView);
+        console.log('newView', newView, dataset);
 
 
         ui_api.drawsocketInput({
@@ -462,6 +462,16 @@ const ui_def = function(ui_api)
             }
         });
 
+        // send out with updated dataset info
+        ui_api.sendToServer({
+            key: "data",
+            val: {
+                class: className,
+                id: dataObj.id,
+                container: container.id,
+                ...dataset
+            }
+        })
     }
 
    /**
@@ -891,12 +901,24 @@ const io_def = (io_api) => {
 
         return null;
     }
+
+    function getFormattedLookup( params, obj_ref )
+    {
+        return {
+            id: obj_ref.id,
+            time: obj_ref.time,
+            duration: obj_ref.duration,
+            midi: obj_ref.midi
+        }
+    }
+ 
  
 
     return {
         class: className,
         comparator,
-        lookup
+        lookup,
+        getFormattedLookup
     }
 }
 
