@@ -304,12 +304,10 @@ __Required__
 * `updateFromDataset` called from the inspector, when elements of the data should be updated.
         
 __Optional__
-* `editMode`, // 1/0 to enter/exit
-
-* `selected`,
-        
-* `translate`,
-* `applyTransformToData`
+* `editMode` (element, true/false)=> called from ui controller when entering edit mode
+* `selected` (element, true/false)=> called from ui controller on selection, return true if selection is handled in the script, false will trigger the default selection mechanics.
+* `translate` (element, delta_pos) => called from ui on click drag from a window event listener which works better than a local listener. Return true if handled by the symbol. The `ui_api.translate` can be used to translate the object using the API function by appying a transform matrix to the top-level group object. 
+* `applyTransformToData` (optional but usually needed): on mouseup, if selected objects have changed, the ui controller calls `applyTransformToData` which applies the transform matrix to the SVG attribute values. This is important becuase the attribute values are used for mapping. Inside the `applyTransformToData` function, the `ui_api.applyTransform` can be used to apply the transform to the SVG data, and then you will want a function like `mapToData` to map the updated graphic information to the data.
 
 __Typical Internal Functions__
 These functions have no specific required name or use outside the definition, but are used in the common script patterns so far:
@@ -317,8 +315,8 @@ These functions have no specific required name or use outside the definition, bu
 * `window event listeners` to handle mouse interaction, typically created in the `paletteSelected` and `editMode` functions.
 * `creatNewFromMouseEvent`: a handler mouse down creation of new semantic data and graphic representation pair. Often some parts of the data are using default values set in the `dataInstance`. Optionally, more advanced UI interaction could be used to create different aspects of the data, for example using mouse drag or key modifiers.
 * `mapToView` mapping from data to graphic view, usually called from `fromData`, but also used in `updateFromDataset`
-* `mapToData`
-* `viewDisplay`
+* `mapToData` map from the graphic view to data representation
+* `viewDisplay` helper function to input view parameters, and return a `drawsocket` format object to send to the browser.
 
 ### UI API helper functions:
 The following functions are provided by the `ui_api` which is available to symbol definitions:
@@ -356,9 +354,9 @@ The following functions are provided by the `ui_api` which is available to symbo
 Values and handler callbacks defined and exported to the `IO Controller`:
 
 **Required**
-`class`: (string) class name, corresponding to class name in UI Definition.
-`comparator`: (a,b)=> comparator function to use to sort this symbol type, return -1, 0, or 1
-`lookup`: (params, obj_ref) => hit detection function called when looking up from query point, returns information to send back to caller. `params` are user parameters included in the lookup query, `obj_ref` is the instance of this class type.
+* `class`: (string) class name, corresponding to class name in UI Definition.
+* `comparator`: (a,b)=> comparator function to use to sort this symbol type, return -1, 0, or 1
+* `lookup`: (params, obj_ref) => hit detection function called when looking up from query point, returns information to send back to caller. `params` are user parameters included in the lookup query, `obj_ref` is the instance of this class type.
 
 ### IO API helper functions:
 * `modelGet`
