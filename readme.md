@@ -235,10 +235,7 @@ const className = "foo";
 
 let dataInstance = {
     class: className,
-
-    // unique id for this instance
     id : `${className}-0`,
-    
     time: 0,
     duration: 0.1,
     note: 'c:5'
