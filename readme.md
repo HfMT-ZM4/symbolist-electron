@@ -1,12 +1,12 @@
 # Symbolist
 
-`Symbolist` is an in-development applicaiton for experimental notation, with the goal of creating a working environment for developing symbolic notation for multimedia which can be interpreted and performed by electronics. 
+`Symbolist` is an in-development application for experimental notation, with the goal of creating a working environment for developing symbolic notation for multimedia which can be interpreted and performed by electronics. 
 
-The program aims to provide an open play space, with tools for experimentation, and thinking visually about relationships between representation and interpreation in media performance.
+The program aims to provide an open play space, with tools for experimentation, and thinking visually about relationships between representation and interpretation in media performance.
 
 There are three basic ideas at the core of `symbolist`:
 
-* `semantic data`, which specifies the various attributes of informaiton about a symbolic object, in terms of the *meaning* to the author. The `sematic data` is the main holder of information in the system, which arranged as a score can function like a database of hierarhcal information. For example, a note might contain information about pitch and duration, or a point in space might contain x, y, and z values.
+* `semantic data`, which specifies the various attributes of information about a symbolic object, in terms of the *meaning* to the author. The `semantic data` is the main holder of information in the system, which arranged as a score can function like a database of hierarchal information. For example, a note might contain information about pitch and duration, or a point in space might contain x, y, and z values.
 * `graphic representation`, the visual representation of the semantic data.
 * `performance media`, the performance mechanism which can be used to control different media types using the score data as parameter values. 
   
@@ -17,20 +17,49 @@ Between each of these there is a layer of mapping to and from the `semantic data
 * `graphic representation` to `semantic data` is used to edit, or create new data entries, based on graphic information.
 * `semantic data` to `performance media` is the use of the data as a sequence of events that can be played in time (or used to control other processes not necessarily in time).
 
-## Application Components
+## Application Structure
 
 The main structure of the platform is currently in three parts:
 
-* the `editor`, a browser-based graphic user interface which displays the graphic representation of the data, and allows the user to edit and create new data from graphic interaction. The editor loads a libary of scripts that define mappings to and from data and graphics formats. The editor receives and outputs data in the semantic format, keeping the concerns of drawing within the browser-side. (footnote: there is the possibility of also using an external process to define the drawing commands, but this is not yet implemented).
+* the `editor`, a browser-based graphic user interface which displays the graphic representation of the data, and allows the user to edit and create new data from graphic interaction. The editor loads a library of scripts that define mappings to and from data and graphics formats. The editor receives and outputs data in the semantic format, keeping the concerns of drawing within the browser-side. (footnote: there is the possibility of also using an external process to define the drawing commands, but this is not yet implemented).
 * the `server`, a node.js (or electron) based webserver which routes messages between the `editor` and the `io` system, and handles operating system commands like reading and writing files.
-* the `io` server, which handles input and ouput from external soruces via OSC. The `io` server holds a copy of the score in its sematic format, and loads a parallel libary of user scripts to the `editor` which define the mapping to (and potentially from) other media sources. The `io` server might also be used to reformat the score into a format that can be performed by a another sequencing tool or program like MaxMSP.
+* the `io` server, which handles input and output from external sources via OSC. The `io` server holds a copy of the score in its semantic format, and loads a parallel library of user scripts to the `editor` which define the mapping to (and potentially from) other media sources. The `io` server might also be used to reformat the score into a format that can be performed by a another sequencing tool or program like MaxMSP.
 
 
-## Data Format
+## Symbol Types
 
 The `semantic data` is stored in a `model` or `score` which is a hierarchical data object with two types of objects:
 * `symbol` objects which specify the details of an instance of a `class` type. Typically, symbols in musical contexts would be something like an *event*.
-* `symbol-container` is an symbol object that contain other symbols, or containers. Containers can also be events, the main difference is that the container type has a member value called `contents` which holds an array of sub `symbols`.
+* `symbol-container` is a symbol object that contain other symbols, or containers. Containers can also be events, the main difference is that the container type has a member value called `contents` which holds an array of sub `symbols`.
+  
+Containers function to frame their contents, giving them reference and context, like a plot graph frame, which provides a perspective for interpreting a set of data points.
+
+All symbols are stored in containers, where the top-level container is the score or browser window. 
+
+
+## Editor
+The graphic user interface of `symbolist` is designed around the idea of symbol objects and containers. Graphic objects, or `symbols` are placed in `container` references which define a framing used to interpret the meaning of the `symbol`.
+
+In order to maintain an open and un-opinionated approach to authoring tools, `symbolist` tries not to specify how containers and symbols should look, act, or respond when you interact with them within the main application framework. Rather, the interaction and meanings of the symbols are defined in a library of object `definitions` which create these meanings through mapping semantic data to graphic drawing commands. Definitions can be shared and loaded to setup different composition environments.
+
+See below for more information about the API for creating symbol definitions. 
+
+In most cases, to interpret a `symbol` from graphic to semantic representation the interpreter will need information about the parent `container`, which will usually defines an orientation for interpreting the graphics. For this reason, the `symbolist` editor is designed around the use of a symbol `palette` which displays the available `symbols` that are defined to be interpreted with a given `container`.
+
+the `container` as a way to set the contextual menu, which specifies which `symbols` may be used.
+
+
+The `symbolist` graphic editor provides a set of basic tools for creating scores using the defined symbols and containers:
+* `palette`: a set of icons on in the side bar of the program displays 
+* 
+
+
+
+For example, a `score` can be thought of as a hierarchy of containers
+
+To place an object in a 
+
+
 
 
 ## JSON
@@ -127,5 +156,10 @@ Score files load data into the editor view, and load tools and UI elements into 
     }
 }
 ```
+
+
+# API
+
+eventually it would be great to have a GUI interface for defining a mapping definition.
 
 ... writing in progress
