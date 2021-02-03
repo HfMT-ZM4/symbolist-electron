@@ -60,7 +60,7 @@ On entering the application, the editor loads a score or initialization file fro
 A typical sequence of creating a score might be as follows:
 
 1. the user opens a workspace, with one or more containers displayed on the screen, for example an empty rectangle which is like a piece of paper.
-2. selecting the "paper" container rectangle, the user then sets the container as the new `context`, by pressing the `[s]` key (or selecting from the appicaiton menu).
+2. selecting the "paper" container rectangle, the user then sets the container as the new `context`, by pressing the `[s]` key (or selecting from the application menu).
 3. once setting the context, the `palette` toolbar is populated with icons of symbols that are defined with the selected container context type.
 4. clicking on one of the symbol icons, puts the interface into "creation" or "palette mode", where the mouse interaction is now designed for use with this specific symbol type.
 5. holding the CMD button, creates a preview of the symbol how it will appear when you click, and some text is displayed near the mouse that shows the semantic data associated with the graphic representation.
@@ -262,9 +262,9 @@ The OSC message API supports the following keys:
 ```
 * `lookup`: looks up a point in a container, based on a sorting function specified in the definition. For example, this can be used to get all events active at a given time. Parameters:
   * `id`: (required) the `id` of the container to lookup in. Containers will generally iterate all child objects, so for example if you use the `id` of the top level score you should be looking up in to all sub-containers.
-* `getFormattedLookup`: optional function that might be defined in an `io` script that outputs an object formatted for a differnt type of player/render. For example, this function might return a list of `/x` and `/y` values for use with the `o.lookup~` Max object, or create a MIDI file export etc. All parameters included in the `val` object will be sent to the `getFormattedLookup` as a parameters object. Parameters:
+* `getFormattedLookup`: optional function that might be defined in an `io` script that outputs an object formatted for a different type of player/render. For example, this function might return a list of `/x` and `/y` values for use with the `o.lookup~` Max object, or create a MIDI file export etc. All parameters included in the `val` object will be sent to the `getFormattedLookup` as a parameters object. Parameters:
   * `id`: (required)
-* `call`: calls a function in the one or both of the class definitions. All of the paramaters in the `val` object will be passed to the function as an argument. Return values from the `io` controller are with the tag `return/io` and `return/ui` from the `ui`.
+* `call`: calls a function in the one or both of the class definitions. All of the parameters in the `val` object will be passed to the function as an argument. Return values from the `io` controller are with the tag `return/io` and `return/ui` from the `ui`.
   * `class` (required) class of the object to call
   * `method` (required) name of object function to call
 ```
@@ -366,13 +366,13 @@ __Required__
 
 * `fromData` called from `ui_controller` when data is received and needs to be mapped to graphic representation.
 * `updateFromDataset` called from the inspector, when elements of the data should be updated.
-* `getContainerForData` for container types, this function is called when a new data object is being set, if there are multiple containers of the same type, for example systems with line breaks, this function looks up teh container by a certain parameter, usually time.
+* `getContainerForData` for container types, this function is called when a new data object is being set, if there are multiple containers of the same type, for example systems with line breaks, this function looks up the container by a certain parameter, usually time.
         
 __Optional__
 * `editMode` (element, true/false)=> called from ui controller when entering edit mode
 * `selected` (element, true/false)=> called from ui controller on selection, return true if selection is handled in the script, false will trigger the default selection mechanics.
-* `translate` (element, delta_pos) => called from ui on click drag from a window event listener which works better than a local listener. Return true if handled by the symbol. The `ui_api.translate` can be used to translate the object using the API function by appying a transform matrix to the top-level group object. 
-* `applyTransformToData` (optional but usually needed): on mouseup, if selected objects have changed, the ui controller calls `applyTransformToData` which applies the transform matrix to the SVG attribute values. This is important becuase the attribute values are used for mapping. Inside the `applyTransformToData` function, the `ui_api.applyTransform` can be used to apply the transform to the SVG data, and then you will want a function like `mapToData` to map the updated graphic information to the data.
+* `translate` (element, delta_pos) => called from ui on click drag from a window event listener which works better than a local listener. Return true if handled by the symbol. The `ui_api.translate` can be used to translate the object using the API function by applying a transform matrix to the top-level group object. 
+* `applyTransformToData` (optional but usually needed): on mouseup, if selected objects have changed, the ui controller calls `applyTransformToData` which applies the transform matrix to the SVG attribute values. This is important because the attribute values are used for mapping. Inside the `applyTransformToData` function, the `ui_api.applyTransform` can be used to apply the transform to the SVG data, and then you will want a function like `mapToData` to map the updated graphic information to the data.
 
 __Typical Internal Functions__
 These functions have no specific required name or use outside the definition, but are used in the common script patterns so far:
@@ -421,7 +421,7 @@ Values and handler callbacks defined and exported to the `IO Controller`:
 **Required**
 * `class`: (string) class name, corresponding to class name in UI Definition.
 * `comparator`: (a,b)=> comparator function to use to sort this symbol type, return -1, 0, or 1
-* `lookup`: (params, obj_ref) => hit detection function called when looking up from query point, returns information to send back to caller. `params` are user parameters included in the lookup query, `obj_ref` is the instance of this class type. When the `lookup` key is received by the `io controller`, the system looks up the element by its `id`, generally the id will be of a container object. Then it is up to the container object's `lookup` function to iterate its child objects adn accumulate them into an output array to send back to the calling application.
+* `lookup`: (params, obj_ref) => hit detection function called when looking up from query point, returns information to send back to caller. `params` are user parameters included in the lookup query, `obj_ref` is the instance of this class type. When the `lookup` key is received by the `io controller`, the system looks up the element by its `id`, generally the id will be of a container object. Then it is up to the container object's `lookup` function to iterate its child objects and accumulate them into an output array to send back to the calling application.
 
 ### IO API helper functions:
 * `modelGet`
@@ -433,11 +433,11 @@ Values and handler callbacks defined and exported to the `IO Controller`:
 # Definition Logic
 
 ## Mapping in Symbols vs. Containers 
-There are many different possible mappings, relationships and arrangements between containers and symbols, containers and other containers, between symbols and other symbols etc. In some cases, the container is a simple two dimensional outlining of a graphic plot, in the x and y axis, and the symbol placed in the graph may have a have higher number of parameters associated with it. In other cases, like a musical key signature, the container might have a higher degree of informaton than the symbol, just like a the key signature may have many sharps or flats, which are then inherited by the symbol.
+There are many different possible mappings, relationships and arrangements between containers and symbols, containers and other containers, between symbols and other symbols etc. In some cases, the container is a simple two dimensional outlining of a graphic plot, in the x and y axis, and the symbol placed in the graph may have a have higher number of parameters associated with it. In other cases, like a musical key signature, the container might have a higher degree of information than the symbol, just like a the key signature may have many sharps or flats, which are then inherited by the symbol.
 
-Conceptually it makes sense that the container is can be like a clef that defines an interpretation, and therefore the mapping script definition of the container should dictate the interpretation of the symbol. One the other hand, the symbols that exist in a container could potentially represent many more dimensions than the container, for example in a standard key signature, notesheads may mean diffent things, or even create a second order of container or context within the larger container, for example gestural notation of breath, or bowing that exists in time, but only loosely connected to the key signature of the stave.
+Conceptually it makes sense that the container is can be like a clef that defines an interpretation, and therefore the mapping script definition of the container should dictate the interpretation of the symbol. One the other hand, the symbols that exist in a container could potentially represent many more dimensions than the container, for example in a standard key signature, noteheads may mean different things, or even create a second order of container or context within the larger container, for example gestural notation of breath, or bowing that exists in time, but only loosely connected to the key signature of the stave.
 
-For the creation of `symbolist` definitions there are no rules! But there seems to be a slight affordance towards the placement of mapping logic in the symbol rather than the container, where on creation the symbol looks to the container for reference information, but performs its own mapping logic within the symbol scriipt. These are just observations in case they might be useful.
+For the creation of `symbolist` definitions there are no rules! But there seems to be a slight affordance towards the placement of mapping logic in the symbol rather than the container, where on creation the symbol looks to the container for reference information, but performs its own mapping logic within the symbol script. These are just observations in case they might be useful.
 
 ## Program Logic
 
