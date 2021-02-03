@@ -21,7 +21,7 @@ Between each of these there is a layer of mapping to and from the `semantic data
 
 The main structure of the platform is currently in three parts:
 
-* the `editor`, a browser-based graphic user interface which displays the graphic representation of the data, and allows the user to edit and create new data from graphic interaction. The editor loads a library of scripts that define mappings to and from data and graphics formats. The editor receives and outputs data in the semantic format, keeping the concerns of drawing within the browser-side. (footnote: there is the possibility of also using an external process to define the drawing commands, but this is not yet implemented).
+* the `editor`, a browser-based graphic user interface which displays the graphic representation of the data, and allows the user to edit and create new data from graphic interaction. The editor loads a library of scripts that define mappings to and from data and graphics formats. The editor receives and outputs data in the semantic format, keeping the concerns of drawing within the browser-side.
 * the `server`, a node.js (or electron) based webserver which routes messages between the `editor` and the `io` system, and handles operating system commands like reading and writing files.
 * the `io` server, which handles input and output from external sources via OSC. The `io` server holds a copy of the score in its semantic format, and loads a parallel library of user scripts to the `editor` which define the mapping to (and potentially from) other media sources. The `io` server might also be used to reformat the score into a format that can be performed by a another sequencing tool or program like MaxMSP.
 
@@ -55,7 +55,7 @@ The `symbolist` graphic editor provides a set of basic tools for creating scores
 * `tools`: (not yet implemented in the current version) a set of interactive tools that provide ways of creating new symbols, and applying transformations to existing elements (e.g. alignment of multiple objects, or setting distributing objects, etc.)
 * `inspector`: a contextual menu for editing the semantic data of an object, which is then mapped to the graphic representation.
 
-On entering the application, the editor loads an configuration fie from the default load folder, or you can load a new config file after loading. The config file sets the top-level page setup and palette options.
+On entering the application, the editor loads a score or initialization file from the default load folder, or you can load a new config file after loading. The config file sets the top-level page setup and palette options.
 
 [ more details here ]
 
@@ -106,12 +106,13 @@ And here is a simple example of a `container` object of a type class `timeline`,
 ## Score Format
 
 Score files load data into the editor view, and load tools and UI elements into the editor window.
+* `about`: description of the file
+* `name`: title 
+* `tools`: see above
+* `palette`: see above
+* `score`: the top-level `symbol container` of the document
 
-* `tools`: 
-* `palette`: 
-
-
-
+An example initialization config file:
 
 ```
 {
@@ -155,10 +156,71 @@ Score files load data into the editor view, and load tools and UI elements into 
 ```
 
 
-# API
+# Library Definitions API
+
+Definition scripts are composed as Javscript modules which are loaded into the program at runtime.
+
+Eventually it is planned to provide a set of tools in the GUI for defining a mapping definition graphically but this is not yet implemented.
+
+There are two types of definition scripts:
+* `ui` definitions perform user interactions and mapping between semantic data representation and graphic representation.
+* `io` definitions are used to assist in the lookup/playback and mapping of the semantic data to media like sound synthesis, video, etc.
+
+## UI Definition
+
+
+Values and UI handler callbacks defined and exported to the `UI controller` in the user scripts:
+
+* `class` the name of the class
+* `dataInstace` the default values for the semantic data
+* `palette` used for container classes, an array of names of other classes that can be used within this container type.
+* `getPaletteIcon` return the icon for display in the palette toolbar
+* `getInfoDisplay` return drawing commands for the inspector contextual menu (see `makeDefaultInfoDisplay` below).
+
+* `paletteSelected`: (true/false) used to trigger UI for creating new symbols from mouse data. Scripts should define mouse callbacks internally. Generally `cmd-click` is the way to create a new object.
+
+* `editMode`, // 1/0 to enter/exit
+
+* `selected`,
+        
+* `translate`,
+* `applyTransformToData`
+
+* `fromData` map from data to graphic display
+* `updateFromDataset`
+        
+
+
+UI API helper functions:
+* `uiDefs`, // access to the defs in the defs
+* `drawsocketInput`,
+* `sendToServer`, // renderer-event
+* `fairlyUniqueString`,
+* `getCurrentContext`,
+* `getSelected`,
+* `dataToHTML`,
+* `makeDefaultInfoDisplay`,
+* `translate`,
+* `applyTransform`,
+* `getSVGCoordsFromEvent`,
+* `getBBoxAdjusted`,
+* `svgObj`,
+* `scrollOffset`,   
+* `insertSorted`, 
+* `insertSortedHTML`,
+* `insertIndex`,
+
+* `ntom`,
+* `mton`,
+* `ftom`, 
+* `mtof`,
+* `ratio2float`,
+* `reduceRatio`,
+* `getRatioPrimeCoefs`,
+* `parseRatioStr`
+
+
+
+[ ... documentation in process! please excuse spelling and fragmentation ... ]
 
 Each container's `definition` file has an attribute `palette` which lists the supported `symbol` class names that can be used in the `container`.
-
-eventually it would be great to have a GUI interface for defining a mapping definition.
-
-... writing in progress
