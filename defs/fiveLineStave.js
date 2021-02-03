@@ -360,8 +360,37 @@ const ui_def = function( ui_api )
             }
         });
 
+    }
 
 
+    /**
+     * 
+     * @param {object} params passed in from call/method syntax
+     */
+    function playbar(params)
+    {
+        if( typeof params.id != "undefined" && typeof params.time != "undefined" )
+        {
+            let stave = document.getElementById(`${params.id}-staffline-group`);
+            let bbox = ui_api.getBBoxAdjusted(stave);
+            ui_api.drawsocketInput({
+                key: "svg",
+                val: {
+                    id: `${className}-playbar`,
+                    parent: params.id,
+                    new: "line",
+                    x1: bbox.x + params.time * time2x,
+                    x2: bbox.x + params.time * time2x,
+                    y1: bbox.top,
+                    y2: bbox.bottom,
+                    style: {
+                        stroke: 'rgba(255, 0, 0, 0.5)',
+                        'stroke-width': 2
+                    }
+                    
+                }
+            })
+        }
     }
 
     // exported functions used by the symbolist renderer
@@ -378,8 +407,9 @@ const ui_def = function( ui_api )
         updateFromDataset,
         fromData,
 
+        getContainerForData,
 
-        getContainerForData
+        playbar
     }
 
 }
@@ -444,7 +474,12 @@ const io_def = (io_api) => {
 
     function getFormattedLookup(params, obj_ref )
     {
-        let ret = [];
+
+        let ret = {
+            time: [],
+            duration: [],
+            midi: []
+        };
 
         if( typeof obj_ref.contents != "undefined" )
         {
@@ -453,7 +488,9 @@ const io_def = (io_api) => {
                 const event = def.getFormattedLookup(params, obj);
                 if( event )
                 {
-                    ret.push(event);
+                    ret.time.push(event.time);
+                    ret.duration.push(event.duration);
+                    ret.midi.push(event.midi);
                 }
             });
         

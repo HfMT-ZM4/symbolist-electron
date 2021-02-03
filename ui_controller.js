@@ -472,6 +472,9 @@ ipcRenderer.on('io-message', (event, obj) => {
         case 'call':
             callFromIO(obj.val);
             break;
+        case 'drawsocket':
+            drawsocketInput(obj.val)
+            break;
         default:
             break;
     }

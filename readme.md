@@ -256,7 +256,6 @@ The OSC message API supports the following keys:
 * `call`: calls a function in the one or both of the class definitions. All of the paramaters in the `val` object will be passed to the function as an argument. Return values from the `io` controller are with the tag `return/io` and `return/ui` from the `ui`.
   * `class` (required) class of the object to call
   * `method` (required) name of object function to call
-
 ```
 {
     /key : "call",
@@ -269,9 +268,8 @@ The OSC message API supports the following keys:
     }
 }
 ```
-
 Note that the system will pass the same call to both definitions, so if both have a function of the same name they will both be called.
-
+* `drawsocket`: forwards drawsocket format messages directly to drawsocket, bypassing the symbolist mapping.
 
 
 # Library Definitions API
@@ -357,6 +355,7 @@ __Required__
 
 * `fromData` called from `ui_controller` when data is received and needs to be mapped to graphic representation.
 * `updateFromDataset` called from the inspector, when elements of the data should be updated.
+* `getContainerForData` required for container types [... complete this description later... ]
         
 __Optional__
 * `editMode` (element, true/false)=> called from ui controller when entering edit mode

@@ -767,6 +767,12 @@ function udpRecieve(msg)
         case 'call':
             callFromIO(msg.val);
             break;
+        case 'drawsocket':
+            process.send({
+                key: 'drawsocket',
+                val: msg.val
+            })
+            break;
         default:
             break;
     }

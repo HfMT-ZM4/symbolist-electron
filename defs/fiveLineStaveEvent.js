@@ -389,7 +389,7 @@ const ui_def = function(ui_api)
     function fromData(dataObj, container)
     {
 
-        console.log(dataObj);
+        //console.log(dataObj);
         // filtering the dataObj since the id and parent aren't stored in the dataset
          let dataset = {
             time: dataObj.time,
@@ -905,7 +905,6 @@ const io_def = (io_api) => {
     function getFormattedLookup( params, obj_ref )
     {
         return {
-            id: obj_ref.id,
             time: obj_ref.time,
             duration: obj_ref.duration,
             midi: obj_ref.midi
