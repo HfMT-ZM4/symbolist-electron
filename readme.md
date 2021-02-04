@@ -462,8 +462,9 @@ A typical ui script sequence:
         key: "svg",
         val: {
             class: `${className} symbol`,
-            parent: eventElement.id,
-            ...newView,
+            id: uniqueID,
+            parent: container.id,
+            ...newView, 
             ...ui_api.dataToHTML(dataObj)
         }
     })
@@ -480,6 +481,7 @@ A typical ui script sequence:
         }
     })
     ```
+    note that container is the keyname for the data model, but parent is the container name in drawsocket... maybe we should add container to drawsocket also...
 
 [ ... documentation in process! please excuse spelling and fragmentation ... ]
 
