@@ -386,7 +386,7 @@ These functions have no specific required name or use outside the definition, bu
 ### UI API helper functions:
 The following functions are provided by the `ui_api` which is available to symbol definitions:
 * `uiDefs` access to the defs in the defs
-* `getDefForElement` helper function to get def for DOM element
+* `getDefForElement` helper function to get def from DOM element
 * `getContainerForElement` look upwards in the elemement heirarchy to find the container
 
 * `drawsocketInput`,
@@ -451,7 +451,35 @@ There are many different possible mappings, relationships and arrangements betwe
 
 give details of which functions get called in the typical sequence of events
 
-
+A typical ui script sequence:
+1. user clicks on palette, which triggers a call to the class's `paletteSelected`. Inside the definition, this triggers a set of window mouse event listeners. 
+   * Then as the mouse moves, the custom mouse event handlers are called. When the `cmd` button is pressed, a preview of the symbol is displayed in the `symbolist_overlay` layer defined in the main view file `index.html`.
+   * use `ui_api.getSVGCoordsFromEvent(event)` to get the absolute coordinates, taking the window scrolling position into account.
+2. `cmd-click` is the current standard creation gesture. On `cmd-click` the mouse handler should call an internal function which creates a new element based on the mousedown coordinate (again using `getSVGCoordsFromEvent`). When creating a new element, the action should:
+   * send the drawing commands to the browser display (via drawsocket usually, using the `drawsocketInput` API method). Include the data content into the symbol by using the HTML `dataset` (you can use `ui_api.dataToHTML(dataObj)` helper function to create the `data-` tags)
+    ```
+    ui_api.drawsocketInput({
+        key: "svg",
+        val: {
+            class: `${className} symbol`,
+            parent: eventElement.id,
+            ...newView,
+            ...ui_api.dataToHTML(dataObj)
+        }
+    })
+    ```
+   * send data object to the io server to update the score file, via `sendToServer`, with the new object's `id`, `class`, and `container` object's `id`. You can use the `ui_api.getCurrentContext()` function to get the currently selected container element.
+    ```
+    ui_api.sendToServer({
+        key: "data",
+        val: {
+            class: className,
+            id: uniqueID,
+            container: container.id,
+            ...dataObj
+        }
+    })
+    ```
 
 [ ... documentation in process! please excuse spelling and fragmentation ... ]
 

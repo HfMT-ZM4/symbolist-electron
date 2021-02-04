@@ -438,3 +438,14 @@ There are many different possible mappings, relationships and arrangements betwe
 Conceptually it makes sense that the container is can be like a clef that defines an interpretation, and therefore the mapping script definition of the container should dictate the interpretation of the symbol. One the other hand, the symbols that exist in a container could potentially represent many more dimensions than the container, for example in a standard key signature, noteheads may mean different things, or even create a second order of container or context within the larger container, for example gestural notation of breath, or bowing that exists in time, but only loosely connected to the key signature of the stave.
 
 For the creation of `symbolist` definitions there are no rules! But there seems to be a slight affordance towards the placement of mapping logic for a given symbol in the symbol itself rather than the container, and on creation the symbol looks to the container for reference information, but performs its own mapping logic within the symbol script. These are just observations in case they might be useful.
+
+
+
+--- cut the above from the readme for now
+
+
+page layout is a type of container
+how do manual tweaks work? for instance stretching the width of a measure
+    this changes the time 2 pixel scaling (in the x axis)
+    change scalar for measure overriding the default
+
