@@ -80,6 +80,8 @@ let uiDefs = new Map();
 
 let renderer_api = {
     uiDefs, // access to the defs in the defs
+    getDefForElement, // helper function to get def for DOM element
+    getContainerForElement, // look upwards in the elemement heirarchy to find the container
 
     drawsocketInput,
     sendToServer, // renderer-event
@@ -113,9 +115,36 @@ let renderer_api = {
     parseRatioStr
 }
 
+/**
+ * 
+ * @param {SVG/HTML Element} element 
+ * 
+ * returns ui def for class, which must be first in the class list
+ */
+function getDefForElement(element)
+{
+    return uiDefs.get(element.classList[0]);;
+}
+
+
+/**
+ * 
+ * @param {SVG/HTML Element} element 
+ * 
+ * searches through the parent elements for the first container
+ */
+function getContainerForElement(element)
+{
+    // using the parent node, since all symbols are in sub-groups with the class .contents
+    // so if this element is itself a container, this function should return the container of the container
+    return element.parentNode.closest('.container');
+}
 
 
 
+/**
+ * returns array of selected elements
+ */
 function getSelected()
 {
     return selected;

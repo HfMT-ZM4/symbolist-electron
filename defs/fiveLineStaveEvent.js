@@ -700,7 +700,9 @@ const ui_def = function(ui_api)
     function translate(element, delta_pos = {x:0,y:0}) 
     {
         
-        let container = element.closest('.container');
+        let container = ui_api.getContainerForElement(element);
+        
+        //console.log( ui_api.getDefForElement(container) );
         
         const stepSpacing = parseFloat(container.dataset.lineSpacing) * 0.5;
 

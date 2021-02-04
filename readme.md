@@ -385,7 +385,10 @@ These functions have no specific required name or use outside the definition, bu
 
 ### UI API helper functions:
 The following functions are provided by the `ui_api` which is available to symbol definitions:
-* `uiDefs`, // access to the defs in the defs
+* `uiDefs` access to the defs in the defs
+* `getDefForElement` helper function to get def for DOM element
+* `getContainerForElement` look upwards in the elemement heirarchy to find the container
+
 * `drawsocketInput`,
 * `sendToServer`, // renderer-event
 * `fairlyUniqueString`,
