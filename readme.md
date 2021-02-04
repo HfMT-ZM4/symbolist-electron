@@ -435,13 +435,20 @@ Values and handler callbacks defined and exported to the `IO Controller`:
 ## Mapping in Symbols vs. Containers 
 There are many different possible mappings, relationships and arrangements between containers and symbols, containers and other containers, between symbols and other symbols etc. In some cases, the container is a simple two dimensional outlining of a graphic plot, in the x and y axis, and the symbol placed in the graph may have a have higher number of parameters associated with it. In other cases, like a musical key signature, the container might have a higher degree of information than the symbol, just like a the key signature may have many sharps or flats, which are then inherited by the symbol.
 
-Conceptually it makes sense that the container is can be like a clef that defines an interpretation, and therefore the mapping script definition of the container should dictate the interpretation of the symbol. One the other hand, the symbols that exist in a container could potentially represent many more dimensions than the container, for example in a standard key signature, noteheads may mean different things, or even create a second order of container or context within the larger container, for example gestural notation of breath, or bowing that exists in time, but only loosely connected to the key signature of the stave.
 
-For the creation of `symbolist` definitions there are no rules! But there seems to be a slight affordance towards the placement of mapping logic in the symbol rather than the container, where on creation the symbol looks to the container for reference information, but performs its own mapping logic within the symbol script. These are just observations in case they might be useful.
+## Class Definition and Object Instances 
+
+* classes are passed instances of the object
+* dataset
+* lookup into container graphic and data parameters in mapping
+
+
 
 ## Program Logic
 
 give details of which functions get called in the typical sequence of events
+
+
 
 [ ... documentation in process! please excuse spelling and fragmentation ... ]
 

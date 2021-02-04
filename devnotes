@@ -428,3 +428,13 @@ the bbox is taking into account the text labels etc.
 ok now, we can use the id-rect of the part stave, this is easy enough, but for more complicated situations maybe later the bbox will be useful.
 
 at first I added the an offset x_time_start like element, but then decided that it shouldn't be in the score data unless we really need it. I suppose that the layout parameters are important for the score... some combination of visual layout and content information is probably inevitable.
+
+
+
+
+## Mapping in Symbols vs. Containers 
+There are many different possible mappings, relationships and arrangements between containers and symbols, containers and other containers, between symbols and other symbols etc. In some cases, the container is a simple two dimensional outlining of a graphic plot, in the x and y axis, and the symbol placed in the graph may have a have higher number of parameters associated with it. In other cases, like a musical key signature, the container might have a higher degree of information than the symbol, just like a the key signature may have many sharps or flats, which are then inherited by the symbol.
+
+Conceptually it makes sense that the container is can be like a clef that defines an interpretation, and therefore the mapping script definition of the container should dictate the interpretation of the symbol. One the other hand, the symbols that exist in a container could potentially represent many more dimensions than the container, for example in a standard key signature, noteheads may mean different things, or even create a second order of container or context within the larger container, for example gestural notation of breath, or bowing that exists in time, but only loosely connected to the key signature of the stave.
+
+For the creation of `symbolist` definitions there are no rules! But there seems to be a slight affordance towards the placement of mapping logic for a given symbol in the symbol itself rather than the container, and on creation the symbol looks to the container for reference information, but performs its own mapping logic within the symbol script. These are just observations in case they might be useful.
