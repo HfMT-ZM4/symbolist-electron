@@ -487,17 +487,17 @@ Each container definition has a `palette` array, which lists the `symbol` class 
         }
     })
     ```
-    *note that container is the keyname for the data model, but parent is the container name in drawsocket... maybe we should add container to drawsocket also...*
-4. When the user clicks on a different palette icon, or exits the container context, `paletteSelected` is called again, to notfiy the class that it is no longer selected, and should remove the mouse listeners for any contextual UI that might be used by that symnbol.
+    *note that container is the key-name for the data model, but parent is the container name in drawsocket... maybe we should add container to drawsocket also...*
+4. When the user clicks on a different palette icon, or exits the container context, `paletteSelected` is called again, to notify the class that it is no longer selected, and should remove the mouse listeners for any contextual UI that might be used by that symbol.
    
 ### Selection
-1. if the user "selects" a symbol in the editor, by clicking on it, or draging the region selection box around it, the `ui_controller` will add the class `symbolist_selected` to the class list, which then will apply the `symbolist_selected` CSS style set in the main symbolist css fie. Then the `selected` function is called with the state `true` to notify that the object has been selected. You can use this to trigger contextual menus, or other UI reactions as needed. 
+1. if the user "selects" a symbol in the editor, by clicking on it, or dragging the region selection box around it, the `ui_controller` will add the class `symbolist_selected` to the class list, which then will apply the `symbolist_selected` CSS style set in the main symbolist css fie. Then the `selected` function is called with the state `true` to notify that the object has been selected. You can use this to trigger contextual menus, or other UI reactions as needed. 
 2. On de-selection, the `selected` function is called again, with a state of `false`.
 
 ### Inspector
-1. if the user triggers the inspector window, by pressing `[i]`, the class receives a call to `getInfoDisplay`, this function should return the GUI box for the inspector. For convienence there is a helper function `ui_api.makeDefaultInfoDisplay` which produces the default inspector window, with the necessary callbacks to `updateFromDataset`.
+1. if the user triggers the inspector window, by pressing `[i]`, the class receives a call to `getInfoDisplay`, this function should return the GUI box for the inspector. For convenience there is a helper function `ui_api.makeDefaultInfoDisplay` which produces the default inspector window, with the necessary callbacks to `updateFromDataset`.
     * `updateFromDataset` is called from the inspector UI, when a data parameter has been changed, so that the class can map the new data value to update the graphic display.
-2. **to do**: get notificaion of exit from inspector incase of clean up.
+2. **to do**: get notification of exit from inspector incase of clean up.
 
 ### Click and Drag
 * `transform` - required if mouse drag is wanted
