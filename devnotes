@@ -449,3 +449,12 @@ how do manual tweaks work? for instance stretching the width of a measure
     this changes the time 2 pixel scaling (in the x axis)
     change scalar for measure overriding the default
 
+
+
+maybe container objects should have a getPositionForChild(container_instance, child_params)
+and return a coordinate x/y or box or whatever is needed to the child object
+
+should all objects be containers?
+that might make it easier to navigate?
+then you'd need to always get the `.display` group
+might make sense

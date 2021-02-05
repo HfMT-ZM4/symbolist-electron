@@ -862,7 +862,7 @@ function addToSelection( element )
     // copy with selected tag to deal with comparison later
     selectedCopy.push( element.cloneNode(true) );
 
-    callSymbolMethod(element, "selected");
+    callSymbolMethod(element, "selected", true);
 
 }
 
@@ -1810,8 +1810,8 @@ function callSymbolMethod( element, methodName, args )
 
         if( def_.hasOwnProperty(methodName) )
         {
-            def_[methodName](element, args);
-            return true;
+            const ret = def_[methodName](element, args);
+            return (typeof ret === "undefined" ? false : ret );
         }        
     }
 

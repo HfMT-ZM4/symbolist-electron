@@ -131,7 +131,12 @@ const ui_def = function( ui_api )
      * 
      * @returns drawsocket format object(s) to draw
      */
-    function getInfoDisplay(viewElement) {}
+    function getInfoDisplay(viewElement) {
+        ui_api.drawsocketInput(
+            ui_api.makeDefaultInfoDisplay(viewElement, ui_api.scrollOffset)
+        )
+
+    }
     // not used for this top level, since it's auto created
 
 

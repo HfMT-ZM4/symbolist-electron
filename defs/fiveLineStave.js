@@ -73,6 +73,13 @@ const viewDisplay = function(id, x, y, width, height, lineSpacing, overwrite = t
             style: {
                 fill: 'white'
             }
+        }, {
+                new: "image",
+                id: `${id}-clef`,
+                href: "defs/g_clef.svg",
+                x,
+                y
+    
         },
         {
             new: "g",

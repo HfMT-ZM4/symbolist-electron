@@ -522,6 +522,7 @@ const ui_def = function(ui_api)
     {
         // delta_pos needes to be adjusted for scale also
        
+        console.log('translate mode', m_mode);
         if( m_mode == "edit" )
         {
             //rotate(element, delta_pos);
@@ -688,6 +689,8 @@ const ui_def = function(ui_api)
         }
         else
         {
+            m_mode = '';
+
             console.log('deregister');
 
             ui_api.drawsocketInput({
@@ -698,10 +701,11 @@ const ui_def = function(ui_api)
 
             document.removeEventListener('mousemove', cb[`${element.id}-moveHandler`]);
             delete cb[`${element.id}-moveHandler`];
-//            console.log(`removing ${element.id}-moveHandler, ${cb[`${element.id}-moveHandler`]}`);
+            console.log(`removing ${element.id}-moveHandler, ${cb[`${element.id}-moveHandler`]}`);
 
         }
         
+        return true;
     }
 
 

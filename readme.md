@@ -359,13 +359,12 @@ __Required__
 * `dataInstance` (object) the default values for the semantic data
 * `palette` (array) used for container classes, an array of names of other classes that can be used within this container type.
 * `getPaletteIcon` ()=> return the icon for display in the palette toolbar
-* `getInfoDisplay` ()=> return drawing commands for the inspector contextual menu (see `makeDefaultInfoDisplay` below).
-
 * `paletteSelected`: (true/false)=> called when the user clicks on the palette icon for this symbol, used to trigger custom UI for creating new symbols from mouse data. Scripts should define mouse callbacks internally. Generally `cmd-click` is the way to create a new object.
 
-
+* `getInfoDisplay` ()=> return drawing commands for the inspector contextual menu (see `makeDefaultInfoDisplay` below).
 * `fromData` called from `ui_controller` when data is received and needs to be mapped to graphic representation.
 * `updateFromDataset` called from the inspector, when elements of the data should be updated.
+
 * `getContainerForData` for container types, this function is called when a new data object is being set, if there are multiple containers of the same type, for example systems with line breaks, this function looks up the container by a certain parameter, usually time.
         
 __Optional__
@@ -451,11 +450,15 @@ There are many different possible mappings, relationships and arrangements betwe
 
 give details of which functions get called in the typical sequence of events
 
+Each container definition file has an attribute `palette` which lists the supported `symbol` class names that can be used in the container contents. When the user selects the container context, the list of symbols is used to populate the `palette` toolbar.
+
+
 A typical ui script sequence:
-1. user clicks on palette, which triggers a call to the class's `paletteSelected`. Inside the definition, this triggers a set of window mouse event listeners. 
-   * Then as the mouse moves, the custom mouse event handlers are called. When the `cmd` button is pressed, a preview of the symbol is displayed in the `symbolist_overlay` layer defined in the main view file `index.html`.
+1. a context is selected by the user and the palette icon is retrieved by the program, using the class def's `getPaletteIcon` function, which returns a `drawsocket` format object defining the icon drawing.
+2. user clicks on a palette icon, which triggers a call to the class's `paletteSelected` notifying the symbol class that is is now active in the palette. Inside the definition, this triggers a set of window mouse event listeners. 
+   * as the mouse moves, the mouse event handlers are called. When the `cmd` button is pressed, a preview of the symbol is displayed in the `symbolist_overlay` layer defined in the main view file `index.html`.
    * use `ui_api.getSVGCoordsFromEvent(event)` to get the absolute coordinates, taking the window scrolling position into account.
-2. `cmd-click` is the current standard creation gesture. On `cmd-click` the mouse handler should call an internal function which creates a new element based on the mousedown coordinate (again using `getSVGCoordsFromEvent`). When creating a new element, the action should:
+3. `cmd-click` is the current standard creation gesture. On `cmd-click` the mouse handler should call an internal function which creates a new element based on the mousedown coordinate (again using `getSVGCoordsFromEvent`). When creating a new element, the action should:
    * send the drawing commands to the browser display (via drawsocket usually, using the `drawsocketInput` API method). Include the data content into the symbol by using the HTML `dataset` (you can use `ui_api.dataToHTML(dataObj)` helper function to create the `data-` tags)
     ```
     ui_api.drawsocketInput({
@@ -481,8 +484,18 @@ A typical ui script sequence:
         }
     })
     ```
-    note that container is the keyname for the data model, but parent is the container name in drawsocket... maybe we should add container to drawsocket also...
+    *note that container is the keyname for the data model, but parent is the container name in drawsocket... maybe we should add container to drawsocket also...*
+
+4. When the user clicks on a different palette icon, or exits the container context, `paletteSelected` is called again, to notfiy the class that it is no longer selected, and should remove the mouse listeners for any contextual UI that might be used by that symnbol.
+5. if the user "selects" a symbol in the edit, by clicking on it, or draging the region selection box around it, the `ui_controller` will add the class `symbolist_selected` to the class list, which then will apply the `symbolist_selected` CSS style set in the main symbolist css fie. `selected` function is called. If the symbol class' `selected` function returns `true`
+
+* `selected` - optional return true if handled internally
+* `getInfoDisplay` - required for inspector
+   * `updateFromDataset` - required to update after inspector edits
+* `transform` - required if mouse drag is wanted
+* `fromData` - required 
+
+
 
 [ ... documentation in process! please excuse spelling and fragmentation ... ]
 
-Each container's `definition` file has an attribute `palette` which lists the supported `symbol` class names that can be used in the `container`.

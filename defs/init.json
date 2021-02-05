@@ -8,7 +8,7 @@
         "class" : "systemContainer",
         "x": 200,
         "y": 100,
-        "duration": 1,
+        "duration": 2,
         "time": 0,
         "contents" : [{
             "id" : "oboe",
