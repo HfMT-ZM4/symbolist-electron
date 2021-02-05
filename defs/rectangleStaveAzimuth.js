@@ -106,7 +106,6 @@ const ui_def = function(ui_api)
      * 
      * called when the user hits [i] when selecting an object
      * 
-     * @param {Object} dataObj data object sent from controller to display in UI
      * @param {HTML or SVG Element} viewElement element that is being viewed
      * 
      * @returns drawsocket format object(s) to draw
@@ -652,7 +651,11 @@ const ui_def = function(ui_api)
         if( enable )
         {
             m_mode = 'edit';
-
+/*
+            ui_api.drawsocketInput(
+                ui_api.makeDefaultInfoDisplay(element, ui_api.scrollOffset)
+            )
+*/
             const line = element.querySelector('line')
             const x2 = parseFloat(line.getAttribute('x2'));
             const y2 = parseFloat(line.getAttribute('y2'));

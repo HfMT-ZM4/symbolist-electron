@@ -435,6 +435,9 @@ Values and handler callbacks defined and exported to the `IO Controller`:
 # Definition Logic
 
 ## Mapping in Symbols vs. Containers 
+
+.. maybe remove this bit... 
+
 There are many different possible mappings, relationships and arrangements between containers and symbols, containers and other containers, between symbols and other symbols etc. In some cases, the container is a simple two dimensional outlining of a graphic plot, in the x and y axis, and the symbol placed in the graph may have a have higher number of parameters associated with it. In other cases, like a musical key signature, the container might have a higher degree of information than the symbol, just like a the key signature may have many sharps or flats, which are then inherited by the symbol.
 
 
@@ -449,20 +452,11 @@ explain this more
 
 ... incomplete
 
-## Program Logic
 
-These are the basic modes of interaction that are defined in the script definitions:
+## Data to View Mapping
 
-### Palette Mode and Object Creation
-
-Each container definition has a `palette` array, which lists the `symbol` class names that are supported for this container. When the user selects a container in the editor and sets it as the "context", by pressing `[s]`, the program "enters" the container, using it as the context container. When the icon is clicked, the palette toolbar populates with the supported symbol types.
-
-1. a context is selected by the user and the palette icon is retrieved by the program, using the class def's `getPaletteIcon` function, which returns a `drawsocket` format object defining the icon drawing.
-2. user clicks on a palette icon, which triggers a call to the class's `paletteSelected` notifying the symbol class that is is now active in the palette. Inside the definition, this triggers a set of window mouse event listeners. 
-   * as the mouse moves, the mouse event handlers are called. When the `cmd` button is pressed, a preview of the symbol is displayed in the `symbolist_overlay` layer defined in the main view file `index.html`.
-   * use `ui_api.getSVGCoordsFromEvent(event)` to get the absolute coordinates, taking the window scrolling position into account.
-3. `cmd-click` is the current standard creation gesture. On `cmd-click` the mouse handler should call an internal function which creates a new element based on the mousedown coordinate (again using `getSVGCoordsFromEvent`). When creating a new element, the action should:
-   * send the drawing commands to the browser display (via drawsocket usually, using the `drawsocketInput` API method). Include the data content into the symbol by using the HTML `dataset` (you can use `ui_api.dataToHTML(dataObj)` helper function to create the `data-` tags)
+If an OSC message is received containing data to create a new symbol, the `ui_controller` calls the object's `fromData` function, which maps from the data representation to the graphic drawing commands. The `fromData` function should:
+1. send the drawing commands to the browser display (via drawsocket usually, using the `drawsocketInput` API method). Include the data content into the symbol by using the HTML `dataset` (you can use `ui_api.dataToHTML(dataObj)` helper function to create the `data-` tags)
     ```
     ui_api.drawsocketInput({
         key: "svg",
@@ -475,7 +469,7 @@ Each container definition has a `palette` array, which lists the `symbol` class 
         }
     })
     ```
-   * send data object to the io server to update the score file, via `sendToServer`, with the new object's `id`, `class`, and `container` object's `id`. You can use the `ui_api.getCurrentContext()` function to get the currently selected container element.
+ 2. send data object to the io server to update the score file, via `sendToServer`, with the new object's `id`, `class`, and `container` object's `id`. You can use the `ui_api.getCurrentContext()` function to get the currently selected container element.
     ```
     ui_api.sendToServer({
         key: "data",
@@ -487,7 +481,23 @@ Each container definition has a `palette` array, which lists the `symbol` class 
         }
     })
     ```
-    *note that container is the key-name for the data model, but parent is the container name in drawsocket... maybe we should add container to drawsocket also...*
+*note that container is the key-name for the data model, but parent is the container name in drawsocket... maybe we should add container to drawsocket also...*
+
+
+## Program Logic
+
+These are the basic modes of interaction that are defined in the script definitions:
+
+### Palette Mode and Object Creation
+
+Each container definition has a `palette` array, which lists the `symbol` class names that are supported for this container. When the user selects a container in the editor and sets it as the "context", by pressing `[s]`, the program "enters" the container, using it as the context container. When the icon is clicked, the palette toolbar populates with the supported symbol types.
+
+1. a context is selected by the user and the palette icon is retrieved by the program, using the class def's `getPaletteIcon` function, which returns a `drawsocket` format object defining the icon drawing.
+2. user clicks on a palette icon, which triggers a call to the class's `paletteSelected` notifying the symbol class that is is now active in the palette. Inside the definition, this triggers a set of window mouse event listeners. 
+   * as the mouse moves, the mouse event handlers are called. When the `cmd` button is pressed, a preview of the symbol is displayed in the `symbolist_overlay` layer defined in the main view file `index.html`.
+   * use `ui_api.getSVGCoordsFromEvent(event)` to get the absolute coordinates, taking the window scrolling position into account.
+3. `cmd-click` is the current standard creation gesture. On `cmd-click` the mouse handler should call an internal function which creates a new element based on the mousedown coordinate (again using `getSVGCoordsFromEvent`). When creating a new element, the action should preform a the same actions as the `fromData` function, but will usually need to use some default values since the mouse information is more limited than the OSC input.
+
 4. When the user clicks on a different palette icon, or exits the container context, `paletteSelected` is called again, to notify the class that it is no longer selected, and should remove the mouse listeners for any contextual UI that might be used by that symbol.
    
 ### Selection
@@ -500,9 +510,12 @@ Each container definition has a `palette` array, which lists the `symbol` class 
 2. **to do**: get notification of exit from inspector incase of clean up.
 
 ### Click and Drag
-* `transform` - required if mouse drag is wanted
-* `fromData` - required 
+1. If the user clicks and drags on an object, the `transform` callback function is called. The standard method for object translation in symbolist is to first apply a transform matrix to the object, which is constantly updated whever the mouse is moved while dragging. The transform matrix is an attribute of the object that transforms the other attributes without changing the values directly. E.g. if an object has an attribute of `cx="100"`, the transform matrix will offset from `cx="100"`, but not change the value of `cx`. For convenience, the translation matrix can be applied using the helper function `ui_api.translate`.
+2. On mouse up, the `ui_controller` will check to see if any of the selected object have a transform matrix, and then call the object class' `applyTransformToData` function, which should apply the transform matrix to the elements attributes. E.g. updating the value of `cx` in the example above. There is a helper function `ui_api.applyTransform` which performs this for SVG objects.
 
+### Edit Mode
+Some object might need special UI tools to graphically edit the data values. As an alternative to the inspector window, scripts can have a `editMode` which creates a set of UI window event listeners and can be used to create overlay elements, like curve handles, rotation, etc.
+*note: potentially edit mode could replace the inspector*&
 
 
 [ ... documentation in process! please excuse spelling and fragmentation ... ]

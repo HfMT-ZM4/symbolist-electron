@@ -193,7 +193,6 @@ const ui_def = function( ui_api )
      * 
      * called when the user hits [i] when selecting an object
      * 
-     * @param {Object} dataObj data object sent from controller to display in UI
      * @param {HTML or SVG Element} viewElement element that is being viewed
      * 
      * @returns drawsocket format object(s) to draw
