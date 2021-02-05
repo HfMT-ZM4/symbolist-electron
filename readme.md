@@ -440,20 +440,23 @@ There are many different possible mappings, relationships and arrangements betwe
 
 ## Class Definition and Object Instances 
 
+explain this more
+
 * classes are passed instances of the object
-* dataset
+* dataset, the HTML dataset holds a copy of the data parameters
 * lookup into container graphic and data parameters in mapping
 
 
+... incomplete
 
 ## Program Logic
 
-give details of which functions get called in the typical sequence of events
+These are the basic modes of interaction that are defined in the script definitions:
 
-Each container definition file has an attribute `palette` which lists the supported `symbol` class names that can be used in the container contents. When the user selects the container context, the list of symbols is used to populate the `palette` toolbar.
+### Palette Mode and Object Creation
 
+Each container definition has a `palette` array, which lists the `symbol` class names that are supported for this container. When the user selects a container in the editor and sets it as the "context", by pressing `[s]`, the program "enters" the container, using it as the context container. When the icon is clicked, the palette toolbar populates with the supported symbol types.
 
-A typical ui script sequence:
 1. a context is selected by the user and the palette icon is retrieved by the program, using the class def's `getPaletteIcon` function, which returns a `drawsocket` format object defining the icon drawing.
 2. user clicks on a palette icon, which triggers a call to the class's `paletteSelected` notifying the symbol class that is is now active in the palette. Inside the definition, this triggers a set of window mouse event listeners. 
    * as the mouse moves, the mouse event handlers are called. When the `cmd` button is pressed, a preview of the symbol is displayed in the `symbolist_overlay` layer defined in the main view file `index.html`.
@@ -485,13 +488,18 @@ A typical ui script sequence:
     })
     ```
     *note that container is the keyname for the data model, but parent is the container name in drawsocket... maybe we should add container to drawsocket also...*
-
 4. When the user clicks on a different palette icon, or exits the container context, `paletteSelected` is called again, to notfiy the class that it is no longer selected, and should remove the mouse listeners for any contextual UI that might be used by that symnbol.
-5. if the user "selects" a symbol in the edit, by clicking on it, or draging the region selection box around it, the `ui_controller` will add the class `symbolist_selected` to the class list, which then will apply the `symbolist_selected` CSS style set in the main symbolist css fie. `selected` function is called. If the symbol class' `selected` function returns `true`
+   
+### Selection
+1. if the user "selects" a symbol in the editor, by clicking on it, or draging the region selection box around it, the `ui_controller` will add the class `symbolist_selected` to the class list, which then will apply the `symbolist_selected` CSS style set in the main symbolist css fie. Then the `selected` function is called with the state `true` to notify that the object has been selected. You can use this to trigger contextual menus, or other UI reactions as needed. 
+2. On de-selection, the `selected` function is called again, with a state of `false`.
 
-* `selected` - optional return true if handled internally
-* `getInfoDisplay` - required for inspector
-   * `updateFromDataset` - required to update after inspector edits
+### Inspector
+1. if the user triggers the inspector window, by pressing `[i]`, the class receives a call to `getInfoDisplay`, this function should return the GUI box for the inspector. For convienence there is a helper function `ui_api.makeDefaultInfoDisplay` which produces the default inspector window, with the necessary callbacks to `updateFromDataset`.
+    * `updateFromDataset` is called from the inspector UI, when a data parameter has been changed, so that the class can map the new data value to update the graphic display.
+2. **to do**: get notificaion of exit from inspector incase of clean up.
+
+### Click and Drag
 * `transform` - required if mouse drag is wanted
 * `fromData` - required 
 
