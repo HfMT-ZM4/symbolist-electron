@@ -44,63 +44,29 @@ let dataInstace = {
  */
 const viewDisplay = function(id, x, y, width, height, overwrite = true) 
 {
+    console.log('viewDisplay', overwrite);
     const half_margin = margin / 2.;
-    return {
-        new: (overwrite ? "g" : undefined),
-        id,
-        class: `${className} display`, // the display container, using the 'display' class as a selector
-        children: [{
-            new: (overwrite ? "rect" : undefined),
-            id: `${id}-rect`,
-            x,
-            y,
-            height,
-            width,
-            style: {
-                fill: "white"
-            }
-        },
-        {
-            new: (overwrite ? "path" : undefined),
-            id: `${id}-bracket`,
-            d: `M ${x+margin} ${y+half_margin} h -${half_margin} v ${height - margin} h ${half_margin}`,
-            style: {
-                fill: 'none',
-                stroke: 'black',
-                'stroke-width': 1
-            }
-        }]
-    }
-
-}
-
-
-/*
-*/
-const viewContainer = function(id, x, y, width, height, overwrite = true) 
-{
-    /**
-     * container objects us a group to contain their child objects, separate from their display
-     * if overwriting, the whole container will be rewritten, which will also remove all the events
-     * 
-     * on update from data, the view might change, and the dataset, but not the conents
-     * therefore it's more useful to have the id for the viewDisplay system rather than the display <g>
-     * 
-     */
-    return {
-        new: (overwrite ? "g" : undefined), 
-        id, // use same reference id as data object
-        class: `${className} symbol container`, // the top level container, using the 'container' class for type selection if needed
-        children: [
-            viewDisplay(`${id}-display`, x, y, width, height, overwrite),
-            {
-                new: (overwrite ? "g" : undefined),
-                id: `${id}-contents`,
-                class: `${className} contents` // the contents container, using the 'contents' class as a selector
-                // removed empty children array since if we are updating the object, we don't want to overwrite the children
-            }
-        ]  
-    }
+    return [{
+        new: (overwrite ? "rect" : undefined),
+        id: `${id}-rect`,
+        x,
+        y,
+        height,
+        width,
+        style: {
+            fill: "white"
+        }
+    },
+    {
+        new: (overwrite ? "path" : undefined),
+        id: `${id}-bracket`,
+        d: `M ${x+margin} ${y+half_margin} h -${half_margin} v ${height - margin} h ${half_margin}`,
+        style: {
+            fill: 'none',
+            stroke: 'black',
+            'stroke-width': 1
+        }
+    }];
 }
 
 
@@ -122,6 +88,12 @@ const ui_def = function( ui_api )
     function getPaletteIcon(){}
     // not used for this top level, since it's auto created
 
+       /**
+     * 
+     * @param {Element} obj selected element
+     */
+    function paletteSelected (enable = false){}
+
     /**
      * 
      * called when the user hits [i] when selecting an object
@@ -137,24 +109,7 @@ const ui_def = function( ui_api )
         )
 
     }
-    // not used for this top level, since it's auto created
 
-
-    function mapToView(data, container, id, overwrite = true)
-    {
-        const containerDisplay = container.querySelector('.display');
-        const bbox = ui_api.getBBoxAdjusted(containerDisplay);
-
-        const x = bbox.x + parseFloat(data.x);
-        const y = bbox.y + parseFloat(data.y);
-
-        data.x_offset = x;
-
-        const width = (2 * margin) + parseFloat(data.duration) * time2x;
-        const height = margin + (typeof data.height != 'undefined' ? parseFloat(data.height) : default_height);
-
-        return viewContainer(id, x, y, width, height, overwrite)       
-    }
 
     /**
      * 
@@ -166,15 +121,25 @@ const ui_def = function( ui_api )
     function getContainerForData(dataObj) {
         return document.getElementById(dataObj.container);
     }
-    // currenlty not used but maybe could be used when spitting systems
+    // currently just looking up by ID but this could be used to deal with line breaks
 
 
-    /**
-     * called in cases when not all info is avaiable?
-     * maybe not necessary
-     * 
-     */
-    function newDefault() {}
+    function mapToView(data, container, id, overwrite = false)
+    {
+        const containerDisplay = container.querySelector('.display');
+        const bbox = ui_api.getBBoxAdjusted(containerDisplay);
+
+        const x = bbox.x + parseFloat(data.x);
+        const y = bbox.y + parseFloat(data.y);
+
+        data.x_offset = x;
+
+        const width = (2 * margin) + parseFloat(data.duration) * time2x;
+        const height = margin + (typeof data.height != 'undefined' ? parseFloat(data.height) : default_height);
+        
+        return viewDisplay(id, x, y, width, height);
+
+    }
 
     /**
      * 
@@ -186,52 +151,17 @@ const ui_def = function( ui_api )
      */
     function fromData(dataObj, container)
     {
-        if( !container )
-        {
-            container = document.getElementById('top-svg-container');
-        }
 
-        const contentElement = container.querySelector('.contents');
-
-        // filtering the dataObj since the id and parent aren't stored in the dataset
-        let dataset = {
-            time: dataObj.time,
-            duration: dataObj.duration,
-            height: dataObj.height,
-            x: dataObj.x,
-            y: dataObj.y,
-            x_offset: 0 //<< updated in mapToView
-
-        }
-
-        let isNew = true;
-        
-        let currentElement =  document.getElementById(dataObj.id);
-
-        if(currentElement) {
-            isNew = false;
-        }
-
-        let newView = mapToView(dataset, container, dataObj.id, isNew );
-
-        ui_api.drawsocketInput({
-            key: "svg",
-            val: {
-                parent: contentElement.id,
-                class: `${className} symbol`,
-                ...newView,
-                ...ui_api.dataToHTML(dataset)
-            }
-        });
+        let newView = mapToView(dataObj, container, dataObj.id );
+        console.log( 'fromData', ui_api.getViewDataSVG( newView, dataObj ) );
+        ui_api.drawsocketInput( 
+            ui_api.getViewDataSVG( newView, dataObj )
+        );
 
     }
 
 
-    /**
-     * 
-     * @param {Element} obj selected element
-     */
-    function paletteSelected (enable = false){}
+ 
 
     /**
      * 
@@ -244,10 +174,12 @@ const ui_def = function( ui_api )
 
     function updateAfterContents( element )
     {
+        
         const contents = element.querySelector('.contents');
         const contents_bbox = ui_api.getBBoxAdjusted(contents);
 
         let dataObj = {
+            id: element.id,
             duration: element.dataset.duration,
             x: element.dataset.x,
             y: parseFloat(element.dataset.y) - 20,
@@ -256,9 +188,17 @@ const ui_def = function( ui_api )
 
         }
 
-        let newView = mapToView( dataObj, element.parentNode.closest('.container'), element.id, false );
-        //console.log( element, dataObj, newView, );
+        const container = ui_api.getContainerForElement(element);
+        let newView = mapToView( dataObj, container, element.id, false );
+        
+        console.log( 'updateAfterContents', element, ui_api.getViewDataSVG( newView, dataObj ) );
 
+
+        ui_api.drawsocketInput( 
+            ui_api.getViewDataSVG( newView, dataObj )
+        );
+
+        /*
         ui_api.drawsocketInput({
             key: "svg",
             val: {
@@ -266,12 +206,12 @@ const ui_def = function( ui_api )
                 ...ui_api.dataToHTML(dataObj)
             }
         });
+        */
 
     }
     // exported functions used by the symbolist renderer
     return {
         class: className,
-        newDefault,
 
         palette,
         getPaletteIcon,
