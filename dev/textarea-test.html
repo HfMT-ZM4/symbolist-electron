@@ -1,0 +1,63 @@
+
+<!--
+    readonly="true"
+    disabled="true"
+    user-select: none; 
+    resize: none;
+
+    oninput='this.style.height = "";this.style.height = this.scrollHeight + "px"'
+-->
+
+<style>
+    textarea {
+        font-family: helvetica; 
+    }
+
+</style>
+
+<div class="wrapper" ondblclick="
+    let t = this.querySelector('textarea');
+    console.log('dbclick', t);
+    t.removeAttribute('disabled');" 
+>
+    <textarea 
+        contenteditable="false"
+        oninput='   this.style.height = "";
+                    this.style.height = this.scrollHeight + "px"' 
+        onfocusout= "this.disabled = true;" >
+            
+                
+        It was a dark and stormy night...
+    </textarea>
+</div>
+
+<script>
+
+    function autoResizeText(element)
+    {
+        element.style.height = "";
+        element.style.height = element.scrollHeight + "px"
+    }
+    let text = document.querySelector('textarea');
+    autoResizeText(text);
+
+    text.addEventListener('input', ()=> {
+        autoResizeText(text);
+    })
+</script>
+<!--
+<svg width="600" height="400" xmlns="http://www.w3.org/2000/svg" >
+    <foreignObject x="10" y="10" width="100%" height="100%" >
+        <textarea style="resize: none;" >
+            
+            
+            
+            It was a dark and stormy night...
+            </textarea>
+        
+    </foreignObject>
+  </svg>
+
+
+
+-->

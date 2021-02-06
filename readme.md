@@ -469,18 +469,7 @@ If an OSC message is received containing data to create a new symbol, the `ui_co
         }
     })
     ```
- 2. send data object to the io server to update the score file, via `sendToServer`, with the new object's `id`, `class`, and `container` object's `id`. You can use the `ui_api.getCurrentContext()` function to get the currently selected container element.
-    ```
-    ui_api.sendToServer({
-        key: "data",
-        val: {
-            class: className,
-            id: uniqueID,
-            container: container.id,
-            ...dataObj
-        }
-    })
-    ```
+ 
 *note that container is the key-name for the data model, but parent is the container name in drawsocket... maybe we should add container to drawsocket also...*
 
 
@@ -496,8 +485,19 @@ Each container definition has a `palette` array, which lists the `symbol` class 
 2. user clicks on a palette icon, which triggers a call to the class's `paletteSelected` notifying the symbol class that is is now active in the palette. Inside the definition, this triggers a set of window mouse event listeners. 
    * as the mouse moves, the mouse event handlers are called. When the `cmd` button is pressed, a preview of the symbol is displayed in the `symbolist_overlay` layer defined in the main view file `index.html`.
    * use `ui_api.getSVGCoordsFromEvent(event)` to get the absolute coordinates, taking the window scrolling position into account.
-3. `cmd-click` is the current standard creation gesture. On `cmd-click` the mouse handler should call an internal function which creates a new element based on the mousedown coordinate (again using `getSVGCoordsFromEvent`). When creating a new element, the action should preform a the same actions as the `fromData` function, but will usually need to use some default values since the mouse information is more limited than the OSC input.
-
+3. `cmd-click` is the current standard creation gesture. On `cmd-click` the mouse handler should call an internal function which creates a new element based on the mousedown coordinate (again using `getSVGCoordsFromEvent`). When creating a new element, the action should preform a the same actions as the `fromData` function described above, and send the drawing commands to the browser via: `ui_api.drawsocketInput`. Depending on the mapping, usually you might need to use some default values, since the mouse click only gives you a few dimensions of data. 
+    * In additon to mapping from data to the graphic view, you also need to send the new data object to the score held in the io_controller, using `ui_api.sendToServer`. You can use the `ui_api.getCurrentContext()` function to get the currently selected container element.
+   ```
+    ui_api.sendToServer({
+        key: "data",
+        val: {
+            class: className,
+            id: uniqueID,
+            container: container.id,
+            ...dataObj
+        }
+    })
+    ```
 4. When the user clicks on a different palette icon, or exits the container context, `paletteSelected` is called again, to notify the class that it is no longer selected, and should remove the mouse listeners for any contextual UI that might be used by that symbol.
    
 ### Selection

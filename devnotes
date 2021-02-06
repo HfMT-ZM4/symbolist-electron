@@ -455,8 +455,17 @@ maybe container objects should have a getPositionForChild(container_instance, ch
 and return a coordinate x/y or box or whatever is needed to the child object
 
 * should all objects be containers?
-that might make it easier to navigate?
-then you'd need to always get the `.display` group
-might make sense
+    that might make it easier to navigate?
+    then you'd need to always get the `.display` group
+    might make sense
+    yes
+    do
 
 * consider removing the instpector in favor of edit mode
+    or nice to have both?
+
+* add container type to drawsocket that is the same as parent?
+    seems like a good idea
+
+* make simpler mouse event handlers so users don't have to declare their own?
+    maybe maybe not
