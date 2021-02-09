@@ -342,27 +342,6 @@ const ui_def = function(ui_api)
 
     }
 
-
-
-    // in progress
-
-    
-
-    // -- to do
-
-
-
-
-
-
-
-    function selected(element, state)
-    {
-        console.log('select state', state);
-
-    }
-
-
     function applyTransformToData(element)
     {
         ui_api.applyTransform(element);
@@ -371,69 +350,29 @@ const ui_def = function(ui_api)
         let container = ui_api.getContainerForElement(element);
         let data = viewParamsToData(viewParams, container);
 
-
-       // let data = elementToData(element);
-
         ui_api.drawsocketInput({
             key: "svg",
-            val: {
-                id: element.id,
-                ...ui_api.dataToHTML(data)
-            }
+            val: ui_api.dataToHTML(data)
         })
 
         // send out
         ui_api.sendToServer({
             key: "data",
-            val: {
-                id: element.id,
-                class: className,
-                container: container.id,
-                ...data
-            }
+            val: data
         })
 
         return true;
 
     }
 
-
-    function rotate(element, event)
+    
+    function selected(element, state)
     {
+        console.log('select state', state);
 
-        let line = element.querySelector('line');
-
-        let x1 = parseFloat(line.getAttribute('x1'));
-        let y1 = parseFloat(line.getAttribute('y1'));
-        
-        let x2 = parseFloat(line.getAttribute('x2'));
-        let y2 = parseFloat(line.getAttribute('y2'));
-
-        let mousePt = ui_api.getSVGCoordsFromEvent(event);
-
-        let azim = Math.atan2( mousePt.x - x1, mousePt.y - y1);
-
-        let newX = x1 + Math.sin(azim) * default_dist;
-        let newY = y1 + Math.cos(azim) * default_dist;
-
-        line.setAttribute('x2', newX);
-        line.setAttribute('y2', newY);
-
-        element.dataset.azim = azim;
-
-        ui_api.drawsocketInput({
-            key: "svg", 
-            val: {
-                id: `${element.id}-rotation-handle`,
-                x: newX - 4,
-                y: newY - 4
-            }
-        })
-
-        updateFromDataset(element);
-        
     }
 
+    
 
     function down(e) 
     {
@@ -474,27 +413,64 @@ const ui_def = function(ui_api)
             window.addEventListener("mousedown", down);
             window.addEventListener("mousemove", move);
             window.addEventListener("mouseup", up);
-            document.body.addEventListener("keydown", keyDown);
-            document.body.addEventListener("keyup", keyUp);
+            window.addEventListener("keydown", keyDown);
+            window.addEventListener("keyup", keyUp);
         }
         else
         {
             console.log(`exit ${className} ${m_mode}`);
 
-            ui_api.drawsocketInput({
-                key: "remove", 
-                val: `${className}-sprite`
-            })            
+            ui_api.removeSprites();
 
             window.removeEventListener("mousedown", down);
             window.removeEventListener("mousemove", move);
             window.removeEventListener("mouseup", up);
-            document.body.removeEventListener("keydown", keyDown);
-            document.body.removeEventListener("keyup", keyUp);
+            window.removeEventListener("keydown", keyDown);
+            window.removeEventListener("keyup", keyUp);
 
             m_mode = null;
         }
     }
+
+    // -- below is not yet updated
+
+
+    function rotate(element, event)
+    {
+
+        let line = element.querySelector('line');
+
+        let x1 = parseFloat(line.getAttribute('x1'));
+        let y1 = parseFloat(line.getAttribute('y1'));
+        
+        let x2 = parseFloat(line.getAttribute('x2'));
+        let y2 = parseFloat(line.getAttribute('y2'));
+
+        let mousePt = ui_api.getSVGCoordsFromEvent(event);
+
+        let azim = Math.atan2( mousePt.x - x1, mousePt.y - y1);
+
+        let newX = x1 + Math.sin(azim) * default_dist;
+        let newY = y1 + Math.cos(azim) * default_dist;
+
+        line.setAttribute('x2', newX);
+        line.setAttribute('y2', newY);
+
+        element.dataset.azim = azim;
+
+        ui_api.drawsocketInput({
+            key: "svg", 
+            val: {
+                id: `${element.id}-rotation-handle`,
+                x: newX - 4,
+                y: newY - 4
+            }
+        })
+
+        updateFromDataset(element);
+        
+    }
+
 
     let cb = {};
 
