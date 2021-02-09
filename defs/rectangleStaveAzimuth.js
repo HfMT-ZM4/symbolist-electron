@@ -10,12 +10,6 @@ const className = "rectangleStaveAzimuth";
 
 const palette = [ ] //"rectangleStaveAzim", "otherRectangleStaveEvent"
 
-const x2time = 0.001;
-const time2x = 1000;
-
-const y2pitch = 127.; // y is normalized 0-1
-const pitch2y = 1 / 127.;
-
 const default_r = 2;
 const default_dist = 5;
 
@@ -40,36 +34,39 @@ let dataInstace = {
     azim: 0
 }
 
-// container objects no longer have the contents in the data object, but rather the contents
-// are in the containers lookup object in the io controller
+let viewParamsInstance = {
+    x: 0,
+    y: 0,
+    azim: {
+        x: 0,
+        y: 0
+    },
+    r: 2,
+    width: "not used, but for duration"
+}
 
-// all symbols must be wrapped in <g> containers
-// any additional UI elements will be grouped with the symbol,  so that when somehting is clicked it is still
-// part of the symbol heirarchy, where the top level has includes the 'symbol' class
 
-// I added the id and overwrite here to deal with situations where you are storing a reference to the element
-// if new is undefined, drawsocket can use the id to update the values and keep the reference in place
-const viewDisplay = function(id, cx, cy, r, x2, y2, overwrite = true)
+const display = function(params)
 {
-    return {
-        id,
-        new: (overwrite ? "g" : undefined),
-        children : [{
-            id: `${id}-notehead`,
-            new: (overwrite ? "circle" : undefined),
-            cx,
-            cy,
-            r
-        },
-        {
-            new: (overwrite ? "line" : undefined),
-            id: `${id}-azim`,
-            x1: cx,
-            y1: cy,
-            x2, 
-            y2
-        }]
-    }
+    return [{
+        id: `${params.id}-notehead`,
+        new: "circle",
+        cx: params.x,
+        cy: params.y,
+        r: (params.r ? params.r : default_r)
+    },
+    {
+        new: "line" ,
+        id: `${params.id}-azim`,
+        x1: params.x,
+        y1: params.y,
+        x2: params.azim.x2, 
+        y2: params.azim.y2,
+        style: {
+            stroke: 'black',
+            'stroke-width': 1
+        }
+    }]
 }
 
 
@@ -95,10 +92,17 @@ const ui_def = function(ui_api)
      */
     function getPaletteIcon()
     {
-
         return {
             key: "svg",
-            val: viewDisplay(`${className}-pal-disp`, 25, 25, default_r, 25, 25 - 10)
+            val: display({
+                id: `${className}-pal-disp`,
+                x: 25,
+                y: 25,
+                azim: {
+                    x2: 50,
+                    y2: 15
+                }
+            })
         }
     }
 
@@ -204,9 +208,38 @@ const ui_def = function(ui_api)
             
     }
 
+    function dataToViewParams(data, container)
+    {
+
+        const parentDef = ui_api.getDefForElement(container);
+        let viewParams = parentDef.childDataToViewParams(container, data);
+
+        // time->x, pitch->y, and duration->width provided by parent
+        
+        // internal view params that the parent doesn't know about
+        viewParams.azim = {
+            x2: viewParams.x + Math.sin(data.azim) * default_dist,
+            y2: viewParams.y + Math.cos(data.azim) * default_dist
+        } 
+
+        return {
+            id: data.id,
+            ...viewParams
+        }
+     
+    }
+
 
     function fromData(dataObj, container)
     {
+
+        let viewParams = dataToViewParams(dataObj, container);
+        
+        ui_api.drawsocketInput( 
+            ui_api.getViewDataSVG( display(viewParams), dataObj )
+        );
+
+/*
         const contentElement = container.querySelector('.contents');
 
         // filtering the dataObj since the id and parent aren't stored in the dataset
@@ -240,7 +273,7 @@ const ui_def = function(ui_api)
                 ...ui_api.dataToHTML(dataset)
             }
         });
-
+*/
     }
 
    /**

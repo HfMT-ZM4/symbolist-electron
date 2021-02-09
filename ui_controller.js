@@ -92,6 +92,8 @@ let renderer_api = {
     getCurrentContext,
     getSelected,
     dataToHTML,
+    getElementData,
+
     makeDefaultInfoDisplay,
     translate,
     applyTransform,
@@ -115,7 +117,9 @@ let renderer_api = {
     ratio2float,
     reduceRatio,
     getRatioPrimeCoefs,
-    parseRatioStr
+    parseRatioStr,
+
+    hasParam
 }
 
 // API
@@ -136,9 +140,11 @@ function getDefForElement(element)
  * 
  * @param {Object/Array} view object, or array of Drawsocket format, SVG elements to draw, placed inside the display <g> group
  * @param {Object} dataObj data object containing id, class, container-id, and any other data to store in the dataset
- * @param {Boolean} overwrite (optional) signal to force overwriting the object, false by default
+ * @param {Boolean} overwrite (optional) force overwrite the object, this will whipe out child elements false by default
  * 
  * returns object formatted to send to Drawsocket
+ * 
+ * When creating a new SVG element, you need to include the class in the dataObj
  * 
  */
 function getViewDataSVG(view, dataObj, overwrite = false)
@@ -166,12 +172,12 @@ function getViewDataSVG(view, dataObj, overwrite = false)
         val.children[1].new = 'g';
     }
 
-    if( hasAttribute(dataObj, "container" ) )
+    if( hasParam(dataObj, "container" ) )
     {
         val.container = `${dataObj.container}-contents`;
     }
 
-    if( hasAttribute(dataObj, "class" ) )
+    if( hasParam(dataObj, "class" ) )
     {
         val.class = `${dataObj.class} symbol`;
         val.children[0].class = `${dataObj.class} display`;
@@ -209,6 +215,18 @@ function dataToHTML(data_)
     return dataObj;
 }
 
+/**
+ * 
+ * @param {Element} element SVG/HTML element to get dataset from
+ */
+function getElementData(element) 
+{
+    let data = {};
+    Object.keys(element.dataset).forEach( k => {
+        data[k] = isNumeric( element.dataset[k] ) ? Number( element.dataset[k] ) : element.dataset[k]; 
+    });
+    return data;
+}
 
 /**
  * 
@@ -324,11 +342,32 @@ ipcRenderer.on('load-ui-defs', (event, folder) => {
     loadUIDefs(folder);
 })
 
-
-function hasAttribute(obj, attr)
+/**
+ * 
+ * @param {Object} obj object to check
+ * @param {String/Array} attr attribute key or array of keys to look for
+ */
+function hasParam(obj, attr)
 {
-    return (typeof obj[attr] !== "undefined");
+    if( !Array.isArray(attr) )
+    {
+        return (typeof obj[attr] !== "undefined");
+    }
+    else
+    {
+        for( let i = 0; i < attr.length; i++ )
+        {
+            if( typeof obj[attr[i]] === "undefined" )
+            {
+                console.error('object missing attribute', attr[i] );
+                return false;
+            }
+        }
+        return true;
+    }
 }
+
+
 
 /**
  * 
@@ -351,7 +390,7 @@ function iterateContents(contents, context_element = null)
             context_element = getCurrentContext();
         }
 
-        if( !hasAttribute(data, 'container' ) )
+        if( !hasParam(data, 'container' ) )
             data.container = context_element.id;
 
         uiDefs.get(data.class).fromData( data, context_element );
@@ -361,7 +400,7 @@ function iterateContents(contents, context_element = null)
     {
         console.log(context_element.classList[0]);
         const container_class_def = uiDefs.get( context_element.classList[0] );
-        if( container_class_def && hasAttribute(container_class_def, 'updateAfterContents') )
+        if( container_class_def && hasParam(container_class_def, 'updateAfterContents') )
         {
             container_class_def.updateAfterContents(context_element);
         }
@@ -1226,7 +1265,7 @@ function applyTransform(obj, matrix = null)
             break;
     }
 
-    if( obj.hasAttribute('transform'))
+    if( obj.hasParam('transform'))
         obj.removeAttribute('transform');
     
     if( obj.dataset.svgOrigin )
