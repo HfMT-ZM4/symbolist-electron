@@ -177,7 +177,7 @@ const ui_def = function( ui_api )
      */
     function childDataToViewParams(this_element, child_data)
     {
-        if( ui_api.hasParam(child_data, ['pitch', 'time', 'duration']) )
+        if( ui_api.hasParam(child_data, ['pitch', 'time']) )
         {
 
             const containerRect = document.getElementById(`${this_element.id}-rect`);
@@ -185,11 +185,17 @@ const ui_def = function( ui_api )
             const bbox_y = parseFloat(containerRect.getAttribute('y'));
             const bbox_height = parseFloat(containerRect.getAttribute('height'));
 
-            return {
+            let ret = {
                 y: bbox_y + ((1. - (child_data.pitch * pitch2y)) * bbox_height),
-                x: bbox_x + ((child_data.time - parseFloat(this_element.dataset.time)) * time2x),
-                width: child_data.duration * time2x
+                x: bbox_x + ((child_data.time - parseFloat(this_element.dataset.time)) * time2x)
             }
+
+            if( ui_api.hasParam(child_data, "duration" ) )
+            {
+                ret.width = child_data.duration * time2x;
+            }
+
+            return ret;
 
         }
     }
@@ -201,7 +207,7 @@ const ui_def = function( ui_api )
      */
     function childViewParamsToData(this_element, child_viewParams)
     {
-        if( ui_api.hasParam(child_viewParams, ['x', 'y', 'width']) ) 
+        if( ui_api.hasParam(child_viewParams, ['x', 'y']) ) 
         {
 
             const containerRect = document.getElementById(`${this_element.id}-rect`);
@@ -209,12 +215,17 @@ const ui_def = function( ui_api )
             const bbox_y = parseFloat(containerRect.getAttribute('y'));
             const bbox_height = parseFloat(containerRect.getAttribute('height'));
 
-            return {
+            let ret = {
                 pitch: (1 - ((child_viewParams.y-bbox_y) / bbox_height)) * y2pitch,
-                time: ((child_viewParams.x-bbox_x) * x2time) + parseFloat(this_element.dataset.time),
-                duration: child_viewParams.width * x2time
+                time: ((child_viewParams.x-bbox_x) * x2time) + parseFloat(this_element.dataset.time)            
             }
 
+            if( ui_api.hasParam(child_viewParams, "width" ) )
+            {
+                ret.duration = child_viewParams.width * x2time;
+            }
+
+            return ret;
         }
     }
 

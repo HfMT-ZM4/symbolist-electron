@@ -10,38 +10,40 @@ const className = "rectangleStaveAzimuth";
 
 const palette = [ ] //"rectangleStaveAzim", "otherRectangleStaveEvent"
 
-const default_r = 2;
-const default_dist = 5;
+const default_r = 2; // notehead radius
+const default_dist = 5; // length of azim line
 
 const default_duration = 0.1;
 
 
 /**
- * maybe eventually we will want to use this dataInstance signature 
- * to conform data when it arrives via udp
+ * 
+ * Data object defaults, used when creating from mouse events
+ * 
  */
-let dataInstace = {
-    // class name, refering to the definition below
-    class: className,
+let dataInstance = {
 
-    // unique id for this instance
+    class: className,
     id : `${className}-0`,
     
     time: 0,
-    duration: 0.1,
     pitch: 60,
-    amp: 1,
-    azim: 0
+    azim: 0,
+
+    //not used  
+    duration: default_duration,
+    amp: 1
 }
 
+/**
+ * data used to draw expected by display function
+ */
 let viewParamsInstance = {
+//    id: `${className}-0`, // not sure whether to include the id here or not
     x: 0,
     y: 0,
-    azim: {
-        x: 0,
-        y: 0
-    },
-    r: 2,
+    azim: 0, // converted 
+    r: default_r, // notehead size
     width: "not used, but for duration"
 }
 
@@ -60,8 +62,8 @@ const display = function(params)
         id: `${params.id}-azim`,
         x1: params.x,
         y1: params.y,
-        x2: params.azim.x2, 
-        y2: params.azim.y2,
+        x2: params.x + Math.sin(params.azim) * default_dist,
+        y2: params.y + Math.cos(params.azim) * default_dist,
         style: {
             stroke: 'black',
             'stroke-width': 1
@@ -98,10 +100,7 @@ const ui_def = function(ui_api)
                 id: `${className}-pal-disp`,
                 x: 25,
                 y: 25,
-                azim: {
-                    x2: 50,
-                    y2: 15
-                }
+                azim: 0.15
             })
         }
     }
@@ -121,204 +120,119 @@ const ui_def = function(ui_api)
         )
         
     }
-
-
-    // could probably incorporate this into elementToData, but the element will need to be created first
-    function mapToData(viewData, container)
-    {
-        const containerRect = document.getElementById(`${container.id}-rect`);
-       
-//        console.log('data', data, containerRect);
-
-        // don't need bbox now, since the rect has the info we need
-        //const bbox = ui_api.getBBoxAdjusted(containerDisplay);
-
-        const bbox_x = parseFloat(containerRect.getAttribute('x'));
-        const bbox_y = parseFloat(containerRect.getAttribute('y'));
-        const bbox_height = parseFloat(containerRect.getAttribute('height'));
-
-        const time = ((viewData.cx-bbox_x) * x2time) + parseFloat(container.dataset.time);// + parseFloat(container.dataset.duration);
-        
-        const pitch = (1 - ((viewData.cy-bbox_y) / bbox_height)) * y2pitch; 
-        
-        const azim = Math.atan2(viewData.x2 - viewData.cx, 
-                                viewData.y2 - viewData.cy )
-
-        const duration = default_duration;
-
-        return {
-            time, 
-            pitch,
-            azim,
-            duration
-        }
-    }
-
+    
     /**
+     * API function called from controller to draw new data objects
+     * also used internally
      * 
-     * @param {Element} element 
+     * @param {Object} dataObj 
      * @param {Element} container 
-     * 
-     * called when updating data
+     * @param {Boolean} preview -- optional flag to draw as sprite overlay and draw data text
      * 
      */
-    function elementToData(element)
+    function fromData(dataObj, container, preview = false)
     {
-        const container = element.closest('.container');
-        const circle = element.querySelector('circle');
-        const line = element.querySelector('line');
-
-        const cx = parseFloat(circle.getAttribute('cx'));
-        const cy = parseFloat(circle.getAttribute('cy'));
-        const x2 = parseFloat(line.getAttribute('x2'));
-        const y2 = parseFloat(line.getAttribute('y2'));
-
-        return mapToData(
-            { 
-                cx, 
-                cy, 
-                r: default_r, 
-                x2, 
-                y2 
-            }, 
-            container
-        );
-
+        const viewParams = dataToViewParams(dataObj, container);
+        const viewObj = display(viewParams);
+        const drawObj = preview ? 
+                            ui_api.getPreviewDataSVG( viewObj, dataObj ) :
+                            ui_api.getViewDataSVG( viewObj, dataObj );
+        
+        ui_api.drawsocketInput( drawObj );
     }
 
-    function mapToView(data, container, id, overwrite = true)
-    {
-        const containerRect = document.getElementById(`${container.id}-rect`);
-       // console.log('data', data, containerRect);
 
-        // don't need bbox now, since the rect has the info we need
-        //const bbox = ui_api.getBBoxAdjusted(containerDisplay);
-
-        const bbox_x = parseFloat(containerRect.getAttribute('x'));
-        const bbox_y = parseFloat(containerRect.getAttribute('y'));
-        const bbox_height = parseFloat(containerRect.getAttribute('height'));
-
-        const cx = bbox_x + ((data.time - parseFloat(container.dataset.time)) * time2x);
-        const cy = bbox_y + ((1. - (data.pitch * pitch2y)) * bbox_height);
-
-        const x2 = cx + Math.sin(data.azim) * default_dist;
-        const y2 = cy + Math.cos(data.azim) * default_dist;
-
-        return viewDisplay(id, cx, cy, default_r, x2, y2, overwrite)
-            
-    }
-
+    /**
+     * internal mapping function data->viewParams
+     * 
+     * @param {Object} data 
+     * @param {Element} container 
+     * 
+     * returns object of view params
+     * 
+     */
     function dataToViewParams(data, container)
     {
 
         const parentDef = ui_api.getDefForElement(container);
-        let viewParams = parentDef.childDataToViewParams(container, data);
-
-        // time->x, pitch->y, and duration->width provided by parent
-        
-        // internal view params that the parent doesn't know about
-        viewParams.azim = {
-            x2: viewParams.x + Math.sin(data.azim) * default_dist,
-            y2: viewParams.y + Math.cos(data.azim) * default_dist
-        } 
 
         return {
+            ...parentDef.childDataToViewParams(container, data),
+            // other view params that the parent doesn't deal with
             id: data.id,
-            ...viewParams
+            azim: data.azim, 
         }
      
     }
 
 
-    function fromData(dataObj, container)
-    {
-
-        let viewParams = dataToViewParams(dataObj, container);
-        
-        ui_api.drawsocketInput( 
-            ui_api.getViewDataSVG( display(viewParams), dataObj )
-        );
-
-/*
-        const contentElement = container.querySelector('.contents');
-
-        // filtering the dataObj since the id and parent aren't stored in the dataset
-        const dataset = {
-            time: dataObj.time,
-            pitch: dataObj.pitch,
-            azim: dataObj.azim,
-            duration: default_duration
-        }
-
-        let isNew = true;
-        
-        let currentElement =  document.getElementById(dataObj.id) ;
-       // console.log(currentElement);
-
-        if(currentElement) {
-            isNew = false;
-        }
-
-        let newView = mapToView(dataset, container, dataObj.id, isNew );
-
-       //   console.log('newView', newView);
-
-
-        ui_api.drawsocketInput({
-            key: "svg",
-            val: {
-                parent: contentElement.id,
-                class: `${className} symbol`,
-                ...newView,
-                ...ui_api.dataToHTML(dataset)
-            }
-        });
-*/
-    }
-
-   /**
+    /**
+     * internal mapping function viewParams->data
      * 
-     * @param {Element} element element to use for update
+     * @param {Object} viewParams 
+     * @param {Element} container 
      * 
-     * called from info panel edit boxes -- the datset is used to update the graphics
+     * returns data object
+     * 
      */
-    function updateFromDataset(element)
+    function viewParamsToData(viewParams, container)
     {
-        // assuming that we have all the data
-        let data = element.dataset;
-        const container = element.parentNode.closest('.container');
+        const parentDef = ui_api.getDefForElement(container);
 
-        const id = element.id;
-        const parent = element.parentNode.id;
+        return {
+            ...parentDef.childViewParamsToData(container, viewParams),
+            // other view params that the parent doesn't deal with
+            id: viewParams.id,
+            class: `${className}`,
+            container: container.id,
+            azim: viewParams.azim
+        }
+    }
 
-        let newView = mapToView(data, container, id, false);
+
+    /**
+     * 
+     * gets viewParams from element
+     * 
+     * @param {Element} element 
+     * 
+     */
+    function getElementViewParams(element)
+    {
+
+        const circle = element.querySelector('circle');
+        const line = element.querySelector('line');
+
+        const x = parseFloat(circle.getAttribute('cx'));
+        const y = parseFloat(circle.getAttribute('cy'));
+        const x2 = parseFloat(line.getAttribute('x2'));
+        const y2 = parseFloat(line.getAttribute('y2'));
+
+        const azim = Math.atan2(x2-x, y2-y);
         
-         // send out before sending to drawsocket, because we overwrite the element
-         
-         ui_api.sendToServer({
-            key: "data",
-            val: {
-                id,
-                container: container.id,
-                class: className,
-                ...data
-            }
-        })
 
-        ui_api.drawsocketInput({
-            key: "svg",
-            val: {
-                parent, // parent is an id
-                class: element.classList,
-                ...newView, // note view has id internally
-                ...ui_api.dataToHTML(data)
-            }
-        });
-
-
+        return {
+            id: element.id,
+            x,
+            y,
+            azim
+        }
 
     }
 
+
+    function mouseToData( event, container )
+    {
+        const pt = ui_api.getSVGCoordsFromEvent(event);
+        const parent_def = ui_api.getDefForElement(container);
+
+        return {
+            ...dataInstance, // set class, default azim, duration
+            ...parent_def.childViewParamsToData(container, pt), //pitch and time from container
+            id: `${className}_u_${ui_api.fairlyUniqueString()}`,
+            container: container.id
+        }    
+    }
 
     /**
      * called when new instance of this object is created by a mouse down event
@@ -330,144 +244,117 @@ const ui_def = function(ui_api)
     function creatNewFromMouseEvent(event)
     {
 
-        const pt = ui_api.getSVGCoordsFromEvent(event);
-        const cx = pt.x;
-        const cy = pt.y;
-        const r = default_r; 
-        const x2 = cx + r;
-        const y2 = cy - 10;
+        // remove preview sprite
+        ui_api.drawsocketInput({
+            key: "remove", 
+            val: `${className}-sprite`
+        })
 
-        const uniqueID = `${className}_u_${ui_api.fairlyUniqueString()}`;
-
+        // generate objectData from Mouse Event
         const container = ui_api.getCurrentContext();
-        const eventElement = container.querySelector('.contents');
+        let data = mouseToData(event, container);
+        
+        fromData(data, container);
 
-        const dataObj = mapToData({ cx, cy, r, x2, y2 }, container );
-/*
-// example of creating an extra point via internal scripting
-        let viewObj = mapToView({
-                            time: dataObj.time + 0.1, 
-                            pitch: dataObj.pitch, 
-                            azim: dataObj.azim + 1
-                       }, container, uniqueID+'_test' );
-*/
-       
-        // create new symbol in view
-        ui_api.drawsocketInput([
-            {
-                key: "remove", 
-                val: `${className}-sprite`
-            },
-            {
-                key: "svg",
-                val: {
-                    class: `${className} symbol`,
-                    parent: eventElement.id,
-                    ...viewDisplay(uniqueID, cx, cy, r, cx + r, cy - 10),
-                    ...ui_api.dataToHTML(dataObj)//,
-                    //onclick: function(e){ console.log('ello', e)}
-
-                }
-            }
-            /* // example of creating an extra point via internal scripting
-            ,
-            { 
-                key: "svg",
-                val: {
-                    class: `${className} symbol`,
-                    parent: eventElement.id,
-                    ...viewObj
-                }
-            }*/
-        ])
-
-        // send out
+        // send new object to server
         ui_api.sendToServer({
             key: "data",
-            val: {
-                class: className,
-                id: uniqueID,
-                container: container.id,
-                ...dataObj
-            }
+            val: data
         })
 
     }
 
 
-    function move(e)
+    function move(event)
     {
-        if( e.metaKey && m_mode == "palette" )
+        if( event.metaKey && m_mode == "palette" )
         {
-
-            let sprite = document.getElementById(`${className}-sprite`);
-
-            const pt = ui_api.getSVGCoordsFromEvent(e);
-
-            const x = pt.x;
-            const y = pt.y;
-
-            let cx, cy, azim;
-
-            if( sprite && e.altKey )
-            {
-                let circle = sprite.querySelector('circle');
-                cx = circle.getAttribute('cx');
-                cy = circle.getAttribute('cy');
-                azim = Math.atan2( x - cx, y - cy );
-                //${className}-sprite
-            }
-            else
-            {
-                cx = x;
-                cy = y;
-                azim = 0;
-            }
-
-         
-            const r = default_r; 
-    
+            // preview of mouse down creation
             const container = ui_api.getCurrentContext();
-        
-            let dataObj = mapToData({
-                    cx, 
-                    cy, 
-                    r, 
-                    x2: cx + r, 
-                    y2: cy - 10
-                },
-                container
-            );
+            let data = mouseToData(event, container);
 
-            dataObj.azim = azim;
+            fromData( data, container, true); // sets preview flag to true
+        }
 
-            let viewObj = mapToView(dataObj, container, `${className}-sprite-disp`);
+    }
 
-            drawsocket.input({
-                key: "svg", 
-                val: {
-                    id: `${className}-sprite`,
-                    class: 'sprite',
-                    parent: 'symbolist_overlay',
-                    new: "g",
-                    children: [
-                        viewObj, //viewDisplay(cx, cy, r, cx + r, cy - 10),
-                        {
-                            new: "text",
-                            x: cx,
-                            y: cy - 20,
-                            text: JSON.stringify(dataObj),
-                            style: {
-                                'font-size': '13px',
-                                'font-family': 'Helvetica sans-serif'
-                            }
-                        }
-                    ]
-                }
-            })
+
+
+    /**
+     * 
+     * 
+     * @param {Element} element html/svg element to translate
+     * 
+     * return true to use default translation
+     * return false to use custom translation 
+     */
+    function drag(element, delta_pos = {x:0,y:0}) 
+    {
+        // delta_pos needes to be adjusted for scale also
+       
+       // console.log('drag mode', m_mode);
+        if( m_mode == "edit" )
+        {
+            //rotate(element, delta_pos);
+        }
+        else
+        {
+            // maybe rename... sets translation in transform matrix, but doesn't apply it
+            ui_api.translate(element, delta_pos);
+
+            let viewParams = getElementViewParams(element);
+            viewParams.x += delta_pos.x;
+            viewParams.y += delta_pos.y;
+
+            let container = ui_api.getContainerForElement(element);
+            let data = viewParamsToData(viewParams, container);
+            ui_api.drawsocketInput(
+                ui_api.getDataTextView(data)
+            )
+
         }
        
+        return true; // return true if you are handling your own translation
     }
+
+
+
+
+   /**
+     * 
+     * @param {Element} element element to use for update
+     * 
+     * called from info panel edit boxes -- the datset is used to update the graphics
+     */
+    function updateFromDataset(element)
+    {
+
+        const container = ui_api.getContainerForElement(element);        
+        let data = ui_api.getElementData(element, container);
+        
+        fromData(data, container);
+
+        // update data 
+        ui_api.sendToServer({
+            key: "data",
+            val: data
+        })
+
+    }
+
+
+
+    // in progress
+
+    
+
+    // -- to do
+
+
+
+
+
+
 
     function selected(element, state)
     {
@@ -480,7 +367,12 @@ const ui_def = function(ui_api)
     {
         ui_api.applyTransform(element);
 
-        let data = elementToData(element);
+        let viewParams = getElementViewParams(element);
+        let container = ui_api.getContainerForElement(element);
+        let data = viewParamsToData(viewParams, container);
+
+
+       // let data = elementToData(element);
 
         ui_api.drawsocketInput({
             key: "svg",
@@ -496,7 +388,7 @@ const ui_def = function(ui_api)
             val: {
                 id: element.id,
                 class: className,
-                container: element.parentNode.closest('.container').id,
+                container: container.id,
                 ...data
             }
         })
@@ -543,71 +435,6 @@ const ui_def = function(ui_api)
     }
 
 
-    /**
-     * 
-     * @param {Element} element html/svg element to translate
-     * 
-     * return true to use default translation
-     * return false to use custom translation 
-     */
-    function translate(element, delta_pos = {x:0,y:0}) 
-    {
-        // delta_pos needes to be adjusted for scale also
-       
-        console.log('translate mode', m_mode);
-        if( m_mode == "edit" )
-        {
-            //rotate(element, delta_pos);
-        }
-        else
-        {
-                // maybe rename... sets translation in transform matrix, but doesn't apply it
-            ui_api.translate(element, delta_pos);
-        
-            const circ = element.querySelector('circle');
-            const line = element.querySelector('line');
-
-            const cx = parseFloat(circ.getAttribute('cx')) + delta_pos.x;
-            const cy = parseFloat(circ.getAttribute('cy')) + delta_pos.y;
-            const x2 = parseFloat(line.getAttribute('x2')) + delta_pos.x;
-            const y2 = parseFloat(line.getAttribute('y2')) + delta_pos.y;
-
-            let container = element.closest('.container');
-            let dataObj = mapToData(
-                { 
-                    cx, 
-                    cy, 
-                    r: default_r, 
-                    x2, 
-                    y2 
-                }, 
-                container
-            ); //mapToData(cx, cy, default_r, x2, y2, container);
-            
-
-            ui_api.drawsocketInput({
-                key: "svg",
-                val: {
-                    new: "text",
-                    id: `${className}-sprite`,
-                    parent: "symbolist_overlay",
-                    x: cx,
-                    y: cy - 20,
-                    text: JSON.stringify(dataObj),
-                    style: {
-                        'font-size': '13px',
-                        'font-family': 'Helvetica sans-serif'
-                    }
-                }
-            })
-            
-        }
-       
-        // option for default translation
-       // console.log('translate', element, delta_pos);
-        return true; // return true if you are handling your own translation
-    }
-
     function down(e) 
     {
         if( e.metaKey )
@@ -626,10 +453,7 @@ const ui_def = function(ui_api)
     {
         if( e.key == "Meta" )
         {
-            ui_api.drawsocketInput({
-                key: "remove", 
-                val: `${className}-sprite`
-            })
+            ui_api.removeSprites();
         }
     }
 
@@ -748,7 +572,7 @@ const ui_def = function(ui_api)
     // exported functions used by the symbolist renderer
     return {
         class: className,
-        dataInstace,
+        dataInstance,
 
         palette,
 
@@ -774,7 +598,7 @@ const ui_def = function(ui_api)
 
         selected,
         
-        translate,
+        drag,
         applyTransformToData
     }
 

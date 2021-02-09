@@ -85,6 +85,9 @@ let renderer_api = {
     getContainerForElement, // look upwards in the elemement heirarchy to find the container
 
     getViewDataSVG,
+    getPreviewDataSVG,
+    getDataTextView,
+    removeSprites,
 
     drawsocketInput,
     sendToServer, // renderer-event
@@ -136,6 +139,11 @@ function getDefForElement(element)
 }
 
 
+function removeSprites()
+{
+    document.querySelectorAll('.sprite').forEach(e => e.remove());
+}
+
 /**
  * 
  * @param {Object/Array} view object, or array of Drawsocket format, SVG elements to draw, placed inside the display <g> group
@@ -174,7 +182,10 @@ function getViewDataSVG(view, dataObj, overwrite = false)
 
     if( hasParam(dataObj, "container" ) )
     {
-        val.container = `${dataObj.container}-contents`;
+        if( dataObj.container == "symbolist_overlay" )
+            val.container = "symbolist_overlay";
+        else
+            val.container = `${dataObj.container}-contents`;
     }
 
     if( hasParam(dataObj, "class" ) )
@@ -188,6 +199,43 @@ function getViewDataSVG(view, dataObj, overwrite = false)
         key: "svg",
         val
     }
+}
+
+
+function getDataTextView(dataObj)
+{
+    return {
+        key: 'svg',
+        val: {  
+            new: "text",
+            class: "data_text sprite",
+            container: `symbolist_overlay`,
+            relativeTo : `#${dataObj.id}`,
+            id: `${dataObj.id}-data_text`,
+            x: 0,
+            y: -20,
+            text: JSON.stringify( filterDataset(dataObj) )
+        }
+    }
+}
+
+function getPreviewDataSVG(view, dataObj)
+{
+    let drawing = getViewDataSVG(view, 
+        {
+            ...dataObj,
+            class: 'sprite',
+            id: `${dataObj.class}-sprite`,
+            container: 'symbolist_overlay'
+        }, true /* overwrite*/ );
+    
+
+    let text_drawing = getDataTextView({
+        ...dataObj,
+        id: `${dataObj.class}-sprite`
+    });
+
+    return [ drawing, text_drawing ];
 }
 
 /**
@@ -215,16 +263,45 @@ function dataToHTML(data_)
     return dataObj;
 }
 
+// better to make a flag for dataToHTML?
+function filterDataset(data_)
+{
+    let dataObj = {};
+    Object.keys(data_).forEach( key => {
+        // filtering elements not used in the dataset
+        if( key != 'id' && 
+            key != 'class' && 
+            key != 'container' && 
+            key != 'parent' && 
+            key != 'contents' ) 
+        {
+            dataObj[key] = data_[key];
+        }
+            
+    })
+
+    return dataObj;
+}
+
+
 /**
  * 
  * @param {Element} element SVG/HTML element to get dataset from
+ * @param {Element} container optional, adds container.id to data
  */
-function getElementData(element) 
+function getElementData(element, container = null) 
 {
     let data = {};
     Object.keys(element.dataset).forEach( k => {
         data[k] = isNumeric( element.dataset[k] ) ? Number( element.dataset[k] ) : element.dataset[k]; 
     });
+    
+    data.id = element.id;
+    data.class = element.classList[0];
+
+    if( container )
+        data.container = container.id;
+
     return data;
 }
 
@@ -1265,7 +1342,7 @@ function applyTransform(obj, matrix = null)
             break;
     }
 
-    if( obj.hasParam('transform'))
+    if( obj.hasAttribute('transform'))
         obj.removeAttribute('transform');
     
     if( obj.dataset.svgOrigin )
@@ -1411,7 +1488,7 @@ function translate(obj, delta_pos)
 */
 }
 
-
+/*
 function translate_selected(delta_pos)
 {
     for( let i = 0; i < selected.length; i++)
@@ -1419,11 +1496,11 @@ function translate_selected(delta_pos)
        
         if( !callSymbolMethod(selected[i], "translate", delta_pos))
         {
-           // console.log('translate_selected', selected[i]); 
             translate(selected[i], delta_pos);
         }
     }
 }
+*/
 
 function rotate_selected(mouse_pos)
 {
@@ -1432,7 +1509,6 @@ function rotate_selected(mouse_pos)
        
        // if( !callTranslate(selected[i], delta_pos) )
         {
-           // console.log('translate_selected', selected[i]); 
             rotate(selected[i], mouse_pos);
         }
     }
@@ -2054,8 +2130,7 @@ function symbolist_mousemove(event)
             else
             {
                 // now only translating if the def has a translate function
-                callMethodForSelected("translate", mouseDelta );
-            //    translate_selected( mouseDelta );
+                callMethodForSelected("drag", mouseDelta );
             }
         }
         else 
@@ -2201,6 +2276,7 @@ function symbolist_mouseup(event)
             //event.symbolistAction = "transformed";
 
             applyTransformToSelected();
+            removeSprites();
             
         }
         else
