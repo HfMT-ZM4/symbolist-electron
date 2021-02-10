@@ -3,3 +3,53 @@
     width: fit-content;
     height: fit-content;
 }
+
+.systemContainer-rect {
+    fill: white;
+}
+
+.systemContainer-bracket {
+    fill: none;
+    stroke: black;
+    stroke-width: 1;
+}
+
+.partStave-rect {
+    fill: none;
+    stroke: rgba(0, 0, 0, 0.1);
+    stroke-width : 0.5;
+}
+
+.staveLabel {
+    fill: white;
+    text-anchor: end;
+}
+
+.azim-line {
+    stroke: black;
+    stroke-width: 1;
+}
+
+.fiveLineStave rect {
+    fill: none;
+    stroke: rgba(0, 0, 0, 0.1);
+    stroke-width : 0.5;
+}
+.fiveLineStave .staffline {
+    stroke: black;
+    stroke-width: 0.5;
+}
+
+.notehead {
+    fill: black;
+}
+
+.duration-line {
+    stroke: black;
+    stroke-width: 2;
+}
+
+.accidental {
+    font-size: 23pt;
+    font-family: Bravura;
+}

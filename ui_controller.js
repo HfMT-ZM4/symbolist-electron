@@ -202,7 +202,7 @@ function getViewDataSVG(view, dataObj, overwrite = false)
 }
 
 
-function getDataTextView(dataObj)
+function getDataTextView(dataObj, relativeTo = null)
 {
     return {
         key: 'svg',
@@ -210,7 +210,7 @@ function getDataTextView(dataObj)
             new: "text",
             class: "data_text sprite",
             container: `symbolist_overlay`,
-            relativeTo : `#${dataObj.id}`,
+            relativeTo : (relativeTo ? relativeTo : `#${dataObj.id}`),
             id: `${dataObj.id}-data_text`,
             x: 0,
             y: -20,
@@ -219,7 +219,7 @@ function getDataTextView(dataObj)
     }
 }
 
-function getPreviewDataSVG(view, dataObj)
+function getPreviewDataSVG(view, dataObj, relativeTo = null)
 {
     let drawing = getViewDataSVG(view, 
         {
@@ -233,7 +233,7 @@ function getPreviewDataSVG(view, dataObj)
     let text_drawing = getDataTextView({
         ...dataObj,
         id: `${dataObj.class}-sprite`
-    });
+    }, relativeTo );
 
     return [ drawing, text_drawing ];
 }
@@ -1165,7 +1165,11 @@ function getSVGCoordsFromEvent(event)
     let pt = svgObj.createSVGPoint();
     pt.x = event.pageX;
     pt.y = event.pageY;
-    return pt.matrixTransform( mainSVG.getScreenCTM().inverse() ); 
+    let newPt = pt.matrixTransform( mainSVG.getScreenCTM().inverse() );
+    return {
+        x: newPt.x,
+        y: newPt.y
+    }; 
 }
 
 function getBBoxAdjusted(element)

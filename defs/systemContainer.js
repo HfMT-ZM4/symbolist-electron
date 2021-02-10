@@ -51,23 +51,17 @@ const display = function(params)
     return [{
         new:    "rect",
         id:     `${params.id}-rect`,
+        class:  'systemContainer-rect',
         x:      params.x,
         y:      params.y,
         height: params.height,
-        width:  params.width,
-        style: {
-            fill: "white"
-        }
+        width:  params.width
     },
     {
         new: "path",
         id: `${params.id}-bracket`,
-        d: `M ${params.x+margin} ${params.y+half_margin} h -${half_margin} v ${params.height - margin} h ${half_margin}`,
-        style: {
-            fill: 'none',
-            stroke: 'black',
-            'stroke-width': 1
-        }
+        class: 'systemContainer-bracket',
+        d: `M ${params.x+margin} ${params.y+half_margin} h -${half_margin} v ${params.height - margin} h ${half_margin}`
     }];
 }
 

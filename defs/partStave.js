@@ -1,12 +1,7 @@
 
 // make time/pixel scalar something that can be adjusted in the UI
 
-/**
- * new version 
- */
-
 'use strict';
-
 
 const className = "partStave";
 
@@ -25,10 +20,7 @@ let time2x = 1000;
 let y2pitch = 127.; // y is normalized 0-1
 let pitch2y = 1 / 127.;
 
-/**
- * maybe eventually we will want to use this dataInstance signature 
- * to conform data when it arrives via udp
- */
+
 let dataInstance = {
     // class name, refering to the definition below
     class: className,
@@ -41,6 +33,21 @@ let dataInstance = {
     height: 100 
 }
 
+
+/**
+ * data used to draw expected by display function
+ */
+let viewParamsInstance = {
+    id: `${className}-0`,
+    x: 0,
+    y: 0,
+    height: 100, 
+    width: 100
+}
+
+/**
+ * data params mapped for child objects
+ */
 let mappingParams = {
     time: 0,        // -> x
     pitch: 60,       // -> y
@@ -56,28 +63,20 @@ const display = function(params)
 
     return [{
         new:    "rect",
+        class: 'partStave-rect',
         id:     `${params.id}-rect`,
         x:      params.x,
         y:      params.y,
         width:  params.width,
-        height: params.height,
-        style: {
-            fill: "none",
-            stroke: 'rgba(0, 0, 0, 0.1)',
-            'stroke-width' : 1
-        }
+        height: params.height
     },
     {
         new:    "text",
+        class:  'staveLabel',
         id:     `${params.id}-label`,
         x:      params.x - left_margin,
         y:      params.y + (params.height / 2),
-        text:   params.id,
-        'text-anchor': 'end',
-        style: {
-            fill: 'white'
-        }
-
+        text:   params.id
     }];
 }
 
@@ -120,11 +119,11 @@ const ui_def = function( ui_api )
     {
 
         const parentDef = ui_api.getDefForElement(container);
-        let viewParams = parentDef.childDataToViewParams(container, data);
 
         return {
-            id: data.id,
-            ...viewParams
+            ...parentDef.childDataToViewParams(container, data),
+            // other view params that the parent doesn't deal with:
+            id: data.id
         }
      
     }

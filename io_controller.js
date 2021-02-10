@@ -314,6 +314,7 @@ function loadDefFiles(folder)
             }
           
         }
+       
     })
 
     newScore();

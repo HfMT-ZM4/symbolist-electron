@@ -39,13 +39,19 @@ let dataInstance = {
  * data used to draw expected by display function
  */
 let viewParamsInstance = {
-//    id: `${className}-0`, // not sure whether to include the id here or not
+    id: `${className}-0`, 
     x: 0,
     y: 0,
     azim: 0, // converted 
     r: default_r, // notehead size
     width: "not used, but for duration"
 }
+
+/**
+ * data params mapped for child objects
+ */
+let mappingParams = {}
+
 
 
 const display = function(params)
@@ -60,14 +66,11 @@ const display = function(params)
     {
         new: "line" ,
         id: `${params.id}-azim`,
+        class: 'azim-line',
         x1: params.x,
         y1: params.y,
         x2: params.x + Math.sin(params.azim) * default_dist,
-        y2: params.y + Math.cos(params.azim) * default_dist,
-        style: {
-            stroke: 'black',
-            'stroke-width': 1
-        }
+        y2: params.y + Math.cos(params.azim) * default_dist
     }]
 }
 
@@ -470,6 +473,10 @@ const ui_def = function(ui_api)
         updateFromDataset(element);
         
     }
+
+
+
+    // this could maybe be better abstracted to a handle class
 
 
     let cb = {};
