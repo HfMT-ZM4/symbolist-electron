@@ -163,7 +163,6 @@ function getViewDataSVG(view, dataObj, overwrite = false)
     }
 
     let val = {
-        id: dataObj.id,
         ...dataToHTML(dataObj),
         children: [{
             id: `${dataObj.id}-display`,
@@ -256,6 +255,10 @@ function dataToHTML(data_)
             key != 'contents' ) 
         {
             dataObj[`data-${key}`] = data_[key];
+        }
+        else if( key == 'id') // maybe pass all keys?
+        {
+            dataObj.id = data_.id;
         }
             
     })
