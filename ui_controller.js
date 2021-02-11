@@ -97,6 +97,8 @@ let renderer_api = {
     dataToHTML,
     getElementData,
 
+    getDataParamsInView,
+
     makeDefaultInfoDisplay,
     translate,
     applyTransform,
@@ -285,6 +287,19 @@ function filterDataset(data_)
 
     return dataObj;
 }
+
+function getDataParamsInView(viewParams, dataInstance_)
+{
+    let ret = {};
+    Object.keys(dataInstance_).forEach( k => {
+        if( typeof viewParams[k] !== "undefined" )
+        {
+            ret[k] = viewParams[k];
+        }
+    })
+    return ret;
+}
+
 
 
 /**

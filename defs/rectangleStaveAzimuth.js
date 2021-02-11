@@ -160,14 +160,13 @@ const ui_def = function(ui_api)
         const parentDef = ui_api.getDefForElement(container);
 
         return {
-            ...parentDef.childDataToViewParams(container, data),
-            // other view params that the parent doesn't deal with
-            id: data.id,
-            azim: data.azim, 
+            ...data,
+            ...parentDef.childDataToViewParams(container, data)
         }
      
     }
 
+    
 
     /**
      * internal mapping function viewParams->data
@@ -183,12 +182,12 @@ const ui_def = function(ui_api)
         const parentDef = ui_api.getDefForElement(container);
 
         return {
+            ...ui_api.getDataParamsInView(viewParams, dataInstance), // gets azim because it's also a data param
             ...parentDef.childViewParamsToData(container, viewParams),
             // other view params that the parent doesn't deal with
             id: viewParams.id,
             class: `${className}`,
-            container: container.id,
-            azim: viewParams.azim
+            container: container.id
         }
     }
 
