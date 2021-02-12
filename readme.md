@@ -366,7 +366,8 @@ __Required__
 * `updateFromDataset` called from the inspector, when elements of the data should be updated.
 
 * `getContainerForData` for container symbols, this function is called when a new data object is being set, if there are multiple containers of the same type, for example systems with line breaks, this function looks up the container by a certain parameter, usually time.
-        
+* `childDataToViewParams` mapping function in container symbol called from children to request view parameters from data object.
+* `childViewParamsToData` mapping function in conatiner symbol called from children to get data mapping from view parameters.
 __Optional__
 * `editMode` (element, true/false)=> called from ui controller when entering edit mode
 * `selected` (element, true/false)=> called from ui controller on selection, return true if selection is handled in the script, false will trigger the default selection mechanics.

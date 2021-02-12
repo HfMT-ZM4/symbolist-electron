@@ -21,7 +21,6 @@ let viewParamsInstance = {
 const default_r = 2;
 
 
-
 const ui_def = function( ui_api ) 
 {
 
