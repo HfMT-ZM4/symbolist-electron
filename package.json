@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "d3-selection": "^1.4.1",
-    "gsap": "^3.6.0",
+    "gsap": ">=3.6.0",
     "svg-path-properties": "^1.0.10",
     "svg-points": "^6.0.1",
     "uuid": "^8.3.1"

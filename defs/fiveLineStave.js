@@ -1,12 +1,7 @@
 
-// make time/pixel scalar something that can be adjusted in the UI
 
-/**
- * new version 
- */
 
 'use strict';
-
 
 const className = "fiveLineStave";
 
@@ -22,10 +17,7 @@ const top_margin = 20;
 let x2time = 0.001;
 let time2x = 1000;
 
-/**
- * maybe eventually we will want to use this dataInstance signature 
- * to conform data when it arrives via udp
- */
+
 let dataInstance = {
     // class name, refering to the definition below
     class: className,
@@ -39,138 +31,105 @@ let dataInstance = {
     lineSpacing: 8
 }
 
+/**
+ * data used to draw expected by display function
+ */
+let viewParamsInstance = {
+    id: `${className}-0`,
+    x: 0,
+    y: 0,
+    height: 100, 
+    width: 100,
+    lineSpacing: 8
+}
+
+let mappingParams = {
+    time: 0,        // -> x
+    midi: 60,       // -> y
+
+    duration: 1
+}
 
 /** 
  * viewDisplay is just the view part, for containers, it's used for sprites, palette, but the viewContainer is what is used in the DOM
  */
-const viewDisplay = function(id, x, y, width, height, lineSpacing, overwrite = true)
+const display = function(params)
 {
-    let strokeWidth = 0.5;
-    let centerY = y + (height / 2);
-    return {
-        new: (overwrite ? "g" : undefined),
-        id: `${id}-display`,
-        class: `${className} display`, // the display container, using the 'display' class as a selector
-        children: [{
-            new: (overwrite ? "rect" : undefined),
-            id: `${id}-rect`,
-            x,
-            y,
-            width,
-            height,
-            style: {
-                fill: "none",
-                stroke: 'rgba(0, 0, 0, 0.1)',
-                'stroke-width' : strokeWidth
-            }
+    // note, stafflines can be generated computationally later, just hand wrote them for now
+    let centerY = params.y + (params.height / 2);
+    return [{
+            new: "rect",
+            id: `${params.id}-rect`,
+            x: params.x,
+            y: params.y,
+            width: params.width,
+            height: params.height
         },{
-            new: (overwrite ? "text" : undefined),
-            id: `${id}-label`,
-            x: x - left_margin,
+            new: "text",
+            id: `${params.id}-label`,
+            class: 'staveLabel',
+            x: params.x - left_margin,
             y: centerY,
-            text: id,
-            'text-anchor': 'end',
-            style: {
-                fill: 'white'
-            }
+            text: params.id
         }, {
-                new: "image",
-                id: `${id}-clef`,
-                href: "defs/g_clef.svg",
-                x,
-                y
+            new: "image",
+            id: `${params.id}-clef`,
+            href: "defs/g_clef.svg",
+            x: params.x,
+            y: params.y
     
         },
         {
             new: "g",
-            id: `${id}-staffline-group`,
+            id: `${params.id}-staffline-group`,
             children: [{
-                new: (overwrite ? "line" : undefined),
-                id: `${id}-staffline-1`,
+                new: "line",
+                id: `${params.id}-staffline-1`,
                 class : "staffline",
-                x1: x,
-                y1: centerY - lineSpacing * 2,
-                x2: x + width,
-                y2: centerY - lineSpacing * 2,
-                style: {
-                    stroke: "black",
-                    'stroke-width' : strokeWidth
-                }
+                x1: params.x,
+                y1: centerY - params.lineSpacing * 2,
+                x2: params.x + params.width,
+                y2: centerY - params.lineSpacing * 2
             },
             {
-                new: (overwrite ? "line" : undefined),
-                id: `${id}-line-2`,
+                new: "line",
+                id: `${params.id}-line-2`,
                 class : "staffline",
-                x1: x,
-                y1: centerY - lineSpacing,
-                x2: x + width,
-                y2: centerY - lineSpacing,
-                style: {
-                    stroke: "black",
-                    'stroke-width' : strokeWidth
-                }
+                x1: params.x,
+                y1: centerY - params.lineSpacing,
+                x2: params.x + params.width,
+                y2: centerY - params.lineSpacing
             },
             {
-                new: (overwrite ? "line" : undefined),
-                id: `${id}-line-3`,
+                new: "line",
+                id: `${params.id}-line-3`,
                 class : "staffline",
-                x1: x,
+                x1: params.x,
                 y1: centerY,
-                x2: x + width,
-                y2: centerY,
-                style: {
-                    stroke: "black",
-                    'stroke-width' : strokeWidth
-                }
+                x2: params.x + params.width,
+                y2: centerY
             },
             {
-                new: (overwrite ? "line" : undefined),
-                id: `${id}-line-4`,
+                new: "line",
+                id: `${params.id}-line-4`,
                 class : "staffline",
-                x1: x,
-                y1: centerY + lineSpacing,
-                x2: x + width,
-                y2: centerY + lineSpacing,
-                style: {
-                    stroke: "black",
-                    'stroke-width' : strokeWidth
-                }
+                x1: params.x,
+                y1: centerY + params.lineSpacing,
+                x2: params.x + params.width,
+                y2: centerY + params.lineSpacing
             },
             {
-                new: (overwrite ? "line" : undefined),
-                id: `${id}-line-5`,
-                x1: x,
-                y1: centerY + lineSpacing * 2,
-                x2: x + width,
-                y2: centerY + lineSpacing * 2,
-                style: {
-                    stroke: "black",
-                    'stroke-width' : strokeWidth
-                }
+                new: "line",
+                id: `${params.id}-line-5`,
+                class : "staffline",
+                x1: params.x,
+                y1: centerY + params.lineSpacing * 2,
+                x2: params.x + params.width,
+                y2: centerY + params.lineSpacing * 2
             }]
         }]
-    }
-
 }
 
-const viewContainer = function(id, x, y, width, height, lineSpacing, overwrite = true) 
-{
-
-    return {
-        new: (overwrite ? "g" : undefined), 
-        id, // use same reference id as data object
-        class: `${className} symbol container`, // the top level container, using the 'container' class for type selection if needed
-        children: [
-            viewDisplay(id, x, y, width, height, lineSpacing, overwrite),
-            {
-                new: (overwrite ? "g" : undefined),
-                id: `${id}-contents`,
-                class: `${className} contents` // the contents container, using the 'contents' class as a selector
-                // removed empty children array since if we are updating the object, we don't want to overwrite the children
-            }
-        ]  
-    }
-}
 
 /**
  * 
@@ -205,36 +164,179 @@ const ui_def = function( ui_api )
     }
 
 
-    function mapToView(data, container, id, overwrite = true)
+    // rename: dataToDrawingParams? or dataToDisplayParams
+    function dataToViewParams(data, container)
     {
 
-       // console.log('mapToView', data);
-        const containerDisplay = container.querySelector('.display');
-        const contents = container.querySelector('.contents');
+        const parentDef = ui_api.getDefForElement(container);
 
-        const bbox = ui_api.getBBoxAdjusted(containerDisplay);
-
-        const x = bbox.x + left_margin;
-
-        //  maybe later use x_offset for setting position?
-        //const x_ref = parseFloat(container.dataset.x_ref);
-
-        const num_siblings = contents.children.length;
-
-        let y_offset = 0;
-        if( num_siblings > 0 )
-        {
-            y_offset = top_margin + ui_api.getBBoxAdjusted(contents.children[ num_siblings - 1 ]).bottom - bbox.y;
+        return {
+            ...parentDef.childDataToViewParams(container, data),
+            // other view params that the parent doesn't deal with:
+            id: data.id,
+            lineSpacing: data.lineSpacing
         }
+     
+    }
 
-        const y = bbox.y + y_offset; 
 
-        const width = parseFloat(container.dataset.duration) * time2x;
-        const height = parseFloat(data.height);
-        const lineSpacing = parseFloat(data.lineSpacing);
+ /**
+     * 
+     * @param {Object} dataObj data object to use to create new or update element
+     * @param {Element} container HTML/SVG element context for this element
+     * 
+     * called when creating new element, or updating values 
+     * 
+     * 
+     */
+    function fromData(dataObj, container)
+    {
 
-        return viewContainer(id, x, y, width, height, lineSpacing, overwrite)
-            
+        let viewParams = dataToViewParams(dataObj, container);
+        
+        ui_api.drawsocketInput( 
+            ui_api.getViewDataSVG( display(viewParams), dataObj )
+        );
+
+    }
+
+
+    function getContainerForData(dataObj)
+    {
+
+        return document.getElementById(dataObj.container);
+
+    }
+
+
+
+    const sharpSteps =          [ 0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6 ];
+    const flatSteps =           [ 0, 1, 2, 2, 3, 3, 4, 5, 5, 6, 6, 7 ];
+    const chromaAccidList =     [ 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1 ];
+    const midiMiddleLine = 71;
+
+    function midi2y(midi, stepSpacing, accidentalType = "sharp")
+    {
+        const midiNote = midi - midiMiddleLine;
+        let chroma = Math.floor(midiNote) % 12;
+        if( chroma < 0 )
+        {
+            chroma += 12;
+        }
+        
+        const octShift = Number(midiNote < 0);
+        const oct = Math.floor( midiNote / 12 );
+
+        // line offset from B natural
+
+        const lineOffset = accidentalType == "sharp" ? sharpSteps : flatSteps; 
+
+        const lineYoffset = lineOffset[ chroma ] * stepSpacing;
+        const octaveYoffset = oct * (stepSpacing * 7);
+
+//        console.log(chroma, lineYoffset, octaveYoffset);
+        // add num ledgerlines here?
+
+        const accidental = chromaAccidList[ chroma ] ? accidentalType : null;
+
+        return {
+            yOffset: octaveYoffset + lineYoffset,
+            accidental
+        }
+    }
+
+    // note, we don't have a good way to know whether a y point is an accidental or not...
+    function y2midi(y, container, accidentalType = "sharp")
+    {
+        const middleLine = document.getElementById(`${container.id}-line-3`);
+        const stepSize = container.dataset.lineSpacing * 0.5;
+
+        const y_pix = parseFloat(middleLine.getAttribute('y1')) - y;
+        
+        const y_steps = Math.floor( y_pix / stepSize);
+
+        return  midiMiddleLine + y_steps;
+
+    }
+
+
+
+   /**
+     * 
+     * @param {Element} this_element instance of this element
+     * @param {Object} child_data child data object, requesting information about where to put itself
+     */
+    function childDataToViewParams(this_element, child_data)
+    {
+        if( ui_api.hasParam(child_data, ['time', 'duration', 'midi']) )
+        {
+
+            const containerRect = document.getElementById(`${this_element.id}-rect`);
+            const bbox_x = parseFloat(containerRect.getAttribute('x'));
+       
+            const middleLine = document.getElementById(`${this_element.id}-line-3`);
+            const lineSpacing = parseFloat(this_element.dataset.lineSpacing);
+            const stepSize = lineSpacing * 0.5;
+
+            // accidental type (sharp/flat) should be settable somewhere
+            const pitchInfo = midi2y( Math.round(child_data.midi), stepSize, "sharp"); 
+            const y = parseFloat(middleLine.getAttribute('y1')) - pitchInfo.yOffset;
+
+            const n_ledgerLines = Math.floor( Math.abs(pitchInfo.yOffset) / lineSpacing) - 2;
+            let sign = pitchInfo.yOffset < 0 ? -1 : 1;
+
+            let starty = parseFloat(middleLine.getAttribute('y1')) - (lineSpacing * 3) * sign;
+
+            let ledgerLine_y = [];
+            for( let i = 0; i < n_ledgerLines; i++)
+            {
+                ledgerLine_y.push( starty - (i * lineSpacing) * sign );
+            }
+     
+            const x = bbox_x + ((child_data.time - parseFloat(this_element.dataset.time)) * time2x);
+            const width = child_data.duration * time2x;
+
+            let ret = {
+                y,
+                x,
+                width,
+                r: stepSize - 2,
+                ledgerLine_y,
+                accidental: pitchInfo.accidental
+            }
+
+            return ret;
+
+        }
+    }
+
+    /**
+     * 
+     * @param {Element} this_element instance of this element
+     * @param {Object} child_viewParams child data object, requesting information about where to put itself
+     * 
+     * called when child object has moved graphically
+     * 
+     */
+    function childViewParamsToData(this_element, child_viewParams)
+    {
+        if( ui_api.hasParam(child_viewParams, ['x', 'y', 'width']) ) 
+        {
+            // note, we don't have a good way to know whether the moved point is an accidental or not...
+            const midi = y2midi(child_viewParams.y, this_element); 
+
+            const containerRect = document.getElementById(`${this_element.id}-rect`);
+            const bbox_x = parseFloat(containerRect.getAttribute('x'));
+
+            const time = ((child_viewParams.x-bbox_x) * x2time) + parseFloat(this_element.dataset.time);
+            const duration = child_viewParams.width * x2time;
+
+            return {
+                midi,
+                time,
+                duration
+            };
+        }
     }
 
     function getContainerForData(dataObj)
@@ -258,55 +360,6 @@ const ui_def = function( ui_api )
     }
 
 
-    /**
-     * 
-     * @param {Object} dataObj data object to use to create new or update element
-     * @param {Element} container HTML/SVG element context for this element
-     * 
-     * called when creating new element, or updating values 
-     * 
-     * 
-     */
-    function fromData(dataObj, container)
-    {
-        const contentElement = container.querySelector('.contents');
-
-
-        // filtering the dataObj since the id and parent aren't stored in the dataset
-        // note in this case the dataObject needs to include all of the dataset items!
-        let dataset = {
-            time: container.dataset.time,
-            duration: container.dataset.duration,
-            height: dataObj.height,
-            lineSpacing: dataObj.lineSpacing
-        }
-
-
-        let isNew = true;
-        
-        let currentElement =  document.getElementById(dataObj.id) ;
-       // console.log(currentElement);
-
-        if(currentElement) {
-            isNew = false;
-        }
-
-        let newView = mapToView(dataset, container, dataObj.id, isNew );
-
-        //console.log('fromData', newView, dataset);
-
-
-        ui_api.drawsocketInput({
-            key: "svg",
-            val: {
-                parent: contentElement.id,
-                class: `${className} symbol`,
-                ...newView,
-                ...ui_api.dataToHTML(dataset)
-            }
-        });
-
-    }
 
     function move(e) {}
 
@@ -333,38 +386,8 @@ const ui_def = function( ui_api )
      */
     function updateFromDataset(element)
     {
-        // assuming that we have all the data
-        let data = element.dataset;
 
-        // this is a container, so to get the enclosing container, we need to go to the parent first
-        const container = element.parentNode.closest('.container');
-
-        const id = element.id;
-        const parent = element.parentNode.id;
-
-        let newView = mapToView(data, container, id, false);
-        
-         // send out before sending to drawsocket, because we overwrite the element
-         ui_api.sendToServer({
-            key: "data",
-            val: {
-                id,
-                container: [ ...container.classList],
-                class: [className, "container"],
-                ...data
-            }
-        })
-
-        ui_api.drawsocketInput({
-            key: "svg",
-            val: {
-//                id, // id is in the view now
-                parent,
-                class: element.classList,
-                ...newView,
-                ...ui_api.dataToHTML(data)
-            }
-        });
+        console.log('fiveLineStave updateFromDataset');
 
     }
 
@@ -414,6 +437,9 @@ const ui_def = function( ui_api )
         fromData,
 
         getContainerForData,
+
+        childDataToViewParams,
+        childViewParamsToData,
 
         playbar
     }

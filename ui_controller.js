@@ -40,6 +40,7 @@ const svgObj = document.getElementById("svg");
 const mainSVG = document.getElementById("main-svg");
 const mainHTML = document.getElementById("main-html");
 
+const topContainer = document.getElementById('top-svg');
 
 const mainDiv = document.getElementById("main-div");
 
@@ -62,7 +63,7 @@ let scrollOffset = {x: 0, y: 0};
 let m_scale = 1;
 let default_zoom_step = 0.1;
 
-let currentContext = svgObj;
+let currentContext = topContainer;
 let currentPaletteClass =  "";
 
 let selectedClass = currentPaletteClass;
@@ -83,12 +84,21 @@ let renderer_api = {
     getDefForElement, // helper function to get def for DOM element
     getContainerForElement, // look upwards in the elemement heirarchy to find the container
 
+    getViewDataSVG,
+    getPreviewDataSVG,
+    getDataTextView,
+    removeSprites,
+
     drawsocketInput,
     sendToServer, // renderer-event
     fairlyUniqueString,
     getCurrentContext,
     getSelected,
     dataToHTML,
+    getElementData,
+
+    getDataParamsInView,
+
     makeDefaultInfoDisplay,
     translate,
     applyTransform,
@@ -112,8 +122,12 @@ let renderer_api = {
     ratio2float,
     reduceRatio,
     getRatioPrimeCoefs,
-    parseRatioStr
+    parseRatioStr,
+
+    hasParam
 }
+
+// API
 
 /**
  * 
@@ -127,17 +141,201 @@ function getDefForElement(element)
 }
 
 
+function removeSprites()
+{
+    document.querySelectorAll('.sprite').forEach(e => e.remove());
+}
+
 /**
  * 
- * @param {SVG/HTML Element} element 
+ * @param {Object/Array} view object, or array of Drawsocket format, SVG elements to draw, placed inside the display <g> group
+ * @param {Object} dataObj data object containing id, class, container-id, and any other data to store in the dataset
+ * @param {Boolean} overwrite (optional) force overwrite the object, this will whipe out child elements false by default
+ * 
+ * returns object formatted to send to Drawsocket
+ * 
+ * When creating a new SVG element, you need to include the class in the dataObj
+ * 
+ */
+function getViewDataSVG(view, dataObj, overwrite = false)
+{
+    if( !overwrite )
+    {
+        overwrite = !document.getElementById(dataObj.id);
+    }
+
+    let val = {
+        ...dataToHTML(dataObj),
+        children: [{
+            id: `${dataObj.id}-display`,
+            children: view
+        }, {
+            id: `${dataObj.id}-contents`,
+        }]
+    };
+
+    if( overwrite )
+    {
+        val.new = 'g';
+        val.children[0].new = 'g';
+        val.children[1].new = 'g';
+    }
+
+    if( hasParam(dataObj, "container" ) )
+    {
+        if( dataObj.container == "symbolist_overlay" )
+            val.container = "symbolist_overlay";
+        else
+            val.container = `${dataObj.container}-contents`;
+    }
+
+    if( hasParam(dataObj, "class" ) )
+    {
+        val.class = `${dataObj.class} symbol`;
+        val.children[0].class = `${dataObj.class} display`;
+        val.children[1].class = `${dataObj.class} contents`;
+    }
+
+    return {
+        key: "svg",
+        val
+    }
+}
+
+
+function getDataTextView(dataObj, relativeTo = null)
+{
+    return {
+        key: 'svg',
+        val: {  
+            new: "text",
+            class: "data_text sprite",
+            container: `symbolist_overlay`,
+            relativeTo : (relativeTo ? relativeTo : `#${dataObj.id}`),
+            id: `${dataObj.id}-data_text`,
+            x: 0,
+            y: -20,
+            text: JSON.stringify( filterDataset(dataObj) )
+        }
+    }
+}
+
+function getPreviewDataSVG(view, dataObj, relativeTo = null)
+{
+    let drawing = getViewDataSVG(view, 
+        {
+            ...dataObj,
+            class: 'sprite',
+            id: `${dataObj.class}-sprite`,
+            container: 'symbolist_overlay'
+        }, true /* overwrite*/ );
+    
+
+    let text_drawing = getDataTextView({
+        ...dataObj,
+        id: `${dataObj.class}-sprite`
+    }, relativeTo );
+
+    return [ drawing, text_drawing ];
+}
+
+/**
+ * 
+ * @param {Object} data_ data object to convert to HTML style
+ * 
+ * returns object with "data-" prepended to keys
+ */
+function dataToHTML(data_)
+{
+    let dataObj = {};
+    Object.keys(data_).forEach( key => {
+        // filtering elements not used in the dataset
+        if( key != 'id' && 
+            key != 'class' && 
+            key != 'container' && 
+            key != 'parent' && 
+            key != 'contents' ) 
+        {
+            dataObj[`data-${key}`] = data_[key];
+        }
+        else if( key == 'id') // maybe pass all keys?
+        {
+            dataObj.id = data_.id;
+        }
+            
+    })
+
+    return dataObj;
+}
+
+// better to make a flag for dataToHTML?
+function filterDataset(data_)
+{
+    let dataObj = {};
+    Object.keys(data_).forEach( key => {
+        // filtering elements not used in the dataset
+        if( key != 'id' && 
+            key != 'class' && 
+            key != 'container' && 
+            key != 'parent' && 
+            key != 'contents' ) 
+        {
+            dataObj[key] = data_[key];
+        }
+            
+    })
+
+    return dataObj;
+}
+
+function getDataParamsInView(viewParams, dataInstance_)
+{
+    let ret = {};
+    Object.keys(dataInstance_).forEach( k => {
+        if( typeof viewParams[k] !== "undefined" )
+        {
+            ret[k] = viewParams[k];
+        }
+    })
+    return ret;
+}
+
+
+
+/**
+ * 
+ * @param {Element} element SVG/HTML element to get dataset from
+ * @param {Element} container optional, adds container.id to data
+ */
+function getElementData(element, container = null) 
+{
+    let data = {};
+    Object.keys(element.dataset).forEach( k => {
+        data[k] = isNumeric( element.dataset[k] ) ? Number( element.dataset[k] ) : element.dataset[k]; 
+    });
+    
+    data.id = element.id;
+    data.class = element.classList[0];
+
+    if( container )
+        data.container = container.id;
+
+    return data;
+}
+
+/**
+ * 
+ * @param {SVG/HTML Element} element a symbol element
  * 
  * searches through the parent elements for the first container
  */
 function getContainerForElement(element)
 {
-    // using the parent node, since all symbols are in sub-groups with the class .contents
-    // so if this element is itself a container, this function should return the container of the container
-    return element.parentNode.closest('.container');
+    // all symbols are in .contents groups
+    // so we can get the parent node (.contents) 
+    // and then the parent of that note should be the symbol
+    return element.parentNode.parentNode;
+    // could also do element.parentNode.closest('.symbol');
 }
 
 
@@ -151,16 +349,29 @@ function getSelected()
 }
 
 
-
+/**
+ * 
+ * @param {Object} obj data object received from IO, to be added to the view
+ * 
+ */
 function dataToView(obj)
 {
-    // figure out which container to put the data in
 
     const def = uiDefs.get(obj.class);
     
-    // get the container refernece 
-    const container_def = uiDefs.get( document.getElementById(obj.container).classList[0] );
-    let container = container_def.getContainerForData( obj );
+    let container ;
+    // get the container reference 
+    if( obj.hasOwnProperty('container') )
+    {
+        const container_def = uiDefs.get( document.getElementById(obj.container).classList[0] );
+        container = container_def.getContainerForData( obj );
+    }
+    else 
+    {
+        container = getCurrentContext();
+        obj.container = container.id;
+    }
+
 
     def.fromData(obj, container);
 
@@ -226,6 +437,32 @@ ipcRenderer.on('load-ui-defs', (event, folder) => {
     loadUIDefs(folder);
 })
 
+/**
+ * 
+ * @param {Object} obj object to check
+ * @param {String/Array} attr attribute key or array of keys to look for
+ */
+function hasParam(obj, attr)
+{
+    if( !Array.isArray(attr) )
+    {
+        return (typeof obj[attr] !== "undefined");
+    }
+    else
+    {
+        for( let i = 0; i < attr.length; i++ )
+        {
+            if( typeof obj[attr[i]] === "undefined" )
+            {
+                console.error('object missing attribute', attr[i] );
+                return false;
+            }
+        }
+        return true;
+    }
+}
+
+
 
 /**
  * 
@@ -238,10 +475,19 @@ ipcRenderer.on('load-ui-defs', (event, folder) => {
  */
 function iterateContents(contents, context_element = null)
 {
+    console.log('iterateContents');
+
     const contents_arr = Array.isArray(contents) ? contents : [ contents ];
 
     contents_arr.forEach( data => {
-        //console.log('iterateContents', data);
+        console.log('iterateContents', data);
+        if( !context_element ){
+            context_element = getCurrentContext();
+        }
+
+        if( !hasParam(data, 'container' ) )
+            data.container = context_element.id;
+
         uiDefs.get(data.class).fromData( data, context_element );
     })
 
@@ -249,7 +495,7 @@ function iterateContents(contents, context_element = null)
     {
         console.log(context_element.classList[0]);
         const container_class_def = uiDefs.get( context_element.classList[0] );
-        if( typeof container_class_def.updateAfterContents != "undefined" )
+        if( container_class_def && hasParam(container_class_def, 'updateAfterContents') )
         {
             container_class_def.updateAfterContents(context_element);
         }
@@ -414,21 +660,6 @@ function makeSymbolPalette(class_array)
 
 
 
-/**
- * 
- * @param {Object} data_ data object to convert to HTML style
- * 
- * returns object with "data-" prepended to keys
- */
-function dataToHTML(data_)
-{
-    let dataObj = {};
-    Object.keys(data_).forEach( key => {
-        dataObj[`data-${key}`] = data_[key];
-    })
-
-    return dataObj;
-}
 
 
 
@@ -630,7 +861,7 @@ function symbolist_setContext(obj)
         //def_.enter(obj);
     }
 
-    if( obj != svgObj )
+    if( obj != topContainer )
         obj.classList.add("current_context");
 
     currentContext = obj;
@@ -654,7 +885,7 @@ function symbolist_setContext(obj)
 
 function setDefaultContext()
 {
-    symbolist_setContext(svgObj);
+    symbolist_setContext(topContainer);
 }
 
 function symbolist_send(obj)
@@ -952,7 +1183,11 @@ function getSVGCoordsFromEvent(event)
     let pt = svgObj.createSVGPoint();
     pt.x = event.pageX;
     pt.y = event.pageY;
-    return pt.matrixTransform( mainSVG.getScreenCTM().inverse() ); 
+    let newPt = pt.matrixTransform( mainSVG.getScreenCTM().inverse() );
+    return {
+        x: newPt.x,
+        y: newPt.y
+    }; 
 }
 
 function getBBoxAdjusted(element)
@@ -1247,7 +1482,7 @@ function translate(obj, delta_pos)
         return;
 
 //    let svg = document.getElementById("svg");
-    if( obj === svgObj )
+    if( obj === topContainer )
         return;
     
     gsap.set(obj, delta_pos);
@@ -1275,7 +1510,7 @@ function translate(obj, delta_pos)
 */
 }
 
-
+/*
 function translate_selected(delta_pos)
 {
     for( let i = 0; i < selected.length; i++)
@@ -1283,11 +1518,11 @@ function translate_selected(delta_pos)
        
         if( !callSymbolMethod(selected[i], "translate", delta_pos))
         {
-           // console.log('translate_selected', selected[i]); 
             translate(selected[i], delta_pos);
         }
     }
 }
+*/
 
 function rotate_selected(mouse_pos)
 {
@@ -1296,7 +1531,6 @@ function rotate_selected(mouse_pos)
        
        // if( !callTranslate(selected[i], delta_pos) )
         {
-           // console.log('translate_selected', selected[i]); 
             rotate(selected[i], mouse_pos);
         }
     }
@@ -1376,7 +1610,7 @@ function makeUniqueID(obj)
 
 function getTopLevel(elm)
 {    
-    if( elm == svgObj )
+    if( elm == topContainer )
         return elm;
     else    
         return elm.closest(".symbol");
@@ -1488,7 +1722,7 @@ function elementToJSON(elm)
         }
     }
 
-    if( elm != svgObj )
+    if( elm != topContainer )
     {
         let children = [];
         if( elm.hasChildNodes() ){
@@ -1918,8 +2152,7 @@ function symbolist_mousemove(event)
             else
             {
                 // now only translating if the def has a translate function
-                callMethodForSelected("translate", mouseDelta );
-            //    translate_selected( mouseDelta );
+                callMethodForSelected("drag", mouseDelta );
             }
         }
         else 
@@ -1989,7 +2222,7 @@ function symbolist_mousedown(event)
     }
     else
     {
-        if( _eventTarget != svgObj && _eventTarget != currentContext )
+        if( _eventTarget != topContainer && _eventTarget != currentContext )
         {
             
             addToSelection( _eventTarget );
@@ -2065,6 +2298,7 @@ function symbolist_mouseup(event)
             //event.symbolistAction = "transformed";
 
             applyTransformToSelected();
+            removeSprites();
             
         }
         else

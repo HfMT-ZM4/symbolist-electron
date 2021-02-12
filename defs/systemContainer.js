@@ -9,6 +9,7 @@ const default_duration = 1;
 const default_height = 200;
 
 const margin = 20;
+const half_margin = margin / 2.;
 
 let x2time = 0.001;
 let time2x = 1000;
@@ -24,8 +25,9 @@ let dataInstace = {
     // unique id for this instance
     id : `${className}-0`,
     
-    time: 0,
-    duration: 1,
+    time: 0,        // -> start x
+    duration: 1,    // -> width
+
     x: 100,
     y: 100,
     height: default_height,
@@ -34,73 +36,33 @@ let dataInstace = {
 }
 
 
-/** 
- * viewContainer
- * 
- * used internally only, as a template for creating view diplay of this symbol type
- * 
- * (and since it's only used internally the function arguments can be changed as need)
- * 
+/**
+ * mapping params used by children
  */
-const viewDisplay = function(id, x, y, width, height, overwrite = true) 
-{
-    const half_margin = margin / 2.;
-    return {
-        new: (overwrite ? "g" : undefined),
-        id,
-        class: `${className} display`, // the display container, using the 'display' class as a selector
-        children: [{
-            new: (overwrite ? "rect" : undefined),
-            id: `${id}-rect`,
-            x,
-            y,
-            height,
-            width,
-            style: {
-                fill: "white"
-            }
-        },
-        {
-            new: (overwrite ? "path" : undefined),
-            id: `${id}-bracket`,
-            d: `M ${x+margin} ${y+half_margin} h -${half_margin} v ${height - margin} h ${half_margin}`,
-            style: {
-                fill: 'none',
-                stroke: 'black',
-                'stroke-width': 1
-            }
-        }]
-    }
-
+let mappingParams = {
+    time: 0,
+    duration: 1,
+    height: 100
 }
 
 
-/*
-*/
-const viewContainer = function(id, x, y, width, height, overwrite = true) 
+const display = function(params) 
 {
-    /**
-     * container objects us a group to contain their child objects, separate from their display
-     * if overwriting, the whole container will be rewritten, which will also remove all the events
-     * 
-     * on update from data, the view might change, and the dataset, but not the conents
-     * therefore it's more useful to have the id for the viewDisplay system rather than the display <g>
-     * 
-     */
-    return {
-        new: (overwrite ? "g" : undefined), 
-        id, // use same reference id as data object
-        class: `${className} symbol container`, // the top level container, using the 'container' class for type selection if needed
-        children: [
-            viewDisplay(`${id}-display`, x, y, width, height, overwrite),
-            {
-                new: (overwrite ? "g" : undefined),
-                id: `${id}-contents`,
-                class: `${className} contents` // the contents container, using the 'contents' class as a selector
-                // removed empty children array since if we are updating the object, we don't want to overwrite the children
-            }
-        ]  
-    }
+    return [{
+        new:    "rect",
+        id:     `${params.id}-rect`,
+        class:  'systemContainer-rect',
+        x:      params.x,
+        y:      params.y,
+        height: params.height,
+        width:  params.width
+    },
+    {
+        new: "path",
+        id: `${params.id}-bracket`,
+        class: 'systemContainer-bracket',
+        d: `M ${params.x+margin} ${params.y+half_margin} h -${half_margin} v ${params.height - margin} h ${half_margin}`
+    }];
 }
 
 
@@ -122,6 +84,12 @@ const ui_def = function( ui_api )
     function getPaletteIcon(){}
     // not used for this top level, since it's auto created
 
+       /**
+     * 
+     * @param {Element} obj selected element
+     */
+    function paletteSelected (enable = false){}
+
     /**
      * 
      * called when the user hits [i] when selecting an object
@@ -137,24 +105,7 @@ const ui_def = function( ui_api )
         )
 
     }
-    // not used for this top level, since it's auto created
 
-
-    function mapToView(data, container, id, overwrite = true)
-    {
-        const containerDisplay = container.querySelector('.display');
-        const bbox = ui_api.getBBoxAdjusted(containerDisplay);
-
-        const x = bbox.x + parseFloat(data.x);
-        const y = bbox.y + parseFloat(data.y);
-
-        data.x_offset = x;
-
-        const width = (2 * margin) + parseFloat(data.duration) * time2x;
-        const height = margin + (typeof data.height != 'undefined' ? parseFloat(data.height) : default_height);
-
-        return viewContainer(id, x, y, width, height, overwrite)       
-    }
 
     /**
      * 
@@ -166,15 +117,92 @@ const ui_def = function( ui_api )
     function getContainerForData(dataObj) {
         return document.getElementById(dataObj.container);
     }
-    // currenlty not used but maybe could be used when spitting systems
+    // currently just looking up by ID but this could be used to deal with line breaks
+
+
+    function dataToViewParams(data, container)
+    {
+        /**
+         * note: this container is a "top level" container, and so for the moment we are not querying
+         * the parent for info, because there is not a default class for the top svg yet,
+         * eventually that is probably the way to do it rather than calculating the bbox here
+         */
+        const containerDisplay = container.querySelector('.display');
+        const bbox = ui_api.getBBoxAdjusted(containerDisplay);
+
+        return {
+            id: data.id,
+            x: bbox.x + parseFloat(data.x),
+            y: bbox.y + parseFloat(data.y),
+            width: (2 * margin) + parseFloat(data.duration) * time2x,
+            height: margin + (typeof data.height != 'undefined' ? parseFloat(data.height) : default_height)
+        }
+     
+    }
+
+    /**
+     * 
+     * @param {Element} this_element instance of this element
+     * @param {Object} child_data child data object, requesting information about where to put itself
+     */
+    function childDataToViewParams(this_element, child_data)
+    {
+        if( ui_api.hasParam(child_data, Object.keys(mappingParams)) )
+        {
+
+            const container = ui_api.getContainerForElement(this_element);
+            const this_data = ui_api.getElementData(this_element);
+
+            const viewParams = dataToViewParams(this_data, container);
+
+            const contents = this_element.querySelector('.contents');
+            const n_childStaves = contents.children.length;
+
+            let y_offset = 0;
+            if( n_childStaves > 0 )
+            {
+                y_offset = margin + ui_api.getBBoxAdjusted(contents.children[n_childStaves - 1]).bottom - viewParams.y;
+            }
+
+            return {
+                y: viewParams.y + y_offset,
+                x: viewParams.x + margin,
+                width: viewParams.width,
+                height: child_data.height
+            }
+        }
+    }
 
 
     /**
-     * called in cases when not all info is avaiable?
-     * maybe not necessary
+     * 
+     * @param {Element} element 
+     * 
+     * called after child object has been added in order to adjust 
+     * drawing of the container element
      * 
      */
-    function newDefault() {}
+    function updateAfterContents( element )
+    {
+        const contents = element.querySelector('.contents');
+        const contents_bbox = ui_api.getBBoxAdjusted(contents);
+
+        let dataObj = {
+            id: element.id, // I don't love this, but the dataObj needs the id
+            duration: element.dataset.duration,
+            x: element.dataset.x,
+            y: parseFloat(element.dataset.y) - 20,
+            height: contents_bbox.height + 40,
+            x_offset: element.dataset.x_offset
+
+        }
+
+        const container = ui_api.getContainerForElement(element);
+
+        fromData(dataObj, container);
+
+    }
+
 
     /**
      * 
@@ -186,52 +214,20 @@ const ui_def = function( ui_api )
      */
     function fromData(dataObj, container)
     {
-        if( !container )
-        {
-            container = document.getElementById('top-svg-container');
-        }
 
-        const contentElement = container.querySelector('.contents');
+        let viewParams = dataToViewParams(dataObj, container);
 
-        // filtering the dataObj since the id and parent aren't stored in the dataset
-        let dataset = {
-            time: dataObj.time,
-            duration: dataObj.duration,
-            height: dataObj.height,
-            x: dataObj.x,
-            y: dataObj.y,
-            x_offset: 0 //<< updated in mapToView
+        // probably don't need this, but currently there is no top svg class, so maybe we need it for now
+        dataObj.x_offset = viewParams.x;
 
-        }
-
-        let isNew = true;
-        
-        let currentElement =  document.getElementById(dataObj.id);
-
-        if(currentElement) {
-            isNew = false;
-        }
-
-        let newView = mapToView(dataset, container, dataObj.id, isNew );
-
-        ui_api.drawsocketInput({
-            key: "svg",
-            val: {
-                parent: contentElement.id,
-                class: `${className} symbol`,
-                ...newView,
-                ...ui_api.dataToHTML(dataset)
-            }
-        });
+        ui_api.drawsocketInput( 
+            ui_api.getViewDataSVG( 
+                display(viewParams), 
+                dataObj 
+            )
+        );
 
     }
-
-
-    /**
-     * 
-     * @param {Element} obj selected element
-     */
-    function paletteSelected (enable = false){}
 
     /**
      * 
@@ -242,36 +238,10 @@ const ui_def = function( ui_api )
     function updateFromDataset(element){}
 
 
-    function updateAfterContents( element )
-    {
-        const contents = element.querySelector('.contents');
-        const contents_bbox = ui_api.getBBoxAdjusted(contents);
 
-        let dataObj = {
-            duration: element.dataset.duration,
-            x: element.dataset.x,
-            y: parseFloat(element.dataset.y) - 20,
-            height: contents_bbox.height + 40,
-            x_offset: element.dataset.x_offset
-
-        }
-
-        let newView = mapToView( dataObj, element.parentNode.closest('.container'), element.id, false );
-        //console.log( element, dataObj, newView, );
-
-        ui_api.drawsocketInput({
-            key: "svg",
-            val: {
-                ...newView,
-                ...ui_api.dataToHTML(dataObj)
-            }
-        });
-
-    }
     // exported functions used by the symbolist renderer
     return {
         class: className,
-        newDefault,
 
         palette,
         getPaletteIcon,
@@ -284,7 +254,9 @@ const ui_def = function( ui_api )
 
         updateAfterContents,
 
-        getContainerForData
+        getContainerForData,
+
+        childDataToViewParams
     }
 
 }

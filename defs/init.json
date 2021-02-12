@@ -15,18 +15,24 @@
             "class" : "fiveLineStave",
             "height" : 100,
             "lineSpacing" : 10,
+            "duration": 2,
+            "time": 0,
             "contents" : []
         },
         {
             "id" : "bassoon",
             "class" : "partStave",
             "height" : 100,
+            "time": 0,
+            "duration": 2,
             "contents" : []
         },
         {
             "id" : "synth",
             "class" : "partStave",
             "height" : 200,
+            "time": 0,
+            "duration": 2,
             "contents" : []
         }]
     }

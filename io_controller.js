@@ -314,6 +314,7 @@ function loadDefFiles(folder)
             }
           
         }
+       
     })
 
     newScore();
@@ -543,114 +544,6 @@ function lookup(params)
 
     return ret;
 
-
-    // 
-
-    // val contains the contents... maybe we don't need a named contents here...
-    containers.forEach( (id_array, key) => {
-
-        if( defs.has(key) ) // case of storing by classname
-        {
-            /*
-                in the case of storing by className, all of the events
-                are located in className contents
-
-                do we need to call the container lookup?
-                even if there is no instance of the container?
-                sure why not
-            */
-
-            let container_def = defs.get(key);
-            if( container_def.lookup )
-            {
-                let result = container_def.lookup(params, null)
-                if( result )
-                {
-                    ret.push( result );
-                }
-            }
-
-            for( let i = 0; i < id_array.length; i++)
-            {
-                let sym_data = model.get(id_array[i]);
-
-                let sym_class = Array.isArray(sym_data.class) ? sym_data.class[0] : sym_data.class;
-                let sym_def = defs.get(sym_class);
-                if( sym_def )
-                {
-                    let result = sym_def.lookup(params, sym_data)
-                    if( result )
-                    {
-                        ret.push( result );
-                    }
-                }
-                
-            }
-
-        }
-        else if( model.has(key) ) // case of storing by id
-        {   
-
-
-        /*
-                in the case of storing by id, each container instance will have it's own set of
-                events, and there will be several containers of the same type (usually)
-
-                so, we could maybe add the instance data of the container into the data_obj or params..
-
-                for now just calling the container lookup and adding to returned array
-
-            */
-
-            const container_instance = model.get(key);
-
-            let container_class = Array.isArray(container_instance.class) ? container_instance.class[0] : container_instance.class;
-            
-            if( defs.has( container_class ) )
-            {
-                let container_def = defs.get(container_class);
-                if( container_def.lookup )
-                {
-                    let result = container_def.lookup(params, container_instance)
-                    if( result )
-                    {
-                        ret.push( result );
-                    }
-                }
-
-                for( let i = 0; i < id_array.length; i++)
-                {
-                    let sym_data = model.get(id_array[i]);
-
-                    let sym_class = Array.isArray(sym_data.class) ? sym_data.class[0] : sym_data.class;
-                    let sym_def = defs.get(sym_class);
-
-                    if( sym_def )
-                    {
-                        let result = sym_def.lookup(params, sym_data)
-                        if( result )
-                        {
-                            ret.push( result );
-                        }
-                    }
-                    
-                }
-            
-//               ret.push( defs.get(container_class).lookup(params) );
-            }
-
-
-           
-
-
-        }
-        else
-        {
-            // fail
-        }
-    });
-
-    return ret;
 }
 
 

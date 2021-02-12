@@ -206,3 +206,8 @@ body {
 .infovalue input {
   padding: 5px 0px 5px 0px;
 }
+
+.data_text {
+  font-size: 13px;
+  font-family: Helvetica sans-serif;
+}

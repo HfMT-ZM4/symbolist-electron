@@ -461,6 +461,16 @@ and return a coordinate x/y or box or whatever is needed to the child object
     yes
     do
 
+    so if everything can be a container, then everything has the same format. 
+    in the score, the contents tag indicates that it has contents
+
+svg symbol format can be udpdated to remove 'container' class
+<g class='className symbol' data-time="0.1" data-duration="1" >
+    <g class='className display'></g>
+    <g class='className contents'></g>
+</g>
+
+
 * consider removing the instpector in favor of edit mode
     or nice to have both?
 
