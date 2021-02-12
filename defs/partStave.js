@@ -143,7 +143,7 @@ const ui_def = function( ui_api )
         let viewParams = dataToViewParams(dataObj, container);
         
         ui_api.drawsocketInput( 
-            ui_api.getViewDataSVG( display(viewParams), dataObj )
+            ui_api.svgFromViewAndData( display(viewParams), dataObj )
         );
 
     }

@@ -246,8 +246,8 @@ const ui_def = function(ui_api)
         const viewObj = display(viewParams);
         console.log(viewObj);
         const drawObj = preview ? 
-                            ui_api.getPreviewDataSVG( viewObj, dataObj) :
-                            ui_api.getViewDataSVG( viewObj, dataObj );
+                            ui_api.svgPreviewFromViewAndData( viewObj, dataObj) :
+                            ui_api.svgFromViewAndData( viewObj, dataObj );
         
         ui_api.drawsocketInput( drawObj );
     }

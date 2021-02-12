@@ -84,8 +84,8 @@ let renderer_api = {
     getDefForElement, // helper function to get def for DOM element
     getContainerForElement, // look upwards in the elemement heirarchy to find the container
 
-    getViewDataSVG,
-    getPreviewDataSVG,
+    svgFromViewAndData,
+    svgPreviewFromViewAndData,
     getDataTextView,
     removeSprites,
 
@@ -157,7 +157,7 @@ function removeSprites()
  * When creating a new SVG element, you need to include the class in the dataObj
  * 
  */
-function getViewDataSVG(view, dataObj, overwrite = false)
+function svgFromViewAndData(view, dataObj, overwrite = false)
 {
     if( !overwrite )
     {
@@ -220,9 +220,9 @@ function getDataTextView(dataObj, relativeTo = null)
     }
 }
 
-function getPreviewDataSVG(view, dataObj, relativeTo = null)
+function svgPreviewFromViewAndData(view, dataObj, relativeTo = null)
 {
-    let drawing = getViewDataSVG(view, 
+    let drawing = svgFromViewAndData(view, 
         {
             ...dataObj,
             class: 'sprite',

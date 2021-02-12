@@ -221,7 +221,7 @@ const ui_def = function( ui_api )
         dataObj.x_offset = viewParams.x;
 
         ui_api.drawsocketInput( 
-            ui_api.getViewDataSVG( 
+            ui_api.svgFromViewAndData( 
                 display(viewParams), 
                 dataObj 
             )
