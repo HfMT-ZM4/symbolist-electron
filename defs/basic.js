@@ -21,19 +21,49 @@ let viewParamsInstance = {
 const default_r = 2;
 
 
-const display = function(params)
-{
-    return {
-        new: "circle",
-        cx: params.x,
-        cy: params.y,
-        r: (params.r ? params.r : default_r)
-    }
-}
-
 
 const ui_def = function( ui_api ) 
 {
+
+
+    // maps viewParams to the actaul drawing
+    function display(params)
+    {
+        // expects id, x, y, optional r
+        return {
+            new: "circle",
+            cx: params.x,
+            cy: params.y,
+            r: (params.r ? params.r : default_r)
+        }
+    }
+
+    // maybe some way to automize getElementViewParams...
+
+    /**
+     * 
+     * gets viewParams from element
+     * 
+     * @param {Element} element 
+     * 
+     * 
+     */
+    function getElementViewParams(element)
+    {
+
+        const circle = element.querySelector('circle');
+        const x = parseFloat(circle.getAttribute('cx'));
+        const y = parseFloat(circle.getAttribute('cy'));
+        
+        return {
+            id: element.id,
+            x,
+            y
+        }
+
+    }
+
+
 
     function getPaletteIcon()
     {
@@ -47,7 +77,6 @@ const ui_def = function( ui_api )
         }
     }
 
-    function paletteSelected (enable = false) {}
 
 
     /**
@@ -102,6 +131,7 @@ const ui_def = function( ui_api )
         const parentDef = ui_api.getDefForElement(container);
 
         return {
+            // in the most basic case, the container will do all the mapping
             ...parentDef.childDataToViewParams(container, data),
             // other view params that the parent doesn't deal with
             id: data.id
@@ -140,29 +170,7 @@ const ui_def = function( ui_api )
     }
 
 
-    /**
-     * 
-     * gets viewParams from element
-     * 
-     * @param {Element} element 
-     * 
-     */
-    function getElementViewParams(element)
-    {
-
-        const circle = element.querySelector('circle');
-        const x = parseFloat(circle.getAttribute('cx'));
-        const y = parseFloat(circle.getAttribute('cy'));
-        
-        return {
-            id: element.id,
-            x,
-            y
-        }
-
-    }
-
-
+  
     function mouseToData( event, container )
     {
         const pt = ui_api.getSVGCoordsFromEvent(event);
@@ -210,12 +218,186 @@ const ui_def = function( ui_api )
     }
 
 
+    function move(event)
+    {
+        if( event.metaKey )
+        {
+            // preview of mouse down creation
+            const container = ui_api.getCurrentContext();
+            let data = mouseToData(event, container);
+
+            fromData( data, container, true); // sets preview flag to true
+        }
+
+    }
+
+
+
+    /**
+     * 
+     * 
+     * @param {Element} element html/svg element to translate
+     * 
+     * return true to use default translation
+     * return false to use custom translation 
+     */
+    function drag(element, delta_pos = {x:0,y:0}) 
+    {
+        // maybe rename... sets translation in transform matrix, but doesn't apply it
+        ui_api.translate(element, delta_pos);
+
+        let viewParams = getElementViewParams(element);
+        // this can be resused in most cases
+        // if x and y are in the viewParams
+        viewParams.x += delta_pos.x;
+        viewParams.y += delta_pos.y;
+
+        let container = ui_api.getContainerForElement(element);
+        let data = viewParamsToData(viewParams, container);
+        ui_api.drawsocketInput(
+            ui_api.getDataTextView(data)
+        )
+
+       
+        return true; // return true if you are handling your own translation
+    }
+
+
+
+   /**
+     * 
+     * @param {Element} element element to use for update
+     * 
+     * called from info panel edit boxes -- the datset is used to update the graphics
+     */
+    function updateFromDataset(element)
+    {
+
+        const container = ui_api.getContainerForElement(element);        
+        let data = ui_api.getElementData(element, container);
+        
+        fromData(data, container);
+
+        // update data 
+        ui_api.sendToServer({
+            key: "data",
+            val: data
+        })
+
+    }
+
+    function applyTransformToData(element)
+    {
+        ui_api.applyTransform(element);
+
+        let viewParams = getElementViewParams(element);
+        let container = ui_api.getContainerForElement(element);
+        let data = viewParamsToData(viewParams, container);
+
+        ui_api.drawsocketInput({
+            key: "svg",
+            val: ui_api.dataToHTML(data)
+        })
+
+        // send out
+        ui_api.sendToServer({
+            key: "data",
+            val: data
+        })
+
+        return true;
+
+    }
+
+
+
+    function selected(element, state)
+    {
+        console.log('select state', state);
+
+    }
+
+    
+
+    function down(e) 
+    {
+        if( e.metaKey )
+        {
+            creatNewFromMouseEvent(e);
+        }
+    }
+
+
+    function up(e){
+       
+    }
+
+    function keyDown(e){}
+    
+    function keyUp(e)
+    {
+        if( e.key == "Meta" )
+        {
+            ui_api.removeSprites();
+        }
+    }
+
+    /**
+     * 
+     * @param {Boolean} enable called when entering  "palette" or  "edit"  mode
+     * 
+     * creation mode starts when the symbol is sected in the palette
+     * edit mode is when the symbols is when one symbol is selected (or when you hit [e]?)
+     */
+    function paletteSelected( enable = false ) 
+    {
+
+        if( enable )
+        {
+            window.addEventListener("mousedown", down);
+            window.addEventListener("mousemove", move);
+            window.addEventListener("mouseup", up);
+            window.addEventListener("keydown", keyDown);
+            window.addEventListener("keyup", keyUp);
+        }
+        else
+        {
+            ui_api.removeSprites();
+
+            window.removeEventListener("mousedown", down);
+            window.removeEventListener("mousemove", move);
+            window.removeEventListener("mouseup", up);
+            window.removeEventListener("keydown", keyDown);
+            window.removeEventListener("keyup", keyUp);
+
+        }
+    }
 
 
     return {
-        class: className,
        
+        class: className,
+        dataInstance,
+
+        palette,
+
         fromData,
+
+        getPaletteIcon,
+        
+        getInfoDisplay,
+
+        updateFromDataset,
+        
+
+        paletteSelected, // arg true/false to enter exit
+
+        // editMode, // 1/0 to enter/exit
+
+        selected,
+        
+        drag,
+        applyTransformToData
 
     }
 

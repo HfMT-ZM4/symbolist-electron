@@ -54,26 +54,6 @@ let mappingParams = {}
 
 
 
-const display = function(params)
-{
-    return [{
-        id: `${params.id}-notehead`,
-        new: "circle",
-        cx: params.x,
-        cy: params.y,
-        r: (params.r ? params.r : default_r)
-    },
-    {
-        new: "line" ,
-        id: `${params.id}-azim`,
-        class: 'azim-line',
-        x1: params.x,
-        y1: params.y,
-        x2: params.x + Math.sin(params.azim) * default_dist,
-        y2: params.y + Math.cos(params.azim) * default_dist
-    }]
-}
-
 
 /**
  * 
@@ -89,6 +69,68 @@ const ui_def = function(ui_api)
 
     // UI mode, "creation" or "edit", passed from renderer
     let m_mode = null;
+
+
+    function display(params)
+    {
+        /**
+         * expects : id, x, y, azim -- optional r
+         * 
+         */
+
+         // note: id is not strictly needed here but is needed later to get the 
+         // data id from the viewParams
+        return [{
+            id: `${params.id}-notehead`, 
+            class: 'notehead',
+            new: "circle",
+            cx: params.x,
+            cy: params.y,
+            r: (params.r ? params.r : default_r)
+        },
+        {
+            new: "line" ,
+            id: `${params.id}-azim`,
+            class: 'azim-line',
+            x1: params.x,
+            y1: params.y,
+            x2: params.x + Math.sin(params.azim) * default_dist,
+            y2: params.y + Math.cos(params.azim) * default_dist
+        }]
+    }
+    
+
+    /**
+     * 
+     * gets viewParams from element
+     * 
+     * @param {Element} element 
+     * 
+     */
+    function getElementViewParams(element)
+    {
+
+        const circle = element.querySelector('circle');
+        const line = element.querySelector('line');
+
+        const x = parseFloat(circle.getAttribute('cx'));
+        const y = parseFloat(circle.getAttribute('cy'));
+        const x2 = parseFloat(line.getAttribute('x2'));
+        const y2 = parseFloat(line.getAttribute('y2'));
+
+        const azim = Math.atan2(x2-x, y2-y);
+        
+
+        return {
+            id: element.id,
+            x,
+            y,
+            azim
+        }
+
+    }
+
+
 
     /**
      * called when drawing this symbol to draw into the palette 
@@ -160,7 +202,7 @@ const ui_def = function(ui_api)
         const parentDef = ui_api.getDefForElement(container);
 
         return {
-            ...data,
+            ...data, // should probably filter this 
             ...parentDef.childDataToViewParams(container, data)
         }
      
@@ -186,41 +228,12 @@ const ui_def = function(ui_api)
             ...parentDef.childViewParamsToData(container, viewParams),
             // other view params that the parent doesn't deal with
             id: viewParams.id,
-            class: `${className}`,
+            class: className,
             container: container.id
         }
     }
 
 
-    /**
-     * 
-     * gets viewParams from element
-     * 
-     * @param {Element} element 
-     * 
-     */
-    function getElementViewParams(element)
-    {
-
-        const circle = element.querySelector('circle');
-        const line = element.querySelector('line');
-
-        const x = parseFloat(circle.getAttribute('cx'));
-        const y = parseFloat(circle.getAttribute('cy'));
-        const x2 = parseFloat(line.getAttribute('x2'));
-        const y2 = parseFloat(line.getAttribute('y2'));
-
-        const azim = Math.atan2(x2-x, y2-y);
-        
-
-        return {
-            id: element.id,
-            x,
-            y,
-            azim
-        }
-
-    }
 
 
     function mouseToData( event, container )
@@ -305,6 +318,8 @@ const ui_def = function(ui_api)
             ui_api.translate(element, delta_pos);
 
             let viewParams = getElementViewParams(element);
+            // this can be resused in most cases
+            // if x and y are in the viewParams
             viewParams.x += delta_pos.x;
             viewParams.y += delta_pos.y;
 
