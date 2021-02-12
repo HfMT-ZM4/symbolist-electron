@@ -328,9 +328,7 @@ const ui_def = function( ui_api )
     }
 
 
-    function up(e){
-       
-    }
+    function up(e){ }
 
     function keyDown(e){}
     
