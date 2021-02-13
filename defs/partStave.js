@@ -5,7 +5,7 @@
 
 const className = "partStave";
 
-const palette = [ "basic", "rectangleStaveAzimuth" ]; //, "otherRectangleStaveEvent"
+const palette = [ "newSymbol", "rectangleStaveAzimuth" ]; //, "otherRectangleStaveEvent"
 
 
 const default_duration = 1;
@@ -90,6 +90,7 @@ const display = function(params)
 const ui_def = function( ui_api ) 
 {
 
+    console.log('ui_def', typeof symbolist.send );
     /**
      * called when drawing this symbol to draw into the palette 
      * 

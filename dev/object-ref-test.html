@@ -1,0 +1,112 @@
+<script>
+
+/**
+ *  option 3 -- don't pass ui_api to class, but access it via the global export? but then   
+ * 
+ */
+
+
+let template = {
+
+    class: "temp",
+
+    palette: [],
+
+    get structs() { 
+        return {
+            data: {
+                class: this.class,
+                id : `${this.class}-0`,
+                time: 0
+            },
+            
+            view: {
+                class: this.class,
+                id: `${this.class}-0`, 
+                x: 0,
+                y: 0,
+                r: 2
+            }
+
+            /*
+            childStructs: {
+                data: {
+                    time: 0
+                },
+                view: {
+                    x: 0
+                }
+            }
+            */
+        }
+    }
+
+   
+}
+
+class TemplateClass
+{
+
+    constructor(){
+        this.className = "template";
+        this.palette = [];
+    }
+    
+    get structs() {
+        return {
+            data: {
+                class: this.className,
+                id : `${this.className}-0`,
+                time: 0
+            },
+
+            view: {
+                class: this.className,
+                id: `${this.className}-0`, 
+                x: 0,
+                y: 0,
+                r: 2
+            }
+        }
+    }
+
+    check(foo){ 
+        console.log(foo, this.structs);
+    }
+
+}
+
+class ChildClass extends TemplateClass 
+{
+
+    constructor()
+    {
+        super();
+
+        this.className = "yo",
+        this.palette = ["steve"]
+    }
+
+    test() {
+        ui_api.fn();
+        return 1;
+    }
+
+}
+
+
+
+function fn() {
+    console.log('hi')
+}
+
+const ui_api_def = {
+    fn
+}
+
+let bar = new ChildClass();
+bar.className = "woof"
+
+
+console.log( bar.check('test') );
+</script>

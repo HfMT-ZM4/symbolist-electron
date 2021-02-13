@@ -183,6 +183,7 @@ const ui_def = function(ui_api)
                             ui_api.svgPreviewFromViewAndData( viewObj, dataObj ) :
                             ui_api.svgFromViewAndData( viewObj, dataObj );
         
+        console.log('azim', drawObj);
         ui_api.drawsocketInput( drawObj );
     }
 
@@ -199,11 +200,17 @@ const ui_def = function(ui_api)
     function dataToViewParams(data, container)
     {
 
+        // here the data contains azimumth which is used in both places
+        // this is maybe not the most typical case
+        // this function probably needs to be sub-classed
         const parentDef = ui_api.getDefForElement(container);
 
         return {
-            ...data, // should probably filter this 
-            ...parentDef.childDataToViewParams(container, data)
+            ...ui_api.filterByKeys(data, Object.keys(viewParamsInstance) ), // gets azim because it's also a data param
+
+            ...parentDef.childDataToViewParams(container, data),
+            id: data.id,
+            container: data.container
         }
      
     }
@@ -224,7 +231,7 @@ const ui_def = function(ui_api)
         const parentDef = ui_api.getDefForElement(container);
 
         return {
-            ...ui_api.getDataParamsInView(viewParams, dataInstance), // gets azim because it's also a data param
+            ...ui_api.filterByKeys(viewParams, Object.keys(dataInstance) ), // gets azim because it's also a data param
             ...parentDef.childViewParamsToData(container, viewParams),
             // other view params that the parent doesn't deal with
             id: viewParams.id,

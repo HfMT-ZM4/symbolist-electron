@@ -97,7 +97,7 @@ let renderer_api = {
     dataToHTML,
     getElementData,
 
-    getDataParamsInView,
+    filterByKeys,
 
     makeDefaultInfoDisplay,
     translate,
@@ -288,13 +288,18 @@ function filterDataset(data_)
     return dataObj;
 }
 
-function getDataParamsInView(viewParams, dataInstance_)
+/**
+ * 
+ * @param {Object} obj object to filter
+ * @param {Array} key_arr array of keys to use to filter
+ */
+function filterByKeys(obj, key_arr)
 {
     let ret = {};
-    Object.keys(dataInstance_).forEach( k => {
-        if( typeof viewParams[k] !== "undefined" )
+    key_arr.forEach( k => {
+        if( typeof obj[k] !== "undefined" )
         {
-            ret[k] = viewParams[k];
+            ret[k] = obj[k];
         }
     })
     return ret;
@@ -396,7 +401,7 @@ function loadUIDefs(folder)
              let { ui_def } = require(filepath);
  
              // initialize def with api
-             let cntrlDef_ = ui_def(renderer_api);
+             let cntrlDef_ = new ui_def(renderer_api);
          
              // set into def map
              uiDefs.set(cntrlDef_.class, cntrlDef_);
@@ -557,7 +562,7 @@ function initDocument()
 
 function initPalette()
 {
-    if( initDef.hasOwnProperty('palette') )
+    if( hasParam( initDef, 'palette') )
     {
         let drawMsgs = [];
         initDef.palette.forEach( el => {
@@ -812,7 +817,7 @@ function symbolist_setClass(_class)
     let paletteItem = document.getElementById(`${_class}-paletteIcon`);
     paletteItem.classList.add("selected");  
 
-    if( uiDefs.has(selectedClass) && uiDefs.get(selectedClass).hasOwnProperty('paletteSelected') )
+    if( uiDefs.has(selectedClass) && hasParam( uiDefs.get(selectedClass), 'paletteSelected') )
     {
         uiDefs.get(selectedClass).paletteSelected(false);
     }
@@ -820,7 +825,7 @@ function symbolist_setClass(_class)
     currentPaletteClass = _class;
     selectedClass = _class;
 
-    if( uiDefs.has(selectedClass) && uiDefs.get(selectedClass).hasOwnProperty('paletteSelected') )
+    if( uiDefs.has(selectedClass) && hasParam( uiDefs.get(selectedClass), 'paletteSelected') )
     {
         uiDefs.get(selectedClass).paletteSelected(true);
     }
@@ -2042,7 +2047,7 @@ function callSymbolMethod( element, methodName, args )
     {
         const def_ = uiDefs.get( element.classList[0] );
 
-        if( def_.hasOwnProperty(methodName) )
+        if( hasParam(def_, methodName) )
         {
             const ret = def_[methodName](element, args);
             return (typeof ret === "undefined" ? false : ret );
@@ -2638,6 +2643,9 @@ module.exports = {
     stopDefaultEventHandlers,
     getContextConstraintsForPoint,
 
-    callSymbolMethod
+    callSymbolMethod,
+
+    ui_api: renderer_api
+
 
  }

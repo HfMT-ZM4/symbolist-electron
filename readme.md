@@ -402,7 +402,7 @@ The following functions are provided by the `ui_api` which is available to symbo
 * `dataToHTML`,
 * 
 * `getElementData`
-* `getDataParamsInView`
+* `filterByKeys`
 * 
 * `makeDefaultInfoDisplay`,
 * `translate`,
