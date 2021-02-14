@@ -66,8 +66,10 @@ body {
   stroke: yellow !important;
 }
 
-.handle {
-  fill: none;
+.symbolist_handle {
+  fill: rgba(0, 0, 0, 0.1);
+  stroke-width: 1 !important;
+  stroke: black;
 }
 
 .symbolist_log {

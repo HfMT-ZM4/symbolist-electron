@@ -124,7 +124,8 @@ let renderer_api = {
     getRatioPrimeCoefs,
     parseRatioStr,
 
-    hasParam
+    hasParam,
+    createHandle
 }
 
 // API
@@ -141,8 +142,89 @@ function getDefForElement(element)
 }
 
 
+// storage for internal Handle callbacks
+let cb = {};
+
+/**
+ * 
+ * @param {Element} element element to create Handle for
+ * @param {Object} relativeToAttrs attrs of element to use for handle position for x and y
+ * @param {Function} callback (element, event) => {} callback to call on drag
+ */
+function createHandle(  element, 
+                        relativeToAttrs = {selector: "", x: "", y: ""}, 
+                        callback = (element, event) => {} )
+{
+   // const symbol = getContainerForElement(element);
+  //  console.log('create handle with reative selector', relativeToAttrs.selector);
+    const handle_id = `${element.id}-handle-${relativeToAttrs.x}-${relativeToAttrs.y}`;
+    ui_api.drawsocketInput({
+        key: "svg", 
+        val: {
+            id: handle_id,
+            new: "rect",
+            class: "symbolist_handle",
+            parent: 'symbolist_overlay', 
+            x: {
+                selector: relativeToAttrs.selector,
+                attr: relativeToAttrs.x
+            },
+            y: {
+                selector: relativeToAttrs.selector,
+                attr: relativeToAttrs.y
+            },
+            width: 8,
+            height: 8,
+            transform: `translate(-4,-4)`,
+            onmousedown: function (event) { 
+                document.addEventListener('mousemove', 
+                    cb[`${handle_id}-moveHandler`] = function (event) {
+                      //  console.log(`${handle_id}-moveHandler`);
+                        if( event.buttons == 1 ) {
+                            
+                            callback(element, event);
+
+                            // update position after callback
+                            ui_api.drawsocketInput({
+                                key: "svg",
+                                val: {
+                                    id: handle_id,
+                                    x: {
+                                        selector: relativeToAttrs.selector,
+                                        attr: relativeToAttrs.x
+                                    },
+                                    y: {
+                                        selector: relativeToAttrs.selector,
+                                        attr: relativeToAttrs.y
+                                    }
+                                }
+                            })
+                            
+
+                        }
+
+                    }
+                );
+            }                        
+        }
+    });
+
+ //   console.log( document.getElementById(handle_id) );
+}
+
+function removeHandles()
+{
+    document.querySelectorAll('.symbolist_handle').forEach( e => {
+        document.removeEventListener('mousemove', cb[`${e.id}-moveHandler`]);
+        delete cb[`${e.id}-moveHandler`];
+   //     console.log(`removed ${e.id}-moveHandler, now = ${cb[`${e.id}-moveHandler`]}`);
+    })
+}
+
+
 function removeSprites()
 {
+    removeHandles();
     document.querySelectorAll('.sprite').forEach(e => e.remove());
 }
 
@@ -339,7 +421,7 @@ function getContainerForElement(element)
     // all symbols are in .contents groups
     // so we can get the parent node (.contents) 
     // and then the parent of that note should be the symbol
-    return element.parentNode.parentNode;
+    return element.parentNode.closest('.symbol'); //element.parentNode.parentNode;
     // could also do element.parentNode.closest('.symbol');
 }
 
@@ -401,6 +483,7 @@ function loadUIDefs(folder)
              let { ui_def } = require(filepath);
  
              // initialize def with api
+
              let cntrlDef_ = new ui_def(renderer_api);
          
              // set into def map
@@ -1151,11 +1234,9 @@ function deselectAll()
  
     document.querySelectorAll('.symbolist_selected').forEach( el => {
         el.classList.remove("symbolist_selected");
-        
-        
+                
         callSymbolMethod(el, "selected", false);
         callSymbolMethod(el, "editMode", false);
-
         
     })
 
@@ -1797,9 +1878,9 @@ function escapeModes()
     {
         if( currentMode == "edit" )
             callExitEditModeForSelected();
-        else
+        else {
             deselectAll();
-        
+        }
         console.log('currentMode', currentMode, 'currentContext', currentContext );
     }
         
@@ -2162,8 +2243,9 @@ function symbolist_mousemove(event)
         }
         else 
         {
-            if( !event.shiftKey )
+            if( !event.shiftKey ){
                 deselectAll();
+            }
 
             if( event.metaKey ){
                 event.symbolistAction = "newFromClick_drag";
@@ -2206,9 +2288,9 @@ function symbolist_mousedown(event)
         prevEventTarget = _eventTarget;
 
 
-    if( (_eventTarget == currentContext) || (!event.shiftKey && !event.altKey) )
+    if( (_eventTarget == currentContext) || (!event.shiftKey && !event.altKey) ){
         deselectAll();
-
+    }
 
     if( event.metaKey )
     {
@@ -2349,11 +2431,13 @@ function symbolist_mouseleave(event)
     //console.log('symbolist_mouseleave');
     //clearDragRegionRect();
 
+    /*
     drawsocketInput({
         key: "clear",
         val: "symbolist_overlay"
     })
-
+    */
+    removeSprites();
     prevEventTarget = null;
 }
 

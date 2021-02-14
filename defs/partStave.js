@@ -5,7 +5,7 @@
 
 const className = "partStave";
 
-const palette = [ "newSymbol", "rectangleStaveAzimuth" ]; //, "otherRectangleStaveEvent"
+const palette = [ "azimNote", "rectangleStaveAzimuth" ]; //, "otherRectangleStaveEvent"
 
 
 const default_duration = 1;

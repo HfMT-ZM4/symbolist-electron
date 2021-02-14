@@ -91,7 +91,7 @@ const ui_def = function(ui_api)
         {
             new: "line" ,
             id: `${params.id}-azim`,
-            class: 'azim-line',
+            class: 'azimLine',
             x1: params.x,
             y1: params.y,
             x2: params.x + Math.sin(params.azim) * default_dist,
@@ -500,7 +500,6 @@ const ui_def = function(ui_api)
     // this could maybe be better abstracted to a handle class
 
 
-    let cb = {};
 
     // now passing element so that edit mode can be signaled from script
     // but then how does the controlller know that it's in edit mode?

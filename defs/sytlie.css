@@ -25,7 +25,7 @@
     text-anchor: end;
 }
 
-.azim-line {
+.azimLine {
     stroke: black;
     stroke-width: 1;
 }
