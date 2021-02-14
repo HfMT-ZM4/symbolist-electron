@@ -1,6 +1,4 @@
-
-
-let { SymbolBase } = require('../lib/symbol-template') 
+const SymbolBase = require('../lib/symbol-template') 
 
 class AzimNote extends SymbolBase 
 {
@@ -39,7 +37,7 @@ class AzimNote extends SymbolBase
         ui_api.hasParam(params, Object.keys(this.structs.view) );
         
         return [{
-            id: `${params.id}-notehead`, 
+            id: `${params.id}-notehead`, // << make sure to give the sub-elements ids
             class: 'notehead',
             new: "circle",
             cx: params.x,
@@ -48,7 +46,7 @@ class AzimNote extends SymbolBase
         },
         {
             new: "line" ,
-            id: `${params.id}-azim`,
+            id: `${params.id}-azim`, // << make sure to give the sub-elements ids
             class: 'azimLine',
             x1: params.x,
             y1: params.y,

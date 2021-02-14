@@ -1,4 +1,4 @@
-let { SymbolBase } = require('../lib/symbol-template') 
+const SymbolBase = require('../lib/symbol-template') 
 
 class newSymbol extends SymbolBase 
 {

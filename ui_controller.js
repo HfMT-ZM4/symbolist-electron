@@ -173,9 +173,6 @@ function createHandle(  element,
                 selector: relativeToAttrs.selector,
                 attr: relativeToAttrs.y
             },
-            width: 8,
-            height: 8,
-            transform: `translate(-4,-4)`,
             onmousedown: function (event) { 
                 document.addEventListener('mousemove', 
                     cb[`${handle_id}-moveHandler`] = function (event) {

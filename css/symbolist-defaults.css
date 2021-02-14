@@ -67,9 +67,12 @@ body {
 }
 
 .symbolist_handle {
-  fill: rgba(0, 0, 0, 0.1);
+  fill: none;
   stroke-width: 1 !important;
   stroke: black;
+  width: 8px;
+  height: 8px;
+  transform: translate(-4px, -4px);
 }
 
 .symbolist_log {
