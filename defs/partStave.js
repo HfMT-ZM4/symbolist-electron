@@ -171,6 +171,7 @@ class PartStave extends Template.SymbolBase
         }
     }
 
+
     /**
      * 
      * @param {object} params passed in from call/method syntax
@@ -196,6 +197,11 @@ class PartStave extends Template.SymbolBase
                 }
             })
         }
+    }
+
+    fooFN(params)
+    {
+        console.log('hi I have your ', params);
     }
 
 

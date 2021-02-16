@@ -6,7 +6,6 @@ class AzimNote extends Template.SymbolBase
         super();
         this.class = "AzimNote";
         this.default_dist = 10;
-        //this.default_duration = 0.1;
     }
 
 

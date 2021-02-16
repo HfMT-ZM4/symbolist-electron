@@ -475,7 +475,14 @@ svg symbol format can be udpdated to remove 'container' class
     or nice to have both?
 
 * add container type to drawsocket that is the same as parent?
-    seems like a good idea
+    seems like a good idea, done
 
 * make simpler mouse event handlers so users don't have to declare their own?
     maybe maybe not
+
+>> 
+
+
+to do:
+make top level object also a symbol
+this way the palettes can also be redefined, and we can remove some of that from the ui_controller

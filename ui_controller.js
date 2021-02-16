@@ -26,7 +26,7 @@ move GUI transforms to new file
  */
 
 const { ipcRenderer } = require('electron')
-const { makeDefaultInfoDisplay } = require('./lib/default-infopanel')
+const { defaultInfoDisplay } = require('./lib/default-infopanel')
 
 const { insertSorted, insertSortedHTML, insertIndex } = require('./lib/sorted-array-utils')
 
@@ -39,10 +39,9 @@ const { ntom, mton, ftom, mtof, ratio2float, parseRatioStr, reduceRatio, getRati
 const svgObj = document.getElementById("svg");
 const mainSVG = document.getElementById("main-svg");
 const mainHTML = document.getElementById("main-html");
-
 const topContainer = document.getElementById('top-svg');
-
 const mainDiv = document.getElementById("main-div");
+const floatingForms = document.getElementById('floating-forms');
 
 const overlay = document.getElementById('symbolist_overlay');
 
@@ -640,6 +639,14 @@ function initDocument()
     }
 
 }
+
+function makeDefaultInfoDisplay(viewObj)
+{
+    const bbox = getBBoxAdjusted(viewObj);
+    //const bbox = viewObj.getBoundingClientRect();
+    return defaultInfoDisplay(viewObj, bbox);
+}
+
 
 function initPalette()
 {
@@ -2447,12 +2454,14 @@ function symbolist_zoomReset()
         scrollOffset = {x: 0, y: 0};
         gsap.set( mainSVG,  scrollOffset );
         gsap.set( mainHTML, scrollOffset );
+        gsap.set( floatingForms, scrollOffset )
     }
 
     m_scale = 1;
    // const scale = Math.pow( Math.E, m_scale);
     gsap.set( mainSVG,  { scale: 1 } );
     gsap.set( mainHTML, { scale: 1 } );
+    gsap.set( floatingForms, { scale: 1 } );
 
     mousedown_pos = mousedown_page_pos.matrixTransform( mainSVG.getScreenCTM().inverse() ); 
 
@@ -2480,7 +2489,8 @@ function symbolist_zoom(offset)
 
     gsap.set( mainSVG,  { ...scrollOffset, scale: m_scale } );
     gsap.set( mainHTML, { ...scrollOffset, scale: m_scale } );
-    
+    gsap.set( floatingForms, { ...scrollOffset, scale: m_scale } );
+
 
     mousedown_pos = mousedown_page_pos.matrixTransform( mainSVG.getScreenCTM().inverse() ); 
 
@@ -2501,6 +2511,7 @@ function symbolist_wheel(event)
 
         gsap.set( mainSVG,  scrollOffset );
         gsap.set( mainHTML, scrollOffset );
+        gsap.set( floatingForms, scrollOffset );
 
         ticking = false;
       });

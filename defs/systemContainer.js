@@ -164,7 +164,7 @@ class SystemContainer extends Template.SymbolBase
             return {
                 y: viewParams.y + y_offset,
                 x: viewParams.x + this.margin,
-                width: viewParams.width,
+                width: viewParams.width - (this.margin * 2),
                 height: child_data.height
             }
         }
