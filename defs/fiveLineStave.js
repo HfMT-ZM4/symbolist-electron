@@ -324,6 +324,8 @@ class FiveLineStave extends Template.SymbolBase
         }
     }
 
+    drag(element, pos){}
+
 
 }
 

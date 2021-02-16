@@ -54,6 +54,7 @@ class SystemContainer extends Template.SymbolBase
         }
     }
 
+    drag(element, pos){}
 
     display(params) {
 

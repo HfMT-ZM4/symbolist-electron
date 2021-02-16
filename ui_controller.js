@@ -1167,8 +1167,7 @@ function addToSelection( element )
     if( element.id == 'dragRegion' )
         return;
 
-    console.log('addToSelection');
-    
+   // console.log('addToSelection', element);
 
     for( let i = 0; i < selected.length; i++)
     {
@@ -1207,24 +1206,9 @@ function selectedObjectsChanged()
 
 function selectAllInRegion(region, element)
 {
-/*
-   // if( currentContext != )
-    let topLevel = getTopLevel(element);
-    if( topLevel == svgObj) //topLevel == currentContext || 
-    { 
-        return;
-    }
-    console.log(topLevel);
-*/
 
-    // to do, avoid selecting the bounding box, it's turning blue
+    let contextContent = currentContext.querySelector('.contents');
 
-    let contextContent = currentContext.querySelector('.content');
-
-    if( contextContent == null )
-        contextContent = currentContext;
-
-    //console.log(contextContent);
     for (let i = 0; i < contextContent.children.length; i++) 
     {
         if( recursiveHitTest(region, contextContent.children[i]) )
@@ -2087,34 +2071,6 @@ function symbolsit_dblclick(event)
 }
 
 
-/**
- * 
- * @param {SymbolistMouseEventObject} event passed from mouse event, contains information about context, class etc.
- * 
- * this callback system could allow users to trigger GUI actions directly in the view, without going through the controller first
- */
-
-function callbackCustomUI( event )
-{
-
-    if( uiDefs.has(currentPaletteClass) )
-    {
-        const uiDef = uiDefs.get(currentPaletteClass);
-
-        switch( event.symbolistAction )
-        {
-            case "newFromClick_down":         
-                if( uiDef.newFromClick )   
-                    uiDef.newFromClick( event );
-
-                break;
-            default:
-                break;
-        }
-    }
-    
-    
-}
 
 /**
  * 
@@ -2285,7 +2241,7 @@ function symbolist_mousedown(event)
 
     const _eventTarget = getTopLevel( event.target );
 
-    console.log(_eventTarget);
+    //console.log(_eventTarget);
     
    // console.log(`mouse down ${_eventTarget.id} was ${JSON.stringify(elementToJSON(event.target))}`); 
     

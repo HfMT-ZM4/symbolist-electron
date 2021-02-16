@@ -53,6 +53,7 @@ class PartStave extends Template.SymbolBase
         }
     }
 
+    drag(element, pos){}
 
     display(params) {
 

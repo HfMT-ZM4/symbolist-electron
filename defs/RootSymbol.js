@@ -44,6 +44,8 @@ class RootSymbol extends Template.SymbolBase
 
     display(params) {}
 
+    drag(element, pos){}
+
         /**
      * API function called from controller to draw new data objects
      * also used internally
