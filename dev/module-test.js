@@ -15,7 +15,7 @@ let obj = {
     bar: 2
 }
 
-function outsideTest( api )
+function outsideTest( )
 {
     api.outsideFunction();
 }

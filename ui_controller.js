@@ -481,7 +481,8 @@ function loadUIDefs(folder)
  
              // initialize def with api
 
-             let cntrlDef_ = new ui_def(renderer_api);
+             // api now global
+             let cntrlDef_ = new ui_def();
          
              // set into def map
              uiDefs.set(cntrlDef_.class, cntrlDef_);
@@ -539,8 +540,8 @@ function hasParam(obj, attr)
         {
             if( typeof obj[attr[i]] === "undefined" )
             {
-                console.error('object missing attribute', attr[i] );
-                return false;
+                throw new Error(`object missing attribute ${attr[i]}, ${JSON.stringify(obj, null, 2)}`);
+                //return false;
             }
         }
         return true;

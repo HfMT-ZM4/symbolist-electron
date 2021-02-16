@@ -13,7 +13,7 @@ console.log(bar);
 */
 // imports only foo here
 let yo = 111;
-let api = {
+global.api = {
     outsideFunction: function(){
         console.log(yo);
     }
@@ -22,4 +22,4 @@ let api = {
 
 const { outsideTest } = require('./module-test');
 
-outsideTest(api);
+outsideTest();

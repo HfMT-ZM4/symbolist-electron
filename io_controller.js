@@ -206,7 +206,7 @@ function defHas( classname )
 
 
 // api export to definitions
-const io_api = {
+global.io_api = {
     //input, // input 
     modelGet,
     modelHas,
@@ -306,8 +306,8 @@ function loadDefFiles(folder)
             if( io_def )
             {
                 console.log(filepath);
-                // initialize def with api
-                let cntrlDef_ = io_def(io_api);
+                // api now global
+                let cntrlDef_ = new io_def();
 
                 // set into def map
                 defs.set(cntrlDef_.class, cntrlDef_);
@@ -351,6 +351,12 @@ function addToScore( dataobj )
 
     let container_def = defs.get(container.class)
 
+    if( !container_def )
+    {
+        console.log(`no io def for container ${container.class}`);
+        return;
+    }
+
     //console.log(container, container_def);
     
     if( typeof container.contents === "undefined" )
@@ -358,7 +364,7 @@ function addToScore( dataobj )
         container.contents = [];
     }
 
-    if( !container_def.hasOwnProperty('comparator') )
+    if( typeof container_def.comparator === "undefined" )
     {
         console.log(`no comparator for ${JSON.stringify(container_def, null, 2)}`);
     }
@@ -410,7 +416,7 @@ function addToStructuredLookup( dataobj )
          // container for the containers is the top level for now
          let contents = containers.get(container_class);
 
-         if( !container_def.hasOwnProperty('comparator') )
+         if( typeof container_def.comparator === "undefined")
          {
              console.log(`no comparator for ${JSON.stringify(container_def, null, 2)}`);
          }
@@ -530,6 +536,8 @@ function lookup(params)
         }
         else
         {
+
+            console.log(model.has(params.id), model.get(params.id) );
             ret = {
                 lookup_error: `no element with id "${params.id}" found`
             };

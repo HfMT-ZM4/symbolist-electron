@@ -1,10 +1,10 @@
-const SymbolBase = require('../lib/symbol-template') 
+const Template = require('../lib/symbol-template') 
 
-class newSymbol extends SymbolBase 
+class BasicSymbol extends Template.SymbolBase 
 {
-    constructor(unused) {
+    constructor() {
         super();
-        this.class = "newSymbol";
+        this.class = "BasicSymbol";
     }
 
 
@@ -15,7 +15,8 @@ class newSymbol extends SymbolBase
                 class: this.class,
                 id : `${this.class}-0`,
                 time: 0,
-                pitch: 55
+                pitch: 55,
+                duration: 0.1
             },
             
             view: {
@@ -84,9 +85,20 @@ class newSymbol extends SymbolBase
 
 }
 
-console.log(newSymbol);
+class BasicSymbol_IO extends Template.IO_SymbolBase
+{
+    constructor()
+    {
+        super();
+        this.class = "BasicSymbol";
+    }
+    
+}
+
+
 
 module.exports = {
-    ui_def: newSymbol
+    ui_def: BasicSymbol,
+    io_def: BasicSymbol_IO    
 }
 

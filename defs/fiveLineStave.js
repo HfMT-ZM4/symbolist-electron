@@ -1,223 +1,181 @@
+const Template = require('../lib/symbol-template') 
 
 
-
-'use strict';
-
-const className = "fiveLineStave";
-
-const palette = [ "fiveLineStaveEvent" ]; //, "otherRectangleStaveEvent"
+const sharpSteps =          [ 0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6 ];
+const flatSteps =           [ 0, 1, 2, 2, 3, 3, 4, 5, 5, 6, 6, 7 ];
+const chromaAccidList =     [ 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1 ];
+//const midiMiddleLine =      71;
 
 
-const default_duration = 1;
-const default_height = 100;
-
-const left_margin = 20;
-const top_margin = 20;
-
-let x2time = 0.001;
-let time2x = 1000;
-
-
-let dataInstance = {
-    // class name, refering to the definition below
-    class: className,
-
-    // unique id for this instance
-    id : `${className}-0`,
-    
-    time: 0,
-    duration: 1,
-    height: 100 ,
-    lineSpacing: 8
-}
-
-/**
- * data used to draw expected by display function
- */
-let viewParamsInstance = {
-    id: `${className}-0`,
-    x: 0,
-    y: 0,
-    height: 100, 
-    width: 100,
-    lineSpacing: 8
-}
-
-let mappingParams = {
-    time: 0,        // -> x
-    midi: 60,       // -> y
-
-    duration: 1
-}
-
-/** 
- * viewDisplay is just the view part, for containers, it's used for sprites, palette, but the viewContainer is what is used in the DOM
- */
-const display = function(params)
+class FiveLineStave extends Template.SymbolBase 
 {
-    // note, stafflines can be generated computationally later, just hand wrote them for now
-    let centerY = params.y + (params.height / 2);
-    return [{
-            new: "rect",
-            id: `${params.id}-rect`,
-            x: params.x,
-            y: params.y,
-            width: params.width,
-            height: params.height
-        },{
-            new: "text",
-            id: `${params.id}-label`,
-            class: 'staveLabel',
-            x: params.x - left_margin,
-            y: centerY,
-            text: params.id
-        }, {
-            new: "image",
-            id: `${params.id}-clef`,
-            href: "defs/g_clef.svg",
-            x: params.x,
-            y: params.y
-    
-        },
-        {
-            new: "g",
-            id: `${params.id}-staffline-group`,
-            children: [{
-                new: "line",
-                id: `${params.id}-staffline-1`,
-                class : "staffline",
-                x1: params.x,
-                y1: centerY - params.lineSpacing * 2,
-                x2: params.x + params.width,
-                y2: centerY - params.lineSpacing * 2
-            },
-            {
-                new: "line",
-                id: `${params.id}-line-2`,
-                class : "staffline",
-                x1: params.x,
-                y1: centerY - params.lineSpacing,
-                x2: params.x + params.width,
-                y2: centerY - params.lineSpacing
-            },
-            {
-                new: "line",
-                id: `${params.id}-line-3`,
-                class : "staffline",
-                x1: params.x,
-                y1: centerY,
-                x2: params.x + params.width,
-                y2: centerY
-            },
-            {
-                new: "line",
-                id: `${params.id}-line-4`,
-                class : "staffline",
-                x1: params.x,
-                y1: centerY + params.lineSpacing,
-                x2: params.x + params.width,
-                y2: centerY + params.lineSpacing
-            },
-            {
-                new: "line",
-                id: `${params.id}-line-5`,
-                class : "staffline",
-                x1: params.x,
-                y1: centerY + params.lineSpacing * 2,
-                x2: params.x + params.width,
-                y2: centerY + params.lineSpacing * 2
-            }]
-        }]
-}
+    constructor() {
+        super();
+        this.class = "FiveLineStave";
+        this.palette = ["FiveLineStaveEvent" ];
 
+        this.left_margin = 20;
 
-/**
- * 
- * @param {Object} ui_api api object passed in to def on initialization from ui controller
- * 
- * ui def defines sorting and interaction scripts that run in the editor browser
- */
-const ui_def = function( ui_api ) 
-{
+        this.x2time = 0.001;
+        this.time2x = 1000;
 
-    /**
-     * called when drawing this symbol to draw into the palette 
-     * 
-     * @returns drawsocket format object which will sit inside an HTML div
-     */
-    function getPaletteIcon(){}
+        this.midiMiddleLine = 71;
 
-
-    /**
-     * 
-     * called when the user hits [i] when selecting an object
-     * 
-     * @param {HTML or SVG Element} viewElement element that is being viewed
-     * 
-     * @returns drawsocket format object(s) to draw
-     */
-    function getInfoDisplay(viewElement)
-    {
-        ui_api.drawsocketInput(
-            ui_api.makeDefaultInfoDisplay(viewElement, ui_api.scrollOffset)
-        )
     }
 
 
-    // rename: dataToDrawingParams? or dataToDisplayParams
-    function dataToViewParams(data, container)
-    {
+    get structs () {
+        return {
 
-        const parentDef = ui_api.getDefForElement(container);
+            data: {
+                class: this.class,
+                id : `${this.class}-0`,
+                time: 0,
+                duration: 1,
+                height: 100,
+                lineSpacing: 8
+            },
+            
+            view: {
+                class: this.class,
+                id: `${this.class}-0`, 
+                x: 0,
+                y: 0,
+                height: 100, 
+                width: 100,
+                lineSpacing: 8
+            },
+
+            children: {
+                data: {
+                    time: 0,
+                    midi: 60,
+                    duration: 1
+                },
+                view: {
+                    x: 0,
+                    y: 0,
+                    width: 100
+                }
+            }
+        }
+    }
+
+
+    display(params) {
+
+        ui_api.hasParam(params, Object.keys(this.structs.view) );
+        
+        let centerY = params.y + (params.height / 2);
+
+        return [{
+                new: "rect",
+                id: `${params.id}-rect`,
+                class: `staveBox`,
+                x: params.x,
+                y: params.y,
+                width: params.width,
+                height: params.height
+            },{
+                new: "text",
+                id: `${params.id}-label`,
+                class: 'staveLabel',
+                x: params.x - this.left_margin,
+                y: centerY,
+                text: params.id
+            }, {
+                new: "image",
+                id: `${params.id}-clef`,
+                href: "defs/g_clef.svg",
+                x: params.x,
+                y: params.y
+        
+            },
+            {
+                new: "g",
+                id: `${params.id}-staffline-group`,
+                children: [{
+                    new: "line",
+                    id: `${params.id}-staffline-1`,
+                    class : "staffline",
+                    x1: params.x,
+                    y1: centerY - params.lineSpacing * 2,
+                    x2: params.x + params.width,
+                    y2: centerY - params.lineSpacing * 2
+                },
+                {
+                    new: "line",
+                    id: `${params.id}-line-2`,
+                    class : "staffline",
+                    x1: params.x,
+                    y1: centerY - params.lineSpacing,
+                    x2: params.x + params.width,
+                    y2: centerY - params.lineSpacing
+                },
+                {
+                    new: "line",
+                    id: `${params.id}-line-3`,
+                    class : "staffline",
+                    x1: params.x,
+                    y1: centerY,
+                    x2: params.x + params.width,
+                    y2: centerY
+                },
+                {
+                    new: "line",
+                    id: `${params.id}-line-4`,
+                    class : "staffline",
+                    x1: params.x,
+                    y1: centerY + params.lineSpacing,
+                    x2: params.x + params.width,
+                    y2: centerY + params.lineSpacing
+                },
+                {
+                    new: "line",
+                    id: `${params.id}-line-5`,
+                    class : "staffline",
+                    x1: params.x,
+                    y1: centerY + params.lineSpacing * 2,
+                    x2: params.x + params.width,
+                    y2: centerY + params.lineSpacing * 2
+                }]
+            }];
+
+    }
+    
+    getElementViewParams(element) {
+
+        const rect = element.querySelector('.staveBox');
 
         return {
-            ...parentDef.childDataToViewParams(container, data),
-            // other view params that the parent doesn't deal with:
-            id: data.id,
-            lineSpacing: data.lineSpacing
+            id: element.id,
+            x: parseFloat(rect.getAttribute('x')),
+            y: parseFloat(rect.getAttribute('y')),
+            width: parseFloat(rect.getAttribute('width')),
+            height: parseFloat(rect.getAttribute('height')),
+            lineSpacing: parseFloat(element.dataset.lineSpacing)
         }
-     
-    }
-
-
- /**
-     * 
-     * @param {Object} dataObj data object to use to create new or update element
-     * @param {Element} container HTML/SVG element context for this element
-     * 
-     * called when creating new element, or updating values 
-     * 
-     * 
-     */
-    function fromData(dataObj, container)
-    {
-
-        let viewParams = dataToViewParams(dataObj, container);
-        
-        ui_api.drawsocketInput( 
-            ui_api.svgFromViewAndData( display(viewParams), dataObj )
-        );
 
     }
 
 
-    function getContainerForData(dataObj)
-    {
-
-        return document.getElementById(dataObj.container);
-
+    getPaletteIcon() {
+        return {
+            key: "svg",
+            val: this.display({
+                ...this.structs.view,
+                id: `fiveLine-palette-icon`,
+                class: this.class
+            })
+        }
     }
 
 
 
-    const sharpSteps =          [ 0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6 ];
-    const flatSteps =           [ 0, 1, 2, 2, 3, 3, 4, 5, 5, 6, 6, 7 ];
-    const chromaAccidList =     [ 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1 ];
-    const midiMiddleLine = 71;
 
-    function midi2y(midi, stepSpacing, accidentalType = "sharp")
+    midi2y(midi, stepSpacing, accidentalType = "sharp")
     {
-        const midiNote = midi - midiMiddleLine;
+        const midiNote = midi - this.midiMiddleLine;
         let chroma = Math.floor(midiNote) % 12;
         if( chroma < 0 )
         {
@@ -246,7 +204,7 @@ const ui_def = function( ui_api )
     }
 
     // note, we don't have a good way to know whether a y point is an accidental or not...
-    function y2midi(y, container, accidentalType = "sharp")
+    y2midi(y, container, accidentalType = "sharp")
     {
         const middleLine = document.getElementById(`${container.id}-line-3`);
         const stepSize = container.dataset.lineSpacing * 0.5;
@@ -255,18 +213,18 @@ const ui_def = function( ui_api )
         
         const y_steps = Math.floor( y_pix / stepSize);
 
-        return  midiMiddleLine + y_steps;
+        return  this.midiMiddleLine + y_steps;
 
     }
 
 
 
-   /**
+    /**
      * 
      * @param {Element} this_element instance of this element
      * @param {Object} child_data child data object, requesting information about where to put itself
      */
-    function childDataToViewParams(this_element, child_data)
+    childDataToViewParams(this_element, child_data)
     {
         if( ui_api.hasParam(child_data, ['time', 'duration', 'midi']) )
         {
@@ -279,7 +237,7 @@ const ui_def = function( ui_api )
             const stepSize = lineSpacing * 0.5;
 
             // accidental type (sharp/flat) should be settable somewhere
-            const pitchInfo = midi2y( Math.round(child_data.midi), stepSize, "sharp"); 
+            const pitchInfo = this.midi2y( Math.round(child_data.midi), stepSize, "sharp"); 
             const y = parseFloat(middleLine.getAttribute('y1')) - pitchInfo.yOffset;
 
             const n_ledgerLines = Math.floor( Math.abs(pitchInfo.yOffset) / lineSpacing) - 2;
@@ -293,8 +251,8 @@ const ui_def = function( ui_api )
                 ledgerLine_y.push( starty - (i * lineSpacing) * sign );
             }
      
-            const x = bbox_x + ((child_data.time - parseFloat(this_element.dataset.time)) * time2x);
-            const width = child_data.duration * time2x;
+            const x = bbox_x + ((child_data.time - parseFloat(this_element.dataset.time)) * this.time2x);
+            const width = child_data.duration * this.time2x;
 
             let ret = {
                 y,
@@ -318,18 +276,18 @@ const ui_def = function( ui_api )
      * called when child object has moved graphically
      * 
      */
-    function childViewParamsToData(this_element, child_viewParams)
+    childViewParamsToData(this_element, child_viewParams)
     {
         if( ui_api.hasParam(child_viewParams, ['x', 'y', 'width']) ) 
         {
             // note, we don't have a good way to know whether the moved point is an accidental or not...
-            const midi = y2midi(child_viewParams.y, this_element); 
+            const midi = this.y2midi(child_viewParams.y, this_element); 
 
             const containerRect = document.getElementById(`${this_element.id}-rect`);
             const bbox_x = parseFloat(containerRect.getAttribute('x'));
 
-            const time = ((child_viewParams.x-bbox_x) * x2time) + parseFloat(this_element.dataset.time);
-            const duration = child_viewParams.width * x2time;
+            const time = ((child_viewParams.x-bbox_x) * this.x2time) + parseFloat(this_element.dataset.time);
+            const duration = child_viewParams.width * this.x2time;
 
             return {
                 midi,
@@ -339,64 +297,12 @@ const ui_def = function( ui_api )
         }
     }
 
-    function getContainerForData(dataObj)
-    {
-
-        return document.getElementById(dataObj.container);
-
-        /*
-        let containers = document.querySelectorAll(`.${className}.symbol`);
-        let insertAtIndex = ui_api.insertIndex(
-            dataObj, containers,
-            (a,b) => {
-                return (a.time < b.dataset.time) ? -1 : (a.time == b.dataset.time ? 0 : 1) ;
-            });
-        
-        if( insertAtIndex < 0 ) 
-            insertAtIndex = 0;
-
-        return containers[insertAtIndex];
-        */
-    }
-
-
-
-    function move(e) {}
-
-    function down(e) {}
-
-    function up(e){}
-
-    function keyDown(e){}
-    
-    function keyUp(e){}
-
-
-    /**
-     * 
-     * @param {Element} obj selected element
-     */
-    function paletteSelected (enable = false) {}
-
-   /**
-     * 
-     * @param {Element} element element to use for update
-     * 
-     * called from info panel edit boxes -- the datset is used to update the graphics
-     */
-    function updateFromDataset(element)
-    {
-
-        console.log('fiveLineStave updateFromDataset');
-
-    }
-
 
     /**
      * 
      * @param {object} params passed in from call/method syntax
      */
-    function playbar(params)
+    playbar(params)
     {
         if( typeof params.id != "undefined" && typeof params.time != "undefined" )
         {
@@ -405,11 +311,11 @@ const ui_def = function( ui_api )
             ui_api.drawsocketInput({
                 key: "svg",
                 val: {
-                    id: `${className}-playbar`,
+                    id: `${this.class}-playbar`,
                     parent: params.id,
                     new: "line",
-                    x1: bbox.x + params.time * time2x,
-                    x2: bbox.x + params.time * time2x,
+                    x1: bbox.x + params.time * this.time2x,
+                    x2: bbox.x + params.time * this.time2x,
                     y1: bbox.top,
                     y2: bbox.bottom,
                     style: {
@@ -422,89 +328,21 @@ const ui_def = function( ui_api )
         }
     }
 
-    // exported functions used by the symbolist renderer
-    return {
-        class: className,
-        dataInstance,
-        palette,
-
-        getPaletteIcon,
-        getInfoDisplay,
-
-        paletteSelected,
-        
-        updateFromDataset,
-        fromData,
-
-        getContainerForData,
-
-        childDataToViewParams,
-        childViewParamsToData,
-
-        playbar
-    }
 
 }
 
-
-/**
- * 
- * @param {Object} io_api api object passed in to def on initialization from io controller
- * 
- * io def defines sorting and lookup scripts to be run on the server-side
- */
-const io_def = (io_api) => {
-
-    /**
-     * 
-     * @param {Object} a 
-     * @param {Object} b 
-     * 
-     * comparator for sorting instances of this class type (rectangleStave)
-     */
-    function comparator (a, b) {
-        return (a.time < b.time ? -1 : (a.time == b.time ? 0 : 1))
-    }
-
-     /**
-      * 
-      * @param {Object} dataObj data object that has been looked up
-      * 
-      * script here is called when looking up symbols, and potentially could respond with
-      * generative values in realtime
-      * 
-      */
-    function lookup( params, obj_ref )
+class FiveLineStave_IO extends Template.IO_SymbolBase
+{
+    constructor()
     {
-        let ret = [];
+        super();
+        this.class = "FiveLineStave";
+        this.lookup = super.default_conatiner_lookup;
 
-        if( typeof obj_ref.contents != "undefined" )
-        {
-            obj_ref.contents.forEach(obj => {
-                const def = io_api.defGet(obj.class);
-                const event = def.lookup(params, obj);
-                if( event )
-                {
-                    ret.push(event);
-                }
-            });
-        
-        }
-        else
-        {
-            ret = {
-                lookup_error: `no element with id "${params.id}" found`
-            };
-        }
-
-      //  console.log(`${className} ret ${JSON.stringify(ret)}`);
-        let ret_obj = {};
-        ret_obj[obj_ref.id] = ret;
-        
-        return ret_obj;
     }
+    
 
-    function getFormattedLookup(params, obj_ref )
+    getFormattedLookup(params, obj_ref )
     {
 
         let ret = {
@@ -540,18 +378,11 @@ const io_def = (io_api) => {
         
         return ret_obj;
     }
-
-
-    return {
-        class: className,
-        comparator,
-        lookup,
-        getFormattedLookup
-    }
 }
 
+
 module.exports = {
-    ui_def,
-    io_def
+    ui_def: FiveLineStave,
+    io_def: FiveLineStave_IO
 }
 

@@ -30,12 +30,13 @@
     stroke-width: 1;
 }
 
-.fiveLineStave rect {
+.FiveLineStave rect {
     fill: none;
     stroke: rgba(0, 0, 0, 0.1);
     stroke-width : 0.5;
 }
-.fiveLineStave .staffline {
+
+.FiveLineStave .staffline {
     stroke: black;
     stroke-width: 0.5;
 }

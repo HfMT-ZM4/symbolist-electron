@@ -1,11 +1,12 @@
-const SymbolBase = require('../lib/symbol-template') 
+const Template = require('../lib/symbol-template') 
 
-class AzimNote extends SymbolBase 
+class AzimNote extends Template.SymbolBase 
 {
-    constructor(unused) {
+    constructor() {
         super();
-        this.class = "azimNote";
+        this.class = "AzimNote";
         this.default_dist = 10;
+        //this.default_duration = 0.1;
     }
 
 
@@ -17,7 +18,8 @@ class AzimNote extends SymbolBase
                 id : `${this.class}-0`,
                 time: 0,
                 pitch: 55,
-                azim: 3.14
+                azim: 3.14,
+                duration: 0.1
             },
             
             view: {
@@ -137,6 +139,19 @@ class AzimNote extends SymbolBase
 }
 
 
+
+class AzimNote_IO extends Template.IO_SymbolBase
+{
+    constructor()
+    {
+        super();
+        this.class = "AzimNote";
+    }
+    
+}
+
+
 module.exports = {
-    ui_def: AzimNote
+    ui_def: AzimNote,
+    io_def: AzimNote_IO
 }
