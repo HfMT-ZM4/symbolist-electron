@@ -364,11 +364,10 @@ class FiveLineStave_IO extends Template.IO_SymbolBase
         else
         {
             ret = {
-                lookup_error: `no element with id "${params.id}" found`
+                lookup_error: `no contents element with id "${obj_ref.contents}" found`
             };
         }
 
-      //  console.log(`${className} ret ${JSON.stringify(ret)}`);
         let ret_obj = {};
         ret_obj[obj_ref.id] = ret;
         

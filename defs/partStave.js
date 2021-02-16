@@ -210,6 +210,41 @@ class PartStave_IO extends Template.IO_SymbolBase
         this.lookup = super.default_conatiner_lookup;
     }
     
+    getFormattedLookup(params, obj_ref )
+    {
+
+        let ret = {
+            time: [],
+            duration: [],
+            pitch: []
+        };
+
+        if( typeof obj_ref.contents != "undefined" )
+        {
+            obj_ref.contents.forEach(obj => {
+                const def = io_api.defGet(obj.class);
+                const event = def.getFormattedLookup(params, obj);
+                if( event )
+                {
+                    ret.time.push(event.time);
+                    ret.duration.push(event.duration);
+                    ret.pitch.push(event.pitch);
+                }
+            });
+        
+        }
+        else
+        {
+            ret = {
+                lookup_error: `no contents element with id "${obj_ref.contents}" found`
+            };
+        }
+
+        let ret_obj = {};
+        ret_obj[obj_ref.id] = ret;
+        
+        return ret_obj;
+    }
 }
 
 

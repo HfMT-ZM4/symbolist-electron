@@ -248,37 +248,10 @@ class SystemContainer_IO extends Template.IO_SymbolBase
     {
         super();
         this.class = "SystemContainer";
+        this.lookup = super.default_conatiner_lookup;
+        this.getFormattedLookup = super.default_conatiner_getFormattedLookup;
     }
     
-    lookup( params, obj_ref )
-    {
-        let ret = [];
-
-        if( typeof obj_ref.contents != "undefined" )
-        {
-            obj_ref.contents.forEach(obj => {
-                const def = io_api.defGet(obj.class);
-                const event = def.lookup(params, obj);
-                if( event )
-                {
-                    ret.push(event);
-                }
-            });
-        
-        }
-        else
-        {
-            ret = {
-                lookup_error: `no element with id "${params.id}" found`
-            };
-        }
-
-      //  console.log(`${className} ret ${JSON.stringify(ret)}`);
-        let ret_obj = {};
-        ret_obj[obj_ref.id] = ret;
-        
-        return ret_obj;
-    }
 }
 
 
