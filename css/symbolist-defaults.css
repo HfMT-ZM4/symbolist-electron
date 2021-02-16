@@ -56,15 +56,17 @@ body {
   stroke: blue !important;
 }
 
-.current_context .stave_display rect {
+.current_context > .display rect {
   stroke-width: 1 !important;
-  stroke: yellow !important;
+  stroke: rgba(255,0,255,0.75) !important;
 }
 
-.current_context .stave_display line {
+/*
+.current_context .display line {
   stroke-width: 1 !important;
   stroke: yellow !important;
 }
+*/
 
 .symbolist_handle {
   fill: none;
