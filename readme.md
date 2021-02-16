@@ -4,6 +4,16 @@
 
 The program aims to provide an open play space, with tools for experimentation, and thinking visually about relationships between representation and interpretation in media performance.
 
+# Installation
+
+1. Install `node.js`.
+2. Download or clone the project rerpository folder.
+3. run `npm install` inside the project folder.
+4. install electon globally `npm install -g electron`.
+5. run `electron .` to start. Or if running with `vs code` you should be able to run via the debugger, defined in the `.vscode/launch.json` file.
+
+# About
+
 There are three basic ideas at the core of `symbolist`:
 
 * `semantic data`, which specifies the various attributes of information about a symbolic object, in terms of the *meaning* to the author. The `semantic data` is the main holder of information in the system, which arranged as a score can function like a database of hierarchal information. For example, a note might contain information about pitch and duration, or a point in space might contain x, y, and z values.
