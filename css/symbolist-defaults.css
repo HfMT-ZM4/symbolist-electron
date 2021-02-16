@@ -56,9 +56,18 @@ body {
   stroke: blue !important;
 }
 
+.symbolist_selected path {
+  stroke: blue !important;
+}
+
+.symbolist_selected image {
+   filter: invert(7%) sepia(100%) saturate(7154%) hue-rotate(247deg) brightness(114%) contrast(139%);
+}
+
+
 .current_context > .display rect {
   stroke-width: 1 !important;
-  stroke: rgba(255,0,255,0.75) !important;
+  stroke: rgba(255,0,255,0.25) !important;
 }
 
 /*

@@ -142,7 +142,6 @@ class FiveLineStaveEvent extends Template.SymbolBase
             })
         }
 
-        console.log('params.ledgerLine_y');
         if( params.ledgerLine_y.length > 0 )
         {
             let ledgerLine_g = {
@@ -163,7 +162,11 @@ class FiveLineStaveEvent extends Template.SymbolBase
             })
 
             obj.unshift( ledgerLine_g );
+
+            console.log('ledgerLine_g', obj);
+
         }
+
     
 
         return obj;
