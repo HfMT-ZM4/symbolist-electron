@@ -311,18 +311,14 @@ class FiveLineStave extends Template.SymbolBase
             ui_api.drawsocketInput({
                 key: "svg",
                 val: {
-                    id: `${this.class}-playbar`,
+                    id: `${params.id}-playbar`,
+                    class: "playbar",
                     parent: params.id,
                     new: "line",
                     x1: bbox.x + params.time * this.time2x,
                     x2: bbox.x + params.time * this.time2x,
                     y1: bbox.top,
-                    y2: bbox.bottom,
-                    style: {
-                        stroke: 'rgba(255, 0, 0, 0.5)',
-                        'stroke-width': 2
-                    }
-                    
+                    y2: bbox.bottom
                 }
             })
         }

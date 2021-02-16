@@ -171,6 +171,33 @@ class PartStave extends Template.SymbolBase
         }
     }
 
+    /**
+     * 
+     * @param {object} params passed in from call/method syntax
+     */
+    playbar(params)
+    {
+        if( typeof params.id != "undefined" && typeof params.time != "undefined" )
+        {
+            let rect = document.getElementById(`${params.id}-rect`);
+            let bbox = ui_api.getBBoxAdjusted(rect);
+            ui_api.drawsocketInput({
+                key: "svg",
+                val: {
+                    id: `${params.id}-playbar`,
+                    parent: params.id,
+                    new: "line",
+                    x1: bbox.x + params.time * this.time2x,
+                    x2: bbox.x + params.time * this.time2x,
+                    y1: bbox.top,
+                    y2: bbox.bottom,
+                    class: "playbar"
+                    
+                }
+            })
+        }
+    }
+
 
 }
 

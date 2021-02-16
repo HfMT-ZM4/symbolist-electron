@@ -54,3 +54,9 @@
     font-size: 23pt;
     font-family: Bravura;
 }
+
+
+.playbar {
+    stroke: rgba(255, 0, 0, 0.5);
+    stroke-width: 2;
+}
