@@ -5,7 +5,7 @@ class SystemContainer extends Template.SymbolBase
     constructor() {
         super();
         this.class = "SystemContainer";
-        this.palette = [ "PartStave"];
+        this.palette = [ "TextSymbol"];
 
         this.margin = 20;
         this.half_margin = this.margin / 2.;

@@ -485,4 +485,16 @@ svg symbol format can be udpdated to remove 'container' class
 
 to do:
 make top level object also a symbol
-this way the palettes can also be redefined, and we can remove some of that from the ui_controller
+this way the palettes can also be redefined, and we can remove some of that from the ui_controller?
+
+or for the short term, make graphic only HTML "symbol" object which holds GUI elements, the system container could be a child of this element
+
+
+note that then the system container would be an <svg> object first
+is this the right way to do it?
+
+either the base is html div with a svg element as the root, or the root is svg and html objects can be inserted via foreignObject
+
+or alternatively things like the text object could be svg objects 
+
+

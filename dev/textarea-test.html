@@ -48,10 +48,23 @@
 </script>
 
 <svg width="600" height="400" xmlns="http://www.w3.org/2000/svg" >
-    <foreignObject x="10" y="10" width="100%" height="100%" >
-        <div>
+    <foreignObject x="100" y="100" width="100%" height="100%" >
+        <div class="wrapper" ondblclick="
+        let t = this.querySelector('textarea');
+        console.log('dbclick', t);
+        t.removeAttribute('disabled');" 
+    >
+        <textarea 
+            disabled="true"
+            contenteditable="false"
+            oninput='   this.style.height = "";
+                        this.style.height = this.scrollHeight + "px"' 
+            onfocusout= "this.disabled = true;" >
+                
+                    
             It was a dark and stormy night...
-        </div>
+        </textarea>
+    </div>
     </foreignObject>
   </svg>
 

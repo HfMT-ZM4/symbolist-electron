@@ -33,21 +33,23 @@ class TextSymbol extends Template.SymbolBase
         ui_api.hasParam(params, Object.keys(this.structs.view) );
 
         return {
-                new: "div",
+            new: "foreignObject",
+            id: `${params.id}-foreign`,
+            x: params.x,
+            y: params.y,
+            width: "100%",
+            height: "100%",
+            children: {
+                new: "html:div",
                 id: `${params.id}-textWrapper`,
                 class: "textWrapper",
-                style: {
-                    position: "absolute",
-                    left: `${params.x}px`,
-                    top: `${params.y}px`,
-                },
                 ondblclick: function() {
                     let t = this.querySelector('textarea');
                     console.log('dbclick', t);
                     t.removeAttribute('disabled'); 
                 },
                 children: {
-                    new: "textarea",
+                    new: "html:textarea",
                     id: `${params.id}-textarea`,
                     class: "textarea",
                     disabled: "true",
@@ -62,6 +64,7 @@ class TextSymbol extends Template.SymbolBase
                     text: params.text
                 }
             } 
+        }
     }
     
     getElementViewParams(element) {
@@ -84,7 +87,7 @@ class TextSymbol extends Template.SymbolBase
 
     getPaletteIcon() {
         return {
-            key: "html",
+            key: "svg",
             val: this.display({
                 id: `${this.class}-palette-icon`,
                 class: this.class,
@@ -95,7 +98,7 @@ class TextSymbol extends Template.SymbolBase
         }
     }
 
-
+/*
     fromData(dataObj, container, preview = false)
     {
         const viewParams = this.dataToViewParams(dataObj, container);
@@ -103,19 +106,19 @@ class TextSymbol extends Template.SymbolBase
         const drawObj = ui_api.htmlFromViewAndData(viewObj, dataObj);
         ui_api.drawsocketInput( drawObj );
     }
+*/
 
     dataToViewParams(data, container)
     {
-        data.container = "forms";
+        data.container = container.id;
         return data;
     }
 
     viewParamsToData(viewParams, container)
     {
-        viewParams.container = "forms";
+        viewParams.container = container.id;
         return viewParams;
     }
-
 
     mouseToData( event, container )
     {
