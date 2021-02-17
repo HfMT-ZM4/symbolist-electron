@@ -10,7 +10,7 @@ The program aims to provide an open play space, with tools for experimentation, 
 2. Download or clone the project rerpository folder.
 3. run `npm install` inside the project folder.
 4. install electon globally `npm install -g electron`.
-5. run `electron .` to start. Or if running with `vs code` you should be able to run via the debugger, defined in the `.vscode/launch.json` file.
+5. run `electron .` to start the `symbolist` application. Or if running in `vs code` you should be able to run via the debugger, defined in the `.vscode/launch.json` file.
 
 # About
 
@@ -20,7 +20,6 @@ There are three basic ideas at the core of `symbolist`:
 * `graphic representation`, the visual representation of the semantic data.
 * `performance media`, the performance mechanism which can be used to control different media types using the score data as parameter values. 
   
- 
 Between each of these there is a layer of mapping to and from the `semantic data`: 
 
 * `semantic data` to `graphic representation` is used for the creation of graphic symbols based on input of semantic data.
@@ -300,68 +299,114 @@ There are two types of definition scripts:
 * `ui` definitions perform user interactions and mapping between semantic data representation and graphic representation.
 * `io` definitions are used to assist in the lookup/playback and mapping of the semantic data to media like sound synthesis, video, etc.
 
-Currently, the system uses the same `.js` file to hold both the `ui` and `io` definitions, and uses the following pattern:
+Currently, the system uses the same `.js` file to hold both the `ui` and `io` definitions. To aid in development there is a template file that can be used to handle most of the most common actions.
+
+Using the template, a basic definition might look like this:
+
+
 
 ```
-// global definitions
+const Template = require('../lib/symbol-template') 
 
-const className = "foo";
-
-let dataInstance = {
-    class: className,
-    id : `${className}-0`,
-    time: 0
-}
-
-let viewParamsInstance = {
-    id: `${className}-0`, 
-    x: 0,
-    y: 0
-}
-
-// ui_api api object passed in to def on initialization from ui controller
-
-const ui_def = function(io_api)
+class BasicSymbol extends Template.SymbolBase 
 {
-    function getPaletteIcon(){}
-    // ... and other definitions
-
-
-    // returns object with references to API values callbacks
-
-    return {
-        class: className,
-        getPaletteIcon,
+    constructor() {
+        super();
+        this.class = "BasicSymbol";
     }
+
+
+    get structs () {
+        return {
+
+            data: {
+                class: this.class,
+                id : `${this.class}-0`,
+                time: 0,
+                pitch: 55,
+                duration: 0.1
+            },
+            
+            view: {
+                class: this.class,
+                id: `${this.class}-0`, 
+                x: 0,
+                y: 0,
+                r: 2
+            }
+        }
+    }
+
+
+    display(params) {
+
+        ui_api.hasParam(params, Object.keys(this.structs.view) );
+        
+        return {
+            new: "circle",
+            class: 'notehead',
+            id: `${params.id}-notehead`,
+            cx: params.x,
+            cy: params.y,
+            r: params.r
+        }
+    }
+    
+    getElementViewParams(element) {
+
+        const circle = element.querySelector('.notehead');
+        const x = parseFloat(circle.getAttribute('cx'));
+        const y = parseFloat(circle.getAttribute('cy'));
+        const r = parseFloat(circle.getAttribute('r'));
+
+        return {
+            id: element.id,
+            x,
+            y,
+            r
+        }
+
+    }
+
+
+    getPaletteIcon() {
+        return {
+            key: "svg",
+            val: this.display({
+                id: `circle-palette-icon`,
+                class: this.class,
+                x: 10,
+                y: 10,
+                r: 2
+            })
+        }
+    }
+
 
 }
 
-const io_def = function(io_api)
+class BasicSymbol_IO extends Template.IO_SymbolBase
 {
-    function comparator (a, b) {
-        return (a.time < b.time ? -1 : (a.time == b.time ? 0 : 1))
+    constructor()
+    {
+        super();
+        this.class = "BasicSymbol";
     }
-    // ... and other definitions
-
-    // returns object with references to API values callbacks
-
-    return {
-        class: className,
-        comparator,
-        lookup
-    }
+    
 }
 
 module.exports = {
-    ui_def,
-    io_def
+    ui_def: BasicSymbol,
+    io_def: BasicSymbol_IO    
 }
+
 
 ```
 
 ## UI Definitions
 
 ### module.exports
+
 Values and UI handler callbacks defined and exported to the `UI Controller`:
 
 __Required__
@@ -454,13 +499,6 @@ Values and handler callbacks defined and exported to the `IO Controller`:
 
 
 # Definition Logic
-
-## Mapping in Symbols vs. Containers 
-
-.. maybe remove this bit... 
-
-There are many different possible mappings, relationships and arrangements between containers and symbols, containers and other containers, between symbols and other symbols etc. In some cases, the container is a simple two dimensional outlining of a graphic plot, in the x and y axis, and the symbol placed in the graph may have a have higher number of parameters associated with it. In other cases, like a musical key signature, the container might have a higher degree of information than the symbol, just like a the key signature may have many sharps or flats, which are then inherited by the symbol.
-
 
 ## Class Definition and Object Instances 
 

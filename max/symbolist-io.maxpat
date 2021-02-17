@@ -2726,13 +2726,13 @@
 					"fontface" : 0,
 					"fontsize" : 12.0,
 					"id" : "obj-71",
-					"linecount" : 21,
+					"linecount" : 7,
 					"maxclass" : "o.display",
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 69.5, 1025.5, 500.0, 306.0 ],
-					"text" : "/formatted : {\n\t/trio : [{\n\t\t/oboe : {\n\t\t\t/time : [0.061, 0.121],\n\t\t\t/duration : [0.1, 0.1],\n\t\t\t/midi : [70., 71.]\n\t\t}\n\t}, {\n\t\t/bassoon : {\n\t\t\t/time : [0.079, 0.185],\n\t\t\t/duration : [0.1, 0.1],\n\t\t\t/pitch : [52.07, 33.02]\n\t\t}\n\t}, {\n\t\t/synth : {\n\t\t\t/time,\n\t\t\t/duration,\n\t\t\t/pitch\n\t\t}\n\t}]\n}"
+					"patching_rect" : [ 69.5, 1025.5, 500.0, 116.0 ],
+					"text" : "/class : \"FiveLineStaveEvent\",\n/id : \"FiveLineStaveEvent_u_5bd250cd-7fae-4703-9848-02df298c7a43\",\n/time : 0.318,\n/midi : 85.,\n/duration : 0.1,\n/accid : \"natural\",\n/container : \"oboe\""
 				}
 
 			}
