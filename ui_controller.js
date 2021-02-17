@@ -84,6 +84,7 @@ let renderer_api = {
     getContainerForElement, // look upwards in the elemement heirarchy to find the container
 
     svgFromViewAndData,
+    htmlFromViewAndData,
     svgPreviewFromViewAndData,
     getDataTextView,
     removeSprites,
@@ -279,6 +280,67 @@ function svgFromViewAndData(view, dataObj, overwrite = false)
         val
     }
 }
+
+
+
+/**
+ * 
+ * could definitely avoid this copy here...
+ * 
+ * @param {Object/Array} view object, or array of Drawsocket format, SVG elements to draw, placed inside the display <g> group
+ * @param {Object} dataObj data object containing id, class, container-id, and any other data to store in the dataset
+ * @param {Boolean} overwrite (optional) force overwrite the object, this will whipe out child elements false by default
+ * 
+ * returns object formatted to send to Drawsocket
+ * 
+ * When creating a new SVG element, you need to include the class in the dataObj
+ * 
+ */
+function htmlFromViewAndData(view, dataObj, overwrite = false)
+{
+    if( !overwrite )
+    {
+        overwrite = !document.getElementById(dataObj.id);
+    }
+
+    let val = {
+        ...dataToHTML(dataObj),
+        children: [{
+            id: `${dataObj.id}-display`,
+            children: view
+        }, {
+            id: `${dataObj.id}-contents`,
+        }]
+    };
+
+    if( overwrite )
+    {
+        val.new = 'div';
+        val.children[0].new = 'div';
+        val.children[1].new = 'div';
+    }
+
+    if( hasParam(dataObj, "container" ) )
+    {
+        if( dataObj.container == "forms" )
+            val.container = "forms";
+        else
+            val.container = `${dataObj.container}-contents`;
+    }
+
+    if( hasParam(dataObj, "class" ) )
+    {
+        val.class = `${dataObj.class} symbol`;
+        val.children[0].class = `${dataObj.class} display`;
+        val.children[1].class = `${dataObj.class} contents`;
+    }
+
+    return {
+        key: "html",
+        val
+    }
+}
+
 
 
 function getDataTextView(dataObj, relativeTo = null)
@@ -654,35 +716,39 @@ function initPalette()
     {
         let drawMsgs = [];
         initDef.palette.forEach( el => {
-            let def_ = uiDefs.get(el);
-
-            const def_classname = def_.class;
-            let def_palette_display = def_.getPaletteIcon();
-
-            if( def_palette_display.key == "svg" )
+            if( el.length > 0 )
             {
-                def_palette_display = {
-                    new: "svg",
-                    class: "palette-svg",
-                    id: `${def_classname}-icon`,
-                    children: def_palette_display.val
-                }
-            }
+                let def_ = uiDefs.get(el);
 
-            drawMsgs.push({
-                key: "html",
-                val: {
-                    new: "div",
-                    class: `${def_classname} palette-icon`,
-                    id: `${def_classname}-paletteIcon`,
-                    parent: "palette-clefs",
-                    onclick: () => {
-                            console.log(`select ${def_classname}`); 
-                            symbolist_setContainerClass(def_classname);
-                    },
-                    children: def_palette_display
+                const def_classname = def_.class;
+                let def_palette_display = def_.getPaletteIcon();
+    
+                if( def_palette_display.key == "svg" )
+                {
+                    def_palette_display = {
+                        new: "svg",
+                        class: "palette-svg",
+                        id: `${def_classname}-icon`,
+                        children: def_palette_display.val
+                    }
                 }
-            })
+    
+                drawMsgs.push({
+                    key: "html",
+                    val: {
+                        new: "div",
+                        class: `${def_classname} palette-icon`,
+                        id: `${def_classname}-paletteIcon`,
+                        parent: "palette-clefs",
+                        onclick: () => {
+                                console.log(`select ${def_classname}`); 
+                                symbolist_setContainerClass(def_classname);
+                        },
+                        children: def_palette_display
+                    }
+                })
+            }
+            
         })
 
         drawsocket.input([{
