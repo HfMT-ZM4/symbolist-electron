@@ -41,16 +41,24 @@ class TextSymbol extends Template.SymbolBase
                     left: `${params.x}px`,
                     top: `${params.y}px`,
                 },
-                ondblclick: `
+                ondblclick: function() {
                     let t = this.querySelector('textarea');
                     console.log('dbclick', t);
-                    t.removeAttribute('disabled'); `,
+                    t.removeAttribute('disabled'); 
+                },
                 children: {
                     new: "textarea",
                     id: `${params.id}-textarea`,
                     class: "textarea",
                     disabled: "true",
-                    onfocusout: "this.disabled = true;",
+                    oninput: function() {
+                        this.style.height = "";
+                        this.style.height = this.scrollHeight + "px";
+                    }, 
+                    onblur: function() {
+                        console.log('out');
+                        this.disabled = true; 
+                    },
                     text: params.text
                 }
             } 
