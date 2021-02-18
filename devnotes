@@ -498,3 +498,5 @@ either the base is html div with a svg element as the root, or the root is svg a
 or alternatively things like the text object could be svg objects 
 
 
+-- add updateAfterContents for all fromData calls
+    also in the template?

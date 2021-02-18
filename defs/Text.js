@@ -108,6 +108,10 @@ class TextSymbol extends Template.SymbolBase
     }
 */
 
+    // here we're avoiding asking the parent for information
+    // but still using the template system
+    // probably it would be better to stick to the template, and
+    // create a graphic only container
     dataToViewParams(data, container)
     {
         data.container = container.id;
