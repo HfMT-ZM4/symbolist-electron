@@ -30,12 +30,7 @@ if( cluster.isMaster )
     // pass menu class the io controller and window for communcations
     // note that the menu still runs in the main thread
     menu.init(io_controller_proc, win)
-/*
-    globalShortcut.register('CommandOrControl+R', function() {
-      console.log('CommandOrControl+R is pressed')
-      win.reload()
-    })
-  */  
+
     win.loadFile('index.html')
   
     console.log(win);

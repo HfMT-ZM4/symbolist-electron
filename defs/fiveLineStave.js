@@ -1,4 +1,4 @@
-const Template = require('../lib/symbol-template') 
+const Template = require('../lib/SymbolTemplate') 
 
 
 const sharpSteps =          [ 0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6 ];

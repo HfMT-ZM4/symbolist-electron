@@ -1,4 +1,4 @@
-const Template = require('../lib/symbol-template') 
+const Template = require('../lib/SymbolTemplate') 
 
 /**
  * top level symbol has no display

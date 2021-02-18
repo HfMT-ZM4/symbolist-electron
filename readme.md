@@ -306,7 +306,7 @@ Using the template, a basic definition might look like this:
 
 
 ```
-const Template = require('../lib/symbol-template') 
+const Template = require('../lib/SymbolTemplate') 
 
 class BasicSymbol extends Template.SymbolBase 
 {
