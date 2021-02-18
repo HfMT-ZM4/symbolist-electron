@@ -2,26 +2,6 @@
 /* global drawsocket:readonly  */
 
 /**
- * 
- * every major event in the general use sequence should have the option of a callback in the defs
- * for example, selection, and on setting the context
- * 
-
- move mouse handling to separate file
-    which is the main document UX 
- clean up calls to defs, consodidate somehow?
-    or move to separate file
-
-ui_controller should mainly start up the ui system, and handle loading the files
-
-move GUI transforms to new file
-
-
-
- */
-
-
-/**
  * symbolist renderer view module -- exported functions are at the the bottom
  */
 
@@ -2180,38 +2160,6 @@ function callSymbolMethod( element, methodName, args )
     return false;
 
 }
-/*
-function callEnterEditMode(element)
-{
-    if( uiDefs.has( element.classList[0] ) )
-    {
-        const def_ = uiDefs.get( element.classList[0] );
-        if( def_.hasOwnProperty('editMode') )
-        {
-            def_.editMode(element, true);
-            return true;
-        }        
-    }
-
-    return false;
-}
-
-function callExitEditMode(element)
-{
-    if( uiDefs.has( element.classList[0] ))
-    {
-        const def_ = uiDefs.get( element.classList[0] );
-        if( def_.hasOwnProperty('editMode') )
-        {
-            def_.editMode(element, false);
-            return true;
-        }        
-    }
-
-    return false;
-}
-*/
-
 
 /**
  * 

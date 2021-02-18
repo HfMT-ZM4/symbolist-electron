@@ -213,7 +213,6 @@ class FiveLineStaveEvent extends Template.SymbolBase
     
     drag(element, delta_pos = {x:0,y:0}) 
     {
-
         const container = ui_api.getContainerForElement(element);
         const stepSpacing = parseFloat(container.dataset.lineSpacing) * 0.5;
 
@@ -239,7 +238,49 @@ class FiveLineStaveEvent extends Template.SymbolBase
         return true; // return true if you are handling your own translation
     }
    
+    editMode( element, enable = false )
+    {
+        super.editMode(element, enable);
+        
+        if( enable )
+        {
+            ui_api.createHandle( 
+                // element to use for reference
+                element, 
+                // xy attrs to use for the handle
+                { selector: `#${element.id} .duration-line`, x: "x2", y: "y2"},
+                // callback function
+                (element_, event) => {
+
+                    let container = ui_api.getContainerForElement(element_);
+                    const parentDef = ui_api.getDefForElement(container);
+
+                    const line = element_.querySelector('.duration-line');
+                    const x = parseFloat(line.getAttribute('x1'));
+                    const y = parseFloat(line.getAttribute('y1'));
+                    
+                    let mousePt = ui_api.getSVGCoordsFromEvent(event);
+                    let width = mousePt.x - x;
+
+                    let dataObj = this.viewParamsToData({
+                        x, y, width
+                    }, container);
+
+                    element_.dataset.duration = dataObj.duration;
+
+                    this.updateFromDataset(element_);
+
+                }
+            );
+        }
+
+
+        return true; // << required if defined
+    }
+
+
 }
+
 
 
 
