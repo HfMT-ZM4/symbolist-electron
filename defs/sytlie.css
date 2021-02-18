@@ -64,9 +64,12 @@
 .TextSymbol textarea {
     padding: 0px;
     font-family: helvetica; 
+    line-height: 20px;
     background-color: transparent;
     border: 0.5px dashed rgba(200, 200, 200, 0.3);
+    outline: none;
 }
+
 
 
 .TextSymbol textarea:disabled {

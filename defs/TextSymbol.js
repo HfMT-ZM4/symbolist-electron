@@ -43,8 +43,11 @@ class TextSymbol extends Template.SymbolBase
         const t = element.querySelector(`.display .textarea`);
         const bbox = ui_api.getBBoxAdjusted(t);
         let wrapper = element.querySelector(`.display .htmlWrapper`);
+        let textWrapper = element.querySelector(`.display .textWrapper`);
+        textWrapper.style.height = (t.scrollHeight+2)+"px";
 
-        wrapper.setAttributeNS(null, "height", bbox.height+6);
+        wrapper.setAttributeNS(null, "height", (t.scrollHeight+2)+"px");
+       // wrapper.setAttributeNS(null, "height", bbox.height+7);
         wrapper.setAttributeNS(null, "width", bbox.width+2);
 
     }
@@ -66,6 +69,9 @@ class TextSymbol extends Template.SymbolBase
                 id: `${params.id}-textWrapper`,
                 class: "textWrapper",
                 ondblclick: () => {
+
+                   // this.editMode(document.getElementById(`${params.id}`), true );
+
                     let t = document.getElementById(`${params.id}-textarea`);
                     console.log('dbclick', t);
                     t.removeAttribute('disabled'); 
@@ -76,16 +82,20 @@ class TextSymbol extends Template.SymbolBase
                     id: `${params.id}-textarea`,
                     class: "textarea",
                     disabled: "true",
+                    style: {
+                        height: `16px`
+                    },
                     oninput: () => {
                         let t = document.getElementById(`${params.id}-textarea`);
                         t.style.height = "";
                         t.style.height = t.scrollHeight + "px";
 
                         let wrapper = document.getElementById(`${params.id}-htmlWrapper`);
-                        wrapper.height = t.style.height;
+                        wrapper.setAttributeNS(null, "height", t.style.height);
                     }, 
                     onblur: () => {
                         console.log('out');
+                        document.getSelection().removeAllRanges();
                         let t = document.getElementById(`${params.id}-textarea`);
                         t.disabled = true; 
                     },
@@ -111,7 +121,6 @@ class TextSymbol extends Template.SymbolBase
         }
 
     }
-
 
     getPaletteIcon() {
         return {

@@ -37,14 +37,46 @@ class RootSymbol extends Template.SymbolBase
                 tools: [],
                 palette: []
             },
-            view: {}
+            view: {
+                class: this.class,
+                id : `${this.class}-0`
+            }
         }
     }
 
 
-    display(params) {}
+    display(params) {
+        return {
+            new: "g",
+            id: `${params.id}`,
+            class: "RootSymbol"
+        }
+
+    }
 
     drag(element, pos){}
+
+
+     /**
+     * note: this container is a "top level" container, and so for the moment we are not querying
+     * the parent for info, because there is not a default class for the top svg yet,
+     * eventually that is probably the way to do it rather than calculating the bbox here
+     * for non-top levell symbols you can use the default definition in the template
+     */
+    dataToViewParams(data, container)
+    {
+        /**
+         * note: this container is a "top level" container, and so for the moment we are not querying
+         * the parent for info, because there is not a default class for the top svg yet,
+         * eventually that is probably the way to do it rather than calculating the bbox here
+         */
+
+        return {
+            ...this.structs.view, // defaults
+            id: data.id
+        }
+     
+    }
 
         /**
      * API function called from controller to draw new data objects
@@ -58,18 +90,12 @@ class RootSymbol extends Template.SymbolBase
     fromData(dataObj, container, preview = false)
     {
         // RootSymbol view is the palettes?
-
-
-
-
-        /*
         const viewParams = this.dataToViewParams(dataObj, container);
         const viewObj = this.display(viewParams);        
         const drawObj = (preview ? 
             ui_api.svgPreviewFromViewAndData(viewObj, dataObj) : 
             ui_api.svgFromViewAndData(viewObj, dataObj) );
         ui_api.drawsocketInput( drawObj );
-        */
     }
 
 

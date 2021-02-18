@@ -2561,11 +2561,38 @@ if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and 
 function visibility_handler(event)
 {
     console.log('hidden', document[hidden] );
+
+    /*
+    if( document[hidden] )
+    {
+        removeSymbolistMouseHandlers(svgObj);
+        removeSymbolistKeyListeners();
+    }
+    else
+    {
+        addSymbolistMouseHandlers(svgObj);
+        addSymbolistKeyListeners
+    }
+    */
 }
+
+window.addEventListener("blur", (event)=> {
+    console.log("blur");
+    removeSymbolistMouseHandlers(svgObj);
+    removeSymbolistKeyListeners();
+}, false);
+
+window.addEventListener("focus", (event)=> {
+    console.log("focus");
+    addSymbolistMouseHandlers(svgObj);
+    addSymbolistKeyListeners();
+}, false);
+
+
 
 function addFocusListner()
 {   
-    document.addEventListener(visibilityChange, visibility_handler);
+    window.addEventListener(visibilityChange, visibility_handler, false);
 
 }
 
