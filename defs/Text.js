@@ -28,14 +28,35 @@ class TextSymbol extends Template.SymbolBase
         }
     }
 
+    /**
+     * 
+     * API function called from controller
+     * 
+     * @param {Element} element 
+     * 
+     * called after child object has been added from the score
+     * in order to adjust drawing of the container element
+     * 
+     */
+    updateAfterContents( element ) {
+        
+        const t = element.querySelector(`.display .textarea`);
+        const bbox = ui_api.getBBoxAdjusted(t);
+        let wrapper = element.querySelector(`.display .htmlWrapper`);
+
+        wrapper.setAttributeNS(null, "height", bbox.height+6);
+        wrapper.setAttributeNS(null, "width", bbox.width+2);
+
+    }
+    
     display(params) {
 
         ui_api.hasParam(params, Object.keys(this.structs.view) );
 
         return {
             new: "foreignObject",
-            id: `${params.id}-foreign`,
-            class: "divWrapper",
+            id: `${params.id}-htmlWrapper`,
+            class: "htmlWrapper",
             x: params.x,
             y: params.y,
             width: "100%",
@@ -59,6 +80,9 @@ class TextSymbol extends Template.SymbolBase
                         let t = document.getElementById(`${params.id}-textarea`);
                         t.style.height = "";
                         t.style.height = t.scrollHeight + "px";
+
+                        let wrapper = document.getElementById(`${params.id}-htmlWrapper`);
+                        wrapper.height = t.style.height;
                     }, 
                     onblur: () => {
                         console.log('out');
@@ -73,7 +97,7 @@ class TextSymbol extends Template.SymbolBase
     
     getElementViewParams(element) {
 
-        const textEdit = element.querySelector('.display .divWrapper');
+        const textEdit = element.querySelector('.display .htmlWrapper');
         const x = parseFloat(textEdit.getAttribute('x'));
         const y = parseFloat(textEdit.getAttribute('y'));
 
@@ -99,6 +123,16 @@ class TextSymbol extends Template.SymbolBase
                 y: 10,
                 text: "text"
             })
+        }
+    }
+
+    fromData(dataObj, container, preview = false)
+    {
+        super.fromData(dataObj, container, preview);
+
+        if(!preview){
+            console.log(dataObj, document.getElementById(dataObj.id));
+            this.updateAfterContents( document.getElementById(dataObj.id) );
         }
     }
 

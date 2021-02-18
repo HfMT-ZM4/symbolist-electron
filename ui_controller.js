@@ -996,13 +996,19 @@ function symbolist_setClass(_class)
 
 
 /**
- * 
+ * -->> change this to element..
  * @param {Object} obj set context from symbolist controller
  */
 function symbolist_setContext(obj)
 {
     deselectAll();
 
+    document.querySelectorAll(".palette .selected").forEach( el => {
+        callSymbolMethod(el, "paletteSelected", false);
+    });
+
+    // not sure that it's possible to have more than one context...
+    // maybe?
     document.querySelectorAll(".current_context").forEach( el => {
         el.classList.remove("current_context");
     });
@@ -1062,8 +1068,8 @@ function symbolist_send(obj)
  * set context from UI event, selecting most recently selected object
  * sets palette class to null
  */
-function setSelectedContext()
-{
+function setSelectedContext(){
+
     if( selected.length > 0 )
         symbolist_setContext( selected[selected.length-1] );
     else
@@ -1933,6 +1939,7 @@ function symbolost_sendKeyEvent(event, caller)
 
 function escapeModes()
 {
+    document.getSelection().removeAllRanges();
     document.activeElement.blur();
 
     if( selected.length == 0 )

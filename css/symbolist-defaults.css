@@ -48,6 +48,10 @@ body {
   stroke: blue !important;
 }
 
+.symbolist_selected div {
+  border: 1px solid blue;
+}
+
 .symbolist_selected line {
   stroke: blue !important;
 }

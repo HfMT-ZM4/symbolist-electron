@@ -60,3 +60,16 @@
     stroke: rgba(255, 0, 0, 0.5);
     stroke-width: 2;
 }
+
+.TextSymbol textarea {
+    padding: 0px;
+    font-family: helvetica; 
+    background-color: transparent;
+    border: 0.5px dashed rgba(200, 200, 200, 0.3);
+}
+
+
+.TextSymbol textarea:disabled {
+    background-color: transparent;
+}
+
