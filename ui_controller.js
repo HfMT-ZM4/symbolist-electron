@@ -1499,8 +1499,14 @@ function applyTransform(obj, matrix = null)
             })
          //   console.log("points", points, adjusted, SVGPoints.toPath(adjusted) );
             obj.setAttribute('d', SVGPoints.toPath(adjusted) );
-
-            break;                
+            break;
+        case "foreignObject":
+            pt.x = obj.getAttribute("x");
+            pt.y = obj.getAttribute("y");
+            let newPt = pt.matrixTransform(matrix);
+            obj.setAttribute("x", newPt.x );
+            obj.setAttribute("y", newPt.y );
+            break;
         default:
             break;
     }
@@ -1927,6 +1933,8 @@ function symbolost_sendKeyEvent(event, caller)
 
 function escapeModes()
 {
+    document.activeElement.blur();
+
     if( selected.length == 0 )
         setDefaultContext();
     else

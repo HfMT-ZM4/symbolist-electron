@@ -35,6 +35,7 @@ class TextSymbol extends Template.SymbolBase
         return {
             new: "foreignObject",
             id: `${params.id}-foreign`,
+            class: "divWrapper",
             x: params.x,
             y: params.y,
             width: "100%",
@@ -43,23 +44,26 @@ class TextSymbol extends Template.SymbolBase
                 new: "html:div",
                 id: `${params.id}-textWrapper`,
                 class: "textWrapper",
-                ondblclick: function() {
-                    let t = this.querySelector('textarea');
+                ondblclick: () => {
+                    let t = document.getElementById(`${params.id}-textarea`);
                     console.log('dbclick', t);
                     t.removeAttribute('disabled'); 
+                    t.focus();
                 },
                 children: {
                     new: "html:textarea",
                     id: `${params.id}-textarea`,
                     class: "textarea",
                     disabled: "true",
-                    oninput: function() {
-                        this.style.height = "";
-                        this.style.height = this.scrollHeight + "px";
+                    oninput: () => {
+                        let t = document.getElementById(`${params.id}-textarea`);
+                        t.style.height = "";
+                        t.style.height = t.scrollHeight + "px";
                     }, 
-                    onblur: function() {
+                    onblur: () => {
                         console.log('out');
-                        this.disabled = true; 
+                        let t = document.getElementById(`${params.id}-textarea`);
+                        t.disabled = true; 
                     },
                     text: params.text
                 }
@@ -69,7 +73,7 @@ class TextSymbol extends Template.SymbolBase
     
     getElementViewParams(element) {
 
-        const textEdit = element.querySelector('.display .textEdit');
+        const textEdit = element.querySelector('.display .divWrapper');
         const x = parseFloat(textEdit.getAttribute('x'));
         const y = parseFloat(textEdit.getAttribute('y'));
 
