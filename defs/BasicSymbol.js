@@ -73,7 +73,7 @@ class BasicSymbol extends Template.SymbolBase
         return {
             key: "svg",
             val: this.display({
-                id: `circle-palette-icon`,
+                id: `${this.class}-palette-icon`,
                 class: this.class,
                 x: 10,
                 y: 10,

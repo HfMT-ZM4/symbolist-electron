@@ -1,0 +1,274 @@
+{
+    "about": "symbolist will read a json file to configure the palette setup, this can be used to dynamically change also (eventually)",
+    "name": "first layout",
+    "tools": [],
+    "palette": [],
+    "score": {
+        "id": "trio",
+        "class": "SystemContainer",
+        "x": 200,
+        "y": 100,
+        "duration": 2,
+        "time": 0,
+        "contents": [
+            {
+                "id": "oboe",
+                "class": "FiveLineStave",
+                "height": 100,
+                "lineSpacing": 10,
+                "duration": 2,
+                "time": 0,
+                "contents": [
+                    {
+                        "class": "FiveLineStaveEvent",
+                        "id": "FiveLineStaveEvent_u_153ba3a8-d6c3-4041-882f-67393585f2d0",
+                        "time": 0.184,
+                        "midi": 67,
+                        "duration": 0.1,
+                        "accid": "natural",
+                        "container": "oboe"
+                    },
+                    {
+                        "class": "FiveLineStaveEvent",
+                        "id": "FiveLineStaveEvent_u_42dee279-44bd-4ad9-946c-2042f15e8bba",
+                        "time": 0.256,
+                        "midi": 61,
+                        "duration": 0.1,
+                        "accid": "natural",
+                        "container": "oboe"
+                    },
+                    {
+                        "class": "FiveLineStaveEvent",
+                        "id": "FiveLineStaveEvent_u_4d343c2a-13c1-4cce-8b93-000e2354ec3d",
+                        "time": 0.444,
+                        "midi": 58,
+                        "duration": 0.1,
+                        "accid": "natural",
+                        "container": "oboe"
+                    },
+                    {
+                        "class": "FiveLineStaveEvent",
+                        "id": "FiveLineStaveEvent_u_e3268557-4a68-426f-b63c-ee60b35cfbc6",
+                        "time": 0.443,
+                        "midi": 79,
+                        "duration": 0.1,
+                        "accid": "natural",
+                        "container": "oboe"
+                    },
+                    {
+                        "class": "FiveLineStaveEvent",
+                        "id": "FiveLineStaveEvent_u_6454cf53-b5a5-47b8-86d6-85f1d3336a81",
+                        "time": 0.366,
+                        "midi": 63,
+                        "duration": 0.1,
+                        "accid": "natural",
+                        "container": "oboe"
+                    }
+                ]
+            },
+            {
+                "id": "bassoon",
+                "class": "PartStave",
+                "height": 100,
+                "time": 0,
+                "duration": 2,
+                "contents": [
+                    {
+                        "class": "AzimNote",
+                        "id": "AzimNote_u_0bece701-ccb9-41bf-ada6-18a91ca256f5",
+                        "time": 0.06325,
+                        "pitch": 71.59625,
+                        "azim": 0.11109870439412516,
+                        "duration": 0.1,
+                        "container": "bassoon"
+                    },
+                    {
+                        "class": "AzimNote",
+                        "id": "AzimNote_u_ebbdf8e2-91b2-488e-a88e-a41fe34ea296",
+                        "time": 0.222,
+                        "pitch": 69.85000000000001,
+                        "azim": 3.14,
+                        "duration": 0.1,
+                        "container": "bassoon"
+                    },
+                    {
+                        "class": "AzimNote",
+                        "id": "AzimNote_u_f51b2de9-faa6-4cd8-8679-f417cbc3c313",
+                        "time": 0.27,
+                        "pitch": 68.58,
+                        "azim": 3.14,
+                        "duration": 0.1,
+                        "container": "bassoon"
+                    },
+                    {
+                        "class": "AzimNote",
+                        "id": "AzimNote_u_6e32b0a2-ecf3-4360-b6e4-26c407efd59e",
+                        "time": 0.34600000000000003,
+                        "pitch": 66.04,
+                        "azim": 3.14,
+                        "duration": 0.1,
+                        "container": "bassoon"
+                    },
+                    {
+                        "class": "AzimNote",
+                        "id": "AzimNote_u_d8d45ceb-e473-4f87-bf64-d6098748c0db",
+                        "time": 0.428,
+                        "pitch": 80.01,
+                        "azim": 3.14,
+                        "duration": 0.1,
+                        "container": "bassoon"
+                    },
+                    {
+                        "class": "AzimNote",
+                        "id": "AzimNote_u_b282006c-e079-4d84-8245-6c2d61df4959",
+                        "time": 0.5720000000000001,
+                        "pitch": 43.17999999999999,
+                        "azim": 3.14,
+                        "duration": 0.1,
+                        "container": "bassoon"
+                    },
+                    {
+                        "class": "BasicSymbol",
+                        "id": "BasicSymbol_u_bb390adc-14c0-42c0-9fec-be43a37379b6",
+                        "time": 0.13,
+                        "pitch": 0,
+                        "duration": 0.1,
+                        "container": "bassoon"
+                    },
+                    {
+                        "class": "BasicSymbol",
+                        "id": "BasicSymbol_u_932b1ab9-ff6c-438b-82f3-f0c3d285c0b7",
+                        "time": 0.221,
+                        "pitch": 19.050000000000004,
+                        "duration": 0.1,
+                        "container": "bassoon"
+                    },
+                    {
+                        "class": "BasicSymbol",
+                        "id": "BasicSymbol_u_a241a7d9-68f4-422a-9dd9-8e49fe1d02d4",
+                        "time": 0.14100000000000001,
+                        "pitch": 52.07000000000001,
+                        "duration": 0.1,
+                        "container": "bassoon"
+                    },
+                    {
+                        "class": "BasicSymbol",
+                        "id": "BasicSymbol_u_a1d1c410-3f4a-49cd-825d-5f2526e7f6ef",
+                        "time": 0.684,
+                        "pitch": 81.28,
+                        "duration": 0.1,
+                        "container": "bassoon"
+                    },
+                    {
+                        "class": "BasicSymbol",
+                        "id": "BasicSymbol_u_50754130-fc6b-447b-a8cc-5f8c801db8ad",
+                        "time": 0.6970000000000001,
+                        "pitch": 31.75,
+                        "duration": 0.1,
+                        "container": "bassoon"
+                    },
+                    {
+                        "class": "BasicSymbol",
+                        "id": "BasicSymbol_u_b3f64aa2-1ddc-491b-99bf-6e7003f956eb",
+                        "time": 0.62,
+                        "pitch": 80.01,
+                        "duration": 0.1,
+                        "container": "bassoon"
+                    },
+                    {
+                        "class": "BasicSymbol",
+                        "id": "BasicSymbol_u_d946b0d4-3699-417b-a9f2-5f1f00e73ecb",
+                        "time": 0.653,
+                        "pitch": 44.449999999999996,
+                        "duration": 0.1,
+                        "container": "bassoon"
+                    },
+                    {
+                        "class": "BasicSymbol",
+                        "id": "BasicSymbol_u_5ea8d84e-b72a-4cf3-b3e0-4fb4ae9e01d7",
+                        "time": 0.781,
+                        "pitch": 62.23,
+                        "duration": 0.1,
+                        "container": "bassoon"
+                    },
+                    {
+                        "class": "BasicSymbol",
+                        "id": "BasicSymbol_u_9e2fa175-73ff-4bb4-be7d-008e8631e078",
+                        "time": 0.684,
+                        "pitch": 81.28,
+                        "duration": 0.1,
+                        "container": "bassoon"
+                    },
+                    {
+                        "class": "BasicSymbol",
+                        "id": "BasicSymbol_u_12432528-7d45-4c9b-8106-488e6d41e07d",
+                        "time": 0.268,
+                        "pitch": 38.10000000000001,
+                        "duration": 0.1,
+                        "container": "bassoon"
+                    },
+                    {
+                        "class": "BasicSymbol",
+                        "id": "BasicSymbol_u_6c199ff9-f845-4e53-a159-1a415669a7a2",
+                        "time": 0.145,
+                        "pitch": -19.04999999999999,
+                        "duration": 0.1,
+                        "container": "bassoon"
+                    },
+                    {
+                        "class": "BasicSymbol",
+                        "id": "BasicSymbol_u_5c7e7ef9-2bca-4996-88e7-4749d99a19d6",
+                        "time": 0.122,
+                        "pitch": 10.159999999999995,
+                        "duration": 0.1,
+                        "container": "bassoon"
+                    },
+                    {
+                        "class": "AzimNote",
+                        "id": "AzimNote_u_37c9a7b4-d405-4755-8da0-a7f7e40e61cd",
+                        "time": 0.517,
+                        "pitch": 62.23,
+                        "azim": 3.14,
+                        "duration": 0.1,
+                        "container": "bassoon"
+                    },
+                    {
+                        "class": "AzimNote",
+                        "id": "AzimNote_u_51e131d5-421f-4a83-99ac-20436221c700",
+                        "time": 0.391,
+                        "pitch": 72.39000000000001,
+                        "azim": 3.14,
+                        "duration": 0.1,
+                        "container": "bassoon"
+                    },
+                    {
+                        "class": "AzimNote",
+                        "id": "AzimNote_u_ff7345dc-9dde-4aee-99aa-5cf64683e4e9",
+                        "time": 0.302,
+                        "pitch": 66.04,
+                        "azim": 3.14,
+                        "duration": 0.1,
+                        "container": "bassoon"
+                    },
+                    {
+                        "class": "AzimNote",
+                        "id": "AzimNote_u_2de85ed3-7b39-4bf6-ac3c-da845150e7e5",
+                        "time": 0.248,
+                        "pitch": 69.85000000000001,
+                        "azim": 3.14,
+                        "duration": 0.1,
+                        "container": "bassoon"
+                    }
+                ]
+            },
+            {
+                "id": "synth",
+                "class": "PartStave",
+                "height": 200,
+                "time": 0,
+                "duration": 2,
+                "contents": []
+            }
+        ]
+    }
+}

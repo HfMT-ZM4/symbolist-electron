@@ -5,7 +5,7 @@ class PartStave extends Template.SymbolBase
     constructor() {
         super();
         this.class = "PartStave";
-        this.palette = [ "AzimNote", "BasicSymbol" ];
+        this.palette = [ "AzimNote", "BasicSymbol", "ColorPitch" ];
 
 
         this.left_margin = 20;
@@ -123,7 +123,7 @@ class PartStave extends Template.SymbolBase
     {
         if( ui_api.hasParam(child_data, ['pitch', 'time']) )
         {
-            const containerRect = document.getElementById(`${this_element.id}-rect`);
+            const containerRect = this_element.querySelector('.partStave-rect');
             const bbox_x = parseFloat(containerRect.getAttribute('x'));
             const bbox_y = parseFloat(containerRect.getAttribute('y'));
             const bbox_height = parseFloat(containerRect.getAttribute('height'));
