@@ -141,8 +141,28 @@ class ColorPitch extends Template.SymbolBase
             let container = ui_api.getContainerForElement(element);
             let data = this.viewParamsToData(viewParams, container);
 
+
+            /**
+             * in thia example, we wanted to update the color of the notehead
+             * so we used the dataToViewParams function to do the mapping from
+             * pitch to color, and then update the notehead color from the mouse 
+             * interaction. 
+             * 
+             * Since the mapping is from pitch to color only (not color to pitch), 
+             * we didn't need to add the mapping in viewParamsToData.
+             * 
+             */
             let newView = this.dataToViewParams(data, container);
 
+            /**
+             * note that usually we would make a preview of the change from dragging
+             * and not change the actual value of the symbol until mouse up, which then
+             * calls the applyTransformToData function. 
+             * 
+             * But for the color example we are setting the notehead value directly, so the
+             * value has already been updated when the applyTransformToData function is called.
+             * 
+             */
             let updateColor = {
                 key: "svg",
                 val: {
