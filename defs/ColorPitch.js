@@ -143,7 +143,7 @@ class ColorPitch extends Template.SymbolBase
 
 
             /**
-             * in thia example, we wanted to update the color of the notehead
+             * in this example, we wanted to update the color of the notehead
              * so we used the dataToViewParams function to do the mapping from
              * pitch to color, and then update the notehead color from the mouse 
              * interaction. 
