@@ -1009,8 +1009,13 @@ function symbolist_setContext(obj)
     if( obj != topContainer )
         obj.classList.add("current_context");
 
+
+    callSymbolMethod(currentContext, "currentContext", false);
+
     currentContext = obj;
-    symbolist_set_log(`set context to ${obj.id}`)
+    callSymbolMethod(currentContext, "currentContext", true);
+
+    symbolist_set_log(`set context to ${currentContext.id}`)
 
 
 /*

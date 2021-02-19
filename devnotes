@@ -500,3 +500,6 @@ or alternatively things like the text object could be svg objects
 
 -- add updateAfterContents for all fromData calls
     also in the template?
+
+-- add callback when symbol is selected as context
+    now added

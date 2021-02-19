@@ -163,7 +163,7 @@ class FiveLineStaveEvent extends Template.SymbolBase
 
             obj.unshift( ledgerLine_g );
 
-            console.log('ledgerLine_g', obj);
+          //  console.log('ledgerLine_g', obj);
 
         }
 
