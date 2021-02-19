@@ -294,7 +294,7 @@ function loadDefFiles(folder)
         
         let filepath = `${folder.path}/${file.name}`;
 
-        if( file.type == 'json' )
+        if( file.name == "init.json" ) //file.type == 'json' )
         {
             initFile = require(filepath);
         }

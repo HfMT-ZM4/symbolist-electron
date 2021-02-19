@@ -542,8 +542,9 @@ function loadUIDefs(folder)
              }
              
          }
-         else if(f.type == 'json')
+         else if( f.name == 'init.json' ) //if(f.type == 'json')
          {
+             console.log('loading init');
              // there can be only one json file in the folder
              initDef = require(filepath);
          }
