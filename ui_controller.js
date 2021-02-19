@@ -509,47 +509,51 @@ function loadUIDefs(folder)
 
     folder.files.forEach( f => {
         
-         const filepath = `${path}/${f.name}`;
- 
-         const exists = require.resolve(filepath); 
-         if( exists )
-             delete require.cache[ exists ];
-             
-         if( f.type == 'js')
-         {
-             // load controller def
-             let { ui_def } = require(filepath);
- 
-             // initialize def with api
+        if( f.type != 'folder' )
+        {
+            const filepath = `${path}/${f.name}`;
 
-             // api now global
-             let cntrlDef_ = new ui_def();
-         
-             // set into def map
-             uiDefs.set(cntrlDef_.class, cntrlDef_);
-             console.log('added ', cntrlDef_.class);
-         }
-         else if( f.type == "css" )
-         {
-             let head = document.getElementsByTagName("head");
-             if( !document.querySelector(`link[href="${filepath}"]`) )
-             {
-                 var cssFileRef = document.createElement("link");
-                 cssFileRef.rel = "stylesheet";
-                 cssFileRef.type = "text/css";
-                 cssFileRef.href = filepath;
-                 head[0].appendChild(cssFileRef);
-             }
-             
-         }
-         else if( f.name == 'init.json' ) //if(f.type == 'json')
-         {
-             console.log('loading init');
-             // there can be only one json file in the folder
-             initDef = require(filepath);
-         }
+            const exists = require.resolve(filepath); 
+            if( exists )
+                delete require.cache[ exists ];
+                 
+            if( f.type == 'js')
+            {
+                // load controller def
+                let { ui_def } = require(filepath);
+    
+                // initialize def with api
+    
+                // api now global
+                let cntrlDef_ = new ui_def();
+            
+                // set into def map
+                uiDefs.set(cntrlDef_.class, cntrlDef_);
+                console.log('added ', cntrlDef_.class);
+            }
+            else if( f.type == "css" )
+            {
+                let head = document.getElementsByTagName("head");
+                if( !document.querySelector(`link[href="${filepath}"]`) )
+                {
+                    var cssFileRef = document.createElement("link");
+                    cssFileRef.rel = "stylesheet";
+                    cssFileRef.type = "text/css";
+                    cssFileRef.href = filepath;
+                    head[0].appendChild(cssFileRef);
+                }
+                
+            }
+            else if( f.name == 'init.json' ) //if(f.type == 'json')
+            {
+                console.log('loading init');
+                // there can be only one json file in the folder
+                initDef = require(filepath);
+            }
+        }        
+        
    
-     })
+    })
     
   //   initDocument();
  

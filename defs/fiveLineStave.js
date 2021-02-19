@@ -86,7 +86,7 @@ class FiveLineStave extends Template.SymbolBase
             }, {
                 new: "image",
                 id: `${params.id}-clef`,
-                href: "defs/g_clef.svg",
+                href: "defs/assets/g_clef.svg",
                 x: params.x,
                 y: params.y
         
