@@ -111,13 +111,13 @@ class TextSymbol extends Template.SymbolBase
         const x = parseFloat(textEdit.getAttribute('x'));
         const y = parseFloat(textEdit.getAttribute('y'));
 
-        const text = textEdit.querySelector('.textarea').innerHTML;
-
+        const text = textEdit.querySelector('.textarea');
+        //console.log('getElementViewParams', textEdit, text.value);
         return {
             id: element.id,
             x,
             y,
-            text
+            text: text.value
         }
 
     }
