@@ -565,10 +565,6 @@ function loadUIDefs(folder)
 }
 
 
-ipcRenderer.on('load-ui-defs', (event, folder) => {
-    loadUIDefs(folder);
-})
-
 /**
  * 
  * @param {Object} obj object to check
@@ -605,14 +601,14 @@ function hasParam(obj, attr)
  * then iterates the contents of each container
  * 
  */
-function iterateContents(contents, context_element = null)
+function iterateScore(contents, context_element = null)
 {
-    console.log('iterateContents');
+    console.log('iterateScore');
 
     const contents_arr = Array.isArray(contents) ? contents : [ contents ];
 
     contents_arr.forEach( data => {
-        console.log('iterateContents', data);
+        console.log('iterateScore', data);
         if( !context_element ){
             context_element = getCurrentContext();
         }
@@ -638,62 +634,11 @@ function iterateContents(contents, context_element = null)
         if( newEl && data.hasOwnProperty('contents') )
         {
 
-            iterateContents(data.contents, newEl )
+            iterateScore(data.contents, newEl )
         }
     })
    
 }
-
-/**
- * 
- * @param {Object} data object with perceptual parameters
- * @param {Element} context_element HTML/SVG element container, 
- * 
- * if context_element is null then fromData is expected to get the appropriate context 
- * (i.e. top-html-container, or top-html-container)
- * 
- * currently depth first iteration, but eventually we might want it to descend by layer,
- * so that all siblings are in place before adding children, in case of cross relation
- * 
- */
-function fromDataRescursive(data, context_element = null)
-{
-    let def = null;
-    if( uiDefs.has(data.class) )
-    {
-        def = uiDefs.get(data.class);
-        def.fromData(data, context_element);
-    }
-
-    let newEl = document.getElementById(data.id);
-    if( newEl && data.hasOwnProperty('contents') )
-    {
-        const contents = Array.isArray(data.contents) ? data.contents : [ data.contents ];
-        contents.forEach( dat => {
-            fromDataRescursive(dat, newEl )
-        })
-
-    }
-}
-
-function initDocument()
-{
-    console.log('initDocument');
-    if( initDef.hasOwnProperty('score') )
-    {
-        const init = initDef.score;
-        iterateContents(init, null);
-    }
-
-}
-
-function makeDefaultInfoDisplay(viewObj)
-{
-    const bbox = getBBoxAdjusted(viewObj);
-    //const bbox = viewObj.getBoundingClientRect();
-    return defaultInfoDisplay(viewObj, bbox);
-}
-
 
 function initPalette()
 {
@@ -803,6 +748,12 @@ function makeSymbolPalette(class_array)
 }
 
 
+function makeDefaultInfoDisplay(viewObj)
+{
+    const bbox = getBBoxAdjusted(viewObj);
+    //const bbox = viewObj.getBoundingClientRect();
+    return defaultInfoDisplay(viewObj, bbox);
+}
 
 
 
@@ -871,7 +822,7 @@ ipcRenderer.on('io-message', (event, obj) => {
         case 'score':
             console.log('score');
             symbolist_newScore();
-            iterateContents(obj.val);
+            iterateScore(obj.val);
             break;
         case 'call':
             callFromIO(obj.val);
@@ -883,6 +834,12 @@ ipcRenderer.on('io-message', (event, obj) => {
             break;
     }
 })
+
+ipcRenderer.on('load-ui-defs', (event, folder) => {
+//    console.log('called from main.js?');
+    loadUIDefs(folder);
+})
+
 
 function io_out(msg)
 {
@@ -1023,19 +980,6 @@ function symbolist_setContext(obj)
     symbolist_set_log(`set context to ${currentContext.id}`)
 
 
-/*
-    //  if( _class != currentPaletteClass )
-    {
-        
-        ipcRenderer.send('symbolist_event',  {
-            key: "symbolistEvent",  
-            val: {
-                symbolistAction: 'getClefSymbols',
-                class: formatClassArray( currentContext.classList.value )
-            }
-        }); 
-    }
-*/
 }
 
 function setDefaultContext()

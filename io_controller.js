@@ -140,7 +140,7 @@ function udpSend(msg)
     
 }
 
-function addIDifMIssing(v)
+function addIdIfMissing(v)
 {
     if( typeof v.id == "undefined")
     {
@@ -655,7 +655,7 @@ function udpRecieve(msg)
 {
     switch(msg.key){
         case 'data':
-            addIDifMIssing(msg.val);
+            addIdIfMissing(msg.val);
             addToModel(msg.val);
             sendDataToUI(msg.val);
             break;
@@ -711,7 +711,7 @@ function input(_obj)
         break;
 
         case 'data':
-            addIDifMIssing(val);
+            addIdIfMissing(val);
             addToModel(val);
             udpSend(val);
             break;

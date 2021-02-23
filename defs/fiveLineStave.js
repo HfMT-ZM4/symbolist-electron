@@ -207,7 +207,12 @@ class FiveLineStave extends Template.SymbolBase
     y2midi(y, container, accidentalType = "sharp")
     {
         const middleLine = document.getElementById(`${container.id}-line-3`);
-        const stepSize = container.dataset.lineSpacing * 0.5;
+
+        /*
+            0.25 is a rough scalar since the actual position depends on the
+            accidentals which aren't linear in the staff
+        */
+        const stepSize = container.dataset.lineSpacing * 0.25;
 
         const y_pix = parseFloat(middleLine.getAttribute('y1')) - y;
         

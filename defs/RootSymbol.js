@@ -1,7 +1,7 @@
 const Template = require('../lib/SymbolTemplate') 
 
 /**
- * top level symbol has no display
+ * top level symbol is the frame of the application
  * and allows any child to place itself wherever it wants
  * the root symbol controls the palette and tool menus which are created
  * when a context is selected.
