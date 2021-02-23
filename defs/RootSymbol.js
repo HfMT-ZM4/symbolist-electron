@@ -96,6 +96,11 @@ class RootSymbol extends Template.SymbolBase
             ui_api.svgPreviewFromViewAndData(viewObj, dataObj) : 
             ui_api.svgFromViewAndData(viewObj, dataObj) );
         ui_api.drawsocketInput( drawObj );
+
+        // note: doesn't need to be drawn since it's the top level?
+        // I think that makes sense, and then any user symbols are children 
+        // of the root
+
     }
 
 
