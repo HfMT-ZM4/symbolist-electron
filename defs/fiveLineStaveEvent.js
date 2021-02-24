@@ -60,6 +60,7 @@ class FiveLineStaveEvent extends Template.SymbolBase
         super();
         this.class = "FiveLineStaveEvent";
         this.default_dist = 10;
+        this.palette = ["PathSymbol"];
         //this.default_duration = 0.1;
     }
 
@@ -211,6 +212,12 @@ class FiveLineStaveEvent extends Template.SymbolBase
         }
     }
     
+    paletteSelected( enable = false ) 
+    {
+        console.log('FiveLineStaveEvent paletteSelected', enable);
+        super.paletteSelected(enable);
+    }
+
     drag(element, delta_pos = {x:0,y:0}) 
     {
         const container = ui_api.getContainerForElement(element);

@@ -936,7 +936,6 @@ function symbolist_setClass(_class)
 
 }
 
-
 /**
  * -->> change this to element..
  * @param {Object} obj set context from symbolist controller
@@ -946,7 +945,13 @@ function symbolist_setContext(obj)
     deselectAll();
 
     document.querySelectorAll(".palette .selected").forEach( el => {
-        callSymbolMethod(el, "paletteSelected", false);
+
+        if( uiDefs.has( el.classList[0] ) )
+        {
+            uiDefs.get( el.classList[0] ).paletteSelected(false);
+        }
+    
+    //    callSymbolMethod(el, "paletteSelected", false);
     });
 
     // not sure that it's possible to have more than one context...
@@ -1425,6 +1430,8 @@ function applyTransform(obj, matrix = null)
                 d: d
               });
 
+            let adjusted = Points.offset(points, matrix.e, matrix.f );
+            /*
             let adjusted = points.map( p => {
                 pt.x = p.x;
                 pt.y = p.y;
@@ -1437,6 +1444,7 @@ function applyTransform(obj, matrix = null)
                     y: newPt.y
                 }
             })
+            */
          //   console.log("points", points, adjusted, SVGPoints.toPath(adjusted) );
             obj.setAttribute('d', SVGPoints.toPath(adjusted) );
             break;
