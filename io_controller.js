@@ -146,6 +146,14 @@ function addIdIfMissing(v)
     {
         v.id = v.class+'_u_'+sym_util.fairlyUniqueString();
     }
+
+    if( typeof v.contents !== "undefined" )
+    {
+        v.contents = Array.isArray(v.contents) ? v.contents : [v.contents];
+        v.contents.forEach( e => {
+            addIdIfMissing(e);
+        })
+    }
 }
 
 

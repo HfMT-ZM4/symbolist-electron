@@ -85,8 +85,10 @@ body {
 
 .trajectory {
     stroke-width: 2px;
-    stroke: black;
+    stroke: gray;
     fill: none;
+    stroke-dasharray: 1;
+
 }
 
 .preview-line {

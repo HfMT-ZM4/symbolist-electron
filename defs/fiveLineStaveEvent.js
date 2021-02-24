@@ -196,6 +196,88 @@ class FiveLineStaveEvent extends Template.SymbolBase
     }
 
 
+    /**
+     * 
+     * Called by child objects using the template
+     * the parent/container object supplies a mapping from view params to data
+     * 
+     * @param {Element} this_element instance of this element
+     * @param {Object} child_viewParams child data object, requesting information about where to put itself
+     */
+    childViewParamsToData(this_element, child_viewParams) 
+    {
+//        return child_viewParams;
+        // absolute to relative
+        if( ui_api.hasParam(child_viewParams, ['points'], true) )
+        {
+            const notehead = this_element.querySelector('.display .notehead');
+            const cx = parseFloat(notehead.getAttribute('cx'));
+            const cy = parseFloat(notehead.getAttribute('cy'));
+
+           console.log('childViewParamsToData', Points.offset(child_viewParams.points, -cx, -cy));
+
+            return {
+                points: Points.offset(child_viewParams.points, -cx, -cy)
+            }
+        }
+        else if( ui_api.hasParam(child_viewParams, ['x', 'y'], true) )
+        {
+            const notehead = this_element.querySelector('.display .notehead');
+            const cx = parseFloat(notehead.getAttribute('cx'));
+            const cy = parseFloat(notehead.getAttribute('cy'));
+
+            return {
+                x: child_viewParams.x - cx,
+                y: child_viewParams.y - cy
+            }
+        }
+
+        
+    }
+
+
+     /**
+     * 
+     * Called by child objects using the template
+     * the parent/container object supplies a mapping from data to view params
+     * 
+     * @param {Element} this_element instance of this element
+     * @param {Object} child_data child data object, requesting information about where to put itself
+     * 
+     */
+    childDataToViewParams(this_element, child_data) 
+    {
+      //  console.log('FiveLine event childDataToViewParams', child_data, ui_api.hasParam(child_data, 'points'));
+ //       return child_data;
+        // relative to absolute
+        if( ui_api.hasParam(child_data, 'points') )
+        {
+            const notehead = this_element.querySelector('.display .notehead');
+            const cx = parseFloat(notehead.getAttribute('cx'));
+            const cy = parseFloat(notehead.getAttribute('cy'));
+
+            console.log('true????', child_data.points, cx, cy);
+            console.log('no?', Points.offset(child_data.points, cx, cy));
+            return {
+                points: Points.offset(child_data.points, cx, cy)
+            }
+        }
+        else if( ui_api.hasParam(child_data, ['x', 'y'], true) )
+        {
+            const notehead = this_element.querySelector('.display .notehead');
+            const cx = parseFloat(notehead.getAttribute('cx'));
+            const cy = parseFloat(notehead.getAttribute('cy'));
+
+            return {
+                x: child_data.x + cx,
+                y: child_data.y + cy
+            }
+        }
+         
+
+    }
+
+
     getPaletteIcon() {
         return {
             key: "svg",

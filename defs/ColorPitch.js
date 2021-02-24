@@ -24,7 +24,7 @@ class ColorPitch extends Template.SymbolBase
                 id: `${this.class}-0`, 
                 x: 0,
                 y: 0,
-                r: 2,
+                r: 4,
                 color: 'rgba(255,0,255,1)'
             }
         }

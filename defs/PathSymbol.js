@@ -19,7 +19,7 @@ class PathSymbol extends Template.SymbolBase
                 class: this.class,
                 id : `${this.class}-0`,
                 points: [
-                    { x: 25, y: 25, moveTo: true },
+                    { x: 0, y: 0, moveTo: true },
                     { x: 50, y: 50, curve: { type: 'quadratic', x1: 0, y1: 50 } },
                     { x: 50, y: 30, curve: { type: 'quadratic', x1: 0, y1: 50 } }
                   ] // need to filter the points from being sent to the svg dataset
@@ -41,6 +41,7 @@ class PathSymbol extends Template.SymbolBase
     display(params) {
 
         ui_api.hasParam(params, Object.keys(this.structs.view) );
+        console.log(params.points, SVGPoints.toPath(params.points));
         return {
             new: "path",
             class: 'trajectory',
@@ -127,21 +128,18 @@ class PathSymbol extends Template.SymbolBase
     {
         const pt = ui_api.getSVGCoordsFromEvent(event);
 
-        /**
-         * for now just translating the default to the position of the mouse
-         */
-        // const parent_def = ui_api.getDefForElement(container);
+        const parent_def = ui_api.getDefForElement(container);
 
         let bbox = Points.boundingBox(this.structs.data.points);
-        let translated_defaut = Points.offset(this.structs.data.points,
-                                                pt.x - bbox.center.x, 
-                                                pt.y - bbox.center.y );
+        let translated_default = Points.offset(this.structs.data.points,
+                                                pt.x , 
+                                                pt.y );
 
         return {
             ...this.structs.data, // set defaults, before overwriting with parent's mapping
+            ...parent_def.childViewParamsToData(container, translated_default), 
             id: `${this.class}_u_${ui_api.fairlyUniqueString()}`,
-            container: container.id,
-            points: translated_defaut
+            container: container.id
         }    
     }
 
@@ -273,12 +271,14 @@ class PathSymbol extends Template.SymbolBase
     
 
             let container = ui_api.getContainerForElement(element);
-        
+            const parentDef = ui_api.getDefForElement(container);
+            const relaltive_pts = parentDef.childViewParamsToData(container, {points: preview_points});
+
             let data = {
                 id: element.id,
                 class: this.class,
                 container: container.id,
-                points: preview_points
+                points: relaltive_pts.points
             };
 
             this.fromData(data, container);
@@ -549,7 +549,7 @@ class PathSymbol_IO extends Template.IO_SymbolBase
         const phase = params.phase;
 
         return {
-            ...obj_ref,
+            id: obj_ref.id,
             trajectory_pt: io_api.Points.position(points, phase, 1)
         }
 

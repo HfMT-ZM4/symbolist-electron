@@ -569,8 +569,10 @@ function loadUIDefs(folder)
  * 
  * @param {Object} obj object to check
  * @param {String/Array} attr attribute key or array of keys to look for
+ * @param {Boolean} failQuietly if set to true no error will be thrown on fail
+ * 
  */
-function hasParam(obj, attr)
+function hasParam(obj, attr, failQuietly = false)
 {
     if( !Array.isArray(attr) )
     {
@@ -582,8 +584,10 @@ function hasParam(obj, attr)
         {
             if( typeof obj[attr[i]] === "undefined" )
             {
-                throw new Error(`object missing attribute ${attr[i]}, ${JSON.stringify(obj, null, 2)}`);
-                //return false;
+                if (!failQuietly)
+                    throw new Error(`object missing attribute ${attr[i]}, ${JSON.stringify(obj, null, 2)}`);
+                else
+                    return false;
             }
         }
         return true;
@@ -603,23 +607,26 @@ function hasParam(obj, attr)
  */
 function iterateScore(contents, context_element = null)
 {
-    console.log('iterateScore');
+  //  console.log('iterateScore', contents, context_element);
+
+    if( !context_element ){
+        context_element = getCurrentContext();
+    }
 
     const contents_arr = Array.isArray(contents) ? contents : [ contents ];
 
     contents_arr.forEach( data => {
-        console.log('iterateScore', data);
-        if( !context_element ){
-            context_element = getCurrentContext();
-        }
-
+      //  console.log('iterateScore', data);
+        
         if( !hasParam(data, 'container' ) )
             data.container = context_element.id;
+    
+        context_element = document.getElementById(data.container);
 
         uiDefs.get(data.class).fromData( data, context_element );
     })
 
-    if( context_element )
+    if( context_element ) // seems like there will alwasy be a context element so maybe this is not required
     {
         console.log(context_element.classList[0]);
         const container_class_def = uiDefs.get( context_element.classList[0] );
@@ -629,11 +636,15 @@ function iterateScore(contents, context_element = null)
         }
     }
 
+    // why not do depth first?
+    // maybe so that the absolute values are correct for the parents before
+    // drawing the children
+
     contents_arr.forEach( data => {
         const newEl = document.getElementById(data.id);
         if( newEl && data.hasOwnProperty('contents') )
         {
-
+         //   console.log('drawing children');
             iterateScore(data.contents, newEl )
         }
     })
@@ -814,7 +825,7 @@ ipcRenderer.on('menu-call', (event, ...args) => {
 ipcRenderer.on('io-message', (event, obj) => {
     switch(obj.key){
         case 'data':
-            dataToView(obj.val);
+            iterateScore(obj.val);
             break;
         case 'model':
            // parseDataModelFromServer(obj.val);
