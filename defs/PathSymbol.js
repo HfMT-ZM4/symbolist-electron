@@ -1,5 +1,4 @@
 const Template = require('../lib/SymbolTemplate'); 
-const { ui_api } = require('../ui_controller');
 
 class PathSymbol extends Template.SymbolBase 
 {
@@ -538,6 +537,23 @@ class PathSymbol_IO extends Template.IO_SymbolBase
         this.class = "PathSymbol";
     }
     
+    /**
+     * 
+     * @param {Object} params here we expect a phase value not duration
+     * @param {Object} obj_ref 
+     */
+    lookup( params, obj_ref )
+    {
+
+        const points = obj_ref.points;
+        const phase = params.phase;
+
+        return {
+            ...obj_ref,
+            trajectory_pt: io_api.Points.position(points, phase, 1)
+        }
+
+    }
 }
 
 

@@ -211,7 +211,9 @@ global.io_api = {
     modelGet,
     modelHas,
     defGet,
-    defHas
+    defHas,
+    Points: require("points")
+
 }
 
 
