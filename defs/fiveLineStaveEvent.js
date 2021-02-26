@@ -256,8 +256,8 @@ class FiveLineStaveEvent extends Template.SymbolBase
             const cx = parseFloat(notehead.getAttribute('cx'));
             const cy = parseFloat(notehead.getAttribute('cy'));
 
-            console.log('true????', child_data.points, cx, cy);
-            console.log('no?', Points.offset(child_data.points, cx, cy));
+     //       console.log('true????', child_data.points, cx, cy);
+     //       console.log('no?', Points.offset(child_data.points, cx, cy));
             return {
                 points: Points.offset(child_data.points, cx, cy)
             }
