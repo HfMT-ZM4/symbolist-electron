@@ -1,9 +1,10 @@
 {
     "about" : "symbolist will read a json file to configure the palette setup, this can be used to dynamically change also (eventually)",
-    "name" : "first layout",
+    "id" : "Score",
     "tools" : [],
     "palette" : [],
-    "score": { 
+    "class" : "RootSymbol",
+    "contents": { 
         "id" : "trio",
         "class" : "SystemContainer",
         "x": 200,

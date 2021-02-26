@@ -1,4 +1,4 @@
-const Template = require('../lib/SymbolTemplate') 
+const Template = require('../lib/SymbolTemplate'); 
 
 class SystemContainer extends Template.SymbolBase 
 {
@@ -101,31 +101,27 @@ class SystemContainer extends Template.SymbolBase
     
     /**
      * note: this container is a "top level" container, and so for the moment we are not querying
-     * the parent for info, because there is not a default class for the top svg yet,
-     * eventually that is probably the way to do it rather than calculating the bbox here
-     * for non-top levell symbols you can use the default definition in the template
+     * the parent for info, because the here the width is determined by the duration, and the parent
+     * is purely graphical, and has no knowledge of duration.
      */
+
     dataToViewParams(data, container)
-    {
-        /**
-         * note: this container is a "top level" container, and so for the moment we are not querying
-         * the parent for info, because there is not a default class for the top svg yet,
-         * eventually that is probably the way to do it rather than calculating the bbox here
-         */
-        const containerDisplay = container.querySelector('.display');
-        const bbox = ui_api.getBBoxAdjusted(containerDisplay);
+    {      
+
+        let viewInData = ui_api.filterByKeys(data, Object.keys(this.structs.view) );
+
+        const height = this.margin + (typeof data.height != 'undefined' ? parseFloat(data.height) : this.structs.data.height);
+        const width = (2 * this.margin) + parseFloat(data.duration) * this.time2x;
 
         return {
             ...this.structs.view, // defaults
-            id: data.id,
-            x: bbox.x + parseFloat(data.x),
-            y: bbox.y + parseFloat(data.y),
-            width: (2 * this.margin) + parseFloat(data.duration) * this.time2x,
-            height: this.margin + (typeof data.height != 'undefined' ? parseFloat(data.height) : this.structs.data.height)
+            ...viewInData, // view params passed in from data
+            width,
+            height,
+            id: data.id
         }
      
     }
-
 
     getPaletteIcon() {
         return {

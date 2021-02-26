@@ -5,11 +5,14 @@ body {
 }
 */
 
+/*
 .systemContainer {
     display: inline-block;
     width: fit-content;
     height: fit-content;
+    padding-left: 300px;
 }
+*/
 
 .systemContainer-rect {
     fill: white;
