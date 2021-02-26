@@ -607,7 +607,7 @@ function hasParam(obj, attr, failQuietly = false)
  */
 function iterateScore(contents, context_element = null)
 {
-  //  console.log('iterateScore', contents, context_element);
+   // console.log('iterateScore', contents, context_element);
 
     if( !context_element ){
         context_element = getCurrentContext();
@@ -616,14 +616,27 @@ function iterateScore(contents, context_element = null)
     const contents_arr = Array.isArray(contents) ? contents : [ contents ];
 
     contents_arr.forEach( data => {
-      //  console.log('iterateScore', data);
+       // console.log('iterateScore', data);
         
         if( !hasParam(data, 'container' ) )
             data.container = context_element.id;
     
         context_element = document.getElementById(data.container);
 
-        uiDefs.get(data.class).fromData( data, context_element );
+        if( uiDefs.has(data.class) )
+        {
+            const def_ = uiDefs.get(data.class);
+            
+            if( hasParam(def_, "fromData") )
+            {
+                def_.fromData( data, context_element );
+            }
+        }
+        else
+        {
+            console.error("no ui def found for class:", data.class);
+        }
+        
     })
 
     if( context_element ) // seems like there will alwasy be a context element so maybe this is not required

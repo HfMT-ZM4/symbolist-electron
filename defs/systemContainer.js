@@ -100,7 +100,7 @@ class SystemContainer extends Template.SymbolBase
     }
     
     /**
-     * note: this container is a "top level" container, and so for the moment we are not querying
+     * note: this container is a "top level" DURATION container, and so for the moment we are not querying
      * the parent for info, because the here the width is determined by the duration, and the parent
      * is purely graphical, and has no knowledge of duration.
      */

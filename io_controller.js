@@ -270,7 +270,7 @@ function loadScore(filepath)
 
                 //newScore();
 
-                score = cloneObj( newFile.score );
+                score = cloneObj( newFile );
                 model = new Map();
                 model.set(score.id, score);
 

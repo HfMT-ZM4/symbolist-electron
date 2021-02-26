@@ -111,3 +111,8 @@ body {
     stroke: blue;
     fill: none;
 }
+
+
+.CartesianPlot-rect {
+    fill: white;
+}
