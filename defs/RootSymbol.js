@@ -57,18 +57,10 @@ class RootSymbol extends Template.SymbolBase
     drag(element, pos){}
 
 
-     /**
-     * note: this container is a "top level" container, and so for the moment we are not querying
-     * the parent for info, because there is not a default class for the top svg yet,
-     * eventually that is probably the way to do it rather than calculating the bbox here
-     * for non-top levell symbols you can use the default definition in the template
-     */
     dataToViewParams(data, container)
     {
         /**
-         * note: this container is a "top level" container, and so for the moment we are not querying
-         * the parent for info, because there is not a default class for the top svg yet,
-         * eventually that is probably the way to do it rather than calculating the bbox here
+         * note: this container is a top level application symbol
          */
 
         return {
@@ -78,7 +70,7 @@ class RootSymbol extends Template.SymbolBase
      
     }
 
-        /**
+    /**
      * API function called from controller to draw new data objects
      * also used internally
      * 
@@ -97,9 +89,12 @@ class RootSymbol extends Template.SymbolBase
             ui_api.svgFromViewAndData(viewObj, dataObj) );
         ui_api.drawsocketInput( drawObj );
 
-        // note: doesn't need to be drawn since it's the top level?
-        // I think that makes sense, and then any user symbols are children 
-        // of the root
+        
+        /**
+         * maybe here is where we trigger the drawing of the palette and 
+         * start up the global event listeners
+         * 
+         */
 
     }
 
