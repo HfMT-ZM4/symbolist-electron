@@ -503,3 +503,8 @@ or alternatively things like the text object could be svg objects
 
 -- add callback when symbol is selected as context
     now added
+
+
+selection in context should probably only select top level objects?
+maybe single click should select full object and double click enters that group
+and selects the subcomponent?

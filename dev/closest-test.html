@@ -1,15 +1,25 @@
-<div class="foo container">
+<div class="foo symbol">
     <div class="foo display">hey</div>
 
     <div class="foo contents">
-        <div id="bar" class="bar foo event">
-            <div class="foo lol">lol</div>
+        <div id="bar" class="bar symbol current_context">
+            <div class="bar display">hey</div>
+
+            <div class="f contents"> 
+                <div id="f" class="f symbol">
+                    <div id="test" class="f display">hey</div>
+                    <div class="f contents">lol</div>
+                </div>
+            </div>
         </div>
+       
     </div>
 </div>
 
 <script>
-    let bar = document.querySelector('#bar');
-    let display = bar.closest('.container').querySelector('.display');
+    let bar = document.querySelector('#test');
+    console.log('check', bar.closest('.current_context .symbol'));
+
+   // let display = bar.closest('.container').querySelector('.display');
     console.log(display);
 </script>

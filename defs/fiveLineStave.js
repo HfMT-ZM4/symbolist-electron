@@ -33,7 +33,7 @@ class FiveLineStave extends Template.SymbolBase
                 time: 0,
                 duration: 1,
                 height: 100,
-                lineSpacing: 8
+                lineSpacing: 10
             },
             
             view: {
@@ -43,7 +43,7 @@ class FiveLineStave extends Template.SymbolBase
                 y: 0,
                 height: 100, 
                 width: 100,
-                lineSpacing: 8
+                lineSpacing: 10
             },
 
             children: {

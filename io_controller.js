@@ -360,11 +360,17 @@ function addToScore( dataobj )
 {
     let container = model.get(dataobj.container);
 
+    if( !container )
+    {
+        console.error(`no container found with id ${dataobj.container}`);
+        return;
+    }
+
     let container_def = defs.get(container.class)
 
     if( !container_def )
     {
-        console.log(`no io def for container ${container.class}`);
+        console.error(`no io def for container ${container.class}`);
         return;
     }
 
@@ -377,7 +383,7 @@ function addToScore( dataobj )
 
     if( typeof container_def.comparator === "undefined" )
     {
-        console.log(`no comparator for ${JSON.stringify(container_def, null, 2)}`);
+        console.error(`no comparator for ${JSON.stringify(container_def, null, 2)}`);
     }
     else
     {

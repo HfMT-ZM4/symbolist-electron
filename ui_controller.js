@@ -616,12 +616,17 @@ function iterateScore(contents, context_element = null)
     const contents_arr = Array.isArray(contents) ? contents : [ contents ];
 
     contents_arr.forEach( data => {
-       // console.log('iterateScore', data);
+    //    console.log('iterateScore', data);
         
         if( !hasParam(data, 'container' ) )
             data.container = context_element.id;
     
         context_element = document.getElementById(data.container);
+
+        if( !context_element )
+        {
+            console.error('no context element', data.container );
+        }
 
         if( uiDefs.has(data.class) )
         {
@@ -1701,7 +1706,6 @@ function isNumeric(value) {
 }
 
 const { v4 } = require('uuid');
-const { loadFiles } = require('./menu-actions/actions');
 
 function fairlyUniqueString() {
     return v4();//(performance.now().toString(36)+Math.random().toString(36)).replace(/\./g,"");
@@ -1732,7 +1736,22 @@ function getTopLevel(elm)
     if( elm == topContainer )
         return elm;
     else    
+    {
+
         return elm.closest(".symbol");
+
+        /*
+        // should return only the first layer of objects within the current context
+        // mabye we need to set the default context with current_context?
+        let ret = elm.closest(".symbol");
+        while ( !ret.parentNode.closest(".symbol").classList.includes('.current_context') ) 
+        {
+            ret = parentNode;
+        }
+
+        return ret;
+        */
+    }
 
 /*
     while(  elm != svgObj && 
