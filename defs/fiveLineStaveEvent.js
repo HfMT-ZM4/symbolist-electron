@@ -1,4 +1,4 @@
-const Template = require('../lib/SymbolTemplate') 
+const Template = require(__symbolist_dirname + '/lib/SymbolTemplate') 
 
 
 // to do: move the lookup to the stave

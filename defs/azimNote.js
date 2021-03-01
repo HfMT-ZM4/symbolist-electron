@@ -1,4 +1,4 @@
-const Template = require('../lib/SymbolTemplate') 
+const Template = require( __symbolist_dirname + '/lib/SymbolTemplate') 
 
 class AzimNote extends Template.SymbolBase 
 {

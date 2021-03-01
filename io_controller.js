@@ -224,6 +224,7 @@ global.io_api = {
 
 }
 
+global.__symbolist_dirname = __dirname;
 
 function addScoreToModelRecursive(obj)
 {
@@ -303,7 +304,7 @@ function loadDefFiles(folder)
     
     folder.files.forEach( file => {
         
-        let filepath = `${folder.path}/${file.name}`;
+        let filepath = path.normalize( `${folder.path}/${file.name}` );
 
         if( file.name == "init.json" ) //file.type == 'json' )
         {

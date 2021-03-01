@@ -60,6 +60,7 @@ let uiDefs = new Map();
 
 let renderer_api = {
     uiDefs, // access to the defs in the defs
+
     getDefForElement, // helper function to get def for DOM element
     getContainerForElement, // look upwards in the elemement heirarchy to find the container
 
@@ -868,6 +869,10 @@ ipcRenderer.on('load-ui-defs', (event, folder) => {
 //    console.log('called from main.js?');
     loadUIDefs(folder);
 })
+
+ipcRenderer.on('set-dirname', (event, args) => {
+    window.__symbolist_dirname = args;
+});
 
 
 function io_out(msg)
