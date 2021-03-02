@@ -110,299 +110,6 @@ let renderer_api = {
 
 // API
 
-
-// storage for internal Handle callbacks
-let cb = {};
-
-/**
- * 
- * @param {Element} element element to create Handle for
- * @param {Object} relativeToAttrs attrs of element to use for handle position for x and y
- * @param {Function} callback (element, event) => {} callback to call on drag
- */
-function createHandle(  element, 
-                        relativeToAttrs = {selector: "", x: "", y: ""}, 
-                        callback = (element, event) => {} )
-{
-   // const symbol = getContainerForElement(element);
-  //  console.log('create handle with reative selector', relativeToAttrs.selector);
-    const handle_id = `${element.id}-handle-${relativeToAttrs.x}-${relativeToAttrs.y}`;
-    ui_api.drawsocketInput({
-        key: "svg", 
-        val: {
-            id: handle_id,
-            new: "rect",
-            class: "symbolist_handle",
-            parent: 'symbolist_overlay', 
-            x: {
-                selector: relativeToAttrs.selector,
-                attr: relativeToAttrs.x
-            },
-            y: {
-                selector: relativeToAttrs.selector,
-                attr: relativeToAttrs.y
-            },
-            onmousedown: function (event) { 
-                document.addEventListener('mousemove', 
-                    cb[`${handle_id}-moveHandler`] = function (event) {
-                      //  console.log(`${handle_id}-moveHandler`);
-                        if( event.buttons == 1 ) {
-                            
-                            callback(element, event);
-
-                            // update position after callback
-                            ui_api.drawsocketInput({
-                                key: "svg",
-                                val: {
-                                    id: handle_id,
-                                    x: {
-                                        selector: relativeToAttrs.selector,
-                                        attr: relativeToAttrs.x
-                                    },
-                                    y: {
-                                        selector: relativeToAttrs.selector,
-                                        attr: relativeToAttrs.y
-                                    }
-                                }
-                            })
-                            
-
-                        }
-
-                    }
-                );
-            }                        
-        }
-    });
-
- //   console.log( document.getElementById(handle_id) );
-}
-
-function removeHandles()
-{
-    document.querySelectorAll('.symbolist_handle').forEach( e => {
-        document.removeEventListener('mousemove', cb[`${e.id}-moveHandler`]);
-        delete cb[`${e.id}-moveHandler`];
-   //     console.log(`removed ${e.id}-moveHandler, now = ${cb[`${e.id}-moveHandler`]}`);
-    })
-}
-
-
-function removeSprites()
-{
-    removeHandles();
-    document.querySelectorAll('.sprite').forEach(e => e.remove());
-}
-
-/**
- * 
- * @param {Object/Array} view object, or array of Drawsocket format, SVG elements to draw, placed inside the display <g> group
- * @param {Object} dataObj data object containing id, class, container-id, and any other data to store in the dataset
- * @param {Boolean} overwrite (optional) force overwrite the object, this will whipe out child elements false by default
- * 
- * returns object formatted to send to Drawsocket
- * 
- * When creating a new SVG element, you need to include the class in the dataObj
- * 
- */
-function svgFromViewAndData(view, dataObj, overwrite = false)
-{
-    if( !overwrite )
-    {
-        overwrite = !document.getElementById(dataObj.id);
-    }
-
-    let val = {
-        ...dataToHTML(dataObj),
-        children: [{
-            id: `${dataObj.id}-display`,
-            children: view
-        }, {
-            id: `${dataObj.id}-contents`,
-        }]
-    };
-
-    if( overwrite )
-    {
-        val.new = 'g';
-        val.children[0].new = 'g';
-        val.children[1].new = 'g';
-    }
-
-    if( hasParam(dataObj, "container" ) )
-    {
-        if( dataObj.container == "symbolist_overlay" )
-            val.container = "symbolist_overlay";
-        else
-            val.container = `${dataObj.container}-contents`;
-    }
-
-    if( hasParam(dataObj, "class" ) )
-    {
-        val.class = `${dataObj.class} symbol`;
-        val.children[0].class = `${dataObj.class} display`;
-        val.children[1].class = `${dataObj.class} contents`;
-    }
-
-    return {
-        key: "svg",
-        val
-    }
-}
-
-
-
-/**
- * 
- * could definitely avoid this copy here...
- * 
- * @param {Object/Array} view object, or array of Drawsocket format, SVG elements to draw, placed inside the display <g> group
- * @param {Object} dataObj data object containing id, class, container-id, and any other data to store in the dataset
- * @param {Boolean} overwrite (optional) force overwrite the object, this will whipe out child elements false by default
- * 
- * returns object formatted to send to Drawsocket
- * 
- * When creating a new SVG element, you need to include the class in the dataObj
- * 
- */
-function htmlFromViewAndData(view, dataObj, overwrite = false)
-{
-    if( !overwrite )
-    {
-        overwrite = !document.getElementById(dataObj.id);
-    }
-
-    let val = {
-        ...dataToHTML(dataObj),
-        children: [{
-            id: `${dataObj.id}-display`,
-            children: view
-        }, {
-            id: `${dataObj.id}-contents`,
-        }]
-    };
-
-    if( overwrite )
-    {
-        val.new = 'div';
-        val.children[0].new = 'div';
-        val.children[1].new = 'div';
-    }
-
-    if( hasParam(dataObj, "container" ) )
-    {
-        if( dataObj.container == "forms" )
-            val.container = "forms";
-        else
-            val.container = `${dataObj.container}-contents`;
-    }
-
-    if( hasParam(dataObj, "class" ) )
-    {
-        val.class = `${dataObj.class} symbol`;
-        val.children[0].class = `${dataObj.class} display`;
-        val.children[1].class = `${dataObj.class} contents`;
-    }
-
-    return {
-        key: "html",
-        val
-    }
-}
-
-
-
-function getDataTextView(dataObj, relativeTo = null)
-{
-    return {
-        key: 'svg',
-        val: {  
-            new: "text",
-            class: "data_text sprite",
-            container: `symbolist_overlay`,
-            relativeTo : (relativeTo ? relativeTo : `#${dataObj.id}`),
-            id: `${dataObj.id}-data_text`,
-            x: 0,
-            y: -20,
-            text: JSON.stringify( filterDataset(dataObj) )
-        }
-    }
-}
-
-function svgPreviewFromViewAndData(view, dataObj, relativeTo = null)
-{
-    let drawing = svgFromViewAndData(view, 
-        {
-            ...dataObj,
-            class: `${dataObj.class} sprite`,
-            id: `${dataObj.class}-sprite`,
-            container: 'symbolist_overlay'
-        }, 
-        true /* overwrite*/ 
-    );
-    
-    if( relativeTo )
-    {
-        relativeTo = `#${dataObj.class}-sprite ${relativeTo}`;
-    }
-        
-    let text_drawing = getDataTextView({
-        ...dataObj,
-        id: `${dataObj.class}-sprite`
-    }, relativeTo );
-
-    return [ drawing, text_drawing ];
-}
-
-/**
- * 
- * @param {Object} data_ data object to convert to HTML style
- * 
- * returns object with "data-" prepended to keys
- */
-function dataToHTML(data_)
-{
-    let dataObj = {};
-    Object.keys(data_).forEach( key => {
-        // filtering elements not used in the dataset
-        if( key != 'id' && 
-            key != 'class' && 
-            key != 'container' && 
-            key != 'parent' && 
-            key != 'contents' ) 
-        {
-            dataObj[`data-${key}`] = data_[key];
-        }
-        else if( key == 'id') // maybe pass all keys?
-        {
-            dataObj.id = data_.id;
-        }
-            
-    })
-
-    return dataObj;
-}
-
-// better to make a flag for dataToHTML?
-function filterDataset(data_)
-{
-    let dataObj = {};
-    Object.keys(data_).forEach( key => {
-        // filtering elements not used in the dataset
-        if( key != 'id' && 
-            key != 'class' && 
-            key != 'container' && 
-            key != 'parent' && 
-            key != 'contents' ) 
-        {
-            dataObj[key] = data_[key];
-        }
-            
-    })
-
-    return dataObj;
-}
-
 /**
  * 
  * @param {Object} obj object to filter
@@ -418,54 +125,6 @@ function filterByKeys(obj, key_arr)
         }
     })
     return ret;
-}
-
-
-
-/**
- * 
- * @param {Element} element SVG/HTML element to get dataset from
- * @param {Element} container optional, adds container.id to data
- */
-function getElementData(element, container = null) 
-{
-    let data = {};
-    Object.keys(element.dataset).forEach( k => {
-        data[k] = isNumeric( element.dataset[k] ) ? Number( element.dataset[k] ) : element.dataset[k]; 
-    });
-    
-    data.id = element.id;
-    data.class = element.classList[0];
-
-    if( container )
-        data.container = container.id;
-
-    return data;
-}
-
-/**
- * 
- * @param {SVG/HTML Element} element a symbol element
- * 
- * searches through the parent elements for the first container
- */
-function getContainerForElement(element)
-{
-    // all symbols are in .contents groups
-    // so we can get the parent node (.contents) 
-    // and then the parent of that note should be the symbol
-    return element.parentNode.closest('.symbol'); //element.parentNode.parentNode;
-    // could also do element.parentNode.closest('.symbol');
-}
-
-
-
-/**
- * returns array of selected elements
- */
-function getSelected()
-{
-    return selected;
 }
 
 
@@ -500,194 +159,6 @@ function hasParam(obj, attr, failQuietly = false)
     }
 }
 
-
-function symbolist_newScore()
-{
-    console.log('newScore');
-    deselectAll();
-    setDefaultContext();
-
-    drawsocketInput({
-        key: "clear",
-        val: ["palette-symbols", "top-svg-contents", "top-html-contents", "symbolist_overlay", "floating-forms", "floating-overlay"]
-    })
-}
-
-
-/** 
- * API -- make namespace here ?
- */
-
-function symbolist_set_log(msg)
-{
-    if( symbolist_log )
-    {
-        symbolist_log.innerHTML = `<span>${msg}</span>`;
-    }
-}
-
-function symbolist_setContainerClass(_class)
-{
-    drawsocketInput({
-        key: "clear",
-        val: "palette-symbols"
-    })
-    symbolist_setClass(_class);
-}
-
-
-
-function setDefaultContext()
-{
-    symbolist_setContext(topContainer);
-}
-
- /**
-  * internal methods
-  */
-
-
-/**
- * set context from UI event, selecting most recently selected object
- * sets palette class to null
- */
-function setSelectedContext(){
-
-    if( selected.length > 0 )
-        symbolist_setContext( selected[selected.length-1] );
-    else
-        setDefaultContext();
-
-    currentPaletteClass = null;
-}
- 
-function removeSelected()
-{
-    if( selected.length > 0 && !document.querySelector('.infobox') )
-    {
-        let selectedIDs = selected.map( val => val.id );
-        drawsocket.input({
-            key: 'remove',
-            val: selectedIDs
-        });  
-
-        return true;
-    }
-
-    return false;
-        
-}
-
-function getUnionBounds()
-{
-
-    if( selected.length == 0 )
-        return;
-
-    const bounds = cloneObj(selected[0].getBoundingClientRect());
-
-    let l = bounds.left;
-    let r = bounds.right;
-    let t = bounds.top;
-    let b = bounds.bottom;
-
-    for( let i = 1; i < selected.length; i++)
-    {
-            const addBox = selected[i].getBoundingClientRect();
-
-            if( l > addBox.left ){
-                l = addBox.left;
-            }
-            
-            if( r < addBox.right ){
-                r = addBox.right;
-            }
-
-            if( t > addBox.top ){
-                t = addBox.top;
-            }
-            
-            if( b < addBox.bottom ){
-                b = addBox.bottom;
-            }
-
-           // console.log('bounds', bounds);
-    }
-
-
-    function HandleRect(x,y, idx) {
-        const r = 5;
-        const d = r * 2;
-        return {
-            new: "rect",
-            parent: "symbolist_overlay",
-            class: "transform-handle",
-            x: x - r,
-            y: y - r,
-            width: d,
-            height: d,
-            id: `transform-handle-${idx}`,
-            onclick: `console.log( "selected", this.id )`,
-            style: {
-                fill: "rgba(0, 0, 0, 0.05)"
-            }
-        }
-    }
-
-    function BoundsLine(x1,y1,x2,y2) {
-        const r = 2;
-        const d = r * 2;
-        return {
-            new: "line",
-            parent: "bounds-group",
-            class: "transform-line",
-            x1: x - r,
-            y: y - r,
-            width: d,
-            height: d,
-            id: `transform-handle-${idx}`,
-            onclick: `console.log( "selected", this.id )`,
-            style: {
-                fill: "rgba(0, 0, 0, 0.05)"
-            }
-        }
-    }
-    
-    
-
-    drawsocket.input({
-        key: 'svg',
-        val: {
-            new: "g",
-            id: "bounds-group",
-            parent: "symbolist_overlay",
-            children : [
-                HandleRect(l,t, 0),
-                HandleRect(l,b, 1),
-                HandleRect(r,t, 2),
-                HandleRect(r,b, 3),
-                {
-                    new: "rect",
-                    id: "bounds-rect",
-                    x: l,
-                    y: t,
-                    width: r-l,
-                    height: b-t,
-                    style: {
-                        "stroke-width" : 1,
-                        stroke: 'rgba(0,0,0, 0.5)',
-                        fill: "none",
-                        "stroke-dasharray" : 1,
-                        'pointer-events': "none" // "stroke"
-                    }
-                }
-            ]
-        }
-    });
-
-
-}
-
 // try : getIntersectionList()
 function hitTest(regionRect, obj)
 {
@@ -716,88 +187,6 @@ function recursiveHitTest(region, element)
 
     return false;
 }
-
-function addToSelection( element )
-{
-    if( element.id == 'dragRegion' )
-        return;
-
-   // console.log('addToSelection', element);
-
-    for( let i = 0; i < selected.length; i++)
-    {
-        if( selected[i] == element )
-            return;    
-    }
-
-    selected.push(element);
-
-    if( !element.classList.contains("symbolist_selected") )
-    {
-        element.classList.add("symbolist_selected");
-    }
-
-    // copy with selected tag to deal with comparison later
-    selectedCopy.push( element.cloneNode(true) );
-
-    callSymbolMethod(element, "selected", true);
-
-}
-
-function selectedObjectsChanged()
-{
-    for( let i = 0; i < selected.length; i++)
-    {
-        if( !selectedCopy[i].isEqualNode( selected[i] ) ){
-      //      console.log(selectedCopy[i], selected[i] );    
-            return true;
-        }   
-        
-    }
-
-    return false;
-}
-
-
-function selectAllInRegion(region, element)
-{
-
-    let contextContent = currentContext.querySelector('.contents');
-
-    for (let i = 0; i < contextContent.children.length; i++) 
-    {
-        if( recursiveHitTest(region, contextContent.children[i]) )
-            addToSelection( contextContent.children[i] );
-
-    }
-        
-}
-
-function deselectAll()
-{
- 
-    document.querySelectorAll('.symbolist_selected').forEach( el => {
-        el.classList.remove("symbolist_selected");
-                
-        callSymbolMethod(el, "selected", false);
-        callSymbolMethod(el, "editMode", false);
-        
-    })
-
-    selected = [];
-    selectedCopy = [];
-
-    document.querySelectorAll('.infobox').forEach( ibox => {
-        ibox.remove();
-    })
-
-    drawsocket.input({
-        key: "clear",
-        val: "symbolist_overlay"
-    })
-
-}
-
 
 
 
@@ -1011,26 +400,6 @@ function applyTransform(obj, matrix = null)
         delete obj.dataset.svgOrigin;
 }
 
-function applyTransformToSelected()
-{
-    for( let i = 0; i < selected.length; i++)
-    {
-        
-        if( !callSymbolMethod(selected[i], "applyTransformToData" ) )
-        {
-            let matrix = getComputedMatrix(selected[i]);
-            applyTransform(selected[i], matrix);
-        }
-        
-    }
-}
-
-
-function cancelTransform(element)
-{
-    element.removeAttribute('transform');   
-}
-
 function rotate(obj, mouse_pos)
 {
 
@@ -1164,19 +533,6 @@ function translate_selected(delta_pos)
 }
 */
 
-function rotate_selected(mouse_pos)
-{
-    for( let i = 0; i < selected.length; i++)
-    {
-       
-       // if( !callTranslate(selected[i], delta_pos) )
-        {
-            rotate(selected[i], mouse_pos);
-        }
-    }
-}
-
-
 
 function makeRelative(obj, container)
 {
@@ -1197,24 +553,6 @@ function copyObjectAndAddToParent(obj)
     let new_node = obj.cloneNode(true);
     new_node.id = makeUniqueID(obj);
     return obj.parentElement.appendChild(new_node);
-}
-
-function copySelected()
-{
-
-    let newArray = [];
-    for( let i = 0; i < selected.length; i++)
-    {
-        newArray.push( copyObjectAndAddToParent(selected[i]) );
-    }
-
-    deselectAll();
-
-    for( let i = 0; i < newArray.length; i++)
-    {
-        addToSelection(newArray[i]);
-    }
-
 }
 
 function isNumeric(value) {
@@ -1309,11 +647,6 @@ function formatClassArray(classlist)
     
     return classArr;
     */
-}
-
-function removedSymbolistSelected(classlist)
-{
-    return typeof classlist !== "undefined" ? classlist.replace(" symbolist_selected", "" ) : "";
 }
 
 function parseStyleString(styleStr)
@@ -1437,25 +770,6 @@ function symbolost_sendKeyEvent(event, caller)
     });
 }
 */
-
-function escapeModes()
-{
-    document.getSelection().removeAllRanges();
-    document.activeElement.blur();
-
-    if( selected.length == 0 )
-        setDefaultContext();
-    else
-    {
-        if( currentMode == "edit" )
-            callExitEditModeForSelected();
-        else {
-            deselectAll();
-        }
-        console.log('currentMode', currentMode, 'currentContext', currentContext );
-    }
-        
-}
 
 function symbolist_keydownhandler(event)
 {
@@ -1653,46 +967,6 @@ function symbolsit_dblclick(event)
 }
 
 
-
-/**
- * 
- * @param {String} methodName method name
- * @param {*} args args (optional)
- * 
- * simple wrapper to call method for all selected objects
- */
-function callMethodForSelected(methodName, args)
-{
-    selected.forEach( sel => callSymbolMethod(sel, methodName, args) )
-
-}
-
-function callEnterEditModeForSelected()
-{
-    selected.forEach( sel => {
-        if( callSymbolMethod(sel, "editMode", true) )
-            currentMode = "edit"
-    })
-}
-
-function callExitEditModeForSelected()
-{
-    let check = true;
-    selected.forEach( sel => {
-        if( !callSymbolMethod(sel, "editMode", false)  )
-            check = false;
-    })
-
-    if( check ){
-        currentMode = "palette"
-    }
-    else
-        console.error('failed to exit edit mode!!')
-
-    console.log('callExitEditModeForSelected now ', currentMode );
-
-
-}
 
 function symbolist_mousemove(event)
 {         
@@ -2760,4 +2034,754 @@ function callSymbolMethod( element, methodName, args )
 
     return false;
 
+}
+
+
+/**
+ * UI Helpers
+ */
+
+
+
+// storage for internal Handle callbacks
+let cb = {};
+
+/**
+ * 
+ * @param {Element} element element to create Handle for
+ * @param {Object} relativeToAttrs attrs of element to use for handle position for x and y
+ * @param {Function} callback (element, event) => {} callback to call on drag
+ */
+function createHandle(  element, 
+                        relativeToAttrs = {selector: "", x: "", y: ""}, 
+                        callback = (element, event) => {} )
+{
+   // const symbol = getContainerForElement(element);
+  //  console.log('create handle with reative selector', relativeToAttrs.selector);
+    const handle_id = `${element.id}-handle-${relativeToAttrs.x}-${relativeToAttrs.y}`;
+    ui_api.drawsocketInput({
+        key: "svg", 
+        val: {
+            id: handle_id,
+            new: "rect",
+            class: "symbolist_handle",
+            parent: 'symbolist_overlay', 
+            x: {
+                selector: relativeToAttrs.selector,
+                attr: relativeToAttrs.x
+            },
+            y: {
+                selector: relativeToAttrs.selector,
+                attr: relativeToAttrs.y
+            },
+            onmousedown: function (event) { 
+                document.addEventListener('mousemove', 
+                    cb[`${handle_id}-moveHandler`] = function (event) {
+                      //  console.log(`${handle_id}-moveHandler`);
+                        if( event.buttons == 1 ) {
+                            
+                            callback(element, event);
+
+                            // update position after callback
+                            ui_api.drawsocketInput({
+                                key: "svg",
+                                val: {
+                                    id: handle_id,
+                                    x: {
+                                        selector: relativeToAttrs.selector,
+                                        attr: relativeToAttrs.x
+                                    },
+                                    y: {
+                                        selector: relativeToAttrs.selector,
+                                        attr: relativeToAttrs.y
+                                    }
+                                }
+                            })
+                            
+
+                        }
+
+                    }
+                );
+            }                        
+        }
+    });
+
+ //   console.log( document.getElementById(handle_id) );
+}
+
+function removeHandles()
+{
+    document.querySelectorAll('.symbolist_handle').forEach( e => {
+        document.removeEventListener('mousemove', cb[`${e.id}-moveHandler`]);
+        delete cb[`${e.id}-moveHandler`];
+   //     console.log(`removed ${e.id}-moveHandler, now = ${cb[`${e.id}-moveHandler`]}`);
+    })
+}
+
+
+function removeSprites()
+{
+    removeHandles();
+    document.querySelectorAll('.sprite').forEach(e => e.remove());
+}
+
+/**
+ * 
+ * @param {Object/Array} view object, or array of Drawsocket format, SVG elements to draw, placed inside the display <g> group
+ * @param {Object} dataObj data object containing id, class, container-id, and any other data to store in the dataset
+ * @param {Boolean} overwrite (optional) force overwrite the object, this will whipe out child elements false by default
+ * 
+ * returns object formatted to send to Drawsocket
+ * 
+ * When creating a new SVG element, you need to include the class in the dataObj
+ * 
+ */
+function svgFromViewAndData(view, dataObj, overwrite = false)
+{
+    if( !overwrite )
+    {
+        overwrite = !document.getElementById(dataObj.id);
+    }
+
+    let val = {
+        ...dataToHTML(dataObj),
+        children: [{
+            id: `${dataObj.id}-display`,
+            children: view
+        }, {
+            id: `${dataObj.id}-contents`,
+        }]
+    };
+
+    if( overwrite )
+    {
+        val.new = 'g';
+        val.children[0].new = 'g';
+        val.children[1].new = 'g';
+    }
+
+    if( hasParam(dataObj, "container" ) )
+    {
+        if( dataObj.container == "symbolist_overlay" )
+            val.container = "symbolist_overlay";
+        else
+            val.container = `${dataObj.container}-contents`;
+    }
+
+    if( hasParam(dataObj, "class" ) )
+    {
+        val.class = `${dataObj.class} symbol`;
+        val.children[0].class = `${dataObj.class} display`;
+        val.children[1].class = `${dataObj.class} contents`;
+    }
+
+    return {
+        key: "svg",
+        val
+    }
+}
+
+
+
+/**
+ * 
+ * could definitely avoid this copy here...
+ * 
+ * @param {Object/Array} view object, or array of Drawsocket format, SVG elements to draw, placed inside the display <g> group
+ * @param {Object} dataObj data object containing id, class, container-id, and any other data to store in the dataset
+ * @param {Boolean} overwrite (optional) force overwrite the object, this will whipe out child elements false by default
+ * 
+ * returns object formatted to send to Drawsocket
+ * 
+ * When creating a new SVG element, you need to include the class in the dataObj
+ * 
+ */
+function htmlFromViewAndData(view, dataObj, overwrite = false)
+{
+    if( !overwrite )
+    {
+        overwrite = !document.getElementById(dataObj.id);
+    }
+
+    let val = {
+        ...dataToHTML(dataObj),
+        children: [{
+            id: `${dataObj.id}-display`,
+            children: view
+        }, {
+            id: `${dataObj.id}-contents`,
+        }]
+    };
+
+    if( overwrite )
+    {
+        val.new = 'div';
+        val.children[0].new = 'div';
+        val.children[1].new = 'div';
+    }
+
+    if( hasParam(dataObj, "container" ) )
+    {
+        if( dataObj.container == "forms" )
+            val.container = "forms";
+        else
+            val.container = `${dataObj.container}-contents`;
+    }
+
+    if( hasParam(dataObj, "class" ) )
+    {
+        val.class = `${dataObj.class} symbol`;
+        val.children[0].class = `${dataObj.class} display`;
+        val.children[1].class = `${dataObj.class} contents`;
+    }
+
+    return {
+        key: "html",
+        val
+    }
+}
+
+
+
+function getDataTextView(dataObj, relativeTo = null)
+{
+    return {
+        key: 'svg',
+        val: {  
+            new: "text",
+            class: "data_text sprite",
+            container: `symbolist_overlay`,
+            relativeTo : (relativeTo ? relativeTo : `#${dataObj.id}`),
+            id: `${dataObj.id}-data_text`,
+            x: 0,
+            y: -20,
+            text: JSON.stringify( filterDataset(dataObj) )
+        }
+    }
+}
+
+function svgPreviewFromViewAndData(view, dataObj, relativeTo = null)
+{
+    let drawing = svgFromViewAndData(view, 
+        {
+            ...dataObj,
+            class: `${dataObj.class} sprite`,
+            id: `${dataObj.class}-sprite`,
+            container: 'symbolist_overlay'
+        }, 
+        true /* overwrite*/ 
+    );
+    
+    if( relativeTo )
+    {
+        relativeTo = `#${dataObj.class}-sprite ${relativeTo}`;
+    }
+        
+    let text_drawing = getDataTextView({
+        ...dataObj,
+        id: `${dataObj.class}-sprite`
+    }, relativeTo );
+
+    return [ drawing, text_drawing ];
+}
+
+/**
+ * 
+ * @param {Object} data_ data object to convert to HTML style
+ * 
+ * returns object with "data-" prepended to keys
+ */
+function dataToHTML(data_)
+{
+    let dataObj = {};
+    Object.keys(data_).forEach( key => {
+        // filtering elements not used in the dataset
+        if( key != 'id' && 
+            key != 'class' && 
+            key != 'container' && 
+            key != 'parent' && 
+            key != 'contents' ) 
+        {
+            dataObj[`data-${key}`] = data_[key];
+        }
+        else if( key == 'id') // maybe pass all keys?
+        {
+            dataObj.id = data_.id;
+        }
+            
+    })
+
+    return dataObj;
+}
+
+// better to make a flag for dataToHTML?
+function filterDataset(data_)
+{
+    let dataObj = {};
+    Object.keys(data_).forEach( key => {
+        // filtering elements not used in the dataset
+        if( key != 'id' && 
+            key != 'class' && 
+            key != 'container' && 
+            key != 'parent' && 
+            key != 'contents' ) 
+        {
+            dataObj[key] = data_[key];
+        }
+            
+    })
+
+    return dataObj;
+}
+
+
+
+
+/**
+ * 
+ * @param {Element} element SVG/HTML element to get dataset from
+ * @param {Element} container optional, adds container.id to data
+ */
+function getElementData(element, container = null) 
+{
+    let data = {};
+    Object.keys(element.dataset).forEach( k => {
+        data[k] = isNumeric( element.dataset[k] ) ? Number( element.dataset[k] ) : element.dataset[k]; 
+    });
+    
+    data.id = element.id;
+    data.class = element.classList[0];
+
+    if( container )
+        data.container = container.id;
+
+    return data;
+}
+
+/**
+ * 
+ * @param {SVG/HTML Element} element a symbol element
+ * 
+ * searches through the parent elements for the first container
+ */
+function getContainerForElement(element)
+{
+    // all symbols are in .contents groups
+    // so we can get the parent node (.contents) 
+    // and then the parent of that note should be the symbol
+    return element.parentNode.closest('.symbol'); //element.parentNode.parentNode;
+    // could also do element.parentNode.closest('.symbol');
+}
+
+
+/**
+ * UI Actions
+ */
+
+
+/**
+ * returns array of selected elements
+ */
+function getSelected()
+{
+    return selected;
+}
+
+
+
+function symbolist_newScore()
+{
+    console.log('newScore');
+    deselectAll();
+    setDefaultContext();
+
+    drawsocketInput({
+        key: "clear",
+        val: ["palette-symbols", "top-svg-contents", "top-html-contents", "symbolist_overlay", "floating-forms", "floating-overlay"]
+    })
+}
+
+
+
+function symbolist_set_log(msg)
+{
+    if( symbolist_log )
+    {
+        symbolist_log.innerHTML = `<span>${msg}</span>`;
+    }
+}
+
+function symbolist_setContainerClass(_class)
+{
+    drawsocketInput({
+        key: "clear",
+        val: "palette-symbols"
+    })
+    symbolist_setClass(_class);
+}
+
+
+function setDefaultContext()
+{
+    symbolist_setContext(topContainer);
+}
+
+/**
+ * set context from UI event, selecting most recently selected object
+ * sets palette class to null
+ */
+function setSelectedContext(){
+
+    if( selected.length > 0 )
+        symbolist_setContext( selected[selected.length-1] );
+    else
+        setDefaultContext();
+
+    currentPaletteClass = null;
+}
+ 
+
+
+function removeSelected()
+{
+    if( selected.length > 0 && !document.querySelector('.infobox') )
+    {
+        let selectedIDs = selected.map( val => val.id );
+        drawsocket.input({
+            key: 'remove',
+            val: selectedIDs
+        });  
+
+        return true;
+    }
+
+    return false;
+        
+}
+
+
+
+/**
+ * UI Def Method Functions
+ * require UI info (selection)
+ * and defs
+ * 
+ */
+
+/**
+ * 
+ * @param {String} methodName method name
+ * @param {*} args args (optional)
+ * 
+ * simple wrapper to call method for all selected objects
+ */
+function callMethodForSelected(methodName, args)
+{
+    selected.forEach( sel => callSymbolMethod(sel, methodName, args) )
+
+}
+
+function callEnterEditModeForSelected()
+{
+    selected.forEach( sel => {
+        if( callSymbolMethod(sel, "editMode", true) )
+            currentMode = "edit"
+    })
+}
+
+function callExitEditModeForSelected()
+{
+    let check = true;
+    selected.forEach( sel => {
+        if( !callSymbolMethod(sel, "editMode", false)  )
+            check = false;
+    })
+
+    if( check ){
+        currentMode = "palette"
+    }
+    else
+        console.error('failed to exit edit mode!!')
+
+    console.log('callExitEditModeForSelected now ', currentMode );
+
+
+}
+
+/*
+
+function getUnionBounds()
+{
+
+    if( selected.length == 0 )
+        return;
+
+    const bounds = cloneObj(selected[0].getBoundingClientRect());
+
+    let l = bounds.left;
+    let r = bounds.right;
+    let t = bounds.top;
+    let b = bounds.bottom;
+
+    for( let i = 1; i < selected.length; i++)
+    {
+            const addBox = selected[i].getBoundingClientRect();
+
+            if( l > addBox.left ){
+                l = addBox.left;
+            }
+            
+            if( r < addBox.right ){
+                r = addBox.right;
+            }
+
+            if( t > addBox.top ){
+                t = addBox.top;
+            }
+            
+            if( b < addBox.bottom ){
+                b = addBox.bottom;
+            }
+
+           // console.log('bounds', bounds);
+    }
+
+
+    function HandleRect(x,y, idx) {
+        const r = 5;
+        const d = r * 2;
+        return {
+            new: "rect",
+            parent: "symbolist_overlay",
+            class: "transform-handle",
+            x: x - r,
+            y: y - r,
+            width: d,
+            height: d,
+            id: `transform-handle-${idx}`,
+            onclick: `console.log( "selected", this.id )`,
+            style: {
+                fill: "rgba(0, 0, 0, 0.05)"
+            }
+        }
+    }
+
+    function BoundsLine(x1,y1,x2,y2) {
+        const r = 2;
+        const d = r * 2;
+        return {
+            new: "line",
+            parent: "bounds-group",
+            class: "transform-line",
+            x1: x - r,
+            y: y - r,
+            width: d,
+            height: d,
+            id: `transform-handle-${idx}`,
+            onclick: `console.log( "selected", this.id )`,
+            style: {
+                fill: "rgba(0, 0, 0, 0.05)"
+            }
+        }
+    }
+    
+    
+
+    drawsocket.input({
+        key: 'svg',
+        val: {
+            new: "g",
+            id: "bounds-group",
+            parent: "symbolist_overlay",
+            children : [
+                HandleRect(l,t, 0),
+                HandleRect(l,b, 1),
+                HandleRect(r,t, 2),
+                HandleRect(r,b, 3),
+                {
+                    new: "rect",
+                    id: "bounds-rect",
+                    x: l,
+                    y: t,
+                    width: r-l,
+                    height: b-t,
+                    style: {
+                        "stroke-width" : 1,
+                        stroke: 'rgba(0,0,0, 0.5)',
+                        fill: "none",
+                        "stroke-dasharray" : 1,
+                        'pointer-events': "none" // "stroke"
+                    }
+                }
+            ]
+        }
+    });
+
+
+}
+*/
+
+
+
+/**
+ * Selection
+ */
+
+
+
+function addToSelection( element )
+{
+    if( element.id == 'dragRegion' )
+        return;
+
+   // console.log('addToSelection', element);
+
+    for( let i = 0; i < selected.length; i++)
+    {
+        if( selected[i] == element )
+            return;    
+    }
+
+    selected.push(element);
+
+    if( !element.classList.contains("symbolist_selected") )
+    {
+        element.classList.add("symbolist_selected");
+    }
+
+    // copy with selected tag to deal with comparison later
+    selectedCopy.push( element.cloneNode(true) );
+
+    callSymbolMethod(element, "selected", true);
+
+}
+
+function selectedObjectsChanged()
+{
+    for( let i = 0; i < selected.length; i++)
+    {
+        if( !selectedCopy[i].isEqualNode( selected[i] ) ){
+      //      console.log(selectedCopy[i], selected[i] );    
+            return true;
+        }   
+        
+    }
+
+    return false;
+}
+
+
+function selectAllInRegion(region, element)
+{
+
+    let contextContent = currentContext.querySelector('.contents');
+
+    for (let i = 0; i < contextContent.children.length; i++) 
+    {
+        if( recursiveHitTest(region, contextContent.children[i]) )
+            addToSelection( contextContent.children[i] );
+
+    }
+        
+}
+
+function deselectAll()
+{
+ 
+    document.querySelectorAll('.symbolist_selected').forEach( el => {
+        el.classList.remove("symbolist_selected");
+                
+        callSymbolMethod(el, "selected", false);
+        callSymbolMethod(el, "editMode", false);
+        
+    })
+
+    selected = [];
+    selectedCopy = [];
+
+    document.querySelectorAll('.infobox').forEach( ibox => {
+        ibox.remove();
+    })
+
+    drawsocket.input({
+        key: "clear",
+        val: "symbolist_overlay"
+    })
+
+}
+
+
+
+function applyTransformToSelected()
+{
+    for( let i = 0; i < selected.length; i++)
+    {
+        
+        if( !callSymbolMethod(selected[i], "applyTransformToData" ) )
+        {
+            let matrix = getComputedMatrix(selected[i]);
+            applyTransform(selected[i], matrix);
+        }
+        
+    }
+}
+
+
+function cancelTransform(element)
+{
+    element.removeAttribute('transform');   
+}
+
+
+
+function rotate_selected(mouse_pos)
+{
+    for( let i = 0; i < selected.length; i++)
+    {
+       
+       // if( !callTranslate(selected[i], delta_pos) )
+        {
+            rotate(selected[i], mouse_pos);
+        }
+    }
+}
+
+
+function copySelected()
+{
+
+    let newArray = [];
+    for( let i = 0; i < selected.length; i++)
+    {
+        newArray.push( copyObjectAndAddToParent(selected[i]) );
+    }
+
+    deselectAll();
+
+    for( let i = 0; i < newArray.length; i++)
+    {
+        addToSelection(newArray[i]);
+    }
+
+}
+
+
+function escapeModes()
+{
+    document.getSelection().removeAllRanges();
+    document.activeElement.blur();
+
+    if( selected.length == 0 )
+        setDefaultContext();
+    else
+    {
+        if( currentMode == "edit" )
+            callExitEditModeForSelected();
+        else {
+            deselectAll();
+        }
+        console.log('currentMode', currentMode, 'currentContext', currentContext );
+    }
+        
 }
