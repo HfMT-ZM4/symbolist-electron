@@ -80,7 +80,9 @@ body {
     outline: none;
 }
 
-
+.TextSymbol .symbolist_selected {
+    border-color: blue;
+  }
 
 .TextSymbol textarea:disabled {
     background-color: transparent;

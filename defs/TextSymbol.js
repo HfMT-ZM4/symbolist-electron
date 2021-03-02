@@ -40,6 +40,7 @@ class TextSymbol extends Template.SymbolBase
      */
     updateAfterContents( element ) {
         
+        console.log('updateAfterContents');
         const t = element.querySelector(`.display .textarea`);
         const bbox = ui_api.getBBoxAdjusted(t);
         let wrapper = element.querySelector(`.display .htmlWrapper`);

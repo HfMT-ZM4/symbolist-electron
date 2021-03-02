@@ -61,7 +61,17 @@ class FiveLineStaveEvent extends Template.SymbolBase
         this.class = "FiveLineStaveEvent";
         this.default_dist = 10;
         this.palette = ["PathSymbol"];
-        //this.default_duration = 0.1;
+
+        this.font = opentype.loadSync('css/fonts/Bravura.ttf');
+        console.log(this.font.glyphs.length);
+
+        this.bravuraUnicode = new Map();
+
+        for(let i = 0; i < this.font.glyphs.length; i++)
+        {
+            this.bravuraUnicode.set(this.font.glyphs.get(i).name, this.font.glyphs.get(i));
+        }
+
     }
 
 
@@ -125,6 +135,12 @@ class FiveLineStaveEvent extends Template.SymbolBase
                 class: "accidental",
                 x : params.x - 15,
                 y : params.y
+            })
+
+            obj.push({
+                new: "path",
+                id: `${params.id}-svg`,
+                d: this.bravuraUnicode.get('uniE2C2').getPath(0,0,23).getPathData()
             })
         }
         else

@@ -508,3 +508,6 @@ or alternatively things like the text object could be svg objects
 selection in context should probably only select top level objects?
 maybe single click should select full object and double click enters that group
 and selects the subcomponent?
+
+>> move all GUI related code from ui_controller to SymbolistSymbol
+>> then the ui_controller can also be used for maxscore

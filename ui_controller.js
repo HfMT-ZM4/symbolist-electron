@@ -346,7 +346,7 @@ function svgPreviewFromViewAndData(view, dataObj, relativeTo = null)
     let drawing = svgFromViewAndData(view, 
         {
             ...dataObj,
-            class: 'sprite',
+            class: `${dataObj.class} sprite`,
             id: `${dataObj.class}-sprite`,
             container: 'symbolist_overlay'
         }, true /* overwrite*/ );
