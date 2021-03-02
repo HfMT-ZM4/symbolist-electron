@@ -349,9 +349,15 @@ function svgPreviewFromViewAndData(view, dataObj, relativeTo = null)
             class: `${dataObj.class} sprite`,
             id: `${dataObj.class}-sprite`,
             container: 'symbolist_overlay'
-        }, true /* overwrite*/ );
+        }, 
+        true /* overwrite*/ 
+    );
     
-
+    if( relativeTo )
+    {
+        relativeTo = `#${dataObj.class}-sprite ${relativeTo}`;
+    }
+        
     let text_drawing = getDataTextView({
         ...dataObj,
         id: `${dataObj.class}-sprite`
@@ -1335,6 +1341,7 @@ function getBBoxAdjusted(element)
         width: bbox.width,
         height: bbox.height
     }
+    
 }
 
 

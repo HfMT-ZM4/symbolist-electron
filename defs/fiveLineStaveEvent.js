@@ -137,11 +137,6 @@ class FiveLineStaveEvent extends Template.SymbolBase
                 y : params.y
             })
 
-            obj.push({
-                new: "path",
-                id: `${params.id}-svg`,
-                d: this.bravuraUnicode.get('uniE2C2').getPath(0,0,23).getPathData()
-            })
         }
         else
         {
@@ -250,6 +245,33 @@ class FiveLineStaveEvent extends Template.SymbolBase
 
         
     }
+
+    
+    /**
+     * API function called from controller to draw new data objects
+     * also used internally
+     * 
+     * @param {Object} dataObj 
+     * @param {Element} container 
+     * @param {Boolean} preview -- optional flag to draw as sprite overlay and draw data text
+     * 
+     */
+    fromData(dataObj, container, preview = false)
+    {
+        // merging with defaults in case the user forgot to include something
+        const data_union = {
+            ...this.structs.data,
+            ...dataObj
+        };
+        
+        const viewParams = this.dataToViewParams(data_union, container);
+        const viewObj = this.display(viewParams);        
+        const drawObj = (preview ? 
+            ui_api.svgPreviewFromViewAndData(viewObj, data_union, `.notehead`) : 
+            ui_api.svgFromViewAndData(viewObj, data_union) );
+        ui_api.drawsocketInput( drawObj );
+    }
+
 
 
      /**
