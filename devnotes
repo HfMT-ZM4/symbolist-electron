@@ -511,3 +511,7 @@ and selects the subcomponent?
 
 >> move all GUI related code from ui_controller to SymbolistSymbol
 >> then the ui_controller can also be used for maxscore
+    parts:
+        1. communication to main (ipc)
+        2. parser, iterator
+        3. UI

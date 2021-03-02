@@ -5,7 +5,6 @@
  * symbolist renderer view module -- exported functions are at the the bottom
  */
 
-const { ipcRenderer } = require('electron')
 const { defaultInfoDisplay } = require('./lib/default-infopanel')
 
 const { insertSorted, insertSortedHTML, insertIndex } = require('./lib/sorted-array-utils')
@@ -110,17 +109,6 @@ let renderer_api = {
 }
 
 // API
-
-/**
- * 
- * @param {SVG/HTML Element} element 
- * 
- * returns ui def for class, which must be first in the class list
- */
-function getDefForElement(element)
-{
-    return uiDefs.get(element.classList[0]);;
-}
 
 
 // storage for internal Handle callbacks
@@ -481,95 +469,6 @@ function getSelected()
 }
 
 
-/**
- * 
- * @param {Object} obj data object received from IO, to be added to the view
- * 
- */
-function dataToView(obj)
-{
-
-    const def = uiDefs.get(obj.class);
-    
-    let container ;
-    // get the container reference 
-    if( obj.hasOwnProperty('container') )
-    {
-        const container_def = uiDefs.get( document.getElementById(obj.container).classList[0] );
-        container = container_def.getContainerForData( obj );
-    }
-    else 
-    {
-        container = getCurrentContext();
-        obj.container = container.id;
-    }
-
-
-    def.fromData(obj, container);
-
-}
-
-
-function loadUIDefs(folder)
-{
-    const path = folder.path;
-
-    folder.files.forEach( f => {
-        
-        if( f.type != 'folder' )
-        {
-            const filepath = `${path}/${f.name}`;
-
-            const exists = require.resolve(filepath); 
-            if( exists )
-                delete require.cache[ exists ];
-                 
-            if( f.type == 'js')
-            {
-                // load controller def
-                let { ui_def } = require(filepath);
-    
-                // initialize def with api
-    
-                // api now global
-                let cntrlDef_ = new ui_def();
-            
-                // set into def map
-                uiDefs.set(cntrlDef_.class, cntrlDef_);
-                console.log('added ', cntrlDef_.class);
-            }
-            else if( f.type == "css" )
-            {
-                let head = document.getElementsByTagName("head");
-                if( !document.querySelector(`link[href="${filepath}"]`) )
-                {
-                    var cssFileRef = document.createElement("link");
-                    cssFileRef.rel = "stylesheet";
-                    cssFileRef.type = "text/css";
-                    cssFileRef.href = filepath;
-                    head[0].appendChild(cssFileRef);
-                }
-                
-            }
-            else if( f.name == 'init.json' ) //if(f.type == 'json')
-            {
-                console.log('loading init');
-                // there can be only one json file in the folder
-                initDef = require(filepath);
-            }
-        }        
-        
-   
-    })
-    
-  //   initDocument();
- 
-     initPalette();
- 
-     sendToServer({
-         key: 'data-refresh'
-     })
-}
 
 
 /**
@@ -602,206 +501,6 @@ function hasParam(obj, attr, failQuietly = false)
 }
 
 
-
-/**
- * 
- * @param {Object} data object with perceptual parameters
- * @param {Element} context_element HTML/SVG element container, 
- * 
- * iterates each layer of container first, then calls updateAfterContents
- * then iterates the contents of each container
- * 
- */
-function iterateScore(contents, context_element = null)
-{
-   // console.log('iterateScore', contents, context_element);
-
-    if( !context_element ){
-        context_element = getCurrentContext();
-    }
-
-    const contents_arr = Array.isArray(contents) ? contents : [ contents ];
-
-    contents_arr.forEach( data => {
-    //    console.log('iterateScore', data);
-        
-        if( !hasParam(data, 'container' ) )
-            data.container = context_element.id;
-    
-        context_element = document.getElementById(data.container);
-
-        if( !context_element )
-        {
-            console.error('no context element', data.container );
-        }
-
-        if( uiDefs.has(data.class) )
-        {
-            const def_ = uiDefs.get(data.class);
-            
-            if( hasParam(def_, "fromData") )
-            {
-                def_.fromData( data, context_element );
-            }
-        }
-        else
-        {
-            console.error("no ui def found for class:", data.class);
-        }
-        
-    })
-
-    if( context_element ) // seems like there will alwasy be a context element so maybe this is not required
-    {
-        console.log(context_element.classList[0]);
-        const container_class_def = uiDefs.get( context_element.classList[0] );
-        if( container_class_def && hasParam(container_class_def, 'updateAfterContents') )
-        {
-            container_class_def.updateAfterContents(context_element);
-        }
-    }
-
-    // why not do depth first?
-    // maybe so that the absolute values are correct for the parents before
-    // drawing the children
-
-    contents_arr.forEach( data => {
-        const newEl = document.getElementById(data.id);
-        if( newEl && data.hasOwnProperty('contents') )
-        {
-         //   console.log('drawing children');
-            iterateScore(data.contents, newEl )
-        }
-    })
-   
-}
-
-function initPalette()
-{
-    if( hasParam( initDef, 'palette') )
-    {
-        let drawMsgs = [];
-        initDef.palette.forEach( el => {
-            if( el.length > 0 )
-            {
-                let def_ = uiDefs.get(el);
-
-                const def_classname = def_.class;
-                let def_palette_display = def_.getPaletteIcon();
-    
-                if( def_palette_display.key == "svg" )
-                {
-                    def_palette_display = {
-                        new: "svg",
-                        class: "palette-svg",
-                        id: `${def_classname}-icon`,
-                        children: def_palette_display.val
-                    }
-                }
-    
-                drawMsgs.push({
-                    key: "html",
-                    val: {
-                        new: "div",
-                        class: `${def_classname} palette-icon`,
-                        id: `${def_classname}-paletteIcon`,
-                        parent: "palette-clefs",
-                        onclick: () => {
-                                console.log(`select ${def_classname}`); 
-                                symbolist_setContainerClass(def_classname);
-                        },
-                        children: def_palette_display
-                    }
-                })
-            }
-            
-        })
-
-        drawsocket.input([{
-                key: "clear",
-                val: "palette-symbols"
-            }, ...drawMsgs
-        ]) 
-    }
-
-    // in controller there is a defautlContext class, probably we should do the same
-    console.log('initFile', initDef);
-}
-
-
-/**
- * 
- * @param {Array} class_array array of class names
- */
-function makeSymbolPalette(class_array)
-{
-    let draw_msg = [];
-    class_array.forEach( classname => {
-        if( uiDefs.has(classname) )
-        {
-            const symDef = uiDefs.get(classname);
-
-            let def_palette_display = symDef.getPaletteIcon();
-
-            if( def_palette_display.key == "svg" )
-            {
-                def_palette_display = {
-                    new: "svg",
-                    class: "palette-svg",
-                    id: `${classname}-icon`,
-                    children: def_palette_display.val
-                }
-            }
-        
-            draw_msg.push({
-                key: "html",    
-                val: {
-                    new: "div",
-                    class: `${classname} palette-icon`,
-                    id: `${classname}-paletteIcon`,
-                    parent: "palette-symbols",
-                    onclick: () => {
-                            console.log(`select ${classname}`); 
-                            symbolist_setClass(`${classname}`);
-                    },
-                    children: def_palette_display
-                }
-            })
-        
-        }
-    })
-
-    if( draw_msg.length > 0 )
-    {
-        drawsocket.input([
-            {
-                key: "clear",
-                val: "palette-symbols"
-            }, 
-            ...draw_msg
-        ]) 
-    }
-}
-
-
-function makeDefaultInfoDisplay(viewObj)
-{
-    const bbox = getBBoxAdjusted(viewObj);
-    //const bbox = viewObj.getBoundingClientRect();
-    return defaultInfoDisplay(viewObj, bbox);
-}
-
-
-
-
-/**
- * 
- * @param {Object} obj input to drawsocket
- */
-function drawsocketInput(obj){
-    drawsocket.input(obj)
-}
-
 function symbolist_newScore()
 {
     console.log('newScore');
@@ -812,103 +511,6 @@ function symbolist_newScore()
         key: "clear",
         val: ["palette-symbols", "top-svg-contents", "top-html-contents", "symbolist_overlay", "floating-forms", "floating-overlay"]
     })
-}
-
-/**
- * handler for special commands from menu that require info about state of view/selection
- */
-ipcRenderer.on('menu-call', (event, ...args) => {
-    console.log(`menu call received ${args}`);
-
-    let arg = args[0];
-    switch(arg) {
-        case 'deleteSelected':
-            removeSelected();
-            break;
-        case 'zoomIn':
-            symbolist_zoom(default_zoom_step);
-            break;
-        case 'zoomOut':
-            symbolist_zoom(-default_zoom_step);
-            break;
-        case 'zoomReset':
-            symbolist_zoomReset()
-            break;
-        case 'newScore':
-            symbolist_newScore();
-            break;
-        case 'load-ui-defs':
-            loadUIDefs(args[1]);
-            break;
-
-    }
-})
-
-/**
- * routes message from the io controller
- */
-ipcRenderer.on('io-message', (event, obj) => {
-    switch(obj.key){
-        case 'data':
-            iterateScore(obj.val);
-            break;
-        case 'model':
-           // parseDataModelFromServer(obj.val);
-            break;
-        case 'score':
-            console.log('score');
-            symbolist_newScore();
-            iterateScore(obj.val);
-            break;
-        case 'call':
-            callFromIO(obj.val);
-            break;
-        case 'drawsocket':
-            drawsocketInput(obj.val)
-            break;
-        default:
-            break;
-    }
-})
-
-ipcRenderer.on('load-ui-defs', (event, folder) => {
-//    console.log('called from main.js?');
-    loadUIDefs(folder);
-})
-
-ipcRenderer.on('set-dirname', (event, args) => {
-    window.__symbolist_dirname = args;
-});
-
-
-function io_out(msg)
-{
-    sendToServer({
-        key: 'io_out',
-        val: {
-            'return/ui' : msg
-        }
-    })
-}
-
-function callFromIO(params)
-{
-    if( typeof params.class != "undefined" && typeof params.method != "undefined" )
-    {
-
-        if( uiDefs.has(params.class)  )
-        {  
-            const _def = uiDefs.get(params.class);
-            if( typeof _def[params.method] != 'undefined')
-            {
-                const ret = _def[params.method](params);
-                if( ret )
-                {
-                    io_out(_def[params.method](params));
-                }
-            }
-        }
-    }
 }
 
 
@@ -934,109 +536,11 @@ function symbolist_setContainerClass(_class)
 }
 
 
-/**
- * 
- * @param {string} _class sets current selected palette class
- * 
- * called on click from the palette icon
- * 
- */
-function symbolist_setClass(_class)
-{
-//    console.log("symbolist_setClass", _class);
-    symbolist_set_log(`selected symbol ${_class}`)
-
-    document.querySelectorAll(".palette .selected").forEach( el => {
-        el.classList.remove("selected");
-    });
-
-    let paletteItem = document.getElementById(`${_class}-paletteIcon`);
-    paletteItem.classList.add("selected");  
-
-    if( uiDefs.has(selectedClass) && hasParam( uiDefs.get(selectedClass), 'paletteSelected') )
-    {
-        uiDefs.get(selectedClass).paletteSelected(false);
-    }
-
-    currentPaletteClass = _class;
-    selectedClass = _class;
-
-    if( uiDefs.has(selectedClass) && hasParam( uiDefs.get(selectedClass), 'paletteSelected') )
-    {
-        uiDefs.get(selectedClass).paletteSelected(true);
-    }
-
-    ipcRenderer.send('symbolist_event',  {
-        key: "symbolistEvent",  
-        val: {
-            symbolistAction: 'setPaletteClass',
-            class: currentPaletteClass
-        }
-    }); 
-
-}
-
-/**
- * -->> change this to element..
- * @param {Object} obj set context from symbolist controller
- */
-function symbolist_setContext(obj)
-{
-    deselectAll();
-
-    document.querySelectorAll(".palette .selected").forEach( el => {
-
-        if( uiDefs.has( el.classList[0] ) )
-        {
-            uiDefs.get( el.classList[0] ).paletteSelected(false);
-        }
-    
-    //    callSymbolMethod(el, "paletteSelected", false);
-    });
-
-    // not sure that it's possible to have more than one context...
-    // maybe?
-    document.querySelectorAll(".current_context").forEach( el => {
-        el.classList.remove("current_context");
-    });
-
-    if( uiDefs.has(obj.classList[0]) )
-    {
-        let def_ = uiDefs.get(obj.classList[0]);
-
-        if( def_.palette )
-        {
-            makeSymbolPalette(def_.palette);
-        }
-
-        // make enter context mode also?
-        //def_.enter(obj);
-    }
-
-    if( obj != topContainer )
-        obj.classList.add("current_context");
-
-
-    callSymbolMethod(currentContext, "currentContext", false);
-
-    currentContext = obj;
-    callSymbolMethod(currentContext, "currentContext", true);
-
-    symbolist_set_log(`set context to ${currentContext.id}`)
-
-
-}
 
 function setDefaultContext()
 {
     symbolist_setContext(topContainer);
 }
-
-function symbolist_send(obj)
-{
-    ipcRenderer.send('symbolist_event', obj);
-}
-
 
  /**
   * internal methods
@@ -2152,34 +1656,6 @@ function symbolsit_dblclick(event)
 
 /**
  * 
- * @param {Element} element HTML/SVG symbol element to call method on
- * @param {String} methodName name of method (e.g. editMode, selected.. )
- * @param {Object} args arguments to pass to method, could be anything, but probably an object
- * 
- * returns true if there is a method name defined in the def, false if not
- * 
- * if false, there is a possibility of using the default handlers for translate, etc.
- * but I think we're going to remove most of the default handlers
- */
-function callSymbolMethod( element, methodName, args )
-{
-    if( uiDefs.has( element.classList[0] ) )
-    {
-        const def_ = uiDefs.get( element.classList[0] );
-
-        if( hasParam(def_, methodName) )
-        {
-            const ret = def_[methodName](element, args);
-            return (typeof ret === "undefined" ? false : ret );
-        }        
-    }
-
-    return false;
-
-}
-
-/**
- * 
  * @param {String} methodName method name
  * @param {*} args args (optional)
  * 
@@ -2303,13 +1779,14 @@ function symbolist_mousedown(event)
     {
         event.symbolistAction = "newFromClick_down";
 
+        /*
         if( uiDefs.has(currentPaletteClass) )
         {
             const def_ = uiDefs.get(currentPaletteClass);
             if( def_.hasOwnProperty('newFromClick') )
                 def_.newFromClick(event);
         }
-
+        */
 
         clickedObj = null;
         selectedClass = currentPaletteClass; // later, get from palette selection
@@ -2692,18 +2169,6 @@ startDefaultEventHandlers();
 
 
 
-function getContextConstraintsForPoint(pt)
-{
-    if( uiDefs.has( currentContext.classList[0]) )
-    {
-        return uiDefs.get( currentContext.classList[0] ).getConstraintsForPoint( currentContext, pt );
-    }
-    else
-    {
-        return pt;
-    }
-}
-
 /**
  * returns Element Node of currently selected context
  */
@@ -2711,6 +2176,131 @@ function getCurrentContext(){
     //console.log('currentContext', currentContext);
     return currentContext;
 }
+
+
+
+module.exports = { 
+    drawsocketInput,
+    sendToServer, // renderer-event
+    fairlyUniqueString,
+
+   // send: symbolist_send,
+
+    setClass: symbolist_setClass, 
+    setContext: symbolist_setContext,
+
+    getCurrentContext,
+    
+    elementToJSON,
+    
+    translate,
+    applyTransform,
+    makeRelative,
+    startDefaultEventHandlers,
+    stopDefaultEventHandlers,
+  //  getContextConstraintsForPoint,
+
+    callSymbolMethod,
+
+    ui_api: renderer_api
+
+
+ }
+
+
+
+
+ /**
+  * Communication
+  */
+
+ const { ipcRenderer } = require('electron')
+
+/**
+ * handler for special commands from menu that require info about state of view/selection
+ */
+ipcRenderer.on('menu-call', (event, ...args) => {
+    console.log(`menu call received ${args}`);
+
+    let arg = args[0];
+    switch(arg) {
+        case 'deleteSelected':
+            removeSelected();
+            break;
+        case 'zoomIn':
+            symbolist_zoom(default_zoom_step);
+            break;
+        case 'zoomOut':
+            symbolist_zoom(-default_zoom_step);
+            break;
+        case 'zoomReset':
+            symbolist_zoomReset()
+            break;
+        case 'newScore':
+            symbolist_newScore();
+            break;
+        case 'load-ui-defs':
+            loadUIDefs(args[1]);
+            break;
+
+    }
+})
+
+/**
+ * routes message from the io controller
+ */
+ipcRenderer.on('io-message', (event, obj) => {
+    switch(obj.key){
+        case 'data':
+            iterateScore(obj.val);
+            break;
+        case 'model':
+           // parseDataModelFromServer(obj.val);
+            break;
+        case 'score':
+            console.log('score');
+            symbolist_newScore();
+            iterateScore(obj.val);
+            break;
+        case 'call':
+            callFromIO(obj.val);
+            break;
+        case 'drawsocket':
+            drawsocketInput(obj.val)
+            break;
+        default:
+            break;
+    }
+})
+
+ipcRenderer.on('load-ui-defs', (event, folder) => {
+//    console.log('called from main.js?');
+    loadUIDefs(folder);
+})
+
+ipcRenderer.on('set-dirname', (event, args) => {
+    window.__symbolist_dirname = args;
+});
+
+
+function io_out(msg)
+{
+    sendToServer({
+        key: 'io_out',
+        val: {
+            'return/ui' : msg
+        }
+    })
+}
+
+
+
+
+function symbolist_send(obj)
+{
+    ipcRenderer.send('symbolist_event', obj);
+}
+
 
 /**
  * 
@@ -2721,6 +2311,7 @@ function sendToServer(obj)
     ipcRenderer.send('renderer-event', obj);
 
 }
+
 
 /*
 // not used now but could be useful if we want to deal with the lookup system from the gui
@@ -2744,30 +2335,429 @@ function asyncQuery(id, query, calllbackFn)
 
 
 
-module.exports = { 
-    drawsocketInput,
-    sendToServer, // renderer-event
-    fairlyUniqueString,
+/**
+ * 
+ * @param {Object} obj input to drawsocket
+ */
+function drawsocketInput(obj){
+    drawsocket.input(obj)
+}
 
-    send: symbolist_send,
 
-    setClass: symbolist_setClass, 
-    setContext: symbolist_setContext,
 
-    getCurrentContext,
+/**
+ * Def Handling
+ */
+
+
+/**
+ * 
+ * @param {SVG/HTML Element} element 
+ * 
+ * returns ui def for class, which must be first in the class list
+ */
+function getDefForElement(element)
+{
+    return uiDefs.get(element.classList[0]);;
+}
+
+
+function loadUIDefs(folder)
+{
+    const path = folder.path;
+
+    folder.files.forEach( f => {
+        
+        if( f.type != 'folder' )
+        {
+            const filepath = `${path}/${f.name}`;
+
+            const exists = require.resolve(filepath); 
+            if( exists )
+                delete require.cache[ exists ];
+                 
+            if( f.type == 'js')
+            {
+                // load controller def
+                let { ui_def } = require(filepath);
     
-    elementToJSON,
+                // initialize def with api
     
-    translate,
-    applyTransform,
-    makeRelative,
-    startDefaultEventHandlers,
-    stopDefaultEventHandlers,
-    getContextConstraintsForPoint,
+                // api now global
+                let cntrlDef_ = new ui_def();
+            
+                // set into def map
+                uiDefs.set(cntrlDef_.class, cntrlDef_);
+                console.log('added ', cntrlDef_.class);
+            }
+            else if( f.type == "css" )
+            {
+                let head = document.getElementsByTagName("head");
+                if( !document.querySelector(`link[href="${filepath}"]`) )
+                {
+                    var cssFileRef = document.createElement("link");
+                    cssFileRef.rel = "stylesheet";
+                    cssFileRef.type = "text/css";
+                    cssFileRef.href = filepath;
+                    head[0].appendChild(cssFileRef);
+                }
+                
+            }
+            else if( f.name == 'init.json' ) //if(f.type == 'json')
+            {
+                console.log('loading init');
+                // there can be only one json file in the folder
+                initDef = require(filepath);
+            }
+        }        
+        
+   
+    })
+    
+  //   initDocument();
+ 
+     initPalette();
+ 
+     sendToServer({
+         key: 'data-refresh'
+     })
+}
 
-    callSymbolMethod,
-
-    ui_api: renderer_api
 
 
- }
+/**
+ * 
+ * @param {Object} data object with perceptual parameters
+ * @param {Element} context_element HTML/SVG element container, 
+ * 
+ * iterates each layer of container first, then calls updateAfterContents
+ * then iterates the contents of each container
+ * 
+ */
+function iterateScore(contents, context_element = null)
+{
+   // console.log('iterateScore', contents, context_element);
+
+    if( !context_element ){
+        context_element = getCurrentContext();
+    }
+
+    const contents_arr = Array.isArray(contents) ? contents : [ contents ];
+
+    contents_arr.forEach( data => {
+    //    console.log('iterateScore', data);
+        
+        if( !hasParam(data, 'container' ) )
+            data.container = context_element.id;
+    
+        context_element = document.getElementById(data.container);
+
+        if( !context_element )
+        {
+            console.error('no context element', data.container );
+        }
+
+        if( uiDefs.has(data.class) )
+        {
+            const def_ = uiDefs.get(data.class);
+            
+            if( hasParam(def_, "fromData") )
+            {
+                def_.fromData( data, context_element );
+            }
+        }
+        else
+        {
+            console.error("no ui def found for class:", data.class);
+        }
+        
+    })
+
+    if( context_element ) // seems like there will alwasy be a context element so maybe this is not required
+    {
+        console.log(context_element.classList[0]);
+        const container_class_def = uiDefs.get( context_element.classList[0] );
+        if( container_class_def && hasParam(container_class_def, 'updateAfterContents') )
+        {
+            container_class_def.updateAfterContents(context_element);
+        }
+    }
+
+    // why not do depth first?
+    // maybe so that the absolute values are correct for the parents before
+    // drawing the children
+
+    contents_arr.forEach( data => {
+        const newEl = document.getElementById(data.id);
+        if( newEl && data.hasOwnProperty('contents') )
+        {
+         //   console.log('drawing children');
+            iterateScore(data.contents, newEl )
+        }
+    })
+   
+}
+
+
+
+function initPalette()
+{
+    if( hasParam( initDef, 'palette') )
+    {
+        let drawMsgs = [];
+        initDef.palette.forEach( el => {
+            if( el.length > 0 )
+            {
+                let def_ = uiDefs.get(el);
+
+                const def_classname = def_.class;
+                let def_palette_display = def_.getPaletteIcon();
+    
+                if( def_palette_display.key == "svg" )
+                {
+                    def_palette_display = {
+                        new: "svg",
+                        class: "palette-svg",
+                        id: `${def_classname}-icon`,
+                        children: def_palette_display.val
+                    }
+                }
+    
+                drawMsgs.push({
+                    key: "html",
+                    val: {
+                        new: "div",
+                        class: `${def_classname} palette-icon`,
+                        id: `${def_classname}-paletteIcon`,
+                        parent: "palette-clefs",
+                        onclick: () => {
+                                console.log(`select ${def_classname}`); 
+                                symbolist_setContainerClass(def_classname);
+                        },
+                        children: def_palette_display
+                    }
+                })
+            }
+            
+        })
+
+        drawsocket.input([{
+                key: "clear",
+                val: "palette-symbols"
+            }, ...drawMsgs
+        ]) 
+    }
+
+    // in controller there is a defautlContext class, probably we should do the same
+    console.log('initFile', initDef);
+}
+
+
+/**
+ * 
+ * @param {Array} class_array array of class names
+ */
+function makeSymbolPalette(class_array)
+{
+    let draw_msg = [];
+    class_array.forEach( classname => {
+        if( uiDefs.has(classname) )
+        {
+            const symDef = uiDefs.get(classname);
+
+            let def_palette_display = symDef.getPaletteIcon();
+
+            if( def_palette_display.key == "svg" )
+            {
+                def_palette_display = {
+                    new: "svg",
+                    class: "palette-svg",
+                    id: `${classname}-icon`,
+                    children: def_palette_display.val
+                }
+            }
+        
+            draw_msg.push({
+                key: "html",    
+                val: {
+                    new: "div",
+                    class: `${classname} palette-icon`,
+                    id: `${classname}-paletteIcon`,
+                    parent: "palette-symbols",
+                    onclick: () => {
+                            console.log(`select ${classname}`); 
+                            symbolist_setClass(`${classname}`);
+                    },
+                    children: def_palette_display
+                }
+            })
+        
+        }
+    })
+
+    if( draw_msg.length > 0 )
+    {
+        drawsocket.input([
+            {
+                key: "clear",
+                val: "palette-symbols"
+            }, 
+            ...draw_msg
+        ]) 
+    }
+}
+
+
+function makeDefaultInfoDisplay(viewObj)
+{
+    const bbox = getBBoxAdjusted(viewObj);
+    //const bbox = viewObj.getBoundingClientRect();
+    return defaultInfoDisplay(viewObj, bbox);
+}
+
+
+
+function callFromIO(params)
+{
+    if( typeof params.class != "undefined" && typeof params.method != "undefined" )
+    {
+
+        if( uiDefs.has(params.class)  )
+        {  
+            const _def = uiDefs.get(params.class);
+            if( typeof _def[params.method] != 'undefined')
+            {
+                const ret = _def[params.method](params);
+                if( ret )
+                {
+                    io_out(_def[params.method](params));
+                }
+            }
+        }
+    }
+}
+
+
+
+/**
+ * 
+ * @param {string} _class sets current selected palette class
+ * 
+ * called on click from the palette icon
+ * 
+ */
+function symbolist_setClass(_class)
+{
+//    console.log("symbolist_setClass", _class);
+    symbolist_set_log(`selected symbol ${_class}`)
+
+    document.querySelectorAll(".palette .selected").forEach( el => {
+        el.classList.remove("selected");
+    });
+
+    let paletteItem = document.getElementById(`${_class}-paletteIcon`);
+    paletteItem.classList.add("selected");  
+
+    if( uiDefs.has(selectedClass) && hasParam( uiDefs.get(selectedClass), 'paletteSelected') )
+    {
+        uiDefs.get(selectedClass).paletteSelected(false);
+    }
+
+    currentPaletteClass = _class;
+    selectedClass = _class;
+
+    if( uiDefs.has(selectedClass) && hasParam( uiDefs.get(selectedClass), 'paletteSelected') )
+    {
+        uiDefs.get(selectedClass).paletteSelected(true);
+    }
+
+    ipcRenderer.send('symbolist_event',  {
+        key: "symbolistEvent",  
+        val: {
+            symbolistAction: 'setPaletteClass',
+            class: currentPaletteClass
+        }
+    }); 
+
+}
+
+/**
+ * -->> change this to element..
+ * @param {Object} obj set context from symbolist controller
+ */
+function symbolist_setContext(obj)
+{
+    deselectAll();
+
+    document.querySelectorAll(".palette .selected").forEach( el => {
+
+        if( uiDefs.has( el.classList[0] ) )
+        {
+            uiDefs.get( el.classList[0] ).paletteSelected(false);
+        }
+    
+    //    callSymbolMethod(el, "paletteSelected", false);
+    });
+
+    // not sure that it's possible to have more than one context...
+    // maybe?
+    document.querySelectorAll(".current_context").forEach( el => {
+        el.classList.remove("current_context");
+    });
+
+    if( uiDefs.has(obj.classList[0]) )
+    {
+        let def_ = uiDefs.get(obj.classList[0]);
+
+        if( def_.palette )
+        {
+            makeSymbolPalette(def_.palette);
+        }
+
+        // make enter context mode also?
+        //def_.enter(obj);
+    }
+
+    if( obj != topContainer )
+        obj.classList.add("current_context");
+
+
+    callSymbolMethod(currentContext, "currentContext", false);
+
+    currentContext = obj;
+    callSymbolMethod(currentContext, "currentContext", true);
+
+    symbolist_set_log(`set context to ${currentContext.id}`)
+
+
+}
+
+
+
+/**
+ * 
+ * @param {Element} element HTML/SVG symbol element to call method on
+ * @param {String} methodName name of method (e.g. editMode, selected.. )
+ * @param {Object} args arguments to pass to method, could be anything, but probably an object
+ * 
+ * returns true if there is a method name defined in the def, false if not
+ * 
+ * if false, there is a possibility of using the default handlers for translate, etc.
+ * but I think we're going to remove most of the default handlers
+ */
+function callSymbolMethod( element, methodName, args )
+{
+    if( uiDefs.has( element.classList[0] ) )
+    {
+        const def_ = uiDefs.get( element.classList[0] );
+
+        if( hasParam(def_, methodName) )
+        {
+            const ret = def_[methodName](element, args);
+            return (typeof ret === "undefined" ? false : ret );
+        }        
+    }
+
+    return false;
+
+}
