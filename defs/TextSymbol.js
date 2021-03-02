@@ -39,7 +39,6 @@ class TextSymbol extends Template.SymbolBase
      * 
      */
     updateAfterContents( element ) {
-        
         console.log('updateAfterContents');
         const t = element.querySelector(`.display .textarea`);
         const bbox = ui_api.getBBoxAdjusted(t);
@@ -50,7 +49,6 @@ class TextSymbol extends Template.SymbolBase
         wrapper.setAttributeNS(null, "height", (t.scrollHeight+2)+"px");
        // wrapper.setAttributeNS(null, "height", bbox.height+7);
         wrapper.setAttributeNS(null, "width", bbox.width+2);
-
     }
     
     display(params) {
@@ -88,7 +86,7 @@ class TextSymbol extends Template.SymbolBase
                     },
                     oninput: () => {
                         let t = document.getElementById(`${params.id}-textarea`);
-                        t.style.height = "";
+                        t.style.height = 0;
                         t.style.height = t.scrollHeight + "px";
 
                         let wrapper = document.getElementById(`${params.id}-htmlWrapper`);
