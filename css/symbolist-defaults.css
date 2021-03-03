@@ -1,12 +1,12 @@
-:root {
-  --main-bg-color:  rgb(50, 50, 50);
-  --main-line-color: rgb(200, 200, 200)
-}
+
 
 html, body{
   width:100%;
   height:100%;
   box-sizing: border-box;
+
+  --main-bg-color:  rgb(50, 50, 50);
+  --main-line-color: rgb(200, 200, 200)
 }
 
 body {
