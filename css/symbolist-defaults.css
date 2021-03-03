@@ -1,3 +1,8 @@
+:root {
+  --main-bg-color:  rgb(50, 50, 50);
+  --main-line-color: rgb(200, 200, 200)
+}
+
 html, body{
   width:100%;
   height:100%;
@@ -5,7 +10,7 @@ html, body{
 }
 
 body {
-  background-color: rgb(50, 50, 50);
+  background-color: var(--main-bg-color);
   user-select: none; /* standard syntax */
   -webkit-user-select: none; /* webkit (safari, chrome) browsers */
   -moz-user-select: none; /* mozilla browsers */
@@ -91,7 +96,7 @@ body {
 }
 
 .symbolist_log {
-  border-top : 1px solid rgb(200, 200, 200);
+  border-top : 1px solid var(--main-line-color);
   left: 62px;
   top: calc(100vh - 20px);
   width: calc(100vw - (62px * 2));
@@ -105,24 +110,56 @@ body {
   margin: 10px;
 }
 
+.scrollbar {
+  background-color: var(--main-bg-color);
+  position: fixed;
+
+}
+
+#x_scrollbar {
+  width: 100%;
+  height: 15px;
+  bottom: 0px;
+  left: 63px;
+  border-top : 1px solid var(--main-line-color);
+
+}
+
+#y_scrollbar {
+  width: 15px;
+  height: 100%;
+  position: fixed;
+  top: 0px;
+  right: 0px;
+  border-left : 1px solid var(--main-line-color);
+
+}
+
+.scrollbar_handle {
+  height: 15px;
+  width: 15px;
+  fill: var(--main-line-color);
+  position: absolute;
+}
+
 .palette {  
-  background-color: inherit;
+  background-color: rgba(0,0,0,0.2);
+
   color : white;
-  border-right : 1px solid rgb(200, 200, 200);
+  border-right : 1px solid var(--main-line-color);
  
   top: 0px;
   left: 0px;
   width: 62px;
   height: 100vh;
-
   
 }
 
 .palette div {
   position: relative;
 
-  border-bottom : 1px solid rgb(200, 200, 200);
-  border-top : 1px solid rgb(200, 200, 200);;
+  border-bottom : 1px solid var(--main-line-color);
+  border-top : 1px solid var(--main-line-color);;
 
   width: auto;
   height: auto;
@@ -141,7 +178,7 @@ body {
 .palette-clefs div {
   background-color: inherit;
 
-  border : 1px solid rgb(200, 200, 200);
+  border : 1px solid var(--main-line-color);
   position: relative;
  
   width: auto;
@@ -164,7 +201,7 @@ body {
 .palette-symbols div {
   background-color: inherit;
 
-  border : 1px solid rgb(200, 200, 200);
+  border : 1px solid var(--main-line-color);
   position: relative;
  
   width: auto;

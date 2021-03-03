@@ -61,11 +61,30 @@
         <div id="palette-clefs" class="palette-clefs"></div>
         <div id="palette-symbols" class="palette-symbols"></div>
       </div>
+
+      <div id="scrollbars">
+        <div class="scrollbar" id="x_scrollbar">
+          <svg class="scrollbar_handle symbol" id="x_location">
+            <circle r="50%" cx="50%" cy="50%" />
+          </svg> 
+        </div>
+        <div class="scrollbar" id="y_scrollbar">
+          <svg class="scrollbar_handle symbol" id="y_location" >
+            <circle r="50%" cx="50%" cy="50%" />
+          </svg>         
+        </div>
+      </div>
+      
       <!--
+        <svg>
+        <use href="#svg" trasform="scale(0.5)"></use>
+      </svg>
+
       <div id="symbolist_log" class="symbolist_log"><span>new symbolist</span></div>
       -->
     </div>
- 
+    <script src="./lib/ui_scrollbars.js"></script>
+
     <script src="./lib/symbolist-global-modules.js"></script>
  
   </body>
