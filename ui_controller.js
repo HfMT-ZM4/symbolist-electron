@@ -1350,7 +1350,7 @@ function drawsocketInput(obj){
 
 
 /**
- * Def Handling
+ * Main Def Handling
  */
 
 
