@@ -117,21 +117,23 @@ body {
 }
 
 #x_scrollbar {
-  width: 100%;
+  width: calc(100% - 15px - 63px - 1px);
   height: 15px;
   bottom: 0px;
   left: 63px;
   border-top : 1px solid var(--main-line-color);
+  border-right : 1px solid var(--main-line-color);
 
 }
 
 #y_scrollbar {
   width: 15px;
-  height: 100%;
+  height: calc(100% - 15px - 1px);
   position: fixed;
   top: 0px;
   right: 0px;
   border-left : 1px solid var(--main-line-color);
+  border-bottom : 1px solid var(--main-line-color);
 
 }
 
