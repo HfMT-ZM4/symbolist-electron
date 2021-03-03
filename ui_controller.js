@@ -643,6 +643,35 @@ function symbolist_wheel(event)
     }
 }
 
+/**
+ * 
+ * @param {Point} norm_pos normalized xy position 0-1
+ * 
+ */
+function setScrollOffset(norm_pos)
+{
+
+    const bbox = svgObj.getBBox();
+
+    if( typeof norm_pos.x != "undefined" )
+        scrollOffset.x = -norm_pos.x * bbox.width;
+    
+    if( typeof norm_pos.y != "undefined" )
+        scrollOffset.y = -norm_pos.y * bbox.height;
+
+    if (!ticking) {
+        window.requestAnimationFrame( function() {
+  
+          gsap.set( mainSVG,  scrollOffset );
+          gsap.set( mainHTML, scrollOffset );
+          gsap.set( floatingForms, scrollOffset );
+  
+          ticking = false;
+        });
+    
+        ticking = true;
+      }
+}
 
 
 function addSymbolistMouseHandlers(element)
@@ -2309,7 +2338,8 @@ module.exports = {
 
     callSymbolMethod,
 
-    ui_api: renderer_api
+    ui_api: renderer_api,
 
+    setScrollOffset
 
  }
