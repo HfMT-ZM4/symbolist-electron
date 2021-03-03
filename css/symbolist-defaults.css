@@ -144,6 +144,26 @@ body {
   position: absolute;
 }
 
+#reset_view {
+  position: fixed;
+  right: 0px;
+  bottom: 0px;
+  height: 15px;
+  width: 15px;
+  background-color: var(--main-bg-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--main-line-color);
+  font-size: 16px;
+}
+
+#reset_icon {
+  height: 70%;
+  width: 70%;
+  
+}
+
 .palette {  
   background-color: rgba(0,0,0,0.2);
 
