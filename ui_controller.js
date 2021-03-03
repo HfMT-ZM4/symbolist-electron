@@ -11,43 +11,18 @@ const { insertSorted, insertSortedHTML, insertIndex } = require('./lib/sorted-ar
 
 const { ntom, mton, ftom, mtof, ratio2float, parseRatioStr, reduceRatio, getRatioPrimeCoefs } = require('./lib/ntom-mton')
 
+const {
+    fairlyUniqueString,
+    isNumeric,
+    hasParam,
+    filterByKeys,
+    cloneObj
+} = require("./lib/ui_utils");
 
-/**
- * globals
- */
+
 const svgObj = document.getElementById("svg");
 const mainSVG = document.getElementById("main-svg");
-const mainHTML = document.getElementById("main-html");
-const topContainer = document.getElementById('top-svg');
-const mainDiv = document.getElementById("main-div");
-const floatingForms = document.getElementById('floating-forms');
 
-const overlay = document.getElementById('symbolist_overlay');
-
-let symbolist_log = document.getElementById("symbolist_log");;
-
-let clickedObj = null;
-let clickedObjBoundsPreTransform = null;
-let prevEventTarget = null;
-let selected = [];
-let selectedCopy = [];
-
-let mousedown_pos = svgObj.createSVGPoint();
-let mousedown_page_pos = svgObj.createSVGPoint();
-let mouse_pos = svgObj.createSVGPoint();
-let mouse_page_pos = svgObj.createSVGPoint();
-
-let scrollOffset = {x: 0, y: 0};
-let m_scale = 1;
-let default_zoom_step = 0.1;
-
-let currentContext = topContainer;
-let currentPaletteClass =  "";
-
-let selectedClass = currentPaletteClass;
-let initDef;
-
-let currentMode = "palette";
 
 
 /**
@@ -57,107 +32,10 @@ let currentMode = "palette";
  *  */ 
 let uiDefs = new Map();
 
-let renderer_api = {
-    uiDefs, // access to the defs in the defs
-
-    getDefForElement, // helper function to get def for DOM element
-    getContainerForElement, // look upwards in the elemement heirarchy to find the container
-
-    svgFromViewAndData,
-    htmlFromViewAndData,
-    svgPreviewFromViewAndData,
-    getDataTextView,
-    removeSprites,
-
-    drawsocketInput,
-    sendToServer, // renderer-event
-    fairlyUniqueString,
-    getCurrentContext,
-    getSelected,
-    dataToHTML,
-    getElementData,
-
-    filterByKeys,
-
-    makeDefaultInfoDisplay,
-    translate,
-    applyTransform,
-
-    getSVGCoordsFromEvent,
-    getBBoxAdjusted,
-
-
-    svgObj,
-    scrollOffset,
-
-    
-    insertSorted, 
-    insertSortedHTML,
-    insertIndex,
-
-    ntom,
-    mton,
-    ftom, 
-    mtof,
-    ratio2float,
-    reduceRatio,
-    getRatioPrimeCoefs,
-    parseRatioStr,
-
-    hasParam,
-    createHandle
-}
-
 // API
 
-/**
- * 
- * @param {Object} obj object to filter
- * @param {Array} key_arr array of keys to use to filter
- */
-function filterByKeys(obj, key_arr)
-{
-    let ret = {};
-    key_arr.forEach( k => {
-        if( typeof obj[k] !== "undefined" )
-        {
-            ret[k] = obj[k];
-        }
-    })
-    return ret;
-}
 
 
-
-
-/**
- * 
- * @param {Object} obj object to check
- * @param {String/Array} attr attribute key or array of keys to look for
- * @param {Boolean} failQuietly if set to true no error will be thrown on fail
- * 
- */
-function hasParam(obj, attr, failQuietly = false)
-{
-    if( !Array.isArray(attr) )
-    {
-        return (typeof obj[attr] !== "undefined");
-    }
-    else
-    {
-        for( let i = 0; i < attr.length; i++ )
-        {
-            if( typeof obj[attr[i]] === "undefined" )
-            {
-                if (!failQuietly)
-                    throw new Error(`object missing attribute ${attr[i]}, ${JSON.stringify(obj, null, 2)}`);
-                else
-                    return false;
-            }
-        }
-        return true;
-    }
-}
 
 // try : getIntersectionList()
 function hitTest(regionRect, obj)
@@ -555,22 +433,6 @@ function copyObjectAndAddToParent(obj)
     return obj.parentElement.appendChild(new_node);
 }
 
-function isNumeric(value) {
-    return !isNaN(value - parseFloat(value));
-}
-
-const { v4 } = require('uuid');
-
-function fairlyUniqueString() {
-    return v4();//(performance.now().toString(36)+Math.random().toString(36)).replace(/\./g,"");
-}
-/*
-function uid() {
-    let a = new Uint32Array(3);
-    window.crypto.getRandomValues(a);
-    return (performance.now().toString(36)+Array.from(a).map(A => A.toString(36)).join("")).replace(/\./g,"");
-};
-*/
 
 function makeUniqueID(obj)
 {
@@ -621,112 +483,8 @@ function getTopLevel(elm)
    */
 }
 
-// maybe use arrays instead?
-function formatClassArray(classlist)
-{
-    let classArr = classlist.split(" ");
-    if( Array.isArray(classArr) )
-        return classArr;
-    else
-        return [ classArr ];
 
-    /*
 
-    let classArr = attr.value.includes(" ") ? attr.value.split(" ") : attr.value;
-    
-    if( Array.isArray(classArr) )
-    {
-        let newClassList = [];
-        for( let ii = 0 ; ii < classArr.length; ii++)
-        {
-            newClassList.push(classArr[ii]);
-        }
-
-        return newClassList;
-    }
-    
-    return classArr;
-    */
-}
-
-function parseStyleString(styleStr)
-{
-    let chunks = styleStr.split(';').map( tok => tok.trim() );
-    chunks = Array.isArray(chunks) ? chunks : [chunks];
-
-    let rules = {};
-    chunks.forEach( ruleStr => {
-        if( ruleStr != "" )
-        {
-            let keyval = ruleStr.split(':').map( tok => tok.trim() );
-
-            let val = keyval[1];
-            rules[keyval[0]] = isNumeric(val) ? Number(val) : val;
-        }
-    });
-    //console.log('parseStyleString',chunks, '//', rules);
-    return rules;
-}
-
-function elementToJSON(elm)
-{
-    if( typeof elm === 'undefined' || elm == document )
-        return null;
-
-    if( typeof elm.attributes === 'undefined' )
-    {
-        if( typeof elm == 'object' )
-            return cloneObj(elm); // not sure if this is the right thing yet
-        else {
-            console.log('->',elm);
-            return null;
-        }
-    }
-        
-        
-    let obj = {};
-    obj.type = elm.tagName;
-    for( let i = 0, l = elm.attributes.length; i < l; ++i)
-    {
-        const attr = elm.attributes[i];
-        if( attr.specified )
-        {
-            if( obj.type === 'path' && attr.name === 'd' && attr.value.length > 0 ){    
-                //console.log(attr);            
-                obj.points = SVGPoints.toPoints({ type: "path", d: attr.value });
-            }
-
-            if( attr.name == 'style' )
-            {
-                obj.style = parseStyleString(attr.value);
-            }
-            else if( attr.name === "class" )
-            {
-                obj.class = formatClassArray(attr.value); // removedSymbolistSelected(attr.value);
-            }
-            else
-                obj[attr.name] = (isNumeric(attr.value) ? Number(attr.value) : attr.value);
-        }
-    }
-
-    if( elm != topContainer )
-    {
-        let children = [];
-        if( elm.hasChildNodes() ){
-            const nodes = elm.childNodes;
-            for(let i = 0, l = nodes.length; i < l; ++i){
-                children.push(  elementToJSON(nodes[i]) ); 
-            }
-            obj.children = children;
-        }
-    }
-
-    return obj;
-}
-
-function cloneObj(obj) {
-    return JSON.parse(JSON.stringify(obj));
-}
 
 /*
 function symbolost_sendKeyEvent(event, caller)
@@ -1453,34 +1211,6 @@ function getCurrentContext(){
 
 
 
-module.exports = { 
-    drawsocketInput,
-    sendToServer, // renderer-event
-    fairlyUniqueString,
-
-   // send: symbolist_send,
-
-    setClass: symbolist_setClass, 
-    setContext: symbolist_setContext,
-
-    getCurrentContext,
-    
-    elementToJSON,
-    
-    translate,
-    applyTransform,
-    makeRelative,
-    startDefaultEventHandlers,
-    stopDefaultEventHandlers,
-  //  getContextConstraintsForPoint,
-
-    callSymbolMethod,
-
-    ui_api: renderer_api
-
-
- }
-
 
 
 
@@ -1815,7 +1545,7 @@ function initPalette()
             
         })
 
-        drawsocket.input([{
+        drawsocketInput([{
                 key: "clear",
                 val: "palette-symbols"
             }, ...drawMsgs
@@ -2380,6 +2110,44 @@ function getContainerForElement(element)
  */
 
 
+
+/**
+ * globals
+ */
+const mainHTML = document.getElementById("main-html");
+const topContainer = document.getElementById('top-svg');
+const mainDiv = document.getElementById("main-div");
+const floatingForms = document.getElementById('floating-forms');
+
+const overlay = document.getElementById('symbolist_overlay');
+
+let symbolist_log = document.getElementById("symbolist_log");;
+
+let clickedObj = null;
+let clickedObjBoundsPreTransform = null;
+let prevEventTarget = null;
+let selected = [];
+let selectedCopy = [];
+
+let mousedown_pos = svgObj.createSVGPoint();
+let mousedown_page_pos = svgObj.createSVGPoint();
+let mouse_pos = svgObj.createSVGPoint();
+let mouse_page_pos = svgObj.createSVGPoint();
+
+let scrollOffset = {x: 0, y: 0};
+let m_scale = 1;
+let default_zoom_step = 0.1;
+
+let currentContext = topContainer;
+let currentPaletteClass =  "";
+
+let selectedClass = currentPaletteClass;
+let initDef;
+
+let currentMode = "palette";
+
+
+
 /**
  * returns array of selected elements
  */
@@ -2785,3 +2553,86 @@ function escapeModes()
     }
         
 }
+
+
+
+let renderer_api = {
+    uiDefs, // access to the defs in the defs
+
+    getDefForElement, // helper function to get def for DOM element
+    getContainerForElement, // look upwards in the elemement heirarchy to find the container
+
+    svgFromViewAndData,
+    htmlFromViewAndData,
+    svgPreviewFromViewAndData,
+    getDataTextView,
+    removeSprites,
+
+    drawsocketInput,
+    sendToServer, // renderer-event
+    fairlyUniqueString,
+    getCurrentContext,
+    getSelected,
+    dataToHTML,
+    getElementData,
+
+    filterByKeys,
+
+    makeDefaultInfoDisplay,
+    translate,
+    applyTransform,
+
+    getSVGCoordsFromEvent,
+    getBBoxAdjusted,
+
+
+    svgObj,
+    scrollOffset,
+
+    
+    insertSorted, 
+    insertSortedHTML,
+    insertIndex,
+
+    ntom,
+    mton,
+    ftom, 
+    mtof,
+    ratio2float,
+    reduceRatio,
+    getRatioPrimeCoefs,
+    parseRatioStr,
+
+    hasParam,
+    createHandle
+}
+
+
+
+module.exports = { 
+    drawsocketInput,
+    sendToServer, // renderer-event
+    fairlyUniqueString,
+
+   // send: symbolist_send,
+
+    setClass: symbolist_setClass, 
+    setContext: symbolist_setContext,
+
+    getCurrentContext,
+    
+   // elementToJSON,
+    
+    translate,
+    applyTransform,
+    makeRelative,
+    startDefaultEventHandlers,
+    stopDefaultEventHandlers,
+  //  getContextConstraintsForPoint,
+
+    callSymbolMethod,
+
+    ui_api: renderer_api
+
+
+ }
