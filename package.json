@@ -15,6 +15,7 @@
     "points": "^3.2.0",
     "svg-path-properties": "^1.0.10",
     "svg-points": "^6.0.1",
+    "three": "^0.126.1",
     "uuid": "^8.3.1"
   }
 }

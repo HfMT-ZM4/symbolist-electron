@@ -5,7 +5,7 @@ class CartesianPlot extends Template.SymbolBase
     constructor() {
         super();
         this.class = "CartesianPlot";
-        this.palette = [ "Point"];
+        this.palette = [ "DataPoint"];
 
         this.margin = 20;
         this.half_margin = this.margin / 2.;

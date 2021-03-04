@@ -14,20 +14,12 @@
     <script src="./node_modules/gsap/dist/gsap.min.js"></script>
     <script src="./node_modules/uuid/dist/umd/uuid.min.js"></script>
     <script src="./node_modules/opentype.js/dist/opentype.min.js"></script>
+    <script src="./lib/threeWrapper.js" type="module" ></script>
 
   </head>
   <body>
 
     <div id="main-div" >
-
-        <div id="main-html" >
-
-          <div id="top-html" class="top-html symbol" style="width: 100%; height: 100%" > 
-            <div id="top-html-display" class="top-html display"></div>
-            <div id="top-html-contents" class="top-html contents" ></div>
-          </div>
-          
-        </div>
 
         <svg  id="svg" 
               version="1.1" 
@@ -41,19 +33,27 @@
 
                 <g id="top-svg" class="top-svg symbol" style="width: 100%; height: 100%" > 
                   <g id="top-svg-display" class="top-svg display"></g>
-                  <g id="top-svg-contents" class="top-svg contents" ></g>
+                  <g id="top-svg-contents" class="top-svg contents"></g>
                 </g>
-
+                
                 <g id="symbolist_overlay"></g>
 
               </g>
               
               <g id="floating-overlay"></g>
-
+              
         </svg>
 
-        <div id="floating-forms"></div>
+        <div id="main-html" >
 
+          <div id="top-html" class="top-html symbol" style="width: 100%; height: 100%" > 
+            <div id="top-html-display" class="top-html display"></div>
+            <div id="top-html-contents" class="top-html contents" ></div>
+          </div>
+          
+        </div>
+
+        <div id="floating-forms"></div>
     </div>
 
     <div id="forms">
@@ -84,6 +84,7 @@
       <div id="symbolist_log" class="symbolist_log"><span>new symbolist</span></div>
       -->
     </div>
+
     <script src="./lib/ui_scrollbars.js"></script>
 
     <script src="./lib/symbolist-global-modules.js"></script>
