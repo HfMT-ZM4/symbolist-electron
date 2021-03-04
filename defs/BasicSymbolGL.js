@@ -126,7 +126,7 @@ class BasicSymbolGL extends Template.SymbolBase
         cube.material.depthTest = false;
         cube.material.opacity = 1;
         cube.material.transparent = true;
-        cube.material.color =  new THREE.Color( 'rgb(200,200,200)' );
+        cube.material.color =  new THREE.Color( 'rgb(100,100,100)' );
 
         scene.add( cube );
 

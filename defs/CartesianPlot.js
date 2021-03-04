@@ -151,6 +151,23 @@ class CartesianPlot extends Template.SymbolBase
     childViewParamsToData(this_element, child_viewParams)
     {
         // no updates from view at the momement
+
+        const x_param = this_element.dataset.x_param;
+        const y_param = this_element.dataset.y_param;
+
+        if( ui_api.hasParam(child_viewParams, [ "x", "y" ] ) )
+        {
+            const bbox = ui_api.getBBoxAdjusted(this_element);
+
+            let ret = {};
+
+            ret[x_param] = (child_viewParams.x - bbox.x) / bbox.width;
+            ret[y_param] = 1 - ((child_viewParams.y - bbox.y) / bbox.height);
+
+
+            return ret;
+        }
+
     }
 
     /**
