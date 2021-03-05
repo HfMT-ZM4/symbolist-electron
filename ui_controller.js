@@ -235,7 +235,7 @@ function symbolist_keydownhandler(event)
 
     }
 
-    console.log("symbolist_keydownhandler", event.symbolistAction, event.key);
+  //  console.log("symbolist_keydownhandler", event.symbolistAction, event.key);
     
    // symbolost_sendKeyEvent(event, "keydown");
 }
@@ -744,13 +744,13 @@ function visibility_handler(event)
 }
 
 window.addEventListener("blur", (event)=> {
-    console.log("blur");
+ //   console.log("blur");
     removeSymbolistMouseHandlers(svgObj);
     removeSymbolistKeyListeners();
 }, false);
 
 window.addEventListener("focus", (event)=> {
-    console.log("focus");
+  //  console.log("focus");
     addSymbolistMouseHandlers(svgObj);
     addSymbolistKeyListeners();
 }, false);
@@ -1118,9 +1118,9 @@ function iterateScore(contents, context_element = null)
         
     })
 
-    if( context_element ) // seems like there will alwasy be a context element so maybe this is not required
+    if( context_element ) // seems like there will always be a context element so maybe this is not required
     {
-        console.log(context_element.classList[0]);
+        //console.log(context_element.classList[0]);
         const container_class_def = uiDefs.get( context_element.classList[0] );
         if( container_class_def && hasParam(container_class_def, 'updateAfterContents') )
         {

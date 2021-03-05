@@ -61,9 +61,9 @@ class FiveLineStaveEvent extends Template.SymbolBase
         this.class = "FiveLineStaveEvent";
         this.default_dist = 10;
         this.palette = ["PathSymbol"];
-
+/*
         this.font = opentype.loadSync('css/fonts/Bravura.ttf');
-        console.log(this.font.glyphs.length);
+        //console.log(this.font.glyphs.length);
 
         this.bravuraUnicode = new Map();
 
@@ -71,7 +71,7 @@ class FiveLineStaveEvent extends Template.SymbolBase
         {
             this.bravuraUnicode.set(this.font.glyphs.get(i).name, this.font.glyphs.get(i));
         }
-
+*/
     }
 
 
