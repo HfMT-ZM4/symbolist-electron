@@ -47,7 +47,7 @@ function createTemplate()
         { 
           label: 'Load Defs...',
           click: async () => {
-              actions.loadFiles();
+              actions.addDefsFromFolder();
           }
         },          
           { 

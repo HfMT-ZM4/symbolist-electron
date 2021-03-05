@@ -515,3 +515,16 @@ and selects the subcomponent?
         1. communication to main (ipc)
         2. parser, iterator
         3. UI
+
+added GL
+    notes: there can only be 8 contexts,
+    so better to make one big canvas and handle selection like we do with 
+    html vs svg, probably store the container in the dataset rather than
+    relying on items being in the actual hierarchy
+
+    check out the https://threejs.org/docs/#examples/en/controls/TransformControls
+    transform controls, hopefully we'll be able to select and transform objects
+    in GL space, and send the data to the score
+        this might be another reason not to use dataset, since GL doesn't have that...
+    it could be possible to lock the camera view to be flat to x/y so that it aligns with 
+    the SVG, and then objects could be rotated around themselves in 3d space

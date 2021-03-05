@@ -1,29 +1,7 @@
-const {ipcMain, dialog} = require('electron')
-const fs = require('fs')
-const path = require('path')
-
-function getFilesFromMenuFolderArray(folder)
-{
-    const fullpath = path.resolve('./', folder);
-
-   // const folder = folderArray[0];
-    console.log('loadUserFolder', fullpath);
-
-    let files = [];
-
-    fs.readdirSync(fullpath, 'utf-8').forEach( name => {
-        files.push({
-          name,
-          type: name.split('.').pop()
-        });
-    });
-
-    return {
-        path: fullpath,
-        files
-    }
-}
-
+const { dialog } = require('electron')
+//const fs = require('fs')
+//const path = require('path')
+const { getFilesFromMenuFolderArray } = require('../lib/main_utils')
 
 let io_proc = null;
 let win = null;
@@ -35,14 +13,40 @@ function init(_io_proc, _win)
 }
 
 
-
-async function loadFiles()
+async function addDefsFromFolder()
 {
       dialog.showOpenDialog( {
-        properties: ['openFile', 'openDirectory']
+        properties: ['openDirectory'] //'openFile', 
       }).then(result => {
         console.log(result.canceled)
         console.log(result.filePaths)
+
+        if( !result.canceled )
+        {
+  /*
+          win.webContents.send('menu-call', 'newScore');
+          io_proc.send({
+            key: "newScore"
+          })
+  */
+          let folder = getFilesFromMenuFolderArray( result.filePaths[0] );
+  
+
+          folder.files = folder.files.filter( f => {
+            if( f.type != "json" ) 
+              return f 
+          });
+
+          console.log('newScore', folder);
+          
+          win.webContents.send('menu-call', 'load-ui-defs', folder );
+  
+          io_proc.send({
+            key: "load-io-defs",
+            val: folder
+          })
+          
+        }
       }).catch(err => {
         console.log(err)
       })
@@ -163,7 +167,7 @@ module.exports = {
     open,
     // actions:
     newScore,
-    loadFiles,
+    addDefsFromFolder,
     deleteSelected,
     buildModelLookup
 }
