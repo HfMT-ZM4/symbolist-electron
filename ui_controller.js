@@ -400,12 +400,23 @@ function symbolist_mousemove(event)
 
 function symbolist_mousedown(event)
 {          
+
+    mousedown_page_pos.x = event.pageX;
+    mousedown_page_pos.y = event.pageY;
+    mousedown_pos = mousedown_page_pos.matrixTransform( mainSVG.getScreenCTM().inverse() ); 
+
+    mouse_pos = mousedown_pos;
+
     if( currentMode == "edit" )
         return;
 
  //   console.log(`mouse down> current context: ${currentContext.id}\n event target ${event.target}`); 
 
+   
     const _eventTarget = getTopLevel( event.target );
+
+    if( !_eventTarget )
+        return;
 
     //console.log(_eventTarget);
     
@@ -467,14 +478,7 @@ function symbolist_mousedown(event)
 
     }
 
-//    mousedown_pos = getSVGCoordsFromEvent(event);
-
-    mousedown_page_pos.x = event.pageX;
-    mousedown_page_pos.y = event.pageY;
-    mousedown_pos = mousedown_page_pos.matrixTransform( mainSVG.getScreenCTM().inverse() ); 
-
-    mouse_pos = mousedown_pos;
-
+   
     prevEventTarget = _eventTarget;
     
    // sendMouseEvent(event, "mousedown");
@@ -2063,7 +2067,8 @@ function getUnionBounds()
 
 function addToSelection( element )
 {
-    if( element.id == 'dragRegion' )
+
+    if( !element || typeof element.id == "undefined" || element.id == 'dragRegion' )
         return;
 
    // console.log('addToSelection', element);

@@ -291,7 +291,7 @@ class PathSymbol extends Template.SymbolBase
 
             element.style.visibility = "visible";
         }
-        console.log(" edit mode", enable);
+        console.log(" path edit mode", enable);
 
         return true;
     }
@@ -303,7 +303,8 @@ class PathSymbol extends Template.SymbolBase
     
         this.currentPosition = ui_api.getSVGCoordsFromEvent(e);
 
-    
+      //  console.log("path edit move", this.downTarget, e);
+      
         if( this.downTarget == null )
             return;
     
