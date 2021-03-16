@@ -67,3 +67,8 @@ let obj2 = {
 
 console.log({ ...obj2, ...obj1 });
 console.log({ ...obj1, ...obj2 });
+
+
+let stringArr = "1,2,[1,2]";
+
+console.log( JSON.parse(`[${stringArr}]`) );

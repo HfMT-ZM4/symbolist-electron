@@ -5,7 +5,7 @@ class PartStave extends Template.SymbolBase
     constructor() {
         super();
         this.class = "PartStave";
-        this.palette = [ "AzimNote", "BasicSymbol", "ColorPitch" ];
+        this.palette = [ "AzimNote", "BasicSymbol", "ColorPitch"];
 
 
         this.left_margin = 20;
@@ -121,26 +121,38 @@ class PartStave extends Template.SymbolBase
      */
     childDataToViewParams(this_element, child_data)
     {
-        if( ui_api.hasParam(child_data, ['pitch', 'time']) )
+
+        let ret = {};
+        const containerRect = this_element.querySelector('.partStave-rect');
+
+        if( ui_api.hasParam(child_data, 'pitch', true) )
         {
-            const containerRect = this_element.querySelector('.partStave-rect');
-            const bbox_x = parseFloat(containerRect.getAttribute('x'));
             const bbox_y = parseFloat(containerRect.getAttribute('y'));
             const bbox_height = parseFloat(containerRect.getAttribute('height'));
 
-            let ret = {
-                y: bbox_y + ((1. - (child_data.pitch * this.pitch2y)) * bbox_height),
-                x: bbox_x + ((child_data.time - parseFloat(this_element.dataset.time)) * this.time2x)
-            }
+            ret.y = bbox_y + ((1. - (child_data.pitch * this.pitch2y)) * bbox_height);
+        }
+
+        if( ui_api.hasParam(child_data, 'time', true) )
+        {
+            const bbox_x = parseFloat(containerRect.getAttribute('x'));
+
+            ret.x = bbox_x + ((child_data.time - parseFloat(this_element.dataset.time)) * this.time2x);
 
             if( ui_api.hasParam(child_data, "duration" ) )
             {
                 ret.width = child_data.duration * this.time2x;
             }
-
-            return ret;
-
         }
+
+        if( child_data.class == "Measure" ){
+            ret.y = parseFloat(containerRect.getAttribute('y'));
+            ret.height = parseFloat(containerRect.getAttribute('height'));
+        }
+
+       // console.log(ret);
+        return ret;
+
     }
 
     /**

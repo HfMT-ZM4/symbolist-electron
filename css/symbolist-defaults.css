@@ -6,7 +6,9 @@ html, body{
   box-sizing: border-box;
 
   --main-bg-color:  rgb(50, 50, 50);
-  --main-line-color: rgb(200, 200, 200)
+  --main-line-color: rgb(200, 200, 200);
+
+  --palette-width: 62px;
 }
 
 body {
@@ -167,7 +169,7 @@ body {
  
   top: 0px;
   left: 0px;
-  width: 62px;
+  width: var(--palette-width);
   height: 100vh;
   
 }
@@ -251,6 +253,29 @@ body {
   justify-content: space-between;
   
 }
+
+.toolitem {
+  background-color: rgba(255, 255, 255, 0.75);
+  border : 1.5px solid black;
+  border-radius: 10px;
+  font-family: helvetica;
+  font-size: 12px;
+  position: absolute;
+  
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: start;
+  justify-content: space-between;
+  
+  left: calc(var(--palette-width) + 2px);
+  top: 0px;
+}
+
+.toolitem button {
+  padding: 5px;
+  margin: 0px 5px 5px 5px;
+}
+
 
 .infoparam {
   padding: 5px 5px 5px 5px;

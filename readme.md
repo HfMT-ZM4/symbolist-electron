@@ -98,7 +98,7 @@ For example a simple `symbol` object might look like:
 }
 ```
 
-Here we see an object with the `id` "foo", which is of class type `legs`, that has an attribute `action` associated with it and a stat time.
+Here we see an object with the `id` "foo", which is of class type `legs`, that has an attribute `action` associated with it and a start time.
 
 And here is a simple example of a `container` object of a type class `timeline`, which holds two `leg` actions:
 

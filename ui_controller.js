@@ -1010,6 +1010,15 @@ function getDefForElement(element)
     return uiDefs.get(element.classList[0]);;
 }
 
+/**
+ * 
+ * @param {String} classname
+ * @returns def
+ */
+function getDef(classname)
+{
+    return uiDefs.get(classname);
+}
 
 function loadUIDefs(folder)
 {
@@ -1162,7 +1171,7 @@ function initPalette()
                 const def_classname = def_.class;
                 let def_palette_display = def_.getPaletteIcon();
     
-                if( def_palette_display.key == "svg" )
+                if( def_palette_display && def_palette_display.key == "svg" )
                 {
                     def_palette_display = {
                         new: "svg",
@@ -1216,7 +1225,7 @@ function makeSymbolPalette(class_array)
 
             let def_palette_display = symDef.getPaletteIcon();
 
-            if( def_palette_display.key == "svg" )
+            if( def_palette_display && def_palette_display.key == "svg" )
             {
                 def_palette_display = {
                     new: "svg",
@@ -1682,7 +1691,7 @@ function dataToHTML(data_)
         }
         else if( key == 'id') // maybe pass all keys?
         {
-            dataObj.id = data_.id;
+            dataObj.id = data_.id; 
         }
             
     })
@@ -2269,7 +2278,10 @@ function clearDragRegionRect()
 
 let renderer_api = {
     uiDefs, // access to the defs in the defs
+    
+    getDef,
 
+    getSymbolFromElement: getTopLevel,
     getDefForElement, // helper function to get def for DOM element
     getContainerForElement, // look upwards in the elemement heirarchy to find the container
 
@@ -2282,6 +2294,7 @@ let renderer_api = {
     drawsocketInput,
     sendToServer, // renderer-event
     fairlyUniqueString,
+    makeUniqueID,
     getCurrentContext,
     getSelected,
     dataToHTML,
@@ -2298,6 +2311,7 @@ let renderer_api = {
 
 
     svgObj,
+    mainDiv,
     scrollOffset,
 
     
@@ -2315,7 +2329,10 @@ let renderer_api = {
     parseRatioStr,
 
     hasParam,
-    createHandle
+    createHandle,
+
+    startDefaultEventHandlers,
+    stopDefaultEventHandlers
 }
 
 

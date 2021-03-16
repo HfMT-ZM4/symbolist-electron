@@ -124,6 +124,17 @@ body {
     width: calc(100% - 2px);
     height: calc(100% - 2px);
     border: 0.5px dashed rgba(200, 200, 200);
-
-
 }
+
+
+.meterbox {
+    fill: none;
+    stroke: rgba(0, 0, 0, 0.1);
+    stroke-width : 0.5;
+}
+
+.barline {
+    stroke-width: 2px;
+    stroke: black;
+}
+

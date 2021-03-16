@@ -2,7 +2,7 @@
     "about" : "symbolist will read a json file to configure the palette setup, this can be used to dynamically change also (eventually)",
     "id" : "Score",
     "tools" : [],
-    "palette" : ["BasicSymbolGL"],
+    "palette" : ["SubdivisionTool", "BasicSymbolGL"],
     "class" : "RootSymbol",
     "contents": { 
         "id" : "trio",
