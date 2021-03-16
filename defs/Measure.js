@@ -6,6 +6,7 @@ class Measure extends Template.SymbolBase
         super();
         this.class = "Measure";
         this.palette = [ "AzimNote", "BasicSymbol", "ColorPitch"];
+        
     }
 
 

@@ -7,7 +7,6 @@ class PartStave extends Template.SymbolBase
         this.class = "PartStave";
         this.palette = [ "AzimNote", "BasicSymbol", "ColorPitch"];
 
-
         this.left_margin = 20;
 
         this.x2time = 0.001;

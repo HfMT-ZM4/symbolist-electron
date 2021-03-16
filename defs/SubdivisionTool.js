@@ -14,6 +14,7 @@ class SubdivisionTool extends Template.SymbolBase
     constructor() {
         super();
         this.class = "SubdivisionTool";
+        this.dividerTypes = ["Measure", "SnapDivisions"];
     }
 
 
@@ -192,6 +193,30 @@ class SubdivisionTool extends Template.SymbolBase
                                     id : `${this.class}-${param}`,
                                     class : "infovalue-noedit",
                                     text : dataobj[param]
+                                }]
+                            }
+                            else if ( param == "marker_type" )
+                            {
+                                return [{
+                                    new : "span",
+                                    class : "infoparam",
+                                    text : param
+                                },{
+                                    new: "select",
+                                    name: "marker_type",
+                                    class : "infovalue",
+                                    id : `${this.class}-${param}`,
+                                    children: this.dividerTypes.map( type => {
+                                        return {
+                                            new: "option",
+                                            value: type,
+                                            text: type
+                                        }
+                                    }),
+                                    onchange: (event) => {
+                                        let element = document.getElementById(`${dataobj.class}-toolitem`);
+                                        element.dataset[param] = event.target.value;
+                                    }
                                 }]
                             }
                             else 
