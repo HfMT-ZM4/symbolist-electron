@@ -189,12 +189,12 @@ body {
   background-color: gray;
 }
 
-.palette-clefs {
+.palette-tools {
   background-color: rgba(255, 255, 255, 0.0);
 }
 
 
-.palette-clefs div {
+.palette-tools div {
   background-color: inherit;
 
   border : 1px solid var(--main-line-color);

@@ -705,7 +705,7 @@ function initPalette()
                         new: "div",
                         class: `${def_classname} palette-icon`,
                         id: `${def_classname}-paletteIcon`,
-                        parent: "palette-clefs",
+                        parent: "palette-tools",
                         onclick: () => {
                                 console.log(`select ${def_classname}`); 
                                 symbolist_setContainerClass(def_classname);

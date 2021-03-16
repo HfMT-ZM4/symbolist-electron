@@ -1187,10 +1187,10 @@ function initPalette()
                         new: "div",
                         class: `${def_classname} palette-icon`,
                         id: `${def_classname}-paletteIcon`,
-                        parent: "palette-clefs",
+                        parent: "palette-tools",
                         onclick: () => {
                                 console.log(`select ${def_classname}`); 
-                                symbolist_setContainerClass(def_classname);
+                                symbolist_setClass(def_classname);
                         },
                         children: def_palette_display
                     }
@@ -1308,6 +1308,21 @@ function symbolist_setClass(_class)
 {
 //    console.log("symbolist_setClass", _class);
     symbolist_set_log(`selected symbol ${_class}`)
+
+    if( _class == selectedClass )
+    {
+        document.querySelectorAll(".palette .selected").forEach( el => {
+            el.classList.remove("selected");
+        });
+
+        if( uiDefs.has(selectedClass) && hasParam( uiDefs.get(selectedClass), 'paletteSelected') )
+        {
+            uiDefs.get(selectedClass).paletteSelected(false);
+            
+        }
+        selectedClass = null;
+        return;
+    }
 
     document.querySelectorAll(".palette .selected").forEach( el => {
         el.classList.remove("selected");
@@ -1862,6 +1877,7 @@ function symbolist_setContainerClass(_class)
         key: "clear",
         val: "palette-symbols"
     })
+    
     symbolist_setClass(_class);
 }
 

@@ -96,7 +96,7 @@ class FiveLineStave extends Template.SymbolBase
                 id: `${params.id}-staffline-group`,
                 children: [{
                     new: "line",
-                    id: `${params.id}-staffline-1`,
+                    id: `${params.id}-line-1`,
                     class : "staffline",
                     x1: params.x,
                     y1: centerY - params.lineSpacing * 2,
@@ -231,7 +231,24 @@ class FiveLineStave extends Template.SymbolBase
      */
     childDataToViewParams(this_element, child_data)
     {
-        if( ui_api.hasParam(child_data, ['time', 'duration', 'midi']) )
+
+        if( child_data.class == "Measure" ){
+            const topLine = document.getElementById(`${this_element.id}-line-1`);
+            const bottomLine = document.getElementById(`${this_element.id}-line-5`);
+
+            let ret = {};
+            ret.y = parseFloat(topLine.getAttribute('y1'));
+            let y2 =  parseFloat(bottomLine.getAttribute('y1'));
+
+            ret.height = y2 - ret.y;
+
+            ret.x = parseFloat(topLine.getAttribute('x1')) + ((child_data.time - parseFloat(this_element.dataset.time)) * this.time2x);
+            ret.width = child_data.duration * this.time2x;
+
+            return ret;
+
+        }
+        else if( ui_api.hasParam(child_data, ['time', 'duration', 'midi']) )
         {
 
             const containerRect = document.getElementById(`${this_element.id}-rect`);
