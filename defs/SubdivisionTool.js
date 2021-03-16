@@ -14,7 +14,7 @@ class SubdivisionTool extends Template.SymbolBase
     constructor() {
         super();
         this.class = "SubdivisionTool";
-        this.dividerTypes = ["Measure", "SnapDivisions"];
+        this.dividerTypes = ["Measure", "SnapPoint"];
     }
 
 

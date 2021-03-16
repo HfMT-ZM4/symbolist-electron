@@ -232,18 +232,30 @@ class FiveLineStave extends Template.SymbolBase
     childDataToViewParams(this_element, child_data)
     {
 
-        if( child_data.class == "Measure" ){
-            const topLine = document.getElementById(`${this_element.id}-line-1`);
-            const bottomLine = document.getElementById(`${this_element.id}-line-5`);
+        if( child_data.class == "Measure" || child_data.class == "SnapPoint" ){
+           
 
             let ret = {};
-            ret.y = parseFloat(topLine.getAttribute('y1'));
-            let y2 =  parseFloat(bottomLine.getAttribute('y1'));
+            if( child_data.class == "Measure" )
+            {
+                const topLine = document.getElementById(`${this_element.id}-line-1`);
+                const bottomLine = document.getElementById(`${this_element.id}-line-5`);
+                
+                ret.y = parseFloat(topLine.getAttribute('y1')); 
+                let y2 =  parseFloat(bottomLine.getAttribute('y1'));
+                ret.height = y2 - ret.y;
 
-            ret.height = y2 - ret.y;
+                ret.x = parseFloat(topLine.getAttribute('x1')) + ((child_data.time - parseFloat(this_element.dataset.time)) * this.time2x);
+                ret.width = child_data.duration * this.time2x;
 
-            ret.x = parseFloat(topLine.getAttribute('x1')) + ((child_data.time - parseFloat(this_element.dataset.time)) * this.time2x);
-            ret.width = child_data.duration * this.time2x;
+                
+            }
+            else
+            {
+                const containerRect = document.getElementById(`${this_element.id}-rect`);
+                ret.y = parseFloat(containerRect.getAttribute('y')); 
+                ret.x = parseFloat(containerRect.getAttribute('x')) + ((child_data.time - parseFloat(this_element.dataset.time)) * this.time2x);
+            }
 
             return ret;
 

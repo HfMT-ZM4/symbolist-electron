@@ -144,7 +144,7 @@ class PartStave extends Template.SymbolBase
             }
         }
 
-        if( child_data.class == "Measure" ){
+        if( child_data.class == "Measure" || child_data.class == "SnapPoint" ){
             ret.y = parseFloat(containerRect.getAttribute('y'));
             ret.height = parseFloat(containerRect.getAttribute('height'));
         }

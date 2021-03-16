@@ -138,3 +138,7 @@ body {
     stroke: black;
 }
 
+.SnapPoint {
+    stroke-width: 1px;
+    stroke: black;
+}
