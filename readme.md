@@ -10,6 +10,7 @@ The program aims to provide an open play space, with tools for experimentation, 
 2. Download or clone the project rerpository folder.
 3. run `npm install` inside the project folder.
 4. install electon globally `npm install -g electron`.
+    *note: symbolist is not yet compatible with electron v12, please use `npm install electron@11.3.0 -g` for now.*
 5. run `electron .` to start the `symbolist` application. Or if running in `vs code` you should be able to run via the debugger, defined in the `.vscode/launch.json` file.
 
 # About
