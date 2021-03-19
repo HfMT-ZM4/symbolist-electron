@@ -268,7 +268,7 @@ class FiveLineStaveEvent extends Template.SymbolBase
         const viewParams = this.dataToViewParams(data_union, container);
         const viewObj = this.display(viewParams);        
         const drawObj = (preview ? 
-            ui_api.svgPreviewFromViewAndData(viewObj, data_union, `.notehead`) : 
+            ui_api.svgPreviewFromViewAndData(viewObj, data_union, `.notehead`) : //<< relative position
             ui_api.svgFromViewAndData(viewObj, data_union) );
         ui_api.drawsocketInput( drawObj );
     }
@@ -339,33 +339,6 @@ class FiveLineStaveEvent extends Template.SymbolBase
         super.paletteSelected(enable);
     }
 
-    drag(element, event) 
-    {
-        const container = ui_api.getContainerForElement(element);
-        const stepSpacing = parseFloat(container.dataset.lineSpacing) * 0.5;
-
-        const snapPt = {
-            x: event.delta_pos.x,
-            y: Math.floor(event.delta_pos.y / stepSpacing) * stepSpacing
-        }
-
-        //console.log('container', container, delta_pos.y, parseFloat(container.dataset.lineSpacing) / 2., y2midi(delta_pos.y));
-        ui_api.translate(element, snapPt);
-
-        let viewParams = this.getElementViewParams(element);
-
-        viewParams.x += snapPt.x;
-        viewParams.y += snapPt.y;
-
-        let data = this.viewParamsToData(viewParams, container);
-        ui_api.drawsocketInput(
-            ui_api.getDataTextView(data)
-        )
-
-       
-        return true; // return true if you are handling your own translation
-    }
-   
     editMode( element, enable = false )
     {
         super.editMode(element, enable);

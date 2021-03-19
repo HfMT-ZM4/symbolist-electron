@@ -315,13 +315,39 @@ class FiveLineStave extends Template.SymbolBase
      {
         if( ui_api.hasParam(child_viewParams, ['x', 'y', 'width']) ) 
         {
+
+            let child_x = child_viewParams.x;
+
+            if( event && event.shiftKey )
+            {
+                const snapPoints = this_element.querySelectorAll('.contents .snapline');
+                if( snapPoints )
+                {
+
+                    let choose_x = 100000;
+                    snapPoints.forEach( e => {
+                        let snap_x = parseFloat( e.getAttribute("x1") );
+                        if( Math.abs(child_x - snap_x) < Math.abs(child_x - choose_x) ) 
+                        {
+                            choose_x = snap_x;
+                        }
+                    })
+                    child_x = choose_x;
+
+                }
+            }
+
+            const stepSpacing = parseFloat(this_element.dataset.lineSpacing) * 0.5;
+    
+            let child_y = Math.floor(child_viewParams.y / stepSpacing) * stepSpacing;
+    
             // note, we don't have a good way to know whether the moved point is an accidental or not...
-            const midi = this.y2midi(child_viewParams.y, this_element); 
+            const midi = this.y2midi(child_y, this_element); 
 
             const containerRect = document.getElementById(`${this_element.id}-rect`);
             const bbox_x = parseFloat(containerRect.getAttribute('x'));
 
-            const time = ((child_viewParams.x-bbox_x) * this.x2time) + parseFloat(this_element.dataset.time);
+            const time = ((child_x-bbox_x) * this.x2time) + parseFloat(this_element.dataset.time);
             const duration = child_viewParams.width * this.x2time;
 
             return {
