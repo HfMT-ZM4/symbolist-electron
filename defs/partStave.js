@@ -179,7 +179,8 @@ class PartStave extends Template.SymbolBase
                     let choose_x = 100000;
                     snapPoints.forEach( e => {
                         let snap_x = parseFloat( e.getAttribute("x1") );
-                        if( Math.abs(child_x - snap_x) < Math.abs(choose_x - snap_x) ) {
+                        if( Math.abs(child_x - snap_x) < Math.abs(child_x - choose_x) ) 
+                        {
                             choose_x = snap_x;
                         }
                     })
@@ -190,7 +191,6 @@ class PartStave extends Template.SymbolBase
                       */
                     child_x = choose_x;
 
-                  //  console.log(snapPoints);
                 }
             }
 
