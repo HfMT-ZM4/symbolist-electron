@@ -156,6 +156,13 @@ class SystemContainer extends Template.SymbolBase
             if( n_childStaves > 0 )
             {
                 y_offset = this.margin + ui_api.getBBoxAdjusted(contents.children[n_childStaves - 1]).bottom - viewParams.y;
+
+                const thisChild = document.getElementById(child_data.id);
+                if( thisChild )
+                {
+                    y_offset -= ui_api.getBBoxAdjusted(thisChild).height + this.margin;
+                }
+                
             }
 
             return {

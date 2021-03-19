@@ -2294,9 +2294,11 @@ function clearDragRegionRect()
 }
 
 
+/**
+ * ui_api used in defs
+ */
 
-
-let renderer_api = {
+let ui_api = {
     uiDefs, // access to the defs in the defs
     
     getDef,
@@ -2356,7 +2358,9 @@ let renderer_api = {
 }
 
 
-
+/**
+ * availale globally
+ */
 module.exports = { 
     drawsocketInput,
     sendToServer, // renderer-event
@@ -2380,7 +2384,7 @@ module.exports = {
 
     callSymbolMethod,
 
-    ui_api: renderer_api,
+    ui_api,
 
     setScrollOffset
 

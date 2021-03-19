@@ -125,57 +125,55 @@ And here is a simple example of a `container` object of a type class `timeline`,
 ```
 
 
-## Score Format
+## File Format
 
-Score files load data into the editor view, and load tools and UI elements into the editor window.
-* `about`: description of the file
-* `name`: title 
-* `tools`: see above
-* `palette`: see above
-* `score`: the top-level `symbol container` of the document
+Symbolist files are composed in the same way that the data model is stored. The top level symbol will be created in the `top-svg` symbol which is pre-defined in the `index.html` file.
 
-An example initialization config file:
+An example initialization config file might look like this:
 
 ```
 {
-    "about": "symbolist will read a json file to configure the palette setup",
-    "name": "first layout",
-    "tools": [],
-    "palette": [],
-    "score": {
-        "id": "demo",
-        "class": "systemContainer",
+    "about" : "symbolist will read a json file to configure the palette setup, this can be used to dynamically change the application layout and tools",
+    "id" : "Score",
+    "tools" : [],
+    "palette" : ["SubdivisionTool", "BasicSymbolGL"],
+    "class" : "RootSymbol",
+    "contents": { 
+        "id" : "trio",
+        "class" : "SystemContainer",
         "x": 200,
         "y": 100,
-        "duration": 1,
+        "duration": 20,
         "time": 0,
-        "contents": {
-            "id": "oboe",
-            "class": "fiveLineStave",
-            "height": 100,
-            "lineSpacing": 10,
-            "contents": [
-                {
-                    "class": "fiveLineStaveEvent",
-                    "id": "note-1",
-                    "container": "oboe",
-                    "time": 0.034,
-                    "midi": 72,
-                    "duration": 0.1
-                },
-                {
-                    "class": "fiveLineStaveEvent",
-                    "id": "note-2",
-                    "container": "oboe",
-                    "time": 0.085,
-                    "midi": 74,
-                    "duration": 0.1
-                }
-            ]
-        }
+        "contents" : [{
+            "id" : "oboe",
+            "class" : "FiveLineStave",
+            "height" : 100,
+            "lineSpacing" : 10,
+            "duration": 20,
+            "time": 0,
+            "contents" : []
+        },
+        {
+            "id" : "bassoon",
+            "class" : "PartStave",
+            "height" : 100,
+            "time": 0,
+            "duration": 20,
+            "contents" : []
+        },
+        {
+            "id" : "synth",
+            "class" : "PartStave",
+            "height" : 200,
+            "time": 0,
+            "duration": 20,
+            "contents" : []
+        }]
     }
 }
 ```
+
 
 ## Graphic Display Format
 
@@ -411,17 +409,26 @@ module.exports = {
 
 Values and UI handler callbacks defined and exported to the `UI Controller`:
 
+ * class
+ * palette
+ * getPaletteIcon
+ * fromData
+ * editMode
+ * selected
+ * applyTransformToData
+ * currentContext
+ * updateAfterContents
+ * drag
+ * getInfoDisplay
+
 __Required__
 * `class` (string) the name of the class
-* `dataInstance` (object) the default values for the semantic data
 * `palette` (array) used for container classes, an array of names of other classes that can be used within this container type.
 * `getPaletteIcon` ()=> return the icon for display in the palette toolbar
 * `paletteSelected`: (true/false)=> called when the user clicks on the palette icon for this symbol, used to trigger custom UI for creating new symbols from mouse data. Scripts should define mouse callbacks internally. Generally `cmd-click` is the way to create a new object.
-
 * `getInfoDisplay` ()=> return drawing commands for the inspector contextual menu (see `makeDefaultInfoDisplay` below).
 * `fromData` called from `ui_controller` when data is received and needs to be mapped to graphic representation.
 * `updateFromDataset` called from the inspector, when elements of the data should be updated.
-
 * `getContainerForData` for container symbols, this function is called when a new data object is being set, if there are multiple containers of the same type, for example systems with line breaks, this function looks up the container by a certain parameter, usually time.
 * `childDataToViewParams` mapping function in container symbol called from children to request view parameters from data object.
 * `childViewParamsToData` mapping function in conatiner symbol called from children to get data mapping from view parameters.
@@ -444,6 +451,7 @@ These functions have no specific required name or use outside the definition, bu
 ### UI API helper functions:
 The following functions are provided by the `ui_api` which is available to symbol definitions:
 * `uiDefs` access to the defs in the defs
+* `getDef` lookup def by class name
 * `getDefForElement` helper function to get def from DOM element
 * `getContainerForElement` look upwards in the elemement heirarchy to find the container
 * `svgFromViewAndData` - generates SVG symbol, wrapping view and data values.
@@ -481,6 +489,8 @@ The following functions are provided by the `ui_api` which is available to symbo
 * `getRatioPrimeCoefs`,
 * `parseRatioStr`
 * `hasParam`
+* `startDefaultEventHandlers`
+* `stopDefaultEventHandlers`
 
 
 ## IO Definitions
