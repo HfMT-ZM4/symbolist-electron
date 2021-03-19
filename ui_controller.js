@@ -360,13 +360,17 @@ function symbolist_mousemove(event)
     {
         if( clickedObj )
         {
-            if( event.shiftKey )
-                rotate_selected( mouse_pos )
+            /*
+            if( event.shiftKey ) {
+                //rotate_selected( mouse_pos )
+                // put snap points here?
+            }
             else
             {
+                */
                 // now only translating if the def has a translate function
-                callMethodForSelected("drag", mouseDelta );
-            }
+                callMethodForSelected("drag", { ...event, delta_pos: mouseDelta } );
+            //}
         }
         else 
         {

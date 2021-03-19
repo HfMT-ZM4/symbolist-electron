@@ -48,7 +48,7 @@ class SnapPoint extends Template.SymbolBase
             y2: params.y + this.height
         };
     }
-
+/*
     fromData(dataObj, container, preview = false)
     {
      //   console.log('container', container, dataObj);
@@ -68,7 +68,7 @@ class SnapPoint extends Template.SymbolBase
             }
         } );
     }
-
+*/
     getPaletteIcon() {
         return {
             key: "svg",

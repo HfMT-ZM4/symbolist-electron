@@ -338,14 +338,14 @@ class FiveLineStaveEvent extends Template.SymbolBase
         super.paletteSelected(enable);
     }
 
-    drag(element, delta_pos = {x:0,y:0}) 
+    drag(element, event) 
     {
         const container = ui_api.getContainerForElement(element);
         const stepSpacing = parseFloat(container.dataset.lineSpacing) * 0.5;
 
         const snapPt = {
-            x: delta_pos.x,
-            y: Math.floor(delta_pos.y / stepSpacing) * stepSpacing
+            x: event.delta_pos.x,
+            y: Math.floor(event.delta_pos.y / stepSpacing) * stepSpacing
         }
 
         //console.log('container', container, delta_pos.y, parseFloat(container.dataset.lineSpacing) / 2., y2midi(delta_pos.y));

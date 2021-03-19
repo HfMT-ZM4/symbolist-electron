@@ -118,7 +118,7 @@ class ColorPitch extends Template.SymbolBase
      * return true to use default translation
      * return false to use custom translation 
      */
-    drag(element, delta_pos = {x:0,y:0}) 
+    drag(element, event) 
     {
         if( this.m_mode == "edit" )
         {
@@ -129,14 +129,14 @@ class ColorPitch extends Template.SymbolBase
          //   console.log('drag in mode', this.m_mode);
 
             // maybe rename... sets translation in transform matrix, but doesn't apply it
-            ui_api.translate(element, delta_pos);
+            ui_api.translate(element, event.delta_pos);
 
             let viewParams =  this.getElementViewParams(element);
 
             // this can be resused in most cases
             // if x and y are in the viewParams
-            viewParams.x += delta_pos.x;
-            viewParams.y += delta_pos.y;
+            viewParams.x += event.delta_pos.x;
+            viewParams.y += event.delta_pos.y;
 
             let container = ui_api.getContainerForElement(element);
             let data = this.viewParamsToData(viewParams, container);

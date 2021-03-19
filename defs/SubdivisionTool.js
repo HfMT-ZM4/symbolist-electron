@@ -103,9 +103,9 @@ class SubdivisionTool extends Template.SymbolBase
         }
     }
 
-    drag(element, delta_pos = {x:0,y:0}) 
+    drag(element, event) 
     {
-        ui_api.translate(element, delta_pos);
+        ui_api.translate(element, event.delta_pos);
     }
 
     /*
