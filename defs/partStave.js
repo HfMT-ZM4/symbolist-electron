@@ -156,13 +156,43 @@ class PartStave extends Template.SymbolBase
 
     /**
      * 
+     * Called by child objects using the template
+     * the parent/container object supplies a mapping from view params to data
+     * 
      * @param {Element} this_element instance of this element
-     * @param {Object} child_viewParams child data object, requesting information about where to put itself
+     * @param {Object}  child_viewParams child data object, requesting information about where to put itself
+     * @param {Event}   event (optional) include the mouse event for mode handling
      */
-    childViewParamsToData(this_element, child_viewParams)
-    {
+     childViewParamsToData(this_element, child_viewParams, event = null) 
+     {
         if( ui_api.hasParam(child_viewParams, ['x', 'y']) ) 
         {
+
+            let child_x = child_viewParams.x;
+
+            if( event && event.shiftKey )
+            {
+                const snapPoints = this_element.querySelectorAll('.contents .snapline');
+                if( snapPoints )
+                {
+
+                    let choose_x = 100000;
+                    snapPoints.forEach( e => {
+                        let snap_x = parseFloat( e.getAttribute("x1") );
+                        if( Math.abs(child_x - snap_x) < Math.abs(choose_x - snap_x) ) {
+                            choose_x = snap_x;
+                        }
+                    })
+                    /*
+                    var closest = counts.reduce( function(prev, curr) {
+                        return (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev);
+                      });
+                      */
+                    child_x = choose_x;
+
+                  //  console.log(snapPoints);
+                }
+            }
 
             const containerRect = document.getElementById(`${this_element.id}-rect`);
             const bbox_x = parseFloat(containerRect.getAttribute('x'));
@@ -171,7 +201,7 @@ class PartStave extends Template.SymbolBase
 
             let ret = {
                 pitch: (1 - ((child_viewParams.y-bbox_y) / bbox_height)) * this.y2pitch,
-                time: ((child_viewParams.x-bbox_x) * this.x2time) + parseFloat(this_element.dataset.time)            
+                time: ((child_x-bbox_x) * this.x2time) + parseFloat(this_element.dataset.time)            
             }
 
             if( ui_api.hasParam(child_viewParams, "width" ) )

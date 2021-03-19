@@ -145,11 +145,15 @@ class CartesianPlot extends Template.SymbolBase
 
     /**
      * 
+     * Called by child objects using the template
+     * the parent/container object supplies a mapping from view params to data
+     * 
      * @param {Element} this_element instance of this element
      * @param {Object} child_viewParams child data object, requesting information about where to put itself
+     * @param {Event}   event (optional) include the mouse event for mode handling
      */
-    childViewParamsToData(this_element, child_viewParams)
-    {
+     childViewParamsToData(this_element, child_viewParams, event = null) 
+     {
         // no updates from view at the momement
 
         const x_param = this_element.dataset.x_param;

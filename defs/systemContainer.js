@@ -172,7 +172,7 @@ class SystemContainer extends Template.SymbolBase
      * @param {Element} this_element instance of this element
      * @param {Object} child_viewParams child data object, requesting information about where to put itself
      */
-    childViewParamsToData(this_element, child_viewParams)
+    childViewParamsToData(this_element, child_viewParams, event)
     {
         // no updates from view at the momement
     }

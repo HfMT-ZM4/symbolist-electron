@@ -126,7 +126,7 @@ class RootSymbol extends Template.SymbolBase
         return child_data;
     }
 
-    childViewParamsToData(this_element, child_viewParams)
+    childViewParamsToData(this_element, child_viewParams, event)
     {
         return child_viewParams;
     }

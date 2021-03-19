@@ -214,9 +214,10 @@ class FiveLineStaveEvent extends Template.SymbolBase
      * 
      * @param {Element} this_element instance of this element
      * @param {Object} child_viewParams child data object, requesting information about where to put itself
+     * @param {Event}   event (optional) include the mouse event for mode handling
      */
-    childViewParamsToData(this_element, child_viewParams) 
-    {
+     childViewParamsToData(this_element, child_viewParams, event = null) 
+     {
 //        return child_viewParams;
         // absolute to relative
         if( ui_api.hasParam(child_viewParams, ['points'], true) )

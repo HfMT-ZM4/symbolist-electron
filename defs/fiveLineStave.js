@@ -304,14 +304,15 @@ class FiveLineStave extends Template.SymbolBase
 
     /**
      * 
+     * Called by child objects using the template
+     * the parent/container object supplies a mapping from view params to data
+     * 
      * @param {Element} this_element instance of this element
      * @param {Object} child_viewParams child data object, requesting information about where to put itself
-     * 
-     * called when child object has moved graphically
-     * 
+     * @param {Event}   event (optional) include the mouse event for mode handling
      */
-    childViewParamsToData(this_element, child_viewParams)
-    {
+     childViewParamsToData(this_element, child_viewParams, event = null) 
+     {
         if( ui_api.hasParam(child_viewParams, ['x', 'y', 'width']) ) 
         {
             // note, we don't have a good way to know whether the moved point is an accidental or not...

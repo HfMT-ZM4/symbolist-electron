@@ -40,8 +40,8 @@ class SnapPoint extends Template.SymbolBase
         
         return {
             new: "line",
-            id : `${params.id}-barline`,
-            class: this.class, 
+            id : `${params.id}-snapline`,
+            class: 'snapline', 
             x1: params.x,
             x2: params.x,
             y1: params.y ,

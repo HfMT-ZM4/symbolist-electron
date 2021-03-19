@@ -137,7 +137,7 @@ class PathSymbol extends Template.SymbolBase
 
         return {
             ...this.structs.data, // set defaults, before overwriting with parent's mapping
-            ...parent_def.childViewParamsToData(container, translated_default), 
+            ...parent_def.childViewParamsToData(container, translated_default, event), 
             id: `${this.class}_u_${ui_api.fairlyUniqueString()}`,
             container: container.id
         }    
