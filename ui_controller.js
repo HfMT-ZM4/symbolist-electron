@@ -1750,7 +1750,25 @@ function getElementData(element, container = null)
 {
     let data = {};
     Object.keys(element.dataset).forEach( k => {
-        data[k] = isNumeric( element.dataset[k] ) ? Number( element.dataset[k] ) : element.dataset[k]; 
+        if( isNumeric( element.dataset[k] ) )
+        {
+            data[k] = Number( element.dataset[k] );
+        }
+        else if( element.dataset[k][0] == '{' ||  element.dataset[k][0] == '[' )
+        {
+            try 
+            {
+                data[k] = JSON.parse(element.dataset[k])
+            }
+            catch (e) 
+            {
+                data[k] = element.dataset[k]; 
+            }
+        }
+        else
+        {
+            data[k] = element.dataset[k]; 
+        }
     });
     
     data.id = element.id;
