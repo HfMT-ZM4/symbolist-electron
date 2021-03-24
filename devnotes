@@ -528,3 +528,13 @@ added GL
         this might be another reason not to use dataset, since GL doesn't have that...
     it could be possible to lock the camera view to be flat to x/y so that it aligns with 
     the SVG, and then objects could be rotated around themselves in 3d space
+
+> idea, maybe add default edit mode for SVG objects, like the path editor
+    this could be a basic way of editing symbols imported from illustrator
+    generally symbols will need a meaning-specific UI control, but also a default could be useful
+
+    there could also be an updateFromView like updateFromDataset
+
+> granubuf example, add coef window parameters
+    add generative process to position grains
+    

@@ -85,7 +85,6 @@ class FiveLineStaveEvent extends Template.SymbolBase
                 midi: 55,
                 duration: 0.1,
                 accid: "natural"
-
             },
             
             view: {
@@ -97,6 +96,7 @@ class FiveLineStaveEvent extends Template.SymbolBase
                 width: 100,
                 ledgerLine_y: 0,
                 accidental: false
+
             }
         }
     }

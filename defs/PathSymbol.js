@@ -52,7 +52,7 @@ class PathSymbol extends Template.SymbolBase
     
     getElementViewParams(element) {
 
-        const trajectory = element.querySelector('.trajectory');
+        const trajectory = element.querySelector('.display .trajectory');
         const d = trajectory.getAttribute('d');
         
         const points = SVGPoints.toPoints({ 

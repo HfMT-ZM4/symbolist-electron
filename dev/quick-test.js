@@ -72,3 +72,5 @@ console.log({ ...obj1, ...obj2 });
 let stringArr = "1,2,[1,2]";
 
 console.log( JSON.parse(`[${stringArr}]`) );
+
+console.log(typeof [1,2,3] );

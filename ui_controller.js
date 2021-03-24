@@ -1706,7 +1706,7 @@ function dataToHTML(data_)
             key != 'parent' && 
             key != 'contents' ) 
         {
-            dataObj[`data-${key}`] = data_[key];
+            dataObj[`data-${key}`] = typeof data_[key] == "object" ? JSON.stringify(data_[key]) : data_[key];
         }
         else if( key == 'id') // maybe pass all keys?
         {

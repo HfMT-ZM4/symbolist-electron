@@ -5,7 +5,7 @@ class PartStave extends Template.SymbolBase
     constructor() {
         super();
         this.class = "PartStave";
-        this.palette = [ "AzimNote", "BasicSymbol", "ColorPitch"];
+        this.palette = [ "AzimNote", "BasicSymbol", "ColorPitch", "BetaEnv"];
 
         this.left_margin = 20;
 
@@ -137,11 +137,11 @@ class PartStave extends Template.SymbolBase
             const bbox_x = parseFloat(containerRect.getAttribute('x'));
 
             ret.x = bbox_x + ((child_data.time - parseFloat(this_element.dataset.time)) * this.time2x);
+        }
 
-            if( ui_api.hasParam(child_data, "duration" ) )
-            {
-                ret.width = child_data.duration * this.time2x;
-            }
+        if( ui_api.hasParam(child_data, "duration" ) )
+        {
+            ret.width = child_data.duration * this.time2x;
         }
 
         if( child_data.class == "Measure" || child_data.class == "SnapPoint" ){
