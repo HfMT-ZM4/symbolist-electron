@@ -5,7 +5,7 @@ class Measure extends Template.SymbolBase
     constructor() {
         super();
         this.class = "Measure";
-        this.palette = [ "AzimNote", "BasicSymbol", "ColorPitch"];
+        this.palette = [ "AzimNote", "BasicSymbol", "ColorPitch", "BetaEnv"];
     }
 
 

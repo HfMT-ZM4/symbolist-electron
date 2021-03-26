@@ -267,29 +267,46 @@ class PartStave_IO extends Template.IO_SymbolBase
             pitch: []
         };
 
+        let ret_by_type = {};
+
         if( typeof obj_ref.contents != "undefined" )
         {
             obj_ref.contents.forEach(obj => {
                 const def = io_api.defGet(obj.class);
+                if( typeof ret_by_type[obj.class] == "undefined" ){
+                    ret_by_type[obj.class] = {};
+                }
+
                 const event = def.getFormattedLookup(params, obj);
                 if( event )
                 {
+                    Object.keys(event).forEach( k => {
+
+                        if( typeof ret_by_type[obj.class][k] == "undefined" ){
+                            ret_by_type[obj.class][k] = [];
+                        }
+
+                        ret_by_type[obj.class][k].push(event[k]);
+                    })
+
+                    /*
                     ret.time.push(event.time);
                     ret.duration.push(event.duration);
                     ret.pitch.push(event.pitch);
+                    */
                 }
             });
         
         }
         else
         {
-            ret = {
+            ret_by_type = {
                 lookup_error: `no contents element with id "${obj_ref.contents}" found`
             };
         }
 
         let ret_obj = {};
-        ret_obj[obj_ref.id] = ret;
+        ret_obj[obj_ref.id] = ret_by_type;
         
         return ret_obj;
     }

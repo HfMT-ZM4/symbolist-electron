@@ -52,24 +52,45 @@ class BetaEnv extends Template.SymbolBase
             y: params.y + this.height
         }];
 
-        for(let i = 0; i < n_pts; i++ )
+        let i = 0;
+        for( ; i < n_pts; i++ )
         {
             points.push({
                 x: params.x + i * x_incr,
                 y: params.y + (1 - y_arr[i]) * this.height
             })
         }
-        points.push({
-            x: params.x + params.width,
-            y: params.y + this.height
-        })
 
-        return {
+        while( --i > 0 )
+        {
+            points.push({
+                x: params.x + i * x_incr,
+                y: params.y + this.height + y_arr[i] * this.height
+            })
+        }
+
+        // points.push({
+        //     x: params.x + params.width,
+        //     y: params.y + this.height
+        // });
+
+        points.push( points[0] );
+
+
+        return [{
             new: "path",
             class: 'beta_env',
             id: `${params.id}-path`,
             d: SVGPoints.toPath(points)
-        }
+        }, {
+            new: "line",
+            x1: params.x,
+            x2: params.x,
+            y1: params.y - this.height * 2,
+            y2: params.y + this.height * 2,
+            class: "beta_env_start",
+            id: `${params.id}-start`
+        }]
 
     }
     
@@ -158,7 +179,7 @@ class BetaEnv extends Template.SymbolBase
                 class: this.class,
                 a: 2,
                 b: 2,
-                width: 20
+                duration: 0.2
             })
         }
     }
@@ -208,6 +229,25 @@ class BetaEnv_IO extends Template.IO_SymbolBase
         this.class = "BetaEnv";
     }
     
+ /**
+     * 
+     * API function called from controller
+     * 
+     * @param {*} params 
+     * @param {*} obj_ref 
+     */
+    getFormattedLookup( params, obj_ref )
+    {
+        return {
+            pitch: obj_ref.pitch,
+            duration: obj_ref.duration,
+            time: obj_ref.time,
+            a: obj_ref.a,
+            b: obj_ref.b
+        };
+    }
+
+
 }
 
 

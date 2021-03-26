@@ -142,3 +142,16 @@ body {
     stroke-width: 1px;
     stroke: black;
 }
+
+.beta_env {
+    fill: rgba(0, 0, 0, 0.1);
+    stroke: black;
+    stroke-width: 1px;
+}
+
+.beta_env_start {
+    stroke-width: 1px;
+    stroke: gray;
+    fill: none;
+    stroke-dasharray: 1;    
+}

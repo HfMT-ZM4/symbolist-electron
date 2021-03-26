@@ -241,10 +241,7 @@ function addScoreToModelRecursive(obj)
 
 function saveScore(filepath)
 {
-    let writeScore = initFile;
-    writeScore.score = score;
-
-    fs.writeFile(filepath, JSON.stringify(writeScore), (err) => {
+    fs.writeFile(filepath, JSON.stringify(score), (err) => {
         if( err )
         {
             console.error(err);
