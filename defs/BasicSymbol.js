@@ -83,6 +83,78 @@ class BasicSymbol extends Template.SymbolBase
     }
 
 
+    getDataTextView(dataObj, relativeTo = null)
+    {
+
+        let ret = {};
+        ret.key = "svg";
+        ret.val = [];
+
+        Object.keys(dataObj).forEach( key => {
+            ret.val.push({  
+                new: "text",
+                class: "data_text sprite",
+                container: `symbolist_overlay`,
+                relativeTo : (relativeTo ? relativeTo : `#${dataObj.id}`),
+                id: `${dataObj.id}-${key}-data_text`,
+                x: 0,
+                y: -20,
+                text: key + String(dataObj[key])
+            })
+        });
+
+        console.log(ret);
+
+        return ret;
+    }
+    
+    svgPreviewFromViewAndData(view, dataObj, relativeTo = null)
+    {
+        let drawing = ui_api.svgFromViewAndData(view, 
+            {
+                ...dataObj,
+                class: `${dataObj.class} sprite`, // << sprite flags the object to be deleted
+                id: `${dataObj.class}-sprite`,
+                container: 'symbolist_overlay' // << temp overlay layer gets cleared also
+            }, 
+            true /* overwrite*/ 
+        );
+        
+        if( relativeTo )
+        {
+            relativeTo = `#${dataObj.class}-sprite ${relativeTo}`;
+        }
+            
+        let text_drawing = this.getDataTextView({
+            ...dataObj,
+            id: `${dataObj.class}-sprite`
+        }, relativeTo );
+    
+        return [ drawing, text_drawing ];
+    }
+
+
+    fromData(dataObj, container, preview = false)
+    {
+      //  console.log('template fromData', container, dataObj);
+        // merging with defaults in case the user forgot to include something
+        const data_union = {
+            ...this.structs.data,
+            ...dataObj
+        };
+        
+        const viewParams = this.dataToViewParams(data_union, container);
+        
+        const viewObj = this.display(viewParams);        
+        
+        const drawObj = (preview ? 
+            this.svgPreviewFromViewAndData(viewObj, data_union) : 
+            ui_api.svgFromViewAndData(viewObj, data_union) );
+
+        ui_api.drawsocketInput( drawObj );
+    }
+
+
 }
 
 class BasicSymbol_IO extends Template.IO_SymbolBase

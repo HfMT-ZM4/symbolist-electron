@@ -1669,9 +1669,9 @@ function svgPreviewFromViewAndData(view, dataObj, relativeTo = null)
     let drawing = svgFromViewAndData(view, 
         {
             ...dataObj,
-            class: `${dataObj.class} sprite`,
+            class: `${dataObj.class} sprite`, // << sprite flags the object to be deleted
             id: `${dataObj.class}-sprite`,
-            container: 'symbolist_overlay'
+            container: 'symbolist_overlay' // << temp overlay layer gets cleared also
         }, 
         true /* overwrite*/ 
     );
@@ -2372,7 +2372,9 @@ let ui_api = {
     createHandle,
 
     startDefaultEventHandlers,
-    stopDefaultEventHandlers
+    stopDefaultEventHandlers,
+
+    filterDataset
 }
 
 
