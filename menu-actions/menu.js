@@ -63,8 +63,22 @@ function createTemplate()
     {
       label: 'Edit',
       submenu: [
-        { role: 'undo' },
-        { role: 'redo' },
+        { 
+          label: 'Undo',
+          accelerator: 'CommandOrControl+z',
+          click: async () => {
+              actions.undo();
+          }
+        },
+        { 
+          label: 'Redo',
+          accelerator: 'CommandOrControl+Shift+z',
+          click: async () => {
+              actions.redo();
+          }
+        },
+       // { role: 'undo' },
+       // { role: 'redo' },
         { type: 'separator' },
         { role: 'cut' },
         { role: 'copy' },

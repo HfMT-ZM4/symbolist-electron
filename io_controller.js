@@ -1,3 +1,9 @@
+/**
+ * started on the undo -- there is the model and the score, which both reference each other
+ * maybe we only need the score, and then build the model lookup from the score
+ */
+
+
 const fs = require('fs');
 const path = require('path');
 const sym_util = require('./lib/utils')
@@ -35,6 +41,10 @@ let defs = new Map();
  * 
  */
 let model = new Map(); 
+
+let undo_cache = [];
+let num_undo_steps = 10;
+let undo_cache_step = 0;
 
 /**
  * container : a simple lookup table, stored by class name, 
@@ -273,8 +283,10 @@ function loadScore(filepath)
                 model.set(score.id, score);
 
                 addScoreToModelRecursive(score);
+                addCacheState( score );
 
                 sendScoreToUI();
+                
 
             }
             catch(e) {
@@ -285,9 +297,9 @@ function loadScore(filepath)
     })
 }
 
-function newScore(){
+function newScore( newScore = initFile ){
 
-    score = cloneObj( initFile );
+    score = cloneObj( newScore );
     model = new Map();
 
     model.set(score.id, score);
@@ -327,13 +339,50 @@ function loadDefFiles(folder)
     })
 
     newScore();
+    addCacheState( score );
 
+}
+
+function undo()
+{
+    newScore( stepCacheBack() );
+    sendScoreToUI();
+}
+
+function redo()
+{
+    newScore( stepCacheForward() );
+    sendScoreToUI();
+}
+
+function stepCacheBack()
+{
+    undo_cache_step = undo_cache_step >= num_undo_steps ? num_undo_steps-1 : undo_cache_step+1;
+    return undo_cache[ undo_cache_step ];
+}
+
+
+function stepCacheForward()
+{
+    undo_cache_step = undo_cache_step <= 0 ? 0 : undo_cache_step-1 ;
+    return undo_cache[ undo_cache_step ];
+}
+
+
+function addCacheState( data )
+{
+
+    undo_cache_step = 0; // resets undo step, so redo is not possible now
+    undo_cache.unshift( cloneObj(data) );
+
+    if( undo_cache.length > num_undo_steps )
+        undo_cache.pop();
 }
 
 
 function addToModel( dataobj )
 {
-//    console.log('setting val into model', dataobj )
+  //  console.log('setting val into model', dataobj )
 
     // set object into flat model array
     if( model.has(dataobj.id) )
@@ -350,7 +399,7 @@ function addToModel( dataobj )
         model.set( dataobj.id, dataobj );
         addToScore(dataobj);
     }
-
+    
 //    addToStructuredLookup(dataobj);
 }
 
@@ -385,6 +434,7 @@ function addToScore( dataobj )
     }
     else
     {
+
         sym_util.insertSorted(dataobj, container.contents, (a,b) => {
             const test_b = model.get(b);
             if( typeof test_b === "undefined"  ) return 0;
@@ -572,7 +622,7 @@ function lookup(params)
 
 function sendScoreToUI()
 {
-    console.log('data-refresh');
+    //console.log('data-refresh', score);
     process.send({
         key: 'score',
         val: score
@@ -672,6 +722,7 @@ function udpRecieve(msg)
         case 'data':
             addIdIfMissing(msg.val);
             addToModel(msg.val);
+            addCacheState( score );
             sendDataToUI(msg.val);
             break;
         case 'lookup':
@@ -728,6 +779,7 @@ function input(_obj)
         case 'data':
             addIdIfMissing(val);
             addToModel(val);
+            addCacheState( score );
             udpSend(val);
             break;
 
@@ -736,6 +788,14 @@ function input(_obj)
             udpSend(val);
             break;
 
+        case 'undo':
+            undo();
+        break;
+
+        case 'redo':
+            redo();
+        break;
+
         case 'io_out':
             console.log('io_out', val);
             udpSend(val);
@@ -743,6 +803,7 @@ function input(_obj)
             
         case 'newScore':
             newScore();
+            addCacheState( score );
             break;
 
         case 'load-io-defs':

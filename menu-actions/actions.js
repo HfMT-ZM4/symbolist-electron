@@ -161,6 +161,20 @@ async function open()
 }
 
 
+  function undo()
+  {
+    io_proc.send({
+      key: "undo"
+    })
+  }
+
+  function redo()
+  {
+    io_proc.send({
+      key: "redo"
+    })
+  }
+
 module.exports = {
     init, // internal for initializing the module
     save,
@@ -169,6 +183,8 @@ module.exports = {
     newScore,
     addDefsFromFolder,
     deleteSelected,
-    buildModelLookup
+    buildModelLookup,
+    undo,
+    redo
 }
 

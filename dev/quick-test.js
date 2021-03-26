@@ -74,3 +74,7 @@ let stringArr = "1,2,[1,2]";
 console.log( JSON.parse(`[${stringArr}]`) );
 
 console.log(typeof [1,2,3] );
+
+let c = 0;
+let lll = [1,2,3];
+console.log( lll[c++], c );
