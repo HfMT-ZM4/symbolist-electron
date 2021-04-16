@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 489.0, 79.0, 1612.0, 937.0 ],
+		"rect" : [ 427.0, 79.0, 1612.0, 937.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -42,17 +42,72 @@
 				"box" : 				{
 					"fontface" : 0,
 					"fontsize" : 12.0,
+					"id" : "obj-4",
+					"linecount" : 30,
+					"maxclass" : "o.expr.codebox",
+					"numinlets" : 1,
+					"numoutlets" : 2,
+					"outlettype" : [ "FullPacket", "FullPacket" ],
+					"patching_rect" : [ 964.0, 479.294851064682007, 444.0, 438.0 ],
+					"presentation_linecount" : 30,
+					"text" : "/npoints = 1000,\n/maxtime = 2.,\n\n/idx =      aseq( 0, /npoints - 1 ),\n\n/norm_t =   float32(/idx) / (/npoints - 1),\n\n/time =     /norm_t * /maxtime,\n\n/duration = abs( cos( /norm_t * twopi() * 20 ) ) * 0.05,\n\n/pitch =    60 + ( sin( /norm_t * twopi() * 10 ) ) * 24.,\n\n/a =        1 + abs( sin( /norm_t * twopi() * 10 ) ) * 10,\n/b =        1 + abs( sin( /norm_t * twopi() * 10 ) ) * 5,\n\n/accum = map( \n  lambda([idx, time, duration, pitch, a, b],\n    {\n      /id: \"test_env_\"+idx,\n      /time: time,\n      /duration: duration,\n      /pitch: pitch,\n      /a: a,\n      /b: b,\n      /class : \"BetaEnv\",\n      /container : \"synth\"\n    }\n  ), /idx, /time, /duration, /pitch, /a, /b\n)"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"fontface" : 0,
+					"fontsize" : 12.0,
+					"id" : "obj-2",
+					"linecount" : 32,
+					"maxclass" : "o.expr.codebox",
+					"numinlets" : 1,
+					"numoutlets" : 2,
+					"outlettype" : [ "FullPacket", "FullPacket" ],
+					"patching_rect" : [ 390.0, 34.307692050933838, 733.0, 465.0 ],
+					"presentation_linecount" : 32,
+					"text" : "/npoints = 1000,\n/maxtime = 1.5,\n\n/idx =      aseq( 0, /npoints - 1 ),\n\n/norm_t =   float32(/idx) / (/npoints - 1),\n\n#/time =     scale( sin( /norm_t * twopi() * sin( /norm_t * twopi() * 20 ) ), -1, 1, 0, /maxtime),\n\n/time =     scale( pow( /norm_t, exp(-1) ), 0, 1, 0, /maxtime),\n\n/duration = abs( cos( /norm_t * twopi() * 20 ) ) * 0.1,\n\n/pitch =    60 + ( sin( /norm_t * twopi() * 10 ) ) * 24.,\n\n/a =        1 + abs( sin( (1 - /norm_t) * twopi() * 20 ) ) * 50,\n/b =        1 + (1 - /time) * 50,\n\n/accum = map( \n  lambda([idx, time, duration, pitch, a, b],\n    {\n      /id: \"test_env_\"+idx,\n      /time: time,\n      /duration: duration,\n      /pitch: pitch,\n      /a: a,\n      /b: b,\n      /class : \"BetaEnv\",\n      /container : \"synth\"\n    }\n  ), /idx, /time, /duration, /pitch, /a, /b\n)"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-8",
+					"maxclass" : "newobj",
+					"numinlets" : 1,
+					"numoutlets" : 2,
+					"outlettype" : [ "jit_matrix", "" ],
+					"patching_rect" : [ 102.538459837436676, 725.0, 149.0, 22.0 ],
+					"text" : "jit.matrix 10 char 1000 1"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-7",
+					"maxclass" : "newobj",
+					"numinlets" : 3,
+					"numoutlets" : 6,
+					"outlettype" : [ "signal", "signal", "signal", "signal", "signal", "FullPacket" ],
+					"patching_rect" : [ 774.80771541595459, 668.269228875637054, 102.0, 22.0 ],
+					"text" : "o.lookup~ @mc 1"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"fontface" : 0,
+					"fontsize" : 12.0,
 					"id" : "obj-3",
-					"linecount" : 8,
+					"linecount" : 6,
 					"maxclass" : "o.compose",
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 172.076912999153137, 781.21793806552887, 1366.384676814079285, 119.0 ],
-					"presentation_linecount" : 8,
-					"saved_bundle_data" : [ 35, 98, 117, 110, 100, 108, 101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 47, 99, 108, 97, 115, 115, 0, 0, 44, 115, 0, 0, 66, 101, 116, 97, 69, 110, 118, 0, 0, 0, 0, 24, 47, 105, 100, 0, 44, 115, 0, 0, 116, 101, 115, 116, 95, 101, 110, 118, 95, 49, 56, 50, 0, 0, 0, 0, 0, 0, 0, 16, 47, 97, 0, 0, 44, 100, 0, 0, 64, 35, -1, 117, 33, 65, 64, -93, 0, 0, 0, 16, 47, 98, 0, 0, 44, 100, 0, 0, 64, 21, -1, 117, 33, 65, 64, -93, 0, 0, 0, 24, 47, 100, 117, 114, 97, 116, 105, 111, 110, 0, 0, 0, 44, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 47, 116, 105, 109, 101, 0, 0, 0, 44, 100, 0, 0, 63, -44, 117, -19, -100, -93, 39, 14, 0, 0, 0, 20, 47, 112, 105, 116, 99, 104, 0, 0, 44, 100, 0, 0, 64, 86, -17, -126, -77, 43, 42, -80, 0, 0, 0, 24, 47, 99, 111, 110, 116, 97, 105, 110, 101, 114, 0, 0, 44, 115, 0, 0, 115, 121, 110, 116, 104, 0, 0, 0 ],
+					"patching_rect" : [ 172.076912999153137, 781.21793806552887, 1366.384676814079285, 94.0 ],
+					"saved_bundle_data" : [ 35, 98, 117, 110, 100, 108, 101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 24, 47, 99, 108, 97, 115, 115, 0, 0, 44, 115, 0, 0, 67, 111, 108, 111, 114, 80, 105, 116, 99, 104, 0, 0, 0, 0, 0, 60, 47, 105, 100, 0, 44, 115, 0, 0, 67, 111, 108, 111, 114, 80, 105, 116, 99, 104, 95, 117, 95, 54, 50, 50, 53, 55, 102, 52, 51, 45, 48, 100, 54, 53, 45, 52, 50, 99, 50, 45, 56, 56, 52, 51, 45, 56, 56, 99, 99, 57, 52, 57, 99, 99, 99, 97, 99, 0, 0, 0, 0, 0, 0, 20, 47, 116, 105, 109, 101, 0, 0, 0, 44, 100, 0, 0, 63, -22, -74, -12, 57, 88, 16, 98, 0, 0, 0, 20, 47, 112, 105, 116, 99, 104, 0, 0, 44, 100, 0, 0, 64, 95, -37, 23, 39, 10, 61, 112, 0, 0, 0, 24, 47, 100, 117, 114, 97, 116, 105, 111, 110, 0, 0, 0, 44, 100, 0, 0, 63, -71, -103, -103, -103, -103, -103, -102, 0, 0, 0, 24, 47, 99, 111, 110, 116, 97, 105, 110, 101, 114, 0, 0, 44, 115, 0, 0, 98, 97, 115, 115, 111, 111, 110, 0 ],
 					"saved_bundle_length" : 212,
-					"text" : "/class : \"BetaEnv\",\n/id : \"test_env_182\",\n/a : 9.99894,\n/b : 5.49947,\n/duration : 0.,\n/time : 0.319698,\n/pitch : 91.7424,\n/container : \"synth\""
+					"text" : "/class : \"ColorPitch\",\n/id : \"ColorPitch_u_62257f43-0d65-42c2-8843-88cc949cccac\",\n/time : 0.834833,\n/pitch : 127.423,\n/duration : 0.1,\n/container : \"bassoon\""
 				}
 
 			}
@@ -66,10 +121,10 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 138.423065721988678, 479.294851064682007, 244.0, 65.0 ],
+					"patching_rect" : [ 138.423065721988678, 479.294851064682007, 244.0, 66.0 ],
 					"saved_bundle_data" : [ 35, 98, 117, 110, 100, 108, 101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 47, 107, 101, 121, 0, 0, 0, 0, 44, 115, 0, 0, 103, 101, 116, 70, 111, 114, 109, 97, 116, 116, 101, 100, 76, 111, 111, 107, 117, 112, 0, 0, 0, 0, 0, 52, 47, 118, 97, 108, 0, 0, 0, 0, 44, 46, 0, 0, 0, 0, 0, 36, 35, 98, 117, 110, 100, 108, 101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 47, 105, 100, 0, 44, 115, 0, 0, 115, 121, 110, 116, 104, 0, 0, 0 ],
 					"saved_bundle_length" : 108,
-					"text" : "/key : \"getFormattedLookup\",\n/val : {\n\t/id : \"synth\"\n}"
+					"text" : "/key : \"getFormattedLookup\",\n/val : {\n  /id : \"synth\"\n}"
 				}
 
 			}
@@ -5824,12 +5879,11 @@
 					"id" : "obj-18",
 					"linecount" : 30,
 					"maxclass" : "o.expr.codebox",
-					"numinlets" : 2,
-					"numoutlets" : 3,
-					"outlettype" : [ "FullPacket", "FullPacket", "FullPacket" ],
-					"patching_rect" : [ 439.0, 51.307692050933838, 443.0, 426.0 ],
-					"presentation_linecount" : 30,
-					"text" : "/npoints = 1000,\n/maxtime = 2.,\n\n/idx =      aseq( 0, /npoints - 1 ),\n\n/norm_t =   float32(/idx) / (/npoints - 1),\n\n/time =     /norm_t * /maxtime,\n\n/duration = abs( cos( /norm_t * twopi() * 20 ) ) * 0.05,\n\n/pitch =    60 + ( sin( /norm_t * twopi() * 10 ) ) * 24.,\n\n/a =        1 + abs( sin( /norm_t * twopi() * 10 ) ) * 10,\n/b =        1 + abs( sin( /norm_t * twopi() * 10 ) ) * 5,\n\n/accum = map( \n  lambda([idx, time, duration, pitch, a, b],\n    {\n      /id: \"test_env_\"+idx,\n      /time: time,\n      /duration: duration,\n      /pitch: pitch,\n      /a: a,\n      /b: b,\n      /class : \"BetaEnv\",\n      /container : \"synth\"\n    }\n  ), /idx, /time, /duration, /pitch, /a, /b\n)"
+					"numinlets" : 1,
+					"numoutlets" : 2,
+					"outlettype" : [ "FullPacket", "FullPacket" ],
+					"patching_rect" : [ 1139.0, 102.0, 443.0, 438.0 ],
+					"text" : "/npoints = 100,\n/maxtime = 2.,\n\n/idx =      aseq( 0, /npoints - 1 ),\n\n/norm_t =   float32(/idx) / (/npoints - 1),\n\n/time =     3 + /norm_t * /maxtime,\n\n/duration = abs( cos( /norm_t * twopi() * 20 ) ) * 0.05,\n\n/pitch =    54 + ( sin( /norm_t * twopi() * 3 ) ) * 64.,\n\n/a =        1 + abs( sin( /norm_t * twopi() * 10 ) ) * 10,\n/b =        1 + abs( sin( /norm_t * twopi() * 10 ) ) * 5,\n\n/accum = map( \n  lambda([idx, time, duration, pitch, a, b],\n    {\n      /id: \"testb_env_\"+idx,\n      /time: time,\n      /duration: duration,\n      /pitch: pitch,\n      /a: a,\n      /b: b,\n      /class : \"BetaEnv\",\n      /container : \"synth\"\n    }\n  ), /idx, /time, /duration, /pitch, /a, /b\n)"
 				}
 
 			}
@@ -6048,6 +6102,13 @@
 			}
 , 			{
 				"patchline" : 				{
+					"destination" : [ "obj-29", 0 ],
+					"source" : [ "obj-2", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
 					"destination" : [ "obj-32", 0 ],
 					"source" : [ "obj-29", 0 ]
 				}
@@ -6110,18 +6171,15 @@
 				"name" : "o.compose.mxo",
 				"type" : "iLaX"
 			}
+, 			{
+				"name" : "o.lookup~.mxo",
+				"type" : "iLaX"
+			}
  ],
 		"autosave" : 0,
 		"styles" : [ 			{
 				"name" : "black on white",
-				"number" : 				{
-					"fontsize" : [ 12.0 ],
-					"textcolor_inverse" : [ 0.239216, 0.254902, 0.278431, 1.0 ],
-					"fontname" : [ "Arial" ]
-				}
-,
 				"umenu" : 				{
-					"textcolor_inverse" : [ 0.239216, 0.254902, 0.278431, 1.0 ],
 					"bgfillcolor" : 					{
 						"type" : "color",
 						"color1" : [ 0.862745, 0.870588, 0.878431, 1.0 ],
@@ -6131,7 +6189,14 @@
 						"proportion" : 0.39,
 						"autogradient" : 0
 					}
-
+,
+					"textcolor_inverse" : [ 0.239216, 0.254902, 0.278431, 1.0 ]
+				}
+,
+				"number" : 				{
+					"fontsize" : [ 12.0 ],
+					"fontname" : [ "Arial" ],
+					"textcolor_inverse" : [ 0.239216, 0.254902, 0.278431, 1.0 ]
 				}
 ,
 				"parentstyle" : "",
@@ -6140,8 +6205,8 @@
 , 			{
 				"name" : "caption text",
 				"default" : 				{
-					"fontsize" : [ 11.0 ],
-					"fontface" : [ 2 ]
+					"fontface" : [ 2 ],
+					"fontsize" : [ 11.0 ]
 				}
 ,
 				"parentstyle" : "",
@@ -6150,9 +6215,9 @@
 , 			{
 				"name" : "section dividers",
 				"default" : 				{
+					"fontface" : [ 3 ],
 					"fontsize" : [ 15.0 ],
-					"fontname" : [ "Arial" ],
-					"fontface" : [ 3 ]
+					"fontname" : [ "Arial" ]
 				}
 ,
 				"parentstyle" : "",
@@ -6171,9 +6236,9 @@
 , 			{
 				"name" : "titles",
 				"default" : 				{
+					"fontface" : [ 1 ],
 					"fontsize" : [ 20.0 ],
-					"fontname" : [ "Arial" ],
-					"fontface" : [ 1 ]
+					"fontname" : [ "Arial" ]
 				}
 ,
 				"parentstyle" : "",

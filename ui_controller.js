@@ -1765,6 +1765,10 @@ function getElementData(element, container = null)
                 data[k] = element.dataset[k]; 
             }
         }
+        else if(  element.dataset[k][0] == 'true' ||  element.dataset[k][0] == 'false' )
+        {
+            data[k] = element.dataset[k][0] == 'true';
+        }
         else
         {
             data[k] = element.dataset[k]; 

@@ -1,8 +1,3 @@
-/**
- * started on the undo -- there is the model and the score, which both reference each other
- * maybe we only need the score, and then build the model lookup from the score
- */
-
 
 const fs = require('fs');
 const path = require('path');
@@ -387,7 +382,7 @@ function addToModel( dataobj )
     // set object into flat model array
     if( model.has(dataobj.id) )
     {
-        console.log('updating exsiting val in model', dataobj )
+       // console.log('updating exsiting val in model', dataobj )
         let ref = model.get(dataobj.id);
         for (const [key, value] of Object.entries(dataobj)) 
         {
