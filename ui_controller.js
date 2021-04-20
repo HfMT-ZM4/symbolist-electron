@@ -18,7 +18,7 @@ const {
     filterByKeys,
     cloneObj,
     makeUniqueID,
-    copyObjectAndAddToParent
+    copyObjectAndAddToParent,
 } = require("./lib/ui_utils");
 
 const {
@@ -29,6 +29,7 @@ const {
     transformPoint,
     getComputedMatrix,
     getBBoxAdjusted,
+    getComputedTextLength,
     applyTransform,
     rotate,
     makeRelative
@@ -2352,6 +2353,8 @@ let ui_api = {
 
     getSVGCoordsFromEvent,
     getBBoxAdjusted,
+
+    getComputedTextLength,
 
 
     svgObj,

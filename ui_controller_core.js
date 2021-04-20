@@ -86,8 +86,7 @@ let renderer_api = {
 
     getSVGCoordsFromEvent,
     getBBoxAdjusted,
-
-
+    getComputedTextLength,
     svgObj,
     scrollOffset,
 
@@ -1344,6 +1343,18 @@ function getBBoxAdjusted(element)
     
 }
 
+
+function getComputedTextLength(text, cssClass) 
+{
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+    const textElement = document.createElementNS(SVG_NS, 'text');
+    textElement.textContent = text;
+    textElement.setAttribute('class', cssClass);
+    svgObj.appendChild(textElement);
+    const textLength = textElement.getComputedTextLength();
+    svgObj.removeChild(textElement);
+    return textLength;
+}
 
 function transformPoint(matrix, pt)
 {  
