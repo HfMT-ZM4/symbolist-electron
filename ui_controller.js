@@ -18,7 +18,7 @@ const {
     filterByKeys,
     cloneObj,
     makeUniqueID,
-    copyObjectAndAddToParent,
+    copyObjectAndAddToParent
 } = require("./lib/ui_utils");
 
 const {
