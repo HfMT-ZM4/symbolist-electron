@@ -3,18 +3,74 @@ const fs = require('fs');
 const path = require('path');
 const sym_util = require('./lib/utils')
 const { cloneObj } = sym_util;
-const { obj2osc, osc2obj } = require('./lib/o')
 
-const dgram = require('dgram');
+const udp_server = require('./lib/udp');
+
 
 global.root_require = function(path) {
     return require(__dirname + '/' + path);
 }
 
 
-let udp_server;
-let sendToIP = '127.0.0.1';
-let sendPort = 7777;
+let post = console.log;
+let outlet = (msg) => {};
+let ui_send = (msg) => { process.send(msg) }
+
+let params = {
+    ui_send: "default",
+    post: "default",
+    outlet: "default",
+    enable_udp: false,
+    udp_listen_port: 9999,
+    udp_send_port: 7777,
+    udp_send_ip: "127.0.0.1"
+}
+
+const init = function(obj) {
+    
+    params = {
+        ...params,
+        ...obj
+    }
+
+    if( params.post != "default" )
+    {
+        post = params.post;
+    }
+
+    if( params.outlet != "default" )
+    {
+        outlet = params.outlet;
+    }
+
+    if( params.ui_send != "default" )
+    {
+        ui_send = params.ui_send;
+    }
+
+}
+
+const startUDP = function()
+{
+
+    udp_server.receive_callback(io_receive);
+
+    if( params.enable_udp )
+    {
+        post("starting udp server");
+
+        udp_server.init( params.udp_listen_port, params.udp_send_port, params.udp_send_ip );
+        if( params.outlet == "default" )
+        {
+            outlet = udp_server.send;
+            post("set outlet");
+
+        }
+    }
+
+}
+
+
 
 let initFile = null;
 
@@ -69,81 +125,6 @@ let undo_cache_step = 0;
 let score = initFile;
 
 
-function initUDP()
-{
-
-    console.log(sym_util.fairlyUniqueString());
-
-    udp_server = dgram.createSocket('udp4');;
-
-    udp_server.on('error', (err) => {
-        console.log(`server error:\n${err.stack}`);
-        server.close();
-    });
-
-
-    udp_server.on('message', (msg, rinfo) => {  
-
-        // not using osc yet, because of missing subbundles
-        let str = msg.toString('utf-8');
-        if( str.startsWith('#bundle'))
-        {
-            udpReceive( osc2obj(msg) );
-            /*
-            try {
-                let osc_bundle = osc.readPacket(msg, { metadata: true });
-                console.log(osc_bundle);
-                console.error(`osc_bundles aren't used yet`);
-
-            }
-            catch(err) {
-                console.error('malformed osc bundle', err);
-            }
-            */
-        }
-        else
-        {
-            sym_util.parseAsync(str).then( obj => {
-                udpReceive(obj);
-            })
-        }
-
-    });
-
-    udp_server.on('listening', () => {
-        udp_server.setSendBufferSize(65507);
-        const address = udp_server.address();
-        console.log(`server listening ${address.address}:${address.port}`);
-    });
-
-    udp_server.on('error', (err) => {
-        console.error('udp send err', err);
-    });
-
-
-
-    udp_server.bind(8888);
-
-
-}
-
-function udpSend(msg)
-{
-    const bndl = obj2osc(msg);
-    if( bndl.length > 65507 ){
-       // console.error(`udp_server error, buffer too large ${bndl.length}`)
-        udp_server.send( obj2osc({
-            sendError: `udp_server error, buffer too large ${bndl.length}`
-        }), sendPort);
-    }
-    else
-    {
-        udp_server.send( bndl, sendPort, (err) => {
-            if( err ) console.error(`udp_server ${err} (size ${bndl.length})`);
-          });
-    }
-    
-}
 
 function addIdIfMissing(v)
 {
@@ -167,7 +148,7 @@ function sendDataToUI(val)
     val = Array.isArray(val) ? val : [val];
 
     val.forEach( v => {
-        process.send({
+        ui_send({
             key: 'data',
             val: v
         })
@@ -253,7 +234,7 @@ function saveScore(filepath)
         }
         else
         {
-            console.log('saved', filepath);
+            post('saved', filepath);
         }
     })
 }
@@ -269,7 +250,7 @@ function loadScore(filepath)
         {
             try {
                 let newFile = JSON.parse(data);
-                console.log('loaded', newFile);
+                post('loaded', newFile);
 
                 //newScore();
 
@@ -304,7 +285,7 @@ function newScore( newScore = initFile ){
 
 function loadDefFiles(folder)
 {
-    console.log('loadUserFolder', folder);
+    post('loadUserFolder', folder);
     
     folder.files.forEach( file => {
         
@@ -321,7 +302,7 @@ function loadDefFiles(folder)
             let { io_def } = require(filepath);
             if( io_def )
             {
-                console.log(filepath);
+                post(filepath);
                 // api now global
                 let cntrlDef_ = new io_def();
 
@@ -466,7 +447,7 @@ function addToStructuredLookup( dataobj )
 
  if( Array.isArray(dataobj.class) && dataobj.class.includes('container') )
  {
-     console.log('adding container');
+     post('adding container');
      // def className must be first of classList
      let container_class = dataobj.class[0];
      let container_def = defs.get(container_class) 
@@ -478,7 +459,7 @@ function addToStructuredLookup( dataobj )
 
          if( typeof container_def.comparator === "undefined")
          {
-             console.log(`no comparator for ${JSON.stringify(container_def, null, 2)}`);
+             post(`no comparator for ${JSON.stringify(container_def, null, 2)}`);
          }
          else
          {
@@ -597,7 +578,7 @@ function lookup(params)
         else
         {
 
-            console.log(model.has(params.id), model.get(params.id) );
+            post(model.has(params.id), model.get(params.id) );
             ret = {
                 lookup_error: `no element with id "${params.id}" found`
             };
@@ -618,7 +599,7 @@ function lookup(params)
 function sendScoreToUI()
 {
     //console.log('data-refresh', score);
-    process.send({
+    ui_send({
         key: 'score',
         val: score
     }) 
@@ -627,7 +608,7 @@ function sendScoreToUI()
 
 function signalGUI(obj)
 {
-    process.send({
+    ui_send({
         key: 'signal-gui-script',
         val: obj
     }) 
@@ -635,10 +616,10 @@ function signalGUI(obj)
 
 function buildModelLookup()
 {
-    console.log('buildModelLookup');
+    post('buildModelLookup');
 
     model.forEach( (val, key ) => {
-        console.log( `${key} : ${val}` );
+        post( `${key} : ${val}` );
     })
 }
 
@@ -646,7 +627,7 @@ function buildModelLookup()
 function lookupResponseUDP(params)
 {
    let ret = lookup(params);
-   udpSend({
+   outlet({
        lookup: ret 
     }) ;
 }
@@ -667,7 +648,7 @@ function getFormattedLookupUDP(params)
                 const ret = def.getFormattedLookup(params, obj);
                 if( ret )
                 {
-                    udpSend({
+                    outlet({
                         'formatted': ret
                     })
                 }
@@ -691,7 +672,7 @@ function callFromIO(params)
                 const ret = _def[params.method](params);
                 if( ret )
                 {
-                    udpSend({
+                    outlet({
                         'return/io': ret
                     })
                 }
@@ -700,7 +681,7 @@ function callFromIO(params)
         }
 
         // also sends to ui_controlller, so if the function has the same name in both defs it will be called in both places
-        process.send({
+        ui_send({
             key: "call", 
             val: params
         })
@@ -711,7 +692,7 @@ function callFromIO(params)
  * 
  * @param {Object} msg key/val object from UDP
  */
-function udpReceive(msg)
+function io_receive(msg)
 {
     switch(msg.key){
         case 'data':
@@ -730,7 +711,7 @@ function udpReceive(msg)
             callFromIO(msg.val);
             break;
         case 'drawsocket':
-            process.send({
+            ui_send({
                 key: 'drawsocket',
                 val: msg.val
             })
@@ -748,7 +729,7 @@ function procGuiEvent(event_) {
             buildModelLookup();
             break;
         default:
-            console.log('unhandled symbolistAction:', event_.symbolistAction);
+            post('unhandled symbolistAction:', event_.symbolistAction);
             break;
     }
 }
@@ -775,12 +756,12 @@ function input(_obj)
             addIdIfMissing(val);
             addToModel(val);
             addCacheState( score );
-            udpSend(val);
+            outlet(val);
             break;
 
         case 'new':
         case 'update':
-            udpSend(val);
+            outlet(val);
             break;
 
         case 'undo':
@@ -792,8 +773,8 @@ function input(_obj)
         break;
 
         case 'io_out':
-            console.log('io_out', val);
-            udpSend(val);
+            post('io_out', val);
+            outlet(val);
             break;    
             
         case 'newScore':
@@ -824,84 +805,14 @@ function input(_obj)
         
 
         default:
-            console.log('controller, unhandled key', key);
+            post('controller, unhandled key', key);
             //process.send('pong');
             break;
     }
 }
 
-module.exports = { input, initUDP }
-
-
-/*
-function getDef(obj_, classtype) // paletteClass or object class
-{
-    if( !obj_.hasOwnProperty(classtype) ){
-        console.log(`no ${classtype} found:`, obj_);
-        return null;
-    }
-
-    const classList = obj_[classtype].split(".");
-    
-    if( defs.has(classList[0]) )
-    {
-        const clefDef = defs.get(classList[0]);
-
-        if( classList.length == 1 )
-        {
-            return clefDef;
-        }
-        else if( classList.length == 2 )
-        {
-            if( clefDef.palette.hasOwnProperty(classList[1]) )
-            {
-                return clefDef.palette[ classList[1] ];
-            }
-        }
-    }
-
-    return null;
+module.exports = { 
+    input, 
+    init,
+    startUDP
 }
-*/
-
-
-
-
-/*
-function castFromString(def, param, value)
-{
-
-    if( typeof(value) == "String" && def.paramTypes[param] != "String")
-    {
-        if( def.paramTypes[param] == "Number" )
-        {
-            return Number(value);
-        }
-        else if( def.paramTypes[param] == "Array" || def.paramTypes[param] == "Object" )
-        {
-            return JSON.parse(value);
-        }
-        
-    }
-
-    return value;
-   
-}
-
-function updateSymbolData(obj)
-{
-    //console.log('updateSymbolData', obj);
-
-    if( model.has(obj.id) )
-    {
-      //  console.log('test');
-
-        let sym = model.get(obj.id);
-        const def = defs.get(obj.class);
-
-        //update the symbol's parametrer passed in
-        sym[obj.param] = castFromString(def, obj.param, obj.value);
-       
-    }
-}
-*/

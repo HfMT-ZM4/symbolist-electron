@@ -155,12 +155,20 @@ else if (cluster.isWorker)
 {
   const io_controller = require('./io_controller')
 
+  io_controller.init({
+    ui_send: (msg) => process.send(msg),
+    enable_udp: true,
+    udp_listen_port: 9999,
+    udp_send_port: 7777,
+    udp_send_ip: "127.0.0.1"
+  })
+
   // messages from UI
   process.on("message", (_msg) => {  
     io_controller.input(_msg);
   });
 
-  io_controller.initUDP();
+  io_controller.startUDP();
 
 }
 
