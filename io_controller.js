@@ -2,10 +2,10 @@
 const fs = require('fs');
 const path = require('path');
 const sym_util = require('./lib/utils')
+const { cloneObj } = sym_util;
 const { obj2osc, osc2obj } = require('./lib/o')
 
 const dgram = require('dgram');
-const { parseAsync, cloneObj } = require('./lib/utils');
 
 global.root_require = function(path) {
     return require(__dirname + '/' + path);
@@ -88,7 +88,7 @@ function initUDP()
         let str = msg.toString('utf-8');
         if( str.startsWith('#bundle'))
         {
-            udpRecieve( osc2obj(msg) );
+            udpReceive( osc2obj(msg) );
             /*
             try {
                 let osc_bundle = osc.readPacket(msg, { metadata: true });
@@ -104,7 +104,7 @@ function initUDP()
         else
         {
             sym_util.parseAsync(str).then( obj => {
-                udpRecieve(obj);
+                udpReceive(obj);
             })
         }
 
@@ -643,7 +643,7 @@ function buildModelLookup()
 }
 
 
-function lookupResonseUDP(params)
+function lookupResponseUDP(params)
 {
    let ret = lookup(params);
    udpSend({
@@ -711,7 +711,7 @@ function callFromIO(params)
  * 
  * @param {Object} msg key/val object from UDP
  */
-function udpRecieve(msg)
+function udpReceive(msg)
 {
     switch(msg.key){
         case 'data':
@@ -721,7 +721,7 @@ function udpRecieve(msg)
             sendDataToUI(msg.val);
             break;
         case 'lookup':
-            lookupResonseUDP(msg.val);
+            lookupResponseUDP(msg.val);
             break;
         case 'getFormattedLookup':
             getFormattedLookupUDP(msg.val);
