@@ -27,7 +27,7 @@ let params = {
 }
 
 const init = function(obj) {
-    
+    post("hello init!");
     params = {
         ...params,
         ...obj

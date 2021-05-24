@@ -1,21 +1,29 @@
 
 /* global drawsocket:readonly  */
 
- const { ipcRenderer } = require('electron')
- ipcRenderer.on('io-message', (event, obj) => {
-    input(obj);
- })
- 
- let post = console.log;
- let outlet = (msg) => {};
- let io_send = (msg) => ipcRenderer.send('renderer-event', msg);
- 
- let params = {
-     io_send: "default",
-     post: "default",
-     outlet: "default",
-     dirname: "default"
- }
+
+let post = console.log;
+let outlet = (msg) => { };
+let io_send = (msg) => console.error("not sending to io", msg);
+
+try {
+    const { ipcRenderer } = require('electron');
+    ipcRenderer.on('io-message', (event, obj) => {
+        input(obj);
+    });
+
+    io_send = (msg) => ipcRenderer.send('renderer-event', msg);
+
+} catch (err) {}
+
+
+let params = {
+    io_send: "default",
+    post: "default",
+    outlet: "default",
+    dirname: "default",
+    max: false
+}
  
  const init = function(obj) {
      
@@ -44,6 +52,17 @@
          window.__symbolist_dirname = params.__dirname;
      }
  
+     if( params.max == true )
+     {
+         post = (msg) => window.max.outlet("post", msg);
+         outlet = (msg) => window.max.outlet(msg);
+         io_send = (msg) => window.max.outlet("io_controller", msg);
+
+         window.max.bindInlet('input', (msg) => {
+             console.log(msg);
+             input(msg);
+         });
+     }
  }
  
 
@@ -959,7 +978,9 @@ function getCurrentContext(){
             case 'newScore':
                 symbolist_newScore();
                 break;
-
+            case 'init':
+                init(obj.val)
+                break;
              default:
                  break;
          }

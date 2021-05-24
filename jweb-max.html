@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>symbolist</title>
+    <!-- https://electronjs.org/docs/tutorial/security#csp-meta-tag -->
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+    <link rel="stylesheet" href="./css/drawsocket-defaults.css">
+    <link rel="stylesheet" href="./css/symbolist-defaults.css">
+
+    <script src="./node_modules/d3-selection/dist/d3-selection.min.js"></script>
+    <script src="./node_modules/svg-points/dist/svg-points.min.js"></script>
+    <script src="./node_modules/points/dist/points.min.js"></script>
+    <script src="./node_modules/gsap/dist/gsap.min.js"></script>
+    <script src="./node_modules/uuid/dist/umd/uuid.min.js"></script>
+    <script src="./node_modules/opentype.js/dist/opentype.min.js"></script>
+    <!-- <script src="./lib/threeWrapper.js" type="module" ></script> -->
+
+  </head>
+  <body>
+
+    <div id="main-div" >
+
+        <svg  id="svg" 
+              version="1.1" 
+              baseProfile="full" 
+              xmlns="http://www.w3.org/2000/svg" 
+              xmlns:xlink="http://www.w3.org/1999/xlink" >
+            
+              <defs id="defs"></defs>
+
+              <g id="main-svg">
+
+                <g id="top-svg" class="top-svg symbol" style="width: 100%; height: 100%" > 
+                  <g id="top-svg-display" class="top-svg display"></g>
+                  <g id="top-svg-contents" class="top-svg contents"></g>
+                </g>
+                
+                <g id="symbolist_overlay"></g>
+
+              </g>
+              
+              <g id="floating-overlay"></g>
+              
+        </svg>
+
+        <div id="main-html" >
+
+          <div id="top-html" class="top-html symbol" style="width: 100%; height: 100%" > 
+            <div id="top-html-display" class="top-html display"></div>
+            <div id="top-html-contents" class="top-html contents" ></div>
+          </div>
+          
+        </div>
+
+        <div id="floating-forms"></div>
+    </div>
+
+    <div id="forms">
+      <div id="palette" class="palette">
+        <div id="palette-tools" class="palette-tools"></div>
+        <div id="palette-symbols" class="palette-symbols"></div>
+      </div>
+
+      <div id="scrollbars">
+        <div class="scrollbar" id="x_scrollbar">
+          <svg class="scrollbar_handle symbol" id="x_location">
+            <circle r="50%" cx="50%" cy="50%" />
+          </svg> 
+        </div>
+        <div class="scrollbar" id="y_scrollbar">
+          <svg class="scrollbar_handle symbol" id="y_location" >
+            <circle r="50%" cx="50%" cy="50%" />
+          </svg>         
+        </div>
+        <div id="reset_view">+</div>
+      </div>
+      
+      <!--
+        <svg>
+        <use href="#svg" trasform="scale(0.5)"></use>
+      </svg>
+
+      <div id="symbolist_log" class="symbolist_log"><span>new symbolist</span></div>
+      -->
+    </div>
+
+    <script src="./lib/ui_scrollbars.js"></script>
+
+    <script src="./lib/symbolist-global-modules.js"></script>
+ 
+  </body>
+</html>
