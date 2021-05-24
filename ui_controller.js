@@ -1,6 +1,52 @@
 
 /* global drawsocket:readonly  */
 
+ const { ipcRenderer } = require('electron')
+ ipcRenderer.on('io-message', (event, obj) => {
+    input(obj);
+ })
+ 
+ let post = console.log;
+ let outlet = (msg) => {};
+ let io_send = (msg) => ipcRenderer.send('renderer-event', msg);
+ 
+ let params = {
+     io_send: "default",
+     post: "default",
+     outlet: "default",
+     dirname: "default"
+ }
+ 
+ const init = function(obj) {
+     
+     params = {
+         ...params,
+         ...obj
+     }
+ 
+     if( params.post != "default" )
+     {
+         post = params.post;
+     }
+ 
+     if( params.outlet != "default" )
+     {
+         outlet = params.outlet;
+     }
+ 
+     if( params.io_send != "default" )
+     {
+         io_send = params.io_send;
+     }
+ 
+     if( params.dirname != "default" )
+     {
+         window.__symbolist_dirname = params.__dirname;
+     }
+ 
+ }
+ 
+
 /**
  * symbolist renderer view module -- exported functions are at the the bottom
  */
@@ -37,7 +83,6 @@ const {
 
 const svgObj = document.getElementById("svg");
 const mainSVG = document.getElementById("main-svg");
-
 
 
 /**
@@ -863,77 +908,66 @@ function getCurrentContext(){
 
 
 
+ 
  /**
-  * Communication
+  * routes message from the controllers
   */
+  function input(obj_arr) 
+  {
+      console.log(obj_arr);
+      obj_arr = Array.isArray(obj_arr) ? obj_arr : [obj_arr];
+ 
+      obj_arr.forEach( obj => {
+         switch(obj.key){
+             case 'data':
+                 iterateScore(obj.val);
+                 break;
+             case 'model':
+                // parseDataModelFromServer(obj.val);
+                 break;
+             case 'score':
+                 console.log('score');
+                 symbolist_newScore();
+                 iterateScore(obj.val);
+                 break;
+             case 'call':
+                 callFromIO(obj.val);
+                 break;
+             case 'drawsocket':
+                 drawsocketInput(obj.val)
+                 break;
+            case 'load-ui-defs':
+                loadUIDefs(obj.val);
+                break;
+             case 'set-dirname':
+                 global.__symbolist_dirname = obj.val;
+                 break;
 
- const { ipcRenderer } = require('electron')
+            // menu calls
+            case 'deleteSelected':
+                removeSelected();
+                break;
+            case 'zoomIn':
+                symbolist_zoom(default_zoom_step);
+                break;
+            case 'zoomOut':
+                symbolist_zoom(-default_zoom_step);
+                break;
+            case 'zoomReset':
+                symbolist_zoomReset()
+                break;
+            case 'newScore':
+                symbolist_newScore();
+                break;
 
-/**
- * handler for special commands from menu that require info about state of view/selection
- */
-ipcRenderer.on('menu-call', (event, ...args) => {
-    console.log(`menu call received ${args}`);
+             default:
+                 break;
+         }
+      })
+      
+  }
 
-    let arg = args[0];
-    switch(arg) {
-        case 'deleteSelected':
-            removeSelected();
-            break;
-        case 'zoomIn':
-            symbolist_zoom(default_zoom_step);
-            break;
-        case 'zoomOut':
-            symbolist_zoom(-default_zoom_step);
-            break;
-        case 'zoomReset':
-            symbolist_zoomReset()
-            break;
-        case 'newScore':
-            symbolist_newScore();
-            break;
-        case 'load-ui-defs':
-            loadUIDefs(args[1]);
-            break;
 
-    }
-})
-
-/**
- * routes message from the io controller
- */
-ipcRenderer.on('io-message', (event, obj) => {
-    switch(obj.key){
-        case 'data':
-            iterateScore(obj.val);
-            break;
-        case 'model':
-           // parseDataModelFromServer(obj.val);
-            break;
-        case 'score':
-            console.log('score');
-            symbolist_newScore();
-            iterateScore(obj.val);
-            break;
-        case 'call':
-            callFromIO(obj.val);
-            break;
-        case 'drawsocket':
-            drawsocketInput(obj.val)
-            break;
-        default:
-            break;
-    }
-})
-
-ipcRenderer.on('load-ui-defs', (event, folder) => {
-//    console.log('called from main.js?');
-    loadUIDefs(folder);
-})
-
-ipcRenderer.on('set-dirname', (event, args) => {
-    window.__symbolist_dirname = args;
-});
 
 
 function io_out(msg)
@@ -948,12 +982,12 @@ function io_out(msg)
 
 
 
-
+/*
 function symbolist_send(obj)
 {
     ipcRenderer.send('symbolist_event', obj);
 }
-
+*/
 
 /**
  * 
@@ -961,7 +995,7 @@ function symbolist_send(obj)
  */
 function sendToServer(obj)
 {
-    ipcRenderer.send('renderer-event', obj);
+    io_send(obj);
 
 }
 
@@ -1348,7 +1382,7 @@ function symbolist_setClass(_class)
         uiDefs.get(selectedClass).paletteSelected(true);
     }
 
-    ipcRenderer.send('symbolist_event',  {
+    io_send('symbolist_event',  {
         key: "symbolistEvent",  
         val: {
             symbolistAction: 'setPaletteClass',
@@ -2410,6 +2444,8 @@ module.exports = {
 
     ui_api,
 
-    setScrollOffset
+    setScrollOffset,
+
+    init
 
  }

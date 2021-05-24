@@ -39,8 +39,13 @@ async function addDefsFromFolder()
 
           console.log('newScore', folder);
           
-          win.webContents.send('menu-call', 'load-ui-defs', folder );
+         // win.webContents.send('menu-call', 'load-ui-defs', folder );
   
+          win.webContents.send('io-message', {
+            key: 'load-ui-defs', 
+            val: folder
+          });
+
           io_proc.send({
             key: "load-io-defs",
             val: folder
@@ -59,7 +64,10 @@ function copyFromHTML()
 
 async function deleteSelected()
 {
-  win.webContents.send('menu-call', 'deleteSelected');
+  //win.webContents.send('menu-call', 'deleteSelected');
+  win.webContents.send('io-message', {
+    key: 'deleteSelected'
+  });
   // also delete in io_data
 }
 
@@ -86,7 +94,11 @@ async function newScore()
       if( !result.canceled )
       {
 
-        win.webContents.send('menu-call', 'newScore');
+        //win.webContents.send('menu-call', 'newScore');
+        win.webContents.send('io-message', {
+          key: 'newScore'
+        });
+        
         io_proc.send({
           key: "newScore"
         })
@@ -95,7 +107,11 @@ async function newScore()
 
         console.log('newScore', files);
         
-        win.webContents.send('menu-call', 'load-ui-defs', files );
+        //win.webContents.send('menu-call', 'load-ui-defs', files );
+        win.webContents.send('io-message', {
+          key: 'load-ui-defs',
+          val: files
+        });
 
         io_proc.send({
           key: "load-io-defs",

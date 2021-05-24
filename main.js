@@ -47,7 +47,12 @@ if( cluster.isMaster )
     // note: did-finish-load is called on browser refresh
     win.webContents.on('did-finish-load', () => {
 
-      win.webContents.send( "set-dirname", __dirname );
+     // win.webContents.send( "set-dirname", __dirname );
+
+      win.webContents.send('io-message', {
+        key: 'set-dirname', 
+        val: __dirname
+      });
 
       if( symbolist_config )
       {
@@ -55,7 +60,12 @@ if( cluster.isMaster )
 
         console.log('symbolist_config', files);
         //send to editor ui
-        win.webContents.send('load-ui-defs', files );
+       // win.webContents.send('load-ui-defs', files );
+
+        win.webContents.send('io-message', {
+          key: 'load-ui-defs', 
+          val: files
+        });
 
         //send to io controller
         io_controller_proc.send({
@@ -84,8 +94,11 @@ if( cluster.isMaster )
           // console.log('result', result)
           
             let files = utils.getFilesFromMenuFolderArray(result.filePaths[0]);
-            win.webContents.send('load-ui-defs', files );
-            // << later send to io controller for user lookup scripts
+
+            win.webContents.send('io-message', {
+              key: 'load-ui-defs', 
+              val: files
+            });
   
             io_controller_proc.send({
               key: "load-io-defs",

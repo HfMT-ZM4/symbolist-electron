@@ -121,21 +121,28 @@ function createTemplate()
           label: 'Zoom/Scroll Reset', 
           accelerator: 'CommandOrControl+0',
           click: async () => {
-            win.webContents.send('menu-call', 'zoomReset')
+            win.webContents.send('io-message', {
+              key: 'zoomReset'
+            });
+            
           }
         },
         { 
           label: 'Zoom In', 
           accelerator: 'CommandOrControl+=',
           click: async () => {
-            win.webContents.send('menu-call', 'zoomIn')
+            win.webContents.send('io-message', {
+              key: 'zoomIn'
+            });
           }
         },
         { 
           label: 'Zoom Out', 
           accelerator: 'CommandOrControl+-',
           click: async () => {
-            win.webContents.send('menu-call', 'zoomOut')
+            win.webContents.send('io-message', {
+              key: 'zoomOut'
+            });
           }
         },      
         { type: 'separator' },
