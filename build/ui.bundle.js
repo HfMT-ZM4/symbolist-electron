@@ -2400,8 +2400,8 @@ if( typeof window.initDef == "undefined" ){
     window.initDef = {};
 }
 
-let uiDefs = window.uiDefs;
-let initDef = window.initDef;
+//let uiDefs = window.uiDefs;
+//let initDef = window.initDef;
 
 let post = console.log;
 let outlet = (msg) => { };
@@ -3615,7 +3615,7 @@ async function loadUIDefs(folder)
  */
 function iterateScore(contents, context_element = null)
 {
-   // console.log('iterateScore', contents, context_element);
+    console.log('iterateScore', contents, context_element);
 
     if( !context_element ){
         context_element = getCurrentContext();
@@ -3624,7 +3624,7 @@ function iterateScore(contents, context_element = null)
     const contents_arr = Array.isArray(contents) ? contents : [ contents ];
 
     contents_arr.forEach( data => {
-    //    console.log('iterateScore', data);
+        console.log('iterateScore', data);
         
         if( !hasParam(data, 'container' ) )
             data.container = context_element.id;

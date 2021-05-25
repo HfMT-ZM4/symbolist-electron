@@ -1,3 +1,5 @@
 let foo = require('./io.defs.bundle');
 
-console.log(foo);
+let defs = foo.ioDefs;
+
+console.log( defs.get("AzimNote").getFormattedLookup(1,2) );

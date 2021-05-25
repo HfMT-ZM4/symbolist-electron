@@ -57,16 +57,20 @@ if( cluster.isMaster )
 */
       if( symbolist_config )
       {
-        let files = utils.getFilesFromMenuFolderArray(symbolist_config['default-init-folder']);
+        //let files = utils.getFilesFromMenuFolderArray(symbolist_config['default-init-folder']);
 
-        console.log('symbolist_config', files);
+       // console.log('symbolist_config', files);
         //send to editor ui
        // win.webContents.send('load-ui-defs', files );
 
+       /*
+       // now triggering init from defs
         win.webContents.send('io-message', {
           key: 'load-ui-defs', 
           val: {}//files
         });
+        */
+
 
         //send to io controller
         /*
@@ -80,6 +84,12 @@ if( cluster.isMaster )
           key: "import-io-def-bundle",
           val: symbolist_config['io_defs']
         })
+
+
+        win.webContents.send('io-message', {
+          key: 'load-ui-defs', 
+          val: {}//files
+        });
 
       }
       else

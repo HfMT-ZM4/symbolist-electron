@@ -283,9 +283,9 @@ function newScore( newScore = initDef ){
     addScoreToModelRecursive(score);
 }
 
-function loadDefBundleFile(file)
+async function loadDefBundleFile(file)
 {
-    const defFile = require(file);
+    const defFile = await require(file);
 
     initDef = defFile.initDef;
     ioDefs = defFile.ioDefs;

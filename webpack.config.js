@@ -25,22 +25,4 @@ module.exports = [{
     optimization: {
         minimize: false
     },
-}, {
-    entry: './defs/LibDefsUI.js',
-    output: {
-        filename: 'ui.defs.bundle.js',
-        path: path.resolve(__dirname, 'build')
-    },
-    optimization: {
-        minimize: true
-    }
-}, {
-    entry: './defs/LibDefsIO.js',
-    output: {
-        filename: 'io.defs.bundle.js',
-        path: path.resolve(__dirname, 'build')
-    },
-    optimization: {
-        minimize: true
-    }
 }]

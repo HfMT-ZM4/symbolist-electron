@@ -4,7 +4,6 @@
 if( typeof window.uiDefs == 'undefined')
     window.uiDefs = new Map();
 
-
 window.initDef = require('./init.json');
 
 // load defs
@@ -39,7 +38,7 @@ uiDefs.set("DataPoint", new DataPoint.ui_def() );
 uiDefs.set("SystemContainer", new SystemContainer.ui_def() );
 
 
-let cssFile = "./css/stylie.css";
+let cssFile = "./defs/css/stylie.css";
 let head = document.getElementsByTagName("head");
 if( !document.querySelector(`link[href="${cssFile}"]`) )
 {
@@ -49,6 +48,8 @@ if( !document.querySelector(`link[href="${cssFile}"]`) )
     cssFileRef.href = cssFile;
     head[0].appendChild(cssFileRef);
 }
+
+
 
 /*
 BasicSymbol.js          
