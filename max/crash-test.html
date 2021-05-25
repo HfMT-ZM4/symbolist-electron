@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head></head>
+<body>
+  <script>
+        
+      let obj = {
+          f: 1
+      };
+
+      window.max.bindInlet('crash_me', () => {
+        window.max.outlet("boom", obj)
+      });
+
+      window.max.bindInlet('list_out', () => {
+        window.max.outlet("nice", "list")
+      });
+
+      window.max.bindInlet('obj_out', () => {
+        window.max.outlet(obj)
+      });
+
+
+      window.max.bindInlet('obj_str_out', () => {
+        window.max.outlet(JSON.stringify(obj))
+      });
+
+
+  </script>
+</body>
+</html>

@@ -12,8 +12,7 @@
 
 const Max = require('max-api');;
 
-const io_controller = require('../io_controller');
-//const ui_controller = require('./ui_controller');
+const io_controller = require('./io_controller');
 const utils = require('./lib/main_utils')
 
 const symbolist_config = require('./symbolist-config.json');
@@ -40,18 +39,16 @@ ui_send({
 
 
 if (symbolist_config) {
-    let files = utils.getFilesFromMenuFolderArray(symbolist_config['default-init-folder']);
 
-    ui_controller.input({
-        key: 'load-ui-defs',
-        val: files
+    io_controller.input({
+        key: "import-io-def-bundle",
+        val: symbolist_config['io_defs']
     });
 
-    //send to io controller
-    io_controller.input({
-        key: "load-io-defs",
-        val: files
-    })
+    ui_send({
+        key: 'load-ui-defs',
+        val: ''
+    });
 
 }
 

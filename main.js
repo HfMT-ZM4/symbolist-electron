@@ -57,34 +57,11 @@ if( cluster.isMaster )
 */
       if( symbolist_config )
       {
-        //let files = utils.getFilesFromMenuFolderArray(symbolist_config['default-init-folder']);
-
-       // console.log('symbolist_config', files);
-        //send to editor ui
-       // win.webContents.send('load-ui-defs', files );
-
-       /*
-       // now triggering init from defs
-        win.webContents.send('io-message', {
-          key: 'load-ui-defs', 
-          val: {}//files
-        });
-        */
-
-
-        //send to io controller
-        /*
-        io_controller_proc.send({
-          key: "load-io-defs",
-          val: files
-        })
-        */
 
         io_controller_proc.send({
           key: "import-io-def-bundle",
           val: symbolist_config['io_defs']
-        })
-
+        });
 
         win.webContents.send('io-message', {
           key: 'load-ui-defs', 
@@ -94,6 +71,7 @@ if( cluster.isMaster )
       }
       else
       {
+        // this won't work anymore now with the new bundle version
         dialog.showOpenDialog(win, {
           message: "Please select Symbolist init folder",
           properties: ['openDirectory', ]//, //'openFile', 'multiSelections'
@@ -112,15 +90,15 @@ if( cluster.isMaster )
           
             let files = utils.getFilesFromMenuFolderArray(result.filePaths[0]);
 
-            win.webContents.send('io-message', {
-              key: 'load-ui-defs', 
-              val: files
-            });
-  
             io_controller_proc.send({
               key: "load-io-defs",
               val: result.filePaths
             })
+
+            win.webContents.send('io-message', {
+              key: 'load-ui-defs', 
+              val: files
+            });
 
           }
         

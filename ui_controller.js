@@ -9,6 +9,8 @@ if( typeof window.initDef == "undefined" ){
     window.initDef = {};
 }
 
+
+
 //let uiDefs = window.uiDefs;
 //let initDef = window.initDef;
 
@@ -16,6 +18,27 @@ let post = console.log;
 let outlet = (msg) => { };
 let io_send = (msg) => console.error("not sending to io", msg);
 
+
+if( typeof window.max !== "undefined")
+{
+    window.max.bindInlet('input', (msg) => {
+        console.log(msg);
+        try {
+          let obj = JSON.parse(msg);
+          input(obj);
+
+        }
+        catch(err)
+        {
+            console.error(err);
+        }
+    });
+
+    post = (msg) => window.max.outlet("post", JSON.stringify(msg));
+    outlet = (msg) => window.max.outlet(JSON.stringify(msg));
+    io_send = (msg) => window.max.outlet("io_controller", JSON.stringify(msg));
+
+}
 
 let params = {
     io_send: "default",
@@ -53,17 +76,6 @@ let params = {
          window.__symbolist_dirname = params.__dirname;
      }
  
-     if( params.max == true )
-     {
-         post = (msg) => window.max.outlet("post", msg);
-         outlet = (msg) => window.max.outlet(msg);
-         io_send = (msg) => window.max.outlet("io_controller", msg);
-
-         window.max.bindInlet('input', (msg) => {
-             console.log(msg);
-             input(msg);
-         });
-     }
  }
  
 
