@@ -7,7 +7,7 @@
  */
 
 
-const Template = require(__symbolist_dirname + '/lib/SymbolTemplate') 
+const Template = require('./SymbolTemplate') 
 
 class SubdivisionTool extends Template.SymbolBase 
 {

@@ -48,12 +48,13 @@ if( cluster.isMaster )
     win.webContents.on('did-finish-load', () => {
 
      // win.webContents.send( "set-dirname", __dirname );
-
+/*
+// don't need this anymore since the defs are bundled
       win.webContents.send('io-message', {
         key: 'set-dirname', 
         val: __dirname
       });
-
+*/
       if( symbolist_config )
       {
         let files = utils.getFilesFromMenuFolderArray(symbolist_config['default-init-folder']);
@@ -64,15 +65,21 @@ if( cluster.isMaster )
 
         win.webContents.send('io-message', {
           key: 'load-ui-defs', 
-          val: files
+          val: {}//files
         });
 
         //send to io controller
+        /*
         io_controller_proc.send({
           key: "load-io-defs",
           val: files
         })
+        */
 
+        io_controller_proc.send({
+          key: "import-io-def-bundle",
+          val: symbolist_config['io_defs']
+        })
 
       }
       else
@@ -155,14 +162,10 @@ if( cluster.isMaster )
    * messages from ui to io controller
    */
   ipcMain.on('renderer-event', (event, arg) => {
+    console.log(arg);
     io_controller_proc.send(arg)
   })
-/*
-  ipcMain.handle('query-event', async (event, ...args) => {
-    const result = await somePromise(...args)
-    return result
-  })
-*/
+
 }
 else if (cluster.isWorker) 
 {

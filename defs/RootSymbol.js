@@ -1,4 +1,4 @@
-const Template = require(__symbolist_dirname + '/lib/SymbolTemplate') 
+const Template = require('./SymbolTemplate') 
 
 /**
  * top level symbol is the frame of the application

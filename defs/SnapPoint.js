@@ -2,7 +2,7 @@
  * actually te snap points should be in the container object, not in the overlay since there could be multiple layers of snapping
  */
 
-const Template = require(__symbolist_dirname + '/lib/SymbolTemplate') 
+const Template = require('./SymbolTemplate') 
 
 class SnapPoint extends Template.SymbolBase 
 {

@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "build": "webpack"
   },
   "devDependencies": {
-    "electron": ">=11.2.3"
+    "electron": "^13.0.0"
   },
   "dependencies": {
     "d3-selection": "^1.4.1",

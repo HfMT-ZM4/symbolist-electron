@@ -12,7 +12,7 @@
 
 const Max = require('max-api');;
 
-const io_controller = require('./io_controller');
+const io_controller = require('../io_controller');
 //const ui_controller = require('./ui_controller');
 const utils = require('./lib/main_utils')
 

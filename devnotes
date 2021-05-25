@@ -538,3 +538,13 @@ added GL
 > granubuf example, add coef window parameters
     add generative process to position grains
     
+
+
+adding webpack in order to bundle includes for jweb, we can't use require
+also, we can't really dynamically load def files, so we need to compile them before loading?
+if it was a server, we could maybe use js fetch, but it's not always,
+so the new plan is:
+    * webpack build basic drawsocket / symbolist ui controller for script loading in html file
+
+
+uiDefs will be a global object imported via require

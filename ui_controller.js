@@ -1,20 +1,20 @@
 
 /* global drawsocket:readonly  */
 
+if( window.uiDefs == "undefined"){
+    window.uiDefs = new Map();
+}
+
+if( typeof window.initDef == "undefined" ){
+    window.initDef = {};
+}
+
+let uiDefs = window.uiDefs;
+let initDef = window.initDef;
 
 let post = console.log;
 let outlet = (msg) => { };
 let io_send = (msg) => console.error("not sending to io", msg);
-
-try {
-    const { ipcRenderer } = require('electron');
-    ipcRenderer.on('io-message', (event, obj) => {
-        input(obj);
-    });
-
-    io_send = (msg) => ipcRenderer.send('renderer-event', msg);
-
-} catch (err) {}
 
 
 let params = {
@@ -44,6 +44,7 @@ let params = {
  
      if( params.io_send != "default" )
      {
+         console.log('setting io', params)
          io_send = params.io_send;
      }
  
@@ -104,12 +105,53 @@ const svgObj = document.getElementById("svg");
 const mainSVG = document.getElementById("main-svg");
 
 
+
+/**
+ * globals
+ */
+ const mainHTML = document.getElementById("main-html");
+ const topContainer = document.getElementById('top-svg');
+ const mainDiv = document.getElementById("main-div");
+ const floatingForms = document.getElementById('floating-forms');
+ 
+ const overlay = document.getElementById('symbolist_overlay');
+ 
+ let symbolist_log = document.getElementById("symbolist_log");;
+ 
+ let clickedObj = null;
+ let clickedObjBoundsPreTransform = null;
+ let prevEventTarget = null;
+ let selected = [];
+ let selectedCopy = [];
+ 
+ let mousedown_pos = svgObj.createSVGPoint();
+ let mousedown_page_pos = svgObj.createSVGPoint();
+ let mouse_pos = svgObj.createSVGPoint();
+ let mouse_page_pos = svgObj.createSVGPoint();
+ 
+ let scrollOffset = {x: 0, y: 0};
+ let m_scale = 1;
+ let default_zoom_step = 0.1;
+ 
+ let currentContext = topContainer;
+ let currentPaletteClass =  "";
+ 
+ let selectedClass = currentPaletteClass;
+ 
+ //if( typeof window.initDef == "undefined" )
+ //    let initDef;
+ 
+ 
+ 
+ let currentMode = "palette";
+
+ 
 /**
  * uiDefs stores UI defs in flat array, lookup by classname
  * 
  * definitions have a palette array that stores the classNames of potential child types
  *  */ 
-let uiDefs = new Map();
+
 
 // API
 
@@ -1079,20 +1121,42 @@ function getDef(classname)
     return uiDefs.get(classname);
 }
 
-function loadUIDefs(folder)
+
+async function loadScript(script, src){
+    return new Promise((resolve, reject) => {
+        script.onload = ()=> {
+           // document.head.removeChild(script);
+            resolve();
+        };
+        script.onerror = reject;
+        script.src = src
+        document.head.appendChild(script);
+    })
+}
+
+async function loadUIDefs(folder)
 {
+    
+    initPalette();
+ 
+    sendToServer({
+        key: 'data-refresh'
+    })
+    return;
+
     const path = folder.path;
 
-    folder.files.forEach( f => {
+    folder.files.forEach( async (f) => {
         
         if( f.type != 'folder' )
         {
             const filepath = `${path}/${f.name}`;
-
+            
+            /*
             const exists = require.resolve(filepath); 
             if( exists )
                 delete require.cache[ exists ];
-                 
+            
             if( f.type == 'js')
             {
                 // load controller def
@@ -1106,6 +1170,17 @@ function loadUIDefs(folder)
                 // set into def map
                 uiDefs.set(cntrlDef_.class, cntrlDef_);
                 console.log('added ', cntrlDef_.class);
+            }*/
+            if( f.type == 'js')
+            {
+                /*
+                let script = document.createElement('script');
+                script.type = 'text/javascript';
+
+                await loadScript(script, filepath);
+                console.log('returned');
+                */
+
             }
             else if( f.type == "css" )
             {
@@ -1124,7 +1199,7 @@ function loadUIDefs(folder)
             {
                 console.log('loading init');
                 // there can be only one json file in the folder
-                initDef = require(filepath);
+               // initDef = require(filepath);
             }
         }        
         
@@ -1133,11 +1208,7 @@ function loadUIDefs(folder)
     
   //   initDocument();
  
-     initPalette();
- 
-     sendToServer({
-         key: 'data-refresh'
-     })
+
 }
 
 
@@ -1226,34 +1297,41 @@ function initPalette()
             if( el.length > 0 )
             {
                 let def_ = uiDefs.get(el);
-
-                const def_classname = def_.class;
-                let def_palette_display = def_.getPaletteIcon();
-    
-                if( def_palette_display && def_palette_display.key == "svg" )
+                if( def_ )
                 {
-                    def_palette_display = {
-                        new: "svg",
-                        class: "palette-svg",
-                        id: `${def_classname}-icon`,
-                        children: def_palette_display.val
+                    const def_classname = def_.class;
+                    let def_palette_display = def_.getPaletteIcon();
+        
+                    if( def_palette_display && def_palette_display.key == "svg" )
+                    {
+                        def_palette_display = {
+                            new: "svg",
+                            class: "palette-svg",
+                            id: `${def_classname}-icon`,
+                            children: def_palette_display.val
+                        }
                     }
+        
+                    drawMsgs.push({
+                        key: "html",
+                        val: {
+                            new: "div",
+                            class: `${def_classname} palette-icon`,
+                            id: `${def_classname}-paletteIcon`,
+                            parent: "palette-tools",
+                            onclick: () => {
+                                    console.log(`select ${def_classname}`); 
+                                    symbolist_setClass(def_classname);
+                            },
+                            children: def_palette_display
+                        }
+                    })
                 }
-    
-                drawMsgs.push({
-                    key: "html",
-                    val: {
-                        new: "div",
-                        class: `${def_classname} palette-icon`,
-                        id: `${def_classname}-paletteIcon`,
-                        parent: "palette-tools",
-                        onclick: () => {
-                                console.log(`select ${def_classname}`); 
-                                symbolist_setClass(def_classname);
-                        },
-                        children: def_palette_display
-                    }
-                })
+                else
+                {
+                    console.error("no def found for:", el);
+                }
+                
             }
             
         })
@@ -1861,42 +1939,6 @@ function getContainerForElement(element)
 
 
 
-/**
- * globals
- */
-const mainHTML = document.getElementById("main-html");
-const topContainer = document.getElementById('top-svg');
-const mainDiv = document.getElementById("main-div");
-const floatingForms = document.getElementById('floating-forms');
-
-const overlay = document.getElementById('symbolist_overlay');
-
-let symbolist_log = document.getElementById("symbolist_log");;
-
-let clickedObj = null;
-let clickedObjBoundsPreTransform = null;
-let prevEventTarget = null;
-let selected = [];
-let selectedCopy = [];
-
-let mousedown_pos = svgObj.createSVGPoint();
-let mousedown_page_pos = svgObj.createSVGPoint();
-let mouse_pos = svgObj.createSVGPoint();
-let mouse_page_pos = svgObj.createSVGPoint();
-
-let scrollOffset = {x: 0, y: 0};
-let m_scale = 1;
-let default_zoom_step = 0.1;
-
-let currentContext = topContainer;
-let currentPaletteClass =  "";
-
-let selectedClass = currentPaletteClass;
-let initDef;
-
-let currentMode = "palette";
-
-
 
 function escapeModes()
 {
@@ -2376,7 +2418,7 @@ function clearDragRegionRect()
  */
 
 let ui_api = {
-    uiDefs, // access to the defs in the defs
+    uiDefs: window.uiDefs, // access to the defs in the defs
     
     getDef,
 
@@ -2467,6 +2509,7 @@ module.exports = {
 
     setScrollOffset,
 
-    init
+    init,
+    input
 
  }

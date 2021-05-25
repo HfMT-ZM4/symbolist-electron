@@ -1,4 +1,4 @@
-const Template = require(__symbolist_dirname + '/lib/SymbolTemplate') 
+const Template = require('./SymbolTemplate') 
 
 class Measure extends Template.SymbolBase 
 {
@@ -104,7 +104,7 @@ class Measure_IO extends Template.IO_SymbolBase
     {
         super();
         this.class = "Measure";
-        this.lookup = super.default_conatiner_lookup;
+        this.lookup = super.default_container_lookup;
     }
     
     getFormattedLookup(params, obj_ref )

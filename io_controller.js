@@ -72,9 +72,9 @@ const startUDP = function()
 
 
 
-let initFile = null;
+let initDef = null;
 
-let defs = new Map();
+let ioDefs = new Map();
 
 /**
  * model : flat hash table DOM like lookup by ID
@@ -122,7 +122,7 @@ let undo_cache_step = 0;
 
 */
 
-let score = initFile;
+let score = initDef;
 
 
 
@@ -189,12 +189,12 @@ function modelHas( id )
 
 function defGet( classname )
 {
-    return defs.get(Array.isArray(classname) ? classname[0] : classname);
+    return ioDefs.get(Array.isArray(classname) ? classname[0] : classname);
 }
 
 function defHas( classname )
 {
-    return defs.has(Array.isArray(classname) ? classname[0] : classname);
+    return ioDefs.has(Array.isArray(classname) ? classname[0] : classname);
 }
 
 
@@ -273,7 +273,7 @@ function loadScore(filepath)
     })
 }
 
-function newScore( newScore = initFile ){
+function newScore( newScore = initDef ){
 
     score = cloneObj( newScore );
     model = new Map();
@@ -282,6 +282,19 @@ function newScore( newScore = initFile ){
 
     addScoreToModelRecursive(score);
 }
+
+function loadDefBundleFile(file)
+{
+    const defFile = require(file);
+
+    initDef = defFile.initDef;
+    ioDefs = defFile.ioDefs;
+
+    newScore();
+    addCacheState( score );
+
+}
+
 
 function loadDefFiles(folder)
 {
@@ -293,7 +306,7 @@ function loadDefFiles(folder)
 
         if( file.name == "init.json" ) //file.type == 'json' )
         {
-            initFile = require(filepath);
+            initDef = require(filepath);
         }
         else if( file.type == 'js' )
         {
@@ -307,7 +320,7 @@ function loadDefFiles(folder)
                 let cntrlDef_ = new io_def();
 
                 // set into def map
-                defs.set(cntrlDef_.class, cntrlDef_);
+                ioDefs.set(cntrlDef_.class, cntrlDef_);
             }
           
         }
@@ -389,7 +402,7 @@ function addToScore( dataobj )
         return;
     }
 
-    let container_def = defs.get(container.class)
+    let container_def = ioDefs.get(container.class)
 
     if( !container_def )
     {
@@ -450,7 +463,7 @@ function addToStructuredLookup( dataobj )
      post('adding container');
      // def className must be first of classList
      let container_class = dataobj.class[0];
-     let container_def = defs.get(container_class) 
+     let container_def = ioDefs.get(container_class) 
 
      if( containers.has(container_class) )
      {
@@ -514,7 +527,7 @@ function addToStructuredLookup( dataobj )
     let contents = containers.get(parent_ref);    
 
     let sym_class = Array.isArray(dataobj.class) ? dataobj.class[0] : dataobj.class;
-    let sym_def = defs.get(sym_class);
+    let sym_def = ioDefs.get(sym_class);
 
     sym_util.insertSorted(dataobj.id, contents, (a,b) => {
 
@@ -598,7 +611,7 @@ function lookup(params)
 
 function sendScoreToUI()
 {
-    //console.log('data-refresh', score);
+    console.log('data-refresh', score);
     ui_send({
         key: 'score',
         val: score
@@ -664,9 +677,9 @@ function callFromIO(params)
     if( typeof params.class != "undefined" && typeof params.method != "undefined" )
     {
 
-        if( defs.has(params.class)  )
+        if( ioDefs.has(params.class)  )
         {  
-            const _def = defs.get(params.class);
+            const _def = ioDefs.get(params.class);
             if( typeof _def[params.method] != 'undefined')
             {
                 const ret = _def[params.method](params);
@@ -786,6 +799,9 @@ function input(_obj)
             loadDefFiles(val);
             break;
 
+        case 'import-io-def-bundle':
+            loadDefBundleFile(val);
+            break;
         case 'symbolistEvent':
             procGuiEvent(val);
             break;

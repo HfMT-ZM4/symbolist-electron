@@ -1,4 +1,4 @@
-const Template = require(__symbolist_dirname + '/lib/SymbolTemplate') 
+const Template = require('./SymbolTemplate') 
 
 
 const sharpSteps =          [ 0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6 ];
@@ -396,7 +396,7 @@ class FiveLineStave_IO extends Template.IO_SymbolBase
     {
         super();
         this.class = "FiveLineStave";
-        this.lookup = super.default_conatiner_lookup;
+        this.lookup = super.default_container_lookup;
 
     }
     

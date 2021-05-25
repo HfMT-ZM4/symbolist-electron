@@ -1,4 +1,4 @@
-const Template = require(__symbolist_dirname + '/lib/SymbolTemplate'); 
+const Template = require('./SymbolTemplate'); 
 
 class SystemContainer extends Template.SymbolBase 
 {
@@ -252,8 +252,8 @@ class SystemContainer_IO extends Template.IO_SymbolBase
     {
         super();
         this.class = "SystemContainer";
-        this.lookup = super.default_conatiner_lookup;
-        this.getFormattedLookup = super.default_conatiner_getFormattedLookup;
+        this.lookup = super.default_container_lookup;
+        this.getFormattedLookup = super.default_container_getFormattedLookup;
     }
     
 }

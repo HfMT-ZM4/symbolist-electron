@@ -20,6 +20,8 @@ function outsideTest( )
     api.outsideFunction();
 }
 
+global.baba = "a";
+
 let closure = (function(){
     function internal(){
         return obj.bar;
