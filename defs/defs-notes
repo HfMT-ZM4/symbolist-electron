@@ -1,0 +1,18 @@
+to do:
+make new folder hierarchy and template for building with webpack
+
+/defs -- includes template
+/css
+/assets
+/build << do we need this? not sure..
+
+
+LibDefsIO.js
+LibDefsUI.js
+init.json
+
+webpack.config.js
+
+
+not really liking that the ui creates a bundle but the io uses the default script, 
+pretty much just cosmetic, but still...

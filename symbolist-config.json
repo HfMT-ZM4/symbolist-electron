@@ -1,5 +1,5 @@
 {
     "default-init-folder" : "./defs",
-    "ui_defs" : "./build/ui.defs.bundle.js",
-    "io_defs" : "./defs/LibDefsIO.js"
+    "ui_defs" : "./defs/build/ui.defs.bundle.js",
+    "io_defs" : "./defs/build/io.defs.bundle.js"
 }

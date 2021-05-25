@@ -6,19 +6,19 @@ const ioDefs = new Map();
 const initDef = require('./init.json');
 
 // load defs
-const AzimNote = require('./AzimNote');
-const BasicSymbol = require('./BasicSymbol');
-const BetaEnv = require('./BetaEnv');
-const CartesianPlot = require('./CartesianPlot');
-const ColorPitch = require('./ColorPitch');
-const FiveLineStave = require('./FiveLineStave');
-const Measure = require('./Measure');
-const PartStave = require('./PartStave');
-const RootSymbol = require('./RootSymbol');
+const AzimNote = require('./lib/AzimNote');
+const BasicSymbol = require('./lib/BasicSymbol');
+const BetaEnv = require('./lib/BetaEnv');
+const CartesianPlot = require('./lib/CartesianPlot');
+const ColorPitch = require('./lib/ColorPitch');
+const FiveLineStave = require('./lib/FiveLineStave');
+const Measure = require('./lib/Measure');
+const PartStave = require('./lib/PartStave');
+const RootSymbol = require('./lib/RootSymbol');
 //const SnapPoint = require('./SnapPoint');
 //const SubdivisionTool = require('./SubdivisionTool');
-const DataPoint = require('./DataPoint');
-const SystemContainer = require('./SystemContainer');
+const DataPoint = require('./lib/DataPoint');
+const SystemContainer = require('./lib/SystemContainer');
 
 
 // set into def map
