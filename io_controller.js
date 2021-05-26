@@ -40,7 +40,7 @@ const init = function(obj) {
 
     if( params.outlet != "default" )
     {
-        outlet = params.outlet;
+        outlet = params.outlet;        
     }
 
     if( params.ui_send != "default" )
@@ -388,8 +388,12 @@ function addToModel( dataobj )
         model.set( dataobj.id, dataobj );
         addToScore(dataobj);
     }
-    
-//    addToStructuredLookup(dataobj);
+
+    // the model includes the score
+    outlet({
+        model: Object.fromEntries(model)
+    });
+
 }
 
 function addToScore( dataobj )
@@ -433,7 +437,6 @@ function addToScore( dataobj )
         })
     }
 
-   
 }
 
 

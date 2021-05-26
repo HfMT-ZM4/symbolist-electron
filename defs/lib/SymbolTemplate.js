@@ -143,7 +143,7 @@ class SymbolBase
      */
     fromData(dataObj, container, preview = false)
     {
-      //  console.log('template fromData', container, dataObj);
+        console.log('template fromData', container, dataObj);
         // merging with defaults in case the user forgot to include something
         const data_union = {
             ...this.structs.data,
@@ -522,22 +522,22 @@ class SymbolBase
     {
         if( enable && !this.mouseListening )
         {
-            window.addEventListener("mousedown",    this );
-            window.addEventListener("mousemove",    this );
-            window.addEventListener("mouseup",      this);
-            window.addEventListener("keydown",      this);
-            window.addEventListener("keyup",        this);
+            window.addEventListener("mousedown",    this, false );
+            window.addEventListener("mousemove",    this, false );
+            window.addEventListener("mouseup",      this, false);
+            window.addEventListener("keydown",      this, false);
+            window.addEventListener("keyup",        this, false);
 
             this.mouseListening = true;
         }
         else
         {
             ui_api.removeSprites();
-            window.removeEventListener("mousedown",     this);
-            window.removeEventListener("mousemove",     this);
-            window.removeEventListener("mouseup",       this);
-            window.removeEventListener("keydown",       this);
-            window.removeEventListener("keyup",         this);
+            window.removeEventListener("mousedown",     this, false);
+            window.removeEventListener("mousemove",     this, false);
+            window.removeEventListener("mouseup",       this, false);
+            window.removeEventListener("keydown",       this, false);
+            window.removeEventListener("keyup",         this, false);
             this.mouseListening = false;
         }
     }
@@ -583,6 +583,10 @@ class SymbolBase
      * 
      */
     handleEvent(e) {
+        ui_api.outlet({
+            e: JSON.stringify(e)
+        });
+
         switch(e.type)
         {
             case 'keyup':

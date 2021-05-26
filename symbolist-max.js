@@ -23,9 +23,15 @@ function ui_send(msg){
     });
 }
 
+function io_outlet(msg) {
+    Max.outlet({
+        io_out: msg
+    });
+}
+
 io_controller.init({
     post: Max.post,
-    outlet: Max.outlet, // maybe tag these to differentiate in max?
+    outlet: (msg) => io_outlet(msg),
     ui_send
 });
 
@@ -38,18 +44,22 @@ ui_send({
 });
 
 
-if (symbolist_config) {
+function init()
+{
+    if (symbolist_config) {
 
-    io_controller.input({
-        key: "import-io-def-bundle",
-        val: symbolist_config['io_defs']
-    });
-
-    ui_send({
-        key: 'load-ui-defs',
-        val: ''
-    });
-
+        io_controller.input({
+            key: "import-io-def-bundle",
+            val: symbolist_config['io_defs']
+        });
+    
+        ui_send({
+            key: 'load-ui-defs',
+            val: ''
+        });
+    
+    }
+    
 }
 
 
@@ -61,10 +71,11 @@ Max.addHandler("importcache", (filename, prefix) => drawsocket.importCache(filen
 Max.addHandler("ping", (...prefix) => drawsocket.ping(prefix) );
 Max.addHandler("statereq", (...prefix) => drawsocket.stateReq(prefix) );
 */
+Max.addHandler("bang", () => init() );
 Max.addHandler(Max.MESSAGE_TYPES.DICT, (dict) => io_controller.input(dict));
 
 
-
+init();
 
 
  //io_controller.startUDP();

@@ -35,7 +35,7 @@ if( typeof window.max !== "undefined")
     });
 
     post = (msg) => window.max.outlet("post", JSON.stringify(msg));
-    outlet = (msg) => window.max.outlet(JSON.stringify(msg));
+    outlet = (msg) => window.max.outlet("outlet", JSON.stringify(msg));
     io_send = (msg) => window.max.outlet("io_controller", JSON.stringify(msg));
 
 }
@@ -1493,14 +1493,15 @@ function symbolist_setClass(_class)
         uiDefs.get(selectedClass).paletteSelected(true);
     }
 
-    io_send('symbolist_event',  {
+    /*
+    io_send({
         key: "symbolistEvent",  
         val: {
             symbolistAction: 'setPaletteClass',
             class: currentPaletteClass
         }
     }); 
-
+    */
 }
 
 /**
@@ -1831,6 +1832,7 @@ function svgPreviewFromViewAndData(view, dataObj, relativeTo = null)
         id: `${dataObj.class}-sprite`
     }, relativeTo );
 
+    console.log("svgPreviewFromViewAndData", drawing, text_drawing );
     return [ drawing, text_drawing ];
 }
 
@@ -2446,6 +2448,7 @@ let ui_api = {
 
     drawsocketInput,
     sendToServer, // renderer-event
+    outlet, // to max if running in max
     fairlyUniqueString,
     makeUniqueID,
     getCurrentContext,
@@ -2522,6 +2525,8 @@ module.exports = {
     setScrollOffset,
 
     init,
-    input
+    input,
+
+    outlet
 
  }
