@@ -27,7 +27,7 @@ let params = {
 }
 
 const init = function(obj) {
-    post("hello init!");
+   // post("hello init!");
     params = {
         ...params,
         ...obj
@@ -36,16 +36,19 @@ const init = function(obj) {
     if( params.post != "default" )
     {
         post = params.post;
+        io_api.post = post;
     }
 
     if( params.outlet != "default" )
     {
-        outlet = params.outlet;        
+        outlet = params.outlet;
+        io_api.outlet = outlet;  
     }
 
     if( params.ui_send != "default" )
     {
         ui_send = params.ui_send;
+        io_api.ui_send = ui_send;  
     }
 
 }
@@ -198,6 +201,16 @@ function defHas( classname )
 }
 
 
+function getModel()
+{
+    return model;
+}
+
+function getScore()
+{
+    return score;
+}
+
 
 // api export to definitions
 global.io_api = {
@@ -206,7 +219,15 @@ global.io_api = {
     modelHas,
     defGet,
     defHas,
-    Points: require("points")
+    Points: require("points"),
+
+    post,
+    outlet,
+    ui_send,
+    input,
+
+    getModel,
+    getScore
 
 }
 
@@ -614,7 +635,7 @@ function lookup(params)
 
 function sendScoreToUI()
 {
-    console.log('data-refresh', score);
+    //console.log('data-refresh', score);
     ui_send({
         key: 'score',
         val: score
@@ -676,7 +697,6 @@ function getFormattedLookupUDP(params)
 
 function callFromIO(params)
 {
-   // console.log('callFromIO', params);
     if( typeof params.class != "undefined" && typeof params.method != "undefined" )
     {
 
@@ -685,6 +705,7 @@ function callFromIO(params)
             const _def = ioDefs.get(params.class);
             if( typeof _def[params.method] != 'undefined')
             {
+
                 const ret = _def[params.method](params);
                 if( ret )
                 {
@@ -693,8 +714,14 @@ function callFromIO(params)
                     })
                 }
             }
+            else
+                post('call failed, no method def', params);
+
 
         }
+        else
+            post('call failed, no class def', params);
+
 
         // also sends to ui_controlller, so if the function has the same name in both defs it will be called in both places
         ui_send({
@@ -826,13 +853,13 @@ function input(_obj)
         break;
 
         case 'lookup':
-            lookupResponseUDP(msg.val);
+            lookupResponseUDP(val);
             break;
         case 'getFormattedLookup':
-            getFormattedLookupUDP(msg.val);
+            getFormattedLookupUDP(val);
             break;
         case 'call':
-            callFromIO(msg.val);
+            callFromIO(val);
             break;
         
 

@@ -21,6 +21,7 @@ const RootSymbol = require('./lib/RootSymbol');
 const DataPoint = require('./lib/DataPoint');
 const SystemContainer = require('./lib/SystemContainer');
 
+const NodescoreAPI = require('./lib/NodescoreAPI');
 
 // set into def map
 ioDefs.set("AzimNote", new AzimNote.io_def() );
@@ -37,6 +38,9 @@ ioDefs.set("RootSymbol", new RootSymbol.io_def() );
 //ioDefs.set("SubdivisionTool", new SubdivisionTool.io_def() );
 ioDefs.set("DataPoint", new DataPoint.io_def() );
 ioDefs.set("SystemContainer", new SystemContainer.io_def() );
+
+ioDefs.set("NodescoreAPI", new NodescoreAPI.io_def() );
+
 
 module.exports = {
     ioDefs,

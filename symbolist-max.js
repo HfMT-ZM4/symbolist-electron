@@ -43,6 +43,11 @@ ui_send({
     }
 });
 
+Max.post(__dirname);
+
+Max.outlet({
+    jweb: __dirname + "/jweb-max.html"
+})
 
 function init()
 {
@@ -52,14 +57,14 @@ function init()
             key: "import-io-def-bundle",
             val: symbolist_config['io_defs']
         });
-    
+
         ui_send({
             key: 'load-ui-defs',
             val: ''
         });
-    
+
     }
-    
+  
 }
 
 
@@ -80,8 +85,10 @@ Max.addHandler(Max.MESSAGE_TYPES.DICT, (obj) => {
         io_controller.input(obj)
 });
 
+//init();
 
-init();
+
+
 
 
  //io_controller.startUDP();
