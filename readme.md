@@ -6,13 +6,10 @@ The program aims to provide an open play space, with tools for experimentation, 
 
 # Installation
 
-*note the project is in transition, and is about to work with electron v13 and webpack, for now if you are interested, you can check out the previous `node_version` which works with v12 and use the following instructions, new instructions coming soon.*
-
 1. Install `node.js`.
-2. Download or clone the project rerpository folder.
-3. run `npm install` inside the project folder.
-4. install electon globally `npm install -g electron`.  
-    **note: symbolist is not yet compatible with electron v12, please use `npm install electron@11.3.0 -g` for now.**
+2. install electron and webpack globally `npm install -g electron webpack webpack-cli`.
+3. Download or clone the project repository folder.
+4. run `npm install` inside the project folder.
 5. run `electron .` to start the `symbolist` application. 
     * If running in `vs code` you should be able to run via the debugger, defined in the `.vscode/launch.json` file. Be sure to check that `runtimeExecutable` path matches your Electron install location which will vary based on your operating system.
 
@@ -42,9 +39,9 @@ The main structure of the platform is currently in three parts:
 
 ## Symbols
 
-The `semantic data` is stored in a `model` or `score` which is made up of a hierarchical arrangment of objects called `symbols`.
+The `semantic data` is stored in a `model` or `score` which is made up of a hierarchical arrangement of objects called `symbols`.
 
-Each `symbol` is a data object which holds a set of data parameters. For example a typical event like `symbol` might represent a note event, and contain `pitch`,  `time` and `duration` paramters. The details of each symbol's data strcture and UI interaction is defined in an object `class`.
+Each `symbol` is a data object which holds a set of data parameters. For example a typical event like `symbol` might represent a note event, and contain `pitch`,  `time` and `duration` parameters. The details of each symbol's data structure and UI interaction is defined in an object `class`.
 
 `symbols` may also be containers that contain other symbols. Container symbols function to frame their contents, giving them reference and context, like a plot graph frame, which provides a perspective for interpreting a set of data points.
 
@@ -233,7 +230,7 @@ html:
 
 # IO Messages
 
-`symbolist` has built in handlers for a set of messages recived via OSC, which can be extended by user scripts, using a `key` / `val` syntax, where the `key` specifies the function to call, and the `val` are the parameter values to use for the call.
+`symbolist` has built in handlers for a set of messages received via OSC, which can be extended by user scripts, using a `key` / `val` syntax, where the `key` specifies the function to call, and the `val` are the parameter values to use for the call.
 
 For example, here is a `lookup` query to find elements that are returned by the parameters `time` in the `container` with the `id` "trio".
 
@@ -433,7 +430,7 @@ __Required__
 * `updateFromDataset` called from the inspector, when elements of the data should be updated.
 * `getContainerForData` for container symbols, this function is called when a new data object is being set, if there are multiple containers of the same type, for example systems with line breaks, this function looks up the container by a certain parameter, usually time.
 * `childDataToViewParams` mapping function in container symbol called from children to request view parameters from data object.
-* `childViewParamsToData` mapping function in conatiner symbol called from children to get data mapping from view parameters.
+* `childViewParamsToData` mapping function in container symbol called from children to get data mapping from view parameters.
 __Optional__
 * `editMode` (element, true/false)=> called from ui controller when entering edit mode
 * `selected` (element, true/false)=> called from ui controller on selection, return true if selection is handled in the script, false will trigger the default selection mechanics.
@@ -455,9 +452,9 @@ The following functions are provided by the `ui_api` which is available to symbo
 * `uiDefs` access to the defs in the defs
 * `getDef` lookup def by class name
 * `getDefForElement` helper function to get def from DOM element
-* `getContainerForElement` look upwards in the elemement heirarchy to find the container
+* `getContainerForElement` look upwards in the element hierarchy to find the container
 * `svgFromViewAndData` - generates SVG symbol, wrapping view and data values.
-* `svgPreviewFromViewAndData` - generates a preivew SVG symbol `sprite`, wrapping view and data values, with an additional text display showing the current data value.
+* `svgPreviewFromViewAndData` - generates a preview SVG symbol `sprite`, wrapping view and data values, with an additional text display showing the current data value.
 * `getDataTextView` -- generates a text view of the data
 * `removeSprites` -- removes temporary `sprite` objects
 
@@ -559,7 +556,7 @@ Each container definition has a `palette` array, which lists the `symbol` class 
    * as the mouse moves, the mouse event handlers are called. When the `cmd` button is pressed, a preview of the symbol is displayed in the `symbolist_overlay` layer defined in the main view file `index.html`.
    * use `ui_api.getSVGCoordsFromEvent(event)` to get the absolute coordinates, taking the window scrolling position into account.
 3. `cmd-click` is the current standard creation gesture. On `cmd-click` the mouse handler should call an internal function which creates a new element based on the mousedown coordinate (again using `getSVGCoordsFromEvent`). When creating a new element, the action should preform a the same actions as the `fromData` function described above, and send the drawing commands to the browser via: `ui_api.drawsocketInput`. Depending on the mapping, usually you might need to use some default values, since the mouse click only gives you a few dimensions of data. 
-    * In additon to mapping from data to the graphic view, you also need to send the new data object to the score held in the io_controller, using `ui_api.sendToServer`. You can use the `ui_api.getCurrentContext()` function to get the currently selected container element.
+    * In addition to mapping from data to the graphic view, you also need to send the new data object to the score held in the io_controller, using `ui_api.sendToServer`. You can use the `ui_api.getCurrentContext()` function to get the currently selected container element.
    ```
     ui_api.sendToServer({
         key: "data",
@@ -583,7 +580,7 @@ Each container definition has a `palette` array, which lists the `symbol` class 
 2. **to do**: get notification of exit from inspector incase of clean up.
 
 ### Click and Drag
-1. If the user clicks and drags on an object, the `transform` callback function is called. The standard method for object translation in symbolist is to first apply a transform matrix to the object, which is constantly updated whever the mouse is moved while dragging. The transform matrix is an attribute of the object that transforms the other attributes without changing the values directly. E.g. if an object has an attribute of `cx="100"`, the transform matrix will offset from `cx="100"`, but not change the value of `cx`. For convenience, the translation matrix can be applied using the helper function `ui_api.translate`.
+1. If the user clicks and drags on an object, the `transform` callback function is called. The standard method for object translation in symbolist is to first apply a transform matrix to the object, which is constantly updated whenever the mouse is moved while dragging. The transform matrix is an attribute of the object that transforms the other attributes without changing the values directly. E.g. if an object has an attribute of `cx="100"`, the transform matrix will offset from `cx="100"`, but not change the value of `cx`. For convenience, the translation matrix can be applied using the helper function `ui_api.translate`.
 2. On mouse up, the `ui_controller` will check to see if any of the selected object have a transform matrix, and then call the object class' `applyTransformToData` function, which should apply the transform matrix to the elements attributes. E.g. updating the value of `cx` in the example above. There is a helper function `ui_api.applyTransform` which performs this for SVG objects.
 
 ### Edit Mode
