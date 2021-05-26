@@ -1,0 +1,7 @@
+{
+    "name": "symbolist_defs",
+    "scripts": {
+      "build": "webpack"
+    }
+  }
+  
