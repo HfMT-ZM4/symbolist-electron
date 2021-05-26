@@ -3272,7 +3272,11 @@ window.addEventListener("focus", (event)=> {
     addSymbolistKeyListeners();
 }, false);
 
-
+window.addEventListener("load", ()=> {
+    io_send({
+        init: "bang"
+    });
+}, false);
 
 function addFocusListner()
 {   

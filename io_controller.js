@@ -772,12 +772,16 @@ function input(_obj)
             addIdIfMissing(val);
             addToModel(val);
             addCacheState( score );
-            outlet(val);
+            outlet({
+                data: val
+            });
             break;
 
         case 'new':
         case 'update':
-            outlet(val);
+            outlet({
+                update: val
+            });
             break;
 
         case 'undo':
@@ -789,7 +793,7 @@ function input(_obj)
         break;
 
         case 'io_out':
-            post('io_out', val);
+            //post('io_out', val);
             outlet(val);
             break;    
             

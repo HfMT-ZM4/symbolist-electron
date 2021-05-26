@@ -143,7 +143,7 @@ class SymbolBase
      */
     fromData(dataObj, container, preview = false)
     {
-        console.log('template fromData', container, dataObj);
+        //console.log('template fromData', container, dataObj);
         // merging with defaults in case the user forgot to include something
         const data_union = {
             ...this.structs.data,
@@ -159,6 +159,13 @@ class SymbolBase
             ui_api.svgFromViewAndData(viewObj, data_union) );
 
         ui_api.drawsocketInput( drawObj );
+
+        let outObj = {};
+        outObj[dataObj.id] = viewObj;
+
+        if( !preview )
+            ui_api.outlet({ viewParams: outObj });
+
     }
 
 
@@ -583,10 +590,6 @@ class SymbolBase
      * 
      */
     handleEvent(e) {
-        ui_api.outlet({
-            e: JSON.stringify(e)
-        });
-
         switch(e.type)
         {
             case 'keyup':

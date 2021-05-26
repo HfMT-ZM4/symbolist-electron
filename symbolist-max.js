@@ -72,7 +72,13 @@ Max.addHandler("ping", (...prefix) => drawsocket.ping(prefix) );
 Max.addHandler("statereq", (...prefix) => drawsocket.stateReq(prefix) );
 */
 Max.addHandler("bang", () => init() );
-Max.addHandler(Max.MESSAGE_TYPES.DICT, (dict) => io_controller.input(dict));
+Max.addHandler(Max.MESSAGE_TYPES.DICT, (obj) => {
+    if( typeof obj.init != "undefined" ){
+        init();
+    }
+    else
+        io_controller.input(obj)
+});
 
 
 init();
