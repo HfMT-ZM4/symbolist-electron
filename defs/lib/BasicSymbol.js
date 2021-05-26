@@ -152,6 +152,13 @@ class BasicSymbol extends Template.SymbolBase
             ui_api.svgFromViewAndData(viewObj, data_union) );
 
         ui_api.drawsocketInput( drawObj );
+
+        if( !preview ) {
+            let outObj = {};
+            outObj[dataObj.id] = viewObj;
+            ui_api.outlet({ viewParams: outObj });
+        }
+
     }
 
 

@@ -160,11 +160,11 @@ class SymbolBase
 
         ui_api.drawsocketInput( drawObj );
 
-        let outObj = {};
-        outObj[dataObj.id] = viewObj;
-
-        if( !preview )
+        if( !preview ) {
+            let outObj = {};
+            outObj[dataObj.id] = viewObj;
             ui_api.outlet({ viewParams: outObj });
+        }
 
     }
 
