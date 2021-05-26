@@ -19,9 +19,7 @@ ipcRenderer.on('io-message', (event, obj) => {
 console.log("preload config");
 
 contextBridge.exposeInMainWorld('electron', {
-    io_send: (data) => ipcRenderer.send("renderer-event", {
-      data,
-    }),
+    io_send: (data) => ipcRenderer.send("renderer-event", data ),
     set_receiver_fn: (fn) => {
       const saferFn = (event, ...args) => fn(...args)
       // Deliberately strip event as it includes `sender` 
