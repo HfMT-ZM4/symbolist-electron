@@ -7,12 +7,13 @@ The program aims to provide an open play space, with tools for experimentation, 
 # Installation
 
 1. Install `node.js`.
-2. install electron and webpack globally `npm install -g electron webpack webpack-cli`.
+2. install electron and webpack globally `npm install -g electron webpack webpack-cli`. 
 3. Download or clone the project repository folder.
 4. run `npm install` inside the project folder.
 5. run `electron .` to start the `symbolist` application. 
     * If running in `vs code` you should be able to run via the debugger, defined in the `.vscode/launch.json` file. Be sure to check that `runtimeExecutable` path matches your Electron install location which will vary based on your operating system.
-
+6. If you are working with custom symbol definition classes, you need to run webpack to bundle the files for use in the browser. See the `/defs` folder for more information. For convenience, you can run `npm run build` in the defs folder to build the files.
+   
 # About
 
 There are three basic ideas at the core of `symbolist`:
