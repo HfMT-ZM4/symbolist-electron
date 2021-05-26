@@ -155,7 +155,7 @@ class BasicSymbol extends Template.SymbolBase
 
         if( !preview ) {
             let outObj = {};
-            outObj[dataObj.id] = viewObj;
+            outObj[dataObj.id] = viewParams;
             ui_api.outlet({ viewParams: outObj });
         }
 
