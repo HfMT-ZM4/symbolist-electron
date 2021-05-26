@@ -11,6 +11,7 @@ if( typeof window.initDef == "undefined" ){
 
 
 
+
 //let uiDefs = window.uiDefs;
 //let initDef = window.initDef;
 
@@ -38,6 +39,14 @@ if( typeof window.max !== "undefined")
     outlet = (msg) => window.max.outlet("outlet", JSON.stringify(msg));
     io_send = (msg) => window.max.outlet("io_controller", JSON.stringify(msg));
 
+}
+else if( typeof window.electron != 'undefined')
+{
+    io_send = msg => window.electron.io_send(msg);
+    window.electron.set_receiver_fn( (msg) => {
+        console.log('callback received', msg); 
+        input(msg);
+     });
 }
 
 let params = {

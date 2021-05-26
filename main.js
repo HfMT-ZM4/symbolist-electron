@@ -2,9 +2,9 @@
 const cluster = require('cluster');
 const utils = require('./lib/main_utils')
 
-
 if( cluster.isMaster )
 {
+  const path = require('path');
   const { app, BrowserWindow, ipcMain, globalShortcut, dialog } = require('electron')
   const menu = require('./menu-actions/menu') // init after creating cluster and win
 
@@ -22,10 +22,12 @@ if( cluster.isMaster )
       height: 600,
       title: 'symbolist',
       backgroundColor: `rgb(50, 50, 50)`,
-      contextIsolation: true,
       webPreferences: {
-        nodeIntegration: true
+        contextIsolation: true,
+        nodeIntegration: false,
+        preload: path.join(__dirname, './electron-com-init.js')        
       }
+      
     })
   
     // pass menu class the io controller and window for communcations
@@ -137,6 +139,7 @@ if( cluster.isMaster )
    */
   io_controller_proc.on('message', (msg)=> {
    
+    console.log("received msg", msg);
     if( !Array.isArray(msg) )
       msg = [ msg ];
 
