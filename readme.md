@@ -6,6 +6,8 @@ The program aims to provide an open play space, with tools for experimentation, 
 
 # Installation
 
+*note the project is in transition, and is about to work with electron v13 and webpack, for now if you are interested, you can check out the previous `node_version` which works with v12 and use the following instructions, new instructions coming soon.*
+
 1. Install `node.js`.
 2. Download or clone the project rerpository folder.
 3. run `npm install` inside the project folder.
