@@ -22,6 +22,7 @@ const SubdivisionTool = require('./lib/SubdivisionTool');
 const DataPoint = require('./lib/DataPoint');
 const SystemContainer = require('./lib/SystemContainer');
 
+const NodescoreAPI = require('./lib/NodescoreAPI');
 
 // set into def map
 uiDefs.set("AzimNote", new AzimNote.ui_def() );
@@ -38,6 +39,8 @@ uiDefs.set("SnapPoint", new SnapPoint.ui_def() );
 uiDefs.set("SubdivisionTool", new SubdivisionTool.ui_def() );
 uiDefs.set("DataPoint", new DataPoint.ui_def() );
 uiDefs.set("SystemContainer", new SystemContainer.ui_def() );
+
+uiDefs.set("NodescoreAPI", new NodescoreAPI.ui_def() );
 
 
 let cssFile = "./defs/css/stylie.css";

@@ -40,6 +40,73 @@
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
 				"box" : 				{
+					"fontface" : 0,
+					"fontsize" : 12.0,
+					"id" : "obj-26",
+					"linecount" : 6,
+					"maxclass" : "o.compose",
+					"numinlets" : 2,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 805.0, 78.0, 309.0, 94.0 ],
+					"presentation_linecount" : 6,
+					"saved_bundle_data" : [ 35, 98, 117, 110, 100, 108, 101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 47, 107, 101, 121, 0, 0, 0, 0, 44, 115, 0, 0, 99, 97, 108, 108, 0, 0, 0, 0, 0, 0, 0, 120, 47, 118, 97, 108, 0, 0, 0, 0, 44, 46, 0, 0, 0, 0, 0, 104, 35, 98, 117, 110, 100, 108, 101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 28, 47, 99, 108, 97, 115, 115, 0, 0, 44, 115, 0, 0, 78, 111, 100, 101, 115, 99, 111, 114, 101, 65, 80, 73, 0, 0, 0, 0, 0, 0, 0, 28, 47, 109, 101, 116, 104, 111, 100, 0, 44, 115, 0, 0, 101, 120, 97, 109, 112, 108, 101, 67, 97, 108, 108, 65, 80, 73, 0, 0, 0, 0, 0, 20, 47, 105, 110, 116, 101, 114, 118, 97, 108, 0, 0, 0, 44, 105, 0, 0, -1, -1, -1, -1 ],
+					"saved_bundle_length" : 164,
+					"text" : "/key : \"call\",\n/val : {\n  /class : \"NodescoreAPI\",\n  /method : \"exampleCallAPI\",\n  /interval : -1\n}"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"fontface" : 0,
+					"id" : "obj-22",
+					"maxclass" : "o.display",
+					"numinlets" : 1,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 731.0, 368.5, 368.0, 33.0 ],
+					"text" : "/ids : \"foobar\""
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"fontface" : 0,
+					"fontsize" : 12.0,
+					"id" : "obj-18",
+					"linecount" : 5,
+					"maxclass" : "o.compose",
+					"numinlets" : 2,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 929.0, 262.0, 309.0, 80.0 ],
+					"presentation_linecount" : 5,
+					"saved_bundle_data" : [ 35, 98, 117, 110, 100, 108, 101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 47, 107, 101, 121, 0, 0, 0, 0, 44, 115, 0, 0, 99, 97, 108, 108, 0, 0, 0, 0, 0, 0, 0, 100, 47, 118, 97, 108, 0, 0, 0, 0, 44, 46, 0, 0, 0, 0, 0, 84, 35, 98, 117, 110, 100, 108, 101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 28, 47, 99, 108, 97, 115, 115, 0, 0, 44, 115, 0, 0, 78, 111, 100, 101, 115, 99, 111, 114, 101, 65, 80, 73, 0, 0, 0, 0, 0, 0, 0, 32, 47, 109, 101, 116, 104, 111, 100, 0, 44, 115, 0, 0, 101, 120, 97, 109, 112, 108, 101, 85, 73, 67, 97, 108, 108, 65, 80, 73, 0, 0, 0, 0 ],
+					"saved_bundle_length" : 144,
+					"text" : "/key : \"call\",\n/val : {\n  /class : \"NodescoreAPI\",\n  /method : \"exampleUICallAPI\"\n}"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"fontface" : 0,
+					"fontsize" : 12.0,
+					"id" : "obj-13",
+					"linecount" : 10,
+					"maxclass" : "o.compose",
+					"numinlets" : 2,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 137.0, -30.5, 309.0, 150.0 ],
+					"presentation_linecount" : 10,
+					"saved_bundle_data" : [ 35, 98, 117, 110, 100, 108, 101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 47, 107, 101, 121, 0, 0, 0, 0, 44, 115, 0, 0, 100, 97, 116, 97, 0, 0, 0, 0, 0, 0, 0, -48, 47, 118, 97, 108, 0, 0, 0, 0, 44, 46, 0, 0, 0, 0, 0, -64, 35, 98, 117, 110, 100, 108, 101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 47, 116, 105, 109, 101, 0, 0, 0, 44, 100, 0, 0, 63, -52, -19, 11, 48, -75, -86, 113, 0, 0, 0, 16, 47, 109, 105, 100, 105, 0, 0, 0, 44, 105, 0, 0, 0, 0, 0, 73, 0, 0, 0, 24, 47, 100, 117, 114, 97, 116, 105, 111, 110, 0, 0, 0, 44, 100, 0, 0, 63, -80, 58, 13, 66, 7, -30, 77, 0, 0, 0, 32, 47, 99, 108, 97, 115, 115, 0, 0, 44, 115, 0, 0, 70, 105, 118, 101, 76, 105, 110, 101, 83, 116, 97, 118, 101, 69, 118, 101, 110, 116, 0, 0, 0, 0, 0, 24, 47, 99, 111, 110, 116, 97, 105, 110, 101, 114, 0, 0, 44, 115, 0, 0, 111, 98, 111, 101, 0, 0, 0, 0, 0, 0, 0, 16, 47, 97, 109, 112, 0, 0, 0, 0, 44, 105, 0, 0, 0, 0, 0, 1, 0, 0, 0, 16, 47, 105, 100, 0, 44, 115, 0, 0, 102, 111, 111, 98, 97, 114, 0, 0 ],
+					"saved_bundle_length" : 252,
+					"text" : "/key : \"data\",\n/val : {\n  /time : 0.225984,\n  /midi : 73,\n  /duration : 0.0633858,\n  /class : \"FiveLineStaveEvent\",\n  /container : \"oboe\",\n  /amp : 1,\n  /id : \"foobar\"\n}"
+				}
+
+			}
+, 			{
+				"box" : 				{
 					"id" : "obj-12",
 					"maxclass" : "newobj",
 					"numinlets" : 1,
@@ -64,26 +131,12 @@
 , 			{
 				"box" : 				{
 					"fontface" : 0,
-					"id" : "obj-26",
-					"linecount" : 336,
-					"maxclass" : "o.display",
-					"numinlets" : 1,
-					"numoutlets" : 1,
-					"outlettype" : [ "" ],
-					"patching_rect" : [ 982.5, 509.0, 295.0, 4323.0 ],
-					"text" : "/exampleCallAPI : {\n  /score : {\n    /tools,\n    /palette : [\"SubdivisionTool\", \"BasicSymbolGL\"],\n    /class : \"RootSymbol\",\n    /contents : {\n      /x : 200,\n      /duration : 20,\n      /class : \"SystemContainer\",\n      /time : 0,\n      /contents : [{\n        /duration : 20,\n        /class : \"FiveLineStave\",\n        /time : 0,\n        /contents,\n        /id : \"oboe\",\n        /height : 100,\n        /lineSpacing : 10\n      }, {\n        /duration : 20,\n        /class : \"PartStave\",\n        /time : 0,\n        /contents : [{\n          /container : \"bassoon\",\n          /duration : 0.1,\n          /class : \"ColorPitch\",\n          /time : 0.055,\n          /id : \"ColorPitch_u_f1b39a3a-3370-494b-9295-d9b11906caa6\",\n          /pitch : 101.6\n        }, {\n          /container : \"bassoon\",\n          /duration : 0.1,\n          /class : \"ColorPitch\",\n          /time : 0.067,\n          /id : \"ColorPitch_u_ecadee09-3430-43e3-990b-67becbf50cdf\",\n          /pitch : 57.15\n        }, {\n          /container : \"bassoon\",\n          /duration : 0.1,\n          /class : \"ColorPitch\",\n          /time : 0.206,\n          /id : \"ColorPitch_u_c4f88e59-a8dd-4701-8a2d-95a7005b6d7e\",\n          /pitch : 26.67\n        }, {\n          /container : \"bassoon\",\n          /duration : 0.1,\n          /class : \"ColorPitch\",\n          /time : 0.111,\n          /id : \"ColorPitch_u_a00f6b20-f5f1-4567-af78-08acba7a644d\",\n          /pitch : 33.02\n        }],\n        /id : \"bassoon\",\n        /height : 100\n      }, {\n        /duration : 20,\n        /class : \"PartStave\",\n        /time : 0,\n        /contents,\n        /id : \"synth\",\n        /height : 200\n      }],\n      /y : 100,\n      /id : \"trio\"\n    },\n    /id : \"Score\",\n    /about : \"symbolist will read a json file to configure the palette setup, this can be used to dynamically change also (eventually)\"\n  },\n  /model : {\n    /oboe : {\n      /duration : 20,\n      /class : \"FiveLineStave\",\n      /time : 0,\n      /contents,\n      /id : \"oboe\",\n      /height : 100,\n      /lineSpacing : 10\n    },\n    /bassoon : {\n      /duration : 20,\n      /class : \"PartStave\",\n      /time : 0,\n      /contents : [{\n        /container : \"bassoon\",\n        /duration : 0.1,\n        /class : \"ColorPitch\",\n        /time : 0.055,\n        /id : \"ColorPitch_u_f1b39a3a-3370-494b-9295-d9b11906caa6\",\n        /pitch : 101.6\n      }, {\n        /container : \"bassoon\",\n        /duration : 0.1,\n        /class : \"ColorPitch\",\n        /time : 0.067,\n        /id : \"ColorPitch_u_ecadee09-3430-43e3-990b-67becbf50cdf\",\n        /pitch : 57.15\n      }, {\n        /container : \"bassoon\",\n        /duration : 0.1,\n        /class : \"ColorPitch\",\n        /time : 0.206,\n        /id : \"ColorPitch_u_c4f88e59-a8dd-4701-8a2d-95a7005b6d7e\",\n        /pitch : 26.67\n      }, {\n        /container : \"bassoon\",\n        /duration : 0.1,\n        /class : \"ColorPitch\",\n        /time : 0.111,\n        /id : \"ColorPitch_u_a00f6b20-f5f1-4567-af78-08acba7a644d\",\n        /pitch : 33.02\n      }],\n      /id : \"bassoon\",\n      /height : 100\n    },\n    /Score : {\n      /tools,\n      /palette : [\"SubdivisionTool\", \"BasicSymbolGL\"],\n      /class : \"RootSymbol\",\n      /contents : {\n        /x : 200,\n        /duration : 20,\n        /class : \"SystemContainer\",\n        /time : 0,\n        /contents : [{\n          /duration : 20,\n          /class : \"FiveLineStave\",\n          /time : 0,\n          /contents,\n          /id : \"oboe\",\n          /height : 100,\n          /lineSpacing : 10\n        }, {\n          /duration : 20,\n          /class : \"PartStave\",\n          /time : 0,\n          /contents : [{\n            /container : \"bassoon\",\n            /duration : 0.1,\n            /class : \"ColorPitch\",\n            /time : 0.055,\n            /id : \"ColorPitch_u_f1b39a3a-3370-494b-9295-d9b11906caa6\",\n            /pitch : 101.6\n          }, {\n            /container : \"bassoon\",\n            /duration : 0.1,\n            /class : \"ColorPitch\",\n            /time : 0.067,\n            /id : \"ColorPitch_u_ecadee09-3430-43e3-990b-67becbf50cdf\",\n            /pitch : 57.15\n          }, {\n            /container : \"bassoon\",\n            /duration : 0.1,\n            /class : \"ColorPitch\",\n            /time : 0.206,\n            /id : \"ColorPitch_u_c4f88e59-a8dd-4701-8a2d-95a7005b6d7e\",\n            /pitch : 26.67\n          }, {\n            /container : \"bassoon\",\n            /duration : 0.1,\n            /class : \"ColorPitch\",\n            /time : 0.111,\n            /id : \"ColorPitch_u_a00f6b20-f5f1-4567-af78-08acba7a644d\",\n            /pitch : 33.02\n          }],\n          /id : \"bassoon\",\n          /height : 100\n        }, {\n          /duration : 20,\n          /class : \"PartStave\",\n          /time : 0,\n          /contents,\n          /id : \"synth\",\n          /height : 200\n        }],\n        /y : 100,\n        /id : \"trio\"\n      },\n      /id : \"Score\",\n      /about : \"symbolist will read a json file to configure the palette setup, this can be used to dynamically change also (eventually)\"\n    },\n    /ColorPitch_u_c4f88e59-a8dd-4701-8a2d-95a7005b6d7e : {\n      /container : \"bassoon\",\n      /duration : 0.1,\n      /class : \"ColorPitch\",\n      /time : 0.206,\n      /id : \"ColorPitch_u_c4f88e59-a8dd-4701-8a2d-95a7005b6d7e\",\n      /pitch : 26.67\n    },\n    /synth : {\n      /duration : 20,\n      /class : \"PartStave\",\n      /time : 0,\n      /contents,\n      /id : \"synth\",\n      /height : 200\n    },\n    /ColorPitch_u_ecadee09-3430-43e3-990b-67becbf50cdf : {\n      /container : \"bassoon\",\n      /duration : 0.1,\n      /class : \"ColorPitch\",\n      /time : 0.067,\n      /id : \"ColorPitch_u_ecadee09-3430-43e3-990b-67becbf50cdf\",\n      /pitch : 57.15\n    },\n    /ColorPitch_u_f1b39a3a-3370-494b-9295-d9b11906caa6 : {\n      /container : \"bassoon\",\n      /duration : 0.1,\n      /class : \"ColorPitch\",\n      /time : 0.055,\n      /id : \"ColorPitch_u_f1b39a3a-3370-494b-9295-d9b11906caa6\",\n      /pitch : 101.6\n    },\n    /ColorPitch_u_a00f6b20-f5f1-4567-af78-08acba7a644d : {\n      /container : \"bassoon\",\n      /duration : 0.1,\n      /class : \"ColorPitch\",\n      /time : 0.111,\n      /id : \"ColorPitch_u_a00f6b20-f5f1-4567-af78-08acba7a644d\",\n      /pitch : 33.02\n    },\n    /trio : {\n      /x : 200,\n      /duration : 20,\n      /class : \"SystemContainer\",\n      /time : 0,\n      /contents : [{\n        /duration : 20,\n        /class : \"FiveLineStave\",\n        /time : 0,\n        /contents,\n        /id : \"oboe\",\n        /height : 100,\n        /lineSpacing : 10\n      }, {\n        /duration : 20,\n        /class : \"PartStave\",\n        /time : 0,\n        /contents : [{\n          /container : \"bassoon\",\n          /duration : 0.1,\n          /class : \"ColorPitch\",\n          /time : 0.055,\n          /id : \"ColorPitch_u_f1b39a3a-3370-494b-9295-d9b11906caa6\",\n          /pitch : 101.6\n        }, {\n          /container : \"bassoon\",\n          /duration : 0.1,\n          /class : \"ColorPitch\",\n          /time : 0.067,\n          /id : \"ColorPitch_u_ecadee09-3430-43e3-990b-67becbf50cdf\",\n          /pitch : 57.15\n        }, {\n          /container : \"bassoon\",\n          /duration : 0.1,\n          /class : \"ColorPitch\",\n          /time : 0.206,\n          /id : \"ColorPitch_u_c4f88e59-a8dd-4701-8a2d-95a7005b6d7e\",\n          /pitch : 26.67\n        }, {\n          /container : \"bassoon\",\n          /duration : 0.1,\n          /class : \"ColorPitch\",\n          /time : 0.111,\n          /id : \"ColorPitch_u_a00f6b20-f5f1-4567-af78-08acba7a644d\",\n          /pitch : 33.02\n        }],\n        /id : \"bassoon\",\n        /height : 100\n      }, {\n        /duration : 20,\n        /class : \"PartStave\",\n        /time : 0,\n        /contents,\n        /id : \"synth\",\n        /height : 200\n      }],\n      /y : 100,\n      /id : \"trio\"\n    }\n  }\n}"
-				}
-
-			}
-, 			{
-				"box" : 				{
-					"fontface" : 0,
 					"id" : "obj-25",
 					"maxclass" : "o.display",
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 494.5, 408.5, 295.0, 33.0 ]
+					"patching_rect" : [ 477.5, 426.5, 295.0, 33.0 ]
 				}
 
 			}
@@ -97,10 +150,10 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 808.0, 34.0, 309.0, 94.0 ],
-					"saved_bundle_data" : [ 35, 98, 117, 110, 100, 108, 101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 47, 107, 101, 121, 0, 0, 0, 0, 44, 115, 0, 0, 99, 97, 108, 108, 0, 0, 0, 0, 0, 0, 0, 120, 47, 118, 97, 108, 0, 0, 0, 0, 44, 46, 0, 0, 0, 0, 0, 104, 35, 98, 117, 110, 100, 108, 101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 28, 47, 99, 108, 97, 115, 115, 0, 0, 44, 115, 0, 0, 78, 111, 100, 101, 115, 99, 111, 114, 101, 65, 80, 73, 0, 0, 0, 0, 0, 0, 0, 28, 47, 109, 101, 116, 104, 111, 100, 0, 44, 115, 0, 0, 101, 120, 97, 109, 112, 108, 101, 67, 97, 108, 108, 65, 80, 73, 0, 0, 0, 0, 0, 20, 47, 115, 111, 109, 101, 80, 97, 114, 97, 109, 0, 0, 44, 105, 0, 0, 0, 0, 0, 1 ],
+					"patching_rect" : [ 794.0, -22.0, 309.0, 94.0 ],
+					"saved_bundle_data" : [ 35, 98, 117, 110, 100, 108, 101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 47, 107, 101, 121, 0, 0, 0, 0, 44, 115, 0, 0, 99, 97, 108, 108, 0, 0, 0, 0, 0, 0, 0, 120, 47, 118, 97, 108, 0, 0, 0, 0, 44, 46, 0, 0, 0, 0, 0, 104, 35, 98, 117, 110, 100, 108, 101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 28, 47, 99, 108, 97, 115, 115, 0, 0, 44, 115, 0, 0, 78, 111, 100, 101, 115, 99, 111, 114, 101, 65, 80, 73, 0, 0, 0, 0, 0, 0, 0, 28, 47, 109, 101, 116, 104, 111, 100, 0, 44, 115, 0, 0, 101, 120, 97, 109, 112, 108, 101, 67, 97, 108, 108, 65, 80, 73, 0, 0, 0, 0, 0, 20, 47, 105, 110, 116, 101, 114, 118, 97, 108, 0, 0, 0, 44, 105, 0, 0, 0, 0, 0, 1 ],
 					"saved_bundle_length" : 164,
-					"text" : "/key : \"call\",\n/val : {\n  /class : \"NodescoreAPI\",\n  /method : \"exampleCallAPI\",\n  /someParam : 1\n}"
+					"text" : "/key : \"call\",\n/val : {\n  /class : \"NodescoreAPI\",\n  /method : \"exampleCallAPI\",\n  /interval : 1\n}"
 				}
 
 			}
@@ -135,7 +188,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 160.0, 193.0, 64.0, 22.0 ],
+					"patching_rect" : [ 149.0, 219.5, 64.0, 22.0 ],
 					"text" : "script stop"
 				}
 
@@ -157,15 +210,15 @@
 					"fontface" : 0,
 					"fontsize" : 12.0,
 					"id" : "obj-40",
-					"linecount" : 9,
+					"linecount" : 10,
 					"maxclass" : "o.compose",
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 447.0, 22.0, 309.0, 136.0 ],
-					"saved_bundle_data" : [ 35, 98, 117, 110, 100, 108, 101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 47, 107, 101, 121, 0, 0, 0, 0, 44, 115, 0, 0, 100, 97, 116, 97, 0, 0, 0, 0, 0, 0, 0, -68, 47, 118, 97, 108, 0, 0, 0, 0, 44, 46, 0, 0, 0, 0, 0, -84, 35, 98, 117, 110, 100, 108, 101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 47, 116, 105, 109, 101, 0, 0, 0, 44, 100, 0, 0, 63, -52, -19, 11, 48, -75, -86, 113, 0, 0, 0, 16, 47, 109, 105, 100, 105, 0, 0, 0, 44, 105, 0, 0, 0, 0, 0, 70, 0, 0, 0, 24, 47, 100, 117, 114, 97, 116, 105, 111, 110, 0, 0, 0, 44, 100, 0, 0, 63, -80, 58, 13, 66, 7, -30, 77, 0, 0, 0, 32, 47, 99, 108, 97, 115, 115, 0, 0, 44, 115, 0, 0, 70, 105, 118, 101, 76, 105, 110, 101, 83, 116, 97, 118, 101, 69, 118, 101, 110, 116, 0, 0, 0, 0, 0, 24, 47, 99, 111, 110, 116, 97, 105, 110, 101, 114, 0, 0, 44, 115, 0, 0, 111, 98, 111, 101, 0, 0, 0, 0, 0, 0, 0, 16, 47, 97, 109, 112, 0, 0, 0, 0, 44, 105, 0, 0, 0, 0, 0, 1 ],
-					"saved_bundle_length" : 232,
-					"text" : "/key : \"data\",\n/val : {\n  /time : 0.225984,\n  /midi : 70,\n  /duration : 0.0633858,\n  /class : \"FiveLineStaveEvent\",\n  /container : \"oboe\",\n  /amp : 1\n}"
+					"patching_rect" : [ 459.0, -18.0, 309.0, 150.0 ],
+					"saved_bundle_data" : [ 35, 98, 117, 110, 100, 108, 101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 47, 107, 101, 121, 0, 0, 0, 0, 44, 115, 0, 0, 100, 97, 116, 97, 0, 0, 0, 0, 0, 0, 0, -48, 47, 118, 97, 108, 0, 0, 0, 0, 44, 46, 0, 0, 0, 0, 0, -64, 35, 98, 117, 110, 100, 108, 101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 47, 116, 105, 109, 101, 0, 0, 0, 44, 100, 0, 0, 63, -52, -19, 11, 48, -75, -86, 113, 0, 0, 0, 16, 47, 109, 105, 100, 105, 0, 0, 0, 44, 105, 0, 0, 0, 0, 0, 70, 0, 0, 0, 24, 47, 100, 117, 114, 97, 116, 105, 111, 110, 0, 0, 0, 44, 100, 0, 0, 63, -80, 58, 13, 66, 7, -30, 77, 0, 0, 0, 32, 47, 99, 108, 97, 115, 115, 0, 0, 44, 115, 0, 0, 70, 105, 118, 101, 76, 105, 110, 101, 83, 116, 97, 118, 101, 69, 118, 101, 110, 116, 0, 0, 0, 0, 0, 24, 47, 99, 111, 110, 116, 97, 105, 110, 101, 114, 0, 0, 44, 115, 0, 0, 111, 98, 111, 101, 0, 0, 0, 0, 0, 0, 0, 16, 47, 97, 109, 112, 0, 0, 0, 0, 44, 105, 0, 0, 0, 0, 0, 1, 0, 0, 0, 16, 47, 105, 100, 0, 44, 115, 0, 0, 102, 111, 111, 98, 97, 114, 0, 0 ],
+					"saved_bundle_length" : 252,
+					"text" : "/key : \"data\",\n/val : {\n  /time : 0.225984,\n  /midi : 70,\n  /duration : 0.0633858,\n  /class : \"FiveLineStaveEvent\",\n  /container : \"oboe\",\n  /amp : 1,\n  /id : \"foobar\"\n}"
 				}
 
 			}
@@ -386,7 +439,7 @@
  ]
 					}
 ,
-					"patching_rect" : [ 291.0, 303.0, 29.5, 22.0 ],
+					"patching_rect" : [ 301.0, 299.0, 29.5, 22.0 ],
 					"saved_object_attributes" : 					{
 						"description" : "",
 						"digest" : "",
@@ -501,7 +554,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 291.0, 331.0, 295.0, 33.0 ]
+					"patching_rect" : [ 301.0, 327.0, 295.0, 33.0 ]
 				}
 
 			}
@@ -512,7 +565,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 274.0, 219.5, 37.0, 22.0 ],
+					"patching_rect" : [ 276.5, 211.5, 37.0, 22.0 ],
 					"text" : "o.dict"
 				}
 
@@ -882,7 +935,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 151.0, 156.0, 64.0, 22.0 ],
+					"patching_rect" : [ 151.0, 183.0, 64.0, 22.0 ],
 					"text" : "script start"
 				}
 
@@ -890,39 +943,26 @@
 , 			{
 				"box" : 				{
 					"id" : "obj-1",
+					"linecount" : 2,
 					"maxclass" : "newobj",
 					"numinlets" : 1,
 					"numoutlets" : 2,
 					"outlettype" : [ "", "" ],
-					"patching_rect" : [ 151.0, 273.0, 159.0, 22.0 ],
+					"patching_rect" : [ 151.0, 256.0, 169.0, 35.0 ],
 					"saved_object_attributes" : 					{
-						"autostart" : 0,
+						"autostart" : 1,
 						"defer" : 0,
 						"node_bin_path" : "",
 						"npm_bin_path" : "",
-						"watch" : 0
+						"watch" : 1
 					}
 ,
-					"text" : "node.script symbolist-max.js"
+					"text" : "node.script symbolist-max.js @autostart 1 @watch 1"
 				}
 
 			}
  ],
 		"lines" : [ 			{
-				"patchline" : 				{
-					"destination" : [ "obj-14", 0 ],
-					"source" : [ "obj-1", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
-					"destination" : [ "obj-61", 0 ],
-					"source" : [ "obj-1", 1 ]
-				}
-
-			}
-, 			{
 				"patchline" : 				{
 					"destination" : [ "obj-8", 0 ],
 					"midpoints" : [ 449.5, 554.5, 160.5, 554.5 ],
@@ -998,14 +1038,6 @@
 			}
 , 			{
 				"patchline" : 				{
-					"destination" : [ "obj-26", 0 ],
-					"order" : 0,
-					"source" : [ "obj-29", 2 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
 					"destination" : [ "obj-30", 0 ],
 					"source" : [ "obj-29", 1 ]
 				}
@@ -1014,7 +1046,6 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-58", 0 ],
-					"order" : 1,
 					"source" : [ "obj-29", 2 ]
 				}
 
@@ -1023,20 +1054,6 @@
 				"patchline" : 				{
 					"destination" : [ "obj-69", 0 ],
 					"source" : [ "obj-29", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
-					"destination" : [ "obj-1", 0 ],
-					"source" : [ "obj-3", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
-					"destination" : [ "obj-31", 0 ],
-					"source" : [ "obj-30", 0 ]
 				}
 
 			}
@@ -1063,13 +1080,6 @@
 			}
 , 			{
 				"patchline" : 				{
-					"destination" : [ "obj-12", 0 ],
-					"source" : [ "obj-4", 2 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
 					"destination" : [ "obj-21", 0 ],
 					"source" : [ "obj-4", 1 ]
 				}
@@ -1091,20 +1101,6 @@
 			}
 , 			{
 				"patchline" : 				{
-					"destination" : [ "obj-1", 0 ],
-					"source" : [ "obj-42", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
-					"destination" : [ "obj-1", 0 ],
-					"source" : [ "obj-5", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
 					"destination" : [ "obj-52", 0 ],
 					"source" : [ "obj-50", 0 ]
 				}
@@ -1114,13 +1110,6 @@
 				"patchline" : 				{
 					"destination" : [ "obj-52", 0 ],
 					"source" : [ "obj-51", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
-					"destination" : [ "obj-1", 0 ],
-					"source" : [ "obj-52", 0 ]
 				}
 
 			}
@@ -1140,25 +1129,10 @@
 			}
 , 			{
 				"patchline" : 				{
-					"destination" : [ "obj-38", 0 ],
-					"source" : [ "obj-7", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
+					"color" : [ 1.0, 0.0, 1.0, 1.0 ],
 					"destination" : [ "obj-4", 0 ],
-					"midpoints" : [ 160.5, 981.0, 1005.5, 981.0, 1005.5, 166.0, 498.5, 166.0 ],
+					"midpoints" : [ 160.5, 992.0, 1005.5, 992.0, 1005.5, 166.0, 498.5, 166.0 ],
 					"source" : [ "obj-8", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
-					"destination" : [ "obj-1", 0 ],
-					"midpoints" : [ 498.5, 262.25, 160.5, 262.25 ],
-					"order" : 1,
-					"source" : [ "obj-9", 0 ]
 				}
 
 			}
@@ -1166,6 +1140,106 @@
 				"patchline" : 				{
 					"destination" : [ "", -1 ],
 					"source" : [ "obj-14", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-14", 0 ],
+					"source" : [ "obj-1", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-61", 0 ],
+					"source" : [ "obj-1", 1 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-52", 0 ],
+					"source" : [ "obj-13", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-52", 0 ],
+					"source" : [ "obj-18", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-52", 0 ],
+					"source" : [ "obj-26", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-1", 0 ],
+					"source" : [ "obj-3", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-31", 0 ],
+					"source" : [ "obj-30", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-22", 0 ],
+					"source" : [ "obj-34", 1 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-12", 0 ],
+					"source" : [ "obj-4", 2 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-1", 0 ],
+					"source" : [ "obj-42", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-1", 0 ],
+					"source" : [ "obj-5", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-1", 0 ],
+					"source" : [ "obj-52", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-38", 0 ],
+					"source" : [ "obj-7", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-1", 0 ],
+					"midpoints" : [ 498.5, 248.25, 160.5, 248.25 ],
+					"order" : 1,
+					"source" : [ "obj-9", 0 ]
 				}
 
 			}

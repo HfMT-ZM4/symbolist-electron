@@ -223,12 +223,15 @@ global.io_api = {
 
     post,
     outlet,
-    
+
     ui_send,
     input,
 
+    sendDataToUI,
+
     getModel,
-    getScore
+    getScore,
+    addToModel
 
 }
 
@@ -406,7 +409,8 @@ function addToModel( dataobj )
           //  console.log(`updating value ${key}: ${value}`);
         }    
     }
-    else {
+    else 
+    {
         model.set( dataobj.id, dataobj );
         addToScore(dataobj);
     }
