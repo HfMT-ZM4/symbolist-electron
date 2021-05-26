@@ -825,6 +825,15 @@ function input(_obj)
             loadScore(val);
         break;
 
+        case 'lookup':
+            lookupResponseUDP(msg.val);
+            break;
+        case 'getFormattedLookup':
+            getFormattedLookupUDP(msg.val);
+            break;
+        case 'call':
+            callFromIO(msg.val);
+            break;
         
 
         default:

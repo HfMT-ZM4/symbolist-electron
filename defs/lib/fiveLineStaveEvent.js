@@ -270,7 +270,13 @@ class FiveLineStaveEvent extends Template.SymbolBase
         const drawObj = (preview ? 
             ui_api.svgPreviewFromViewAndData(viewObj, data_union, `.notehead`) : //<< relative position
             ui_api.svgFromViewAndData(viewObj, data_union) );
+
         ui_api.drawsocketInput( drawObj );
+
+        let outObj = {};
+        outObj[dataObj.id] = viewObj;
+        if( !preview )
+            ui_api.outlet({ viewParams: outObj });
     }
 
 
