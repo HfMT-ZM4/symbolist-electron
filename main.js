@@ -64,12 +64,12 @@ if( cluster.isMaster )
           key: "import-io-def-bundle",
           val: symbolist_config['io_defs']
         });
-
+/*
         win.webContents.send('io-message', {
           key: 'load-ui-defs', 
           val: {}//files
         });
-
+*/
       }
       else
       {

@@ -1,6 +1,53 @@
 
 /* global drawsocket:readonly  */
 
+//let uiDefs = window.uiDefs;
+//let initDef = window.initDef;
+
+let post = console.log;
+let outlet = (msg) => { };
+let io_send = (msg) => console.error("not sending to io", msg);
+
+let appContext = null;
+
+if( typeof window.max !== "undefined")
+{
+    appContext = 'Max';
+
+    post = (msg) => window.max.outlet("post", JSON.stringify(msg));
+    outlet = (msg) => window.max.outlet("outlet", JSON.stringify(msg));
+    io_send = (msg) => window.max.outlet("io_controller", JSON.stringify(msg));
+
+    window.max.bindInlet('input', (msg) => {
+        post(msg);
+        try {
+          let obj = JSON.parse(msg);
+          input(obj);
+
+        }
+        catch(err)
+        {
+            post("parse error", err);
+        }
+    });
+
+}
+else if( typeof window.electron != 'undefined')
+{
+    appContext = 'Electron';
+
+    io_send = (msg) => {
+        console.log('io_send to main ', msg); 
+        window.electron.io_send(msg);
+    };
+
+    window.electron.set_receiver_fn( (msg) => {
+        console.log('received from main ', msg); 
+        input(msg);
+     });
+}
+
+
 if( window.uiDefs == "undefined"){
     window.uiDefs = new Map();
 }
@@ -11,43 +58,36 @@ if( typeof window.initDef == "undefined" ){
 
 
 
+window.addEventListener("load", ()=> {
+    initPalette();
+    
+    // in this scenario, the initDef is the default score
+    // so whenever you refresh the page it will reset the score
+    // actually, I think that makes sense -- the only reason to 
+    // keep the score data separate seems to be for dev purposes
+    // so that you can update the defs faster, but I think that doesn't
+    // really matter that much...
 
-//let uiDefs = window.uiDefs;
-//let initDef = window.initDef;
+    iterateScore(initDef);
 
-let post = console.log;
-let outlet = (msg) => { };
-let io_send = (msg) => console.error("not sending to io", msg);
+  //  post('finished loading');
+
+  // however in max, currently the node.script object
+  // could have new data... I guess that could happen via the UDP port as well
+  // starting to think maybe it is better to put everything in the browser, and really separate the IO reading,
+  // which probably shouldn't be in node anyway
+    if( appContext == 'Max' )
+    {
+        sendToServer({
+            key: 'data-refresh'
+        })
+    }
+
+}, false);
 
 
-if( typeof window.max !== "undefined")
-{
-    window.max.bindInlet('input', (msg) => {
-        console.log(msg);
-        try {
-          let obj = JSON.parse(msg);
-          input(obj);
 
-        }
-        catch(err)
-        {
-            console.error(err);
-        }
-    });
 
-    post = (msg) => window.max.outlet("post", JSON.stringify(msg));
-    outlet = (msg) => window.max.outlet("outlet", JSON.stringify(msg));
-    io_send = (msg) => window.max.outlet("io_controller", JSON.stringify(msg));
-
-}
-else if( typeof window.electron != 'undefined')
-{
-    io_send = msg => window.electron.io_send(msg);
-    window.electron.set_receiver_fn( (msg) => {
-        console.log('callback received', msg); 
-        input(msg);
-     });
-}
 
 let params = {
     io_send: "default",
@@ -890,11 +930,6 @@ window.addEventListener("focus", (event)=> {
     addSymbolistKeyListeners();
 }, false);
 
-window.addEventListener("load", ()=> {
-    io_send({
-        init: "bang"
-    });
-}, false);
 
 function addFocusListner()
 {   
@@ -1046,7 +1081,7 @@ function getCurrentContext(){
                 symbolist_newScore();
                 break;
             case 'init':
-                init(obj.val)
+                //init(obj.val)
                 break;
              default:
                  break;

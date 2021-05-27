@@ -34,7 +34,7 @@ io_controller.init({
     outlet: (msg) => io_outlet(msg),
     ui_send
 });
-
+/*
 ui_send({
     key: 'init',
     val: {
@@ -42,7 +42,7 @@ ui_send({
         dirname: __dirname
     }
 });
-
+*/
 Max.post(__dirname);
 
 Max.outlet({
@@ -57,12 +57,12 @@ function init()
             key: "import-io-def-bundle",
             val: symbolist_config['io_defs']
         });
-
+/*
         ui_send({
             key: 'load-ui-defs',
             val: ''
         });
-
+*/
     }
   
 }
@@ -85,7 +85,7 @@ Max.addHandler(Max.MESSAGE_TYPES.DICT, (obj) => {
         io_controller.input(obj)
 });
 
-//init();
+init();
 
 
 

@@ -17,7 +17,7 @@ let files = utils.getFilesFromMenuFolderArray(symbolist_config['default-init-fol
 const path = require('path');
 
 module.exports = [{
-    entry: './symbolist-global-modules.js',
+    entry: './ui_entry.js',
     output: {
         filename: 'ui.bundle.js',
         path: path.resolve(__dirname, 'build')
