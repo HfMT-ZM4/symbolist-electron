@@ -2477,48 +2477,6 @@ window.addEventListener("load", ()=> {
 }, false);
 
 
-
-
-
-let params = {
-    io_send: "default",
-    post: "default",
-    outlet: "default",
-    dirname: "default",
-    max: false
-}
- 
- const init = function(obj) {
-     
-     params = {
-         ...params,
-         ...obj
-     }
- 
-     if( params.post != "default" )
-     {
-         post = params.post;
-     }
- 
-     if( params.outlet != "default" )
-     {
-         outlet = params.outlet;
-     }
- 
-     if( params.io_send != "default" )
-     {
-         console.log('setting io', params)
-         io_send = params.io_send;
-     }
- 
-     if( params.dirname != "default" )
-     {
-         window.__symbolist_dirname = params.__dirname;
-     }
- 
- }
- 
-
 /**
  * symbolist renderer view module -- exported functions are at the the bottom
  */
@@ -2553,14 +2511,17 @@ const {
 } = __webpack_require__(876);
 
 
+
+/**
+ * globals
+ */
+
+
 const svgObj = document.getElementById("svg");
 const mainSVG = document.getElementById("main-svg");
 
 
 
-/**
- * globals
- */
  const mainHTML = document.getElementById("main-html");
  const topContainer = document.getElementById('top-svg');
  const mainDiv = document.getElementById("main-div");
@@ -2590,23 +2551,8 @@ const mainSVG = document.getElementById("main-svg");
  
  let selectedClass = currentPaletteClass;
  
- //if( typeof window.initDef == "undefined" )
- //    let initDef;
- 
- 
  
  let currentMode = "palette";
-
- 
-/**
- * uiDefs stores UI defs in flat array, lookup by classname
- * 
- * definitions have a palette array that stores the classNames of potential child types
- *  */ 
-
-
-// API
-
 
 
 
@@ -2633,27 +2579,6 @@ function translate(obj, delta_pos)
     
     gsap.set(obj, delta_pos);
 
-/*
-    return;
-
-    let transformlist = obj.transform.baseVal; 
-
-    let matrix = svgObj.createSVGMatrix();//obj.getScreenCTM().multiply( mainSVG.getScreenCTM().inverse() );
-    // delta position is prescaled in svg coordinates
-    // keep scale/rotation transform as is 
-    matrix.e = delta_pos.x;
-    matrix.f = delta_pos.y;
-
-    
-
-    //let translation_ = svgObj.createSVGTransform();
-    //translation_.setTranslate( delta_pos.x,  delta_pos.y );
-    
-    const transformMatrix = svgObj.createSVGTransformFromMatrix(matrix);
-    transformlist.initialize( transformMatrix );
-
-    //transformlist.insertItemBefore(translation_, 1);
-*/
 }
 
 /*
@@ -2682,82 +2607,236 @@ function getTopLevel(elm)
     if( elm == topContainer )
         return elm;
     else    
-    {
-
         return elm.closest(".symbol");
+}
 
-        /*
-        // should return only the first layer of objects within the current context
-        // mabye we need to set the default context with current_context?
-        let ret = elm.closest(".symbol");
-        while ( !ret.parentNode.closest(".symbol").classList.includes('.current_context') ) 
-        {
-            ret = parentNode;
-        }
 
-        return ret;
-        */
-    }
-
-/*
-    while(  elm != svgObj && 
-            elm.parentNode && 
-            elm.parentNode.id != 'main-svg' && 
-            elm.parentNode.id != 'palette' && 
-            ( currentContext != svgObj ? !elm.parentNode.classList.contains('stave_content') : 1 ) ) 
-    {
-        elm = elm.parentNode;
-    }
-
-   return elm;
-   */
+/**
+ * returns Element Node of currently selected context
+ */
+ function getCurrentContext(){
+    //console.log('currentContext', currentContext);
+    return currentContext;
 }
 
 
 
 
-/*
-function symbolost_sendKeyEvent(event, caller)
-{
-    if( typeof event.symbolistAction === 'undefined' )
-    {
-        console.log('undefined key action');
-        return;
-    }
-    
-    let sel_arr = [];
-    for( let i = 0; i < selected.length; i++)
-    {
-        let _jsonEl = elementToJSON( selected[i]);
-        _jsonEl.bbox = cloneObj(selected[i].getBoundingClientRect());
-        sel_arr.push( _jsonEl );
-    }
 
-    let _jsonContext = elementToJSON( currentContext );
-    _jsonContext.bbox = cloneObj(currentContext.getBoundingClientRect());
+/**
+ * Selection
+ */
 
-    console.log("send key: ", event.symbolistAction);
 
-    ipcRenderer.send('symbolist_event',  {
-        key: 'key',
-        val: {
-            xy: [mouse_pos.x, mouse_pos.y],
-            context: _jsonContext,
-            action: caller,
-            keyVal: event.key,
-            mods : {
-                alt: event.altKey,
-                shift: event.shiftKey,
-                ctrl: event.ctrlKey,
-                meta: event.metaKey
-            },
-            paletteClass: currentPaletteClass, 
-            selected: sel_arr,
-            symbolistAction: event.symbolistAction
-        }
-    });
-}
-*/
+
+ function addToSelection( element )
+ {
+ 
+     if( !element || typeof element.id == "undefined" || element.id == 'dragRegion' )
+         return;
+ 
+    // console.log('addToSelection', element);
+ 
+     for( let i = 0; i < selected.length; i++)
+     {
+         if( selected[i] == element )
+             return;    
+     }
+ 
+     selected.push(element);
+ 
+     if( !element.classList.contains("symbolist_selected") )
+     {
+         element.classList.add("symbolist_selected");
+     }
+ 
+     // copy with selected tag to deal with comparison later
+     selectedCopy.push( element.cloneNode(true) );
+ 
+     callSymbolMethod(element, "selected", true);
+ 
+ }
+ 
+ function selectedObjectsChanged()
+ {
+     for( let i = 0; i < selected.length; i++)
+     {
+         if( !selectedCopy[i].isEqualNode( selected[i] ) ){
+       //      console.log(selectedCopy[i], selected[i] );    
+             return true;
+         }   
+         
+     }
+ 
+     return false;
+ }
+ 
+ 
+ function selectAllInRegion(region, element)
+ {
+ 
+     let contextContent = currentContext.querySelector('.contents');
+ 
+     for (let i = 0; i < contextContent.children.length; i++) 
+     {
+         if( recursiveHitTest(region, contextContent.children[i]) )
+             addToSelection( contextContent.children[i] );
+ 
+     }
+         
+ }
+ 
+ function deselectAll()
+ {
+  
+     document.querySelectorAll('.symbolist_selected').forEach( el => {
+         el.classList.remove("symbolist_selected");
+                 
+         callSymbolMethod(el, "selected", false);
+         callSymbolMethod(el, "editMode", false);
+         
+     })
+ 
+     selected = [];
+     selectedCopy = [];
+ 
+     document.querySelectorAll('.infobox').forEach( ibox => {
+         ibox.remove();
+     })
+ 
+     drawsocket.input({
+         key: "clear",
+         val: "symbolist_overlay"
+     })
+ 
+ }
+ 
+ 
+ 
+ function applyTransformToSelected()
+ {
+     for( let i = 0; i < selected.length; i++)
+     {
+         
+         if( !callSymbolMethod(selected[i], "applyTransformToData" ) )
+         {
+             let matrix = getComputedMatrix(selected[i]);
+             applyTransform(selected[i], matrix);
+         }
+         
+     }
+ }
+ 
+ 
+ function cancelTransform(element)
+ {
+     element.removeAttribute('transform');   
+ }
+ 
+ 
+ 
+ function rotate_selected(mouse_pos)
+ {
+     for( let i = 0; i < selected.length; i++)
+     {
+        
+        // if( !callTranslate(selected[i], delta_pos) )
+         {
+             rotate(selected[i], mouse_pos);
+         }
+     }
+ }
+ 
+ 
+ function copySelected()
+ {
+ 
+     let newArray = [];
+     for( let i = 0; i < selected.length; i++)
+     {
+         newArray.push( copyObjectAndAddToParent(selected[i]) );
+     }
+ 
+     deselectAll();
+ 
+     for( let i = 0; i < newArray.length; i++)
+     {
+         addToSelection(newArray[i]);
+     }
+ 
+ }
+ 
+ 
+ 
+ function getDragRegion(event)
+ {
+     let left, right, top, bottom;
+     if( mousedown_pos.x < event.pageX )
+     {
+         right = event.pageX;
+         left = mousedown_pos.x;
+     }
+     else
+     {
+         left = event.pageX;
+         right = mousedown_pos.x;
+     }
+ 
+     if( mousedown_pos.y < event.pageY )
+     {
+         bottom = event.pageY;
+         top = mousedown_pos.y;
+     }
+     else
+     {
+         top = event.pageY;
+         bottom = mousedown_pos.y;
+     }
+ 
+     return {
+         left: left,
+         top: top,
+         right: right,
+         bottom: bottom
+     };
+ }
+ 
+ function drawDragRegion(_dragRegion)
+ {
+     drawsocket.input({
+         key: 'svg',
+         val: {
+             id: 'dragRegion',
+             parent: 'symbolist_overlay',
+             new: 'rect',
+             x: _dragRegion.left,
+             y: _dragRegion.top,
+             width: _dragRegion.right - _dragRegion.left,
+             height: _dragRegion.bottom - _dragRegion.top,
+             fill: 'none',
+             'stroke-width': 1,
+             'stroke': 'rgba(0,0,0,0.5)'
+         }
+     });
+ }
+ 
+ function clearDragRegionRect() 
+ {
+     drawsocket.input({
+         key: 'remove',
+         val: 'dragRegion'
+     });    
+ }
+ 
+
+
+
+/**
+ * 
+ * Event Handlers
+ * 
+ */
+
 
 function symbolist_keydownhandler(event)
 {
@@ -2798,101 +2877,10 @@ function symbolist_keydownhandler(event)
    // symbolost_sendKeyEvent(event, "keydown");
 }
 
-function symbolist_keyuphandler(event)
-{
-  //  symbolost_sendKeyEvent(event, "keyup");
-}
-
-/*
-function sendMouseEvent(event, caller)
-{  
-
-    if( typeof event.symbolistAction === 'undefined' )
-        return;
-
-    const toplevelObj = getTopLevel(event.target);
-    
-    const _id = ( event.target.id == "svg" || toplevelObj.id == currentContext.id ) ? selectedClass+'_u_'+fairlyUniqueString() : toplevelObj.id;
-
-  //  console.log(_id, selectedClass, toplevelObj.id, currentContext);
-   
-    let sel_arr = [];
-
-    for( let i = 0; i < selected.length; i++)
-    {
-        let _jsonEl = elementToJSON( selected[i]);
-        _jsonEl.bbox = cloneObj(selected[i].getBoundingClientRect());
-        sel_arr.push( _jsonEl );    
-    }
-
-    let _jsonContext = elementToJSON( currentContext );
-    _jsonContext.bbox = cloneObj(currentContext.getBoundingClientRect());
-
-    let _jsonTarget = elementToJSON( toplevelObj );
-    _jsonTarget.bbox = cloneObj(toplevelObj.getBoundingClientRect());
+function symbolist_keyuphandler(event){}
 
 
-    let obj = {
-        key: 'mouse',
-        val: {
-            id: _id,
-            context: _jsonContext,
-            paletteClass: currentPaletteClass, // class specified by the palette
-            action: caller,
-            xy: [ event.pageX, event.pageY ],
-            mousedownPos: event.buttons == 1 ? [mousedown_pos.x, mousedown_pos.y ] : null,
-            button: event.buttons,
-            mods : {
-                alt: event.altKey,
-                shift: event.shiftKey,
-                ctrl: event.ctrlKey,
-                meta: event.metaKey
-            },
-            target: _jsonTarget, // the object receiving mouse event
-            selected: sel_arr
-        }
-    };
-
-    if( caller == 'wheel' )
-    {
-        obj.val.delta = [ event.deltaX, event.deltaY ];
-    }
-
-    if( event.hasOwnProperty("symbolistAction") )
-        obj.val.symbolistAction = event.symbolistAction;
-
-    ipcRenderer.send( 'symbolist_event', obj );
-
-}
-*/
-
-function symbolsit_dblclick(event)
-{
-   // event.preventDefault();
-    /*
-    setSelectedContext();
-    deselectAll();
-    event.symbolistAction = "setContext";
-    sendMouseEvent(event, "dblclick");
-*/
-/*
-    const _eventTarget = getTopLevel( event.target );
-
-    if( prevEventTarget === null )
-        prevEventTarget = _eventTarget;
-
-    prevEventTarget = _eventTarget;             
-
-    if( currentContext !== _eventTarget )
-    {
-        event.symbolistAction = "set_context";
-        currentContext = _eventTarget;
-        console.log('set context to', currentContext);
-    }
-    
-    sendMouseEvent(event, "dblclick");
-    */
-}
+function symbolsit_dblclick(event) {}
 
 
 
@@ -3123,67 +3111,10 @@ function symbolist_mouseover(event)
 function symbolist_mouseleave(event)
 {           
     //console.log('symbolist_mouseleave');
-    //clearDragRegionRect();
-
-    /*
-    drawsocketInput({
-        key: "clear",
-        val: "symbolist_overlay"
-    })
-    */
     removeSprites();
     prevEventTarget = null;
 }
 
-
-function symbolist_zoomReset()
-{
-    if( m_scale == 1 )
-    {
-        scrollOffset = {x: 0, y: 0};
-        gsap.set( mainSVG,  scrollOffset );
-        gsap.set( mainHTML, scrollOffset );
-        gsap.set( floatingForms, scrollOffset )
-    }
-
-    m_scale = 1;
-   // const scale = Math.pow( Math.E, m_scale);
-    gsap.set( mainSVG,  { scale: 1 } );
-    gsap.set( mainHTML, { scale: 1 } );
-    gsap.set( floatingForms, { scale: 1 } );
-
-    mousedown_pos = mousedown_page_pos.matrixTransform( mainSVG.getScreenCTM().inverse() ); 
-
-}
-
-
-function symbolist_zoom(offset)
-{
-
-    const visible_w = window.innerWidth / m_scale;
-    const visible_h = window.innerHeight / m_scale;
-
-    m_scale += offset;
-
-    const next_visible_w = window.innerWidth / m_scale;
-    const next_visible_h = window.innerHeight / m_scale;
-
-    const offset_x = next_visible_w - visible_w;
-    const offset_y = next_visible_h - visible_h;
-
-    if( offset_x < 0 )
-        scrollOffset.x += offset_x * 0.5;
-    if( offset_y < 0 )
-        scrollOffset.y += offset_y * 0.5;
-
-    gsap.set( mainSVG,  { ...scrollOffset, scale: m_scale } );
-    gsap.set( mainHTML, { ...scrollOffset, scale: m_scale } );
-    gsap.set( floatingForms, { ...scrollOffset, scale: m_scale } );
-
-
-    mousedown_pos = mousedown_page_pos.matrixTransform( mainSVG.getScreenCTM().inverse() ); 
-
-}
 
 let ticking = false;
 
@@ -3207,36 +3138,6 @@ function symbolist_wheel(event)
   
       ticking = true;
     }
-}
-
-/**
- * 
- * @param {Point} norm_pos normalized xy position 0-1
- * 
- */
-function setScrollOffset(norm_pos)
-{
-
-    const bbox = svgObj.getBBox();
-
-    if( typeof norm_pos.x != "undefined" )
-        scrollOffset.x = -norm_pos.x * bbox.width;
-    
-    if( typeof norm_pos.y != "undefined" )
-        scrollOffset.y = -norm_pos.y * bbox.height;
-
-    if (!ticking) {
-        window.requestAnimationFrame( function() {
-  
-          gsap.set( mainSVG,  scrollOffset );
-          gsap.set( mainHTML, scrollOffset );
-          gsap.set( floatingForms, scrollOffset );
-  
-          ticking = false;
-        });
-    
-        ticking = true;
-      }
 }
 
 
@@ -3408,17 +3309,94 @@ startDefaultEventHandlers();
 
 
 /**
- * returns Element Node of currently selected context
+ * Zoom / View
  */
-function getCurrentContext(){
-    //console.log('currentContext', currentContext);
-    return currentContext;
+
+function symbolist_zoomReset()
+{
+    if( m_scale == 1 )
+    {
+        scrollOffset = {x: 0, y: 0};
+        gsap.set( mainSVG,  scrollOffset );
+        gsap.set( mainHTML, scrollOffset );
+        gsap.set( floatingForms, scrollOffset )
+    }
+
+    m_scale = 1;
+   // const scale = Math.pow( Math.E, m_scale);
+    gsap.set( mainSVG,  { scale: 1 } );
+    gsap.set( mainHTML, { scale: 1 } );
+    gsap.set( floatingForms, { scale: 1 } );
+
+    mousedown_pos = mousedown_page_pos.matrixTransform( mainSVG.getScreenCTM().inverse() ); 
+
 }
 
 
+function symbolist_zoom(offset)
+{
+
+    const visible_w = window.innerWidth / m_scale;
+    const visible_h = window.innerHeight / m_scale;
+
+    m_scale += offset;
+
+    const next_visible_w = window.innerWidth / m_scale;
+    const next_visible_h = window.innerHeight / m_scale;
+
+    const offset_x = next_visible_w - visible_w;
+    const offset_y = next_visible_h - visible_h;
+
+    if( offset_x < 0 )
+        scrollOffset.x += offset_x * 0.5;
+    if( offset_y < 0 )
+        scrollOffset.y += offset_y * 0.5;
+
+    gsap.set( mainSVG,  { ...scrollOffset, scale: m_scale } );
+    gsap.set( mainHTML, { ...scrollOffset, scale: m_scale } );
+    gsap.set( floatingForms, { ...scrollOffset, scale: m_scale } );
 
 
+    mousedown_pos = mousedown_page_pos.matrixTransform( mainSVG.getScreenCTM().inverse() ); 
 
+}
+
+/**
+ * 
+ * @param {Point} norm_pos normalized xy position 0-1
+ * 
+ */
+function setScrollOffset(norm_pos)
+{
+
+    const bbox = svgObj.getBBox();
+
+    if( typeof norm_pos.x != "undefined" )
+        scrollOffset.x = -norm_pos.x * bbox.width;
+    
+    if( typeof norm_pos.y != "undefined" )
+        scrollOffset.y = -norm_pos.y * bbox.height;
+
+    if (!ticking) {
+        window.requestAnimationFrame( function() {
+  
+          gsap.set( mainSVG,  scrollOffset );
+          gsap.set( mainHTML, scrollOffset );
+          gsap.set( floatingForms, scrollOffset );
+  
+          ticking = false;
+        });
+    
+        ticking = true;
+      }
+}
+
+
+/**
+ * 
+ * Main Input
+ * 
+ */
 
  
  /**
@@ -3471,9 +3449,6 @@ function getCurrentContext(){
             case 'newScore':
                 symbolist_newScore();
                 break;
-            case 'init':
-                //init(obj.val)
-                break;
              default:
                  break;
          }
@@ -3514,28 +3489,6 @@ function sendToServer(obj)
 }
 
 
-/*
-// not used now but could be useful if we want to deal with the lookup system from the gui
-async function getDataForID(id)
-{
-    return ipcRenderer.invoke('query-event', id);
-}
-
-function asyncQuery(id, query, calllbackFn)
-{
-    ipcRenderer.once(`${id}-reply`, (event, args) => {
-        calllbackFn(args) 
-    })
-
-    ipcRenderer.send('query', {
-        id,
-        query
-    });
-}
-*/
-
-
-
 /**
  * 
  * @param {Object} obj input to drawsocket
@@ -3573,6 +3526,9 @@ function getDef(classname)
 }
 
 
+
+// not used yet, but could be worth adding
+// to dynamically load some scripts
 async function loadScript(script, src){
     return new Promise((resolve, reject) => {
         script.onload = ()=> {
@@ -3584,84 +3540,6 @@ async function loadScript(script, src){
         document.head.appendChild(script);
     })
 }
-
-async function loadUIDefs(folder)
-{
-    
-    initPalette();
- 
-    sendToServer({
-        key: 'data-refresh'
-    })
-    return;
-
-    const path = folder.path;
-
-    folder.files.forEach( async (f) => {
-        
-        if( f.type != 'folder' )
-        {
-            const filepath = `${path}/${f.name}`;
-            
-            /*
-            const exists = require.resolve(filepath); 
-            if( exists )
-                delete require.cache[ exists ];
-            
-            if( f.type == 'js')
-            {
-                // load controller def
-                let { ui_def } = require(filepath);
-    
-                // initialize def with api
-    
-                // api now global
-                let cntrlDef_ = new ui_def();
-            
-                // set into def map
-                uiDefs.set(cntrlDef_.class, cntrlDef_);
-                console.log('added ', cntrlDef_.class);
-            }*/
-            if( f.type == 'js')
-            {
-                /*
-                let script = document.createElement('script');
-                script.type = 'text/javascript';
-
-                await loadScript(script, filepath);
-                console.log('returned');
-                */
-
-            }
-            else if( f.type == "css" )
-            {
-                let head = document.getElementsByTagName("head");
-                if( !document.querySelector(`link[href="${filepath}"]`) )
-                {
-                    var cssFileRef = document.createElement("link");
-                    cssFileRef.rel = "stylesheet";
-                    cssFileRef.type = "text/css";
-                    cssFileRef.href = filepath;
-                    head[0].appendChild(cssFileRef);
-                }
-                
-            }
-            else if( f.name == 'init.json' ) //if(f.type == 'json')
-            {
-                console.log('loading init');
-                // there can be only one json file in the folder
-               // initDef = require(filepath);
-            }
-        }        
-        
-   
-    })
-    
-  //   initDocument();
- 
-
-}
-
 
 
 /**
@@ -3738,6 +3616,9 @@ function iterateScore(contents, context_element = null)
 }
 
 
+/**
+ * Palette UI
+ */
 
 function initPalette()
 {
@@ -3854,36 +3735,6 @@ function makeSymbolPalette(class_array)
 }
 
 
-function makeDefaultInfoDisplay(viewObj)
-{
-    const bbox = getBBoxAdjusted(viewObj);
-    //const bbox = viewObj.getBoundingClientRect();
-    return defaultInfoDisplay(viewObj, bbox);
-}
-
-
-
-function callFromIO(params)
-{
-    if( typeof params.class != "undefined" && typeof params.method != "undefined" )
-    {
-
-        if( uiDefs.has(params.class)  )
-        {  
-            const _def = uiDefs.get(params.class);
-            if( typeof _def[params.method] != 'undefined')
-            {
-                const ret = _def[params.method](params);
-                if( ret )
-                {
-                    io_out(_def[params.method](params));
-                }
-            }
-        }
-    }
-}
-
-
 
 /**
  * 
@@ -3945,9 +3796,9 @@ function symbolist_setClass(_class)
 
 /**
  * -->> change this to element..
- * @param {Object} obj set context from symbolist controller
+ * @param {Element} element  set context from symbolist controller
  */
-function symbolist_setContext(obj)
+function symbolist_setContext(element)
 {
     deselectAll();
 
@@ -3967,9 +3818,9 @@ function symbolist_setContext(obj)
         el.classList.remove("current_context");
     });
 
-    if( uiDefs.has(obj.classList[0]) )
+    if( uiDefs.has(element.classList[0]) )
     {
-        let def_ = uiDefs.get(obj.classList[0]);
+        let def_ = uiDefs.get(element.classList[0]);
 
         if( def_.palette )
         {
@@ -3980,13 +3831,13 @@ function symbolist_setContext(obj)
         //def_.enter(obj);
     }
 
-    if( obj != topContainer )
-        obj.classList.add("current_context");
+    if( element != topContainer )
+        element.classList.add("current_context");
 
 
     callSymbolMethod(currentContext, "currentContext", false);
 
-    currentContext = obj;
+    currentContext = element;
     callSymbolMethod(currentContext, "currentContext", true);
 
     symbolist_set_log(`set context to ${currentContext.id}`)
@@ -3996,40 +3847,21 @@ function symbolist_setContext(obj)
 
 
 
-/**
- * 
- * @param {Element} element HTML/SVG symbol element to call method on
- * @param {String} methodName name of method (e.g. editMode, selected.. )
- * @param {Object} args arguments to pass to method, could be anything, but probably an object
- * 
- * returns true if there is a method name defined in the def, false if not
- * 
- * if false, there is a possibility of using the default handlers for translate, etc.
- * but I think we're going to remove most of the default handlers
- */
-function callSymbolMethod( element, methodName, args )
-{
-    if( uiDefs.has( element.classList[0] ) )
-    {
-        const def_ = uiDefs.get( element.classList[0] );
-
-        if( hasParam(def_, methodName) )
-        {
-            const ret = def_[methodName](element, args);
-            return (typeof ret === "undefined" ? false : ret );
-        }        
-    }
-
-    return false;
-
-}
-
 
 /**
  * UI Helpers
  */
 
 
+
+ function makeDefaultInfoDisplay(viewObj)
+ {
+     const bbox = getBBoxAdjusted(viewObj);
+     //const bbox = viewObj.getBoundingClientRect();
+     return defaultInfoDisplay(viewObj, bbox);
+ }
+ 
+ 
 
 // storage for internal Handle callbacks
 let cb = {};
@@ -4447,6 +4279,7 @@ function symbolist_set_log(msg)
     }
 }
 
+/*
 function symbolist_setContainerClass(_class)
 {
     drawsocketInput({
@@ -4456,7 +4289,7 @@ function symbolist_setContainerClass(_class)
     
     symbolist_setClass(_class);
 }
-
+*/
 
 function setDefaultContext()
 {
@@ -4544,6 +4377,168 @@ function callExitEditModeForSelected()
 
 
 }
+ 
+ /**
+  * 
+  * @param {Element} element HTML/SVG symbol element to call method on
+  * @param {String} methodName name of method (e.g. editMode, selected.. )
+  * @param {Object} args arguments to pass to method, could be anything, but probably an object
+  * 
+  * returns true if there is a method name defined in the def, false if not
+  * 
+  * if false, there is a possibility of using the default handlers for translate, etc.
+  * but I think we're going to remove most of the default handlers
+  */
+  function callSymbolMethod( element, methodName, args )
+  {
+      if( uiDefs.has( element.classList[0] ) )
+      {
+          const def_ = uiDefs.get( element.classList[0] );
+  
+          if( hasParam(def_, methodName) )
+          {
+              const ret = def_[methodName](element, args);
+              return (typeof ret === "undefined" ? false : ret );
+          }        
+      }
+  
+      return false;
+  
+  }
+
+
+/**
+ * 
+ * @param {Object} params parameters for calling user class method
+ * 
+ */
+ function callFromIO(params)
+ {
+     if( typeof params.class != "undefined" && typeof params.method != "undefined" )
+     {
+ 
+         if( uiDefs.has(params.class)  )
+         {  
+             const _def = uiDefs.get(params.class);
+             if( typeof _def[params.method] != 'undefined')
+             {
+                 const ret = _def[params.method](params);
+                 if( ret )
+                 {
+                     io_out(_def[params.method](params));
+                 }
+             }
+         }
+     }
+ }
+ 
+  
+
+/**
+ * ui_api used in defs
+ */
+
+let ui_api = {
+    uiDefs: window.uiDefs, // access to the defs in the defs
+    
+    getDef,
+
+    getSymbolFromElement: getTopLevel,
+    getDefForElement, // helper function to get def for DOM element
+    getContainerForElement, // look upwards in the elemement heirarchy to find the container
+
+    svgFromViewAndData,
+    htmlFromViewAndData,
+    svgPreviewFromViewAndData,
+    getDataTextView,
+    removeSprites,
+
+    drawsocketInput,
+    sendToServer, // renderer-event
+    outlet, // to max if running in max
+    fairlyUniqueString,
+    makeUniqueID,
+    getCurrentContext,
+    getSelected,
+    dataToHTML,
+    getElementData,
+
+    filterByKeys,
+
+    makeDefaultInfoDisplay,
+    translate,
+    applyTransform,
+
+    getSVGCoordsFromEvent,
+    getBBoxAdjusted,
+
+
+    svgObj,
+    mainDiv,
+    scrollOffset,
+
+    
+    insertSorted, 
+    insertSortedHTML,
+    insertIndex,
+
+    ntom,
+    mton,
+    ftom, 
+    mtof,
+    ratio2float,
+    reduceRatio,
+    getRatioPrimeCoefs,
+    parseRatioStr,
+
+    hasParam,
+    createHandle,
+
+    startDefaultEventHandlers,
+    stopDefaultEventHandlers,
+
+    filterDataset
+}
+
+
+/**
+ * availale globally
+ */
+module.exports = { 
+    drawsocketInput,
+    sendToServer, // renderer-event
+    fairlyUniqueString,
+
+   // send: symbolist_send,
+
+    setClass: symbolist_setClass, 
+    setContext: symbolist_setContext,
+
+    getCurrentContext,
+    
+   // elementToJSON,
+    
+    translate,
+    applyTransform,
+    makeRelative,
+    startDefaultEventHandlers,
+    stopDefaultEventHandlers,
+  //  getContextConstraintsForPoint,
+
+    callSymbolMethod,
+
+    ui_api,
+
+    setScrollOffset,
+
+    input,
+
+    outlet
+
+ }
+
+
+
 
 /*
 
@@ -4658,317 +4653,6 @@ function getUnionBounds()
 }
 */
 
-
-
-/**
- * Selection
- */
-
-
-
-function addToSelection( element )
-{
-
-    if( !element || typeof element.id == "undefined" || element.id == 'dragRegion' )
-        return;
-
-   // console.log('addToSelection', element);
-
-    for( let i = 0; i < selected.length; i++)
-    {
-        if( selected[i] == element )
-            return;    
-    }
-
-    selected.push(element);
-
-    if( !element.classList.contains("symbolist_selected") )
-    {
-        element.classList.add("symbolist_selected");
-    }
-
-    // copy with selected tag to deal with comparison later
-    selectedCopy.push( element.cloneNode(true) );
-
-    callSymbolMethod(element, "selected", true);
-
-}
-
-function selectedObjectsChanged()
-{
-    for( let i = 0; i < selected.length; i++)
-    {
-        if( !selectedCopy[i].isEqualNode( selected[i] ) ){
-      //      console.log(selectedCopy[i], selected[i] );    
-            return true;
-        }   
-        
-    }
-
-    return false;
-}
-
-
-function selectAllInRegion(region, element)
-{
-
-    let contextContent = currentContext.querySelector('.contents');
-
-    for (let i = 0; i < contextContent.children.length; i++) 
-    {
-        if( recursiveHitTest(region, contextContent.children[i]) )
-            addToSelection( contextContent.children[i] );
-
-    }
-        
-}
-
-function deselectAll()
-{
- 
-    document.querySelectorAll('.symbolist_selected').forEach( el => {
-        el.classList.remove("symbolist_selected");
-                
-        callSymbolMethod(el, "selected", false);
-        callSymbolMethod(el, "editMode", false);
-        
-    })
-
-    selected = [];
-    selectedCopy = [];
-
-    document.querySelectorAll('.infobox').forEach( ibox => {
-        ibox.remove();
-    })
-
-    drawsocket.input({
-        key: "clear",
-        val: "symbolist_overlay"
-    })
-
-}
-
-
-
-function applyTransformToSelected()
-{
-    for( let i = 0; i < selected.length; i++)
-    {
-        
-        if( !callSymbolMethod(selected[i], "applyTransformToData" ) )
-        {
-            let matrix = getComputedMatrix(selected[i]);
-            applyTransform(selected[i], matrix);
-        }
-        
-    }
-}
-
-
-function cancelTransform(element)
-{
-    element.removeAttribute('transform');   
-}
-
-
-
-function rotate_selected(mouse_pos)
-{
-    for( let i = 0; i < selected.length; i++)
-    {
-       
-       // if( !callTranslate(selected[i], delta_pos) )
-        {
-            rotate(selected[i], mouse_pos);
-        }
-    }
-}
-
-
-function copySelected()
-{
-
-    let newArray = [];
-    for( let i = 0; i < selected.length; i++)
-    {
-        newArray.push( copyObjectAndAddToParent(selected[i]) );
-    }
-
-    deselectAll();
-
-    for( let i = 0; i < newArray.length; i++)
-    {
-        addToSelection(newArray[i]);
-    }
-
-}
-
-
-
-function getDragRegion(event)
-{
-    let left, right, top, bottom;
-    if( mousedown_pos.x < event.pageX )
-    {
-        right = event.pageX;
-        left = mousedown_pos.x;
-    }
-    else
-    {
-        left = event.pageX;
-        right = mousedown_pos.x;
-    }
-
-    if( mousedown_pos.y < event.pageY )
-    {
-        bottom = event.pageY;
-        top = mousedown_pos.y;
-    }
-    else
-    {
-        top = event.pageY;
-        bottom = mousedown_pos.y;
-    }
-
-    return {
-        left: left,
-        top: top,
-        right: right,
-        bottom: bottom
-    };
-}
-
-function drawDragRegion(_dragRegion)
-{
-    drawsocket.input({
-        key: 'svg',
-        val: {
-            id: 'dragRegion',
-            parent: 'symbolist_overlay',
-            new: 'rect',
-            x: _dragRegion.left,
-            y: _dragRegion.top,
-            width: _dragRegion.right - _dragRegion.left,
-            height: _dragRegion.bottom - _dragRegion.top,
-            fill: 'none',
-            'stroke-width': 1,
-            'stroke': 'rgba(0,0,0,0.5)'
-        }
-    });
-}
-
-function clearDragRegionRect() 
-{
-    drawsocket.input({
-        key: 'remove',
-        val: 'dragRegion'
-    });    
-}
-
-
-/**
- * ui_api used in defs
- */
-
-let ui_api = {
-    uiDefs: window.uiDefs, // access to the defs in the defs
-    
-    getDef,
-
-    getSymbolFromElement: getTopLevel,
-    getDefForElement, // helper function to get def for DOM element
-    getContainerForElement, // look upwards in the elemement heirarchy to find the container
-
-    svgFromViewAndData,
-    htmlFromViewAndData,
-    svgPreviewFromViewAndData,
-    getDataTextView,
-    removeSprites,
-
-    drawsocketInput,
-    sendToServer, // renderer-event
-    outlet, // to max if running in max
-    fairlyUniqueString,
-    makeUniqueID,
-    getCurrentContext,
-    getSelected,
-    dataToHTML,
-    getElementData,
-
-    filterByKeys,
-
-    makeDefaultInfoDisplay,
-    translate,
-    applyTransform,
-
-    getSVGCoordsFromEvent,
-    getBBoxAdjusted,
-
-
-    svgObj,
-    mainDiv,
-    scrollOffset,
-
-    
-    insertSorted, 
-    insertSortedHTML,
-    insertIndex,
-
-    ntom,
-    mton,
-    ftom, 
-    mtof,
-    ratio2float,
-    reduceRatio,
-    getRatioPrimeCoefs,
-    parseRatioStr,
-
-    hasParam,
-    createHandle,
-
-    startDefaultEventHandlers,
-    stopDefaultEventHandlers,
-
-    filterDataset
-}
-
-
-/**
- * availale globally
- */
-module.exports = { 
-    drawsocketInput,
-    sendToServer, // renderer-event
-    fairlyUniqueString,
-
-   // send: symbolist_send,
-
-    setClass: symbolist_setClass, 
-    setContext: symbolist_setContext,
-
-    getCurrentContext,
-    
-   // elementToJSON,
-    
-    translate,
-    applyTransform,
-    makeRelative,
-    startDefaultEventHandlers,
-    stopDefaultEventHandlers,
-  //  getContextConstraintsForPoint,
-
-    callSymbolMethod,
-
-    ui_api,
-
-    setScrollOffset,
-
-    init,
-    input,
-
-    outlet
-
- }
 
 
 /***/ })
