@@ -2410,7 +2410,7 @@ if( typeof window.max !== "undefined")
     io_send = (msg) => window.max.outlet("io_controller", JSON.stringify(msg));
 
     window.max.bindInlet('input', (msg) => {
-        post(msg);
+      //  post(msg);
         try {
           let obj = JSON.parse(msg);
           input(obj);
@@ -4221,8 +4221,6 @@ function getContainerForElement(element)
 /**
  * UI Actions
  */
-
-
 
 
 function escapeModes()

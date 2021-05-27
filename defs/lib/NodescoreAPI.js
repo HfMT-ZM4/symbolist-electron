@@ -6,9 +6,10 @@ class NodescoreAPI_UI
         this.class = "NodescoreAPI";
     }
 
-    exampleUICallAPI(params)
+    changeNoteColor(params)
     {
         let notes = document.querySelectorAll('.symbol.FiveLineStaveEvent');
+
 
         notes.forEach( el => {
             ui_api.sendToServer({
@@ -32,27 +33,32 @@ class NodescoreAPI_IO
         this.class = "NodescoreAPI";
     }
 
-    exampleCallAPI(params)
+    transpositionTransform(params)
     {
 
-        let model = io_api.getModel();
+        if( typeof params.args != "undefined" )
+        {
+            let args = Array.isArray(params.args) ? params.args : [ params.args ];
 
-        model.forEach( el => {
-            if( el.class == "FiveLineStaveEvent" )
-            {
-                let data = {
-                    ...el,
-                    midi: el.midi + params.interval
-                };
+            let interval = Number(args[0]);
 
-                io_api.addToModel(data);
-                io_api.sendDataToUI(data);
+            let model = io_api.getModel();
 
-            }
-        })
-
-
-
+            let updates = [];
+            model.forEach( el => {
+                if( el.class == "FiveLineStaveEvent" )
+                {
+                    let data = {
+                        ...el,
+                        midi: el.midi + interval
+                    };
+                    updates.push(data);
+                }
+            });
+    
+            io_api.addToModel(updates);
+            io_api.sendDataToUI(updates);
+        }
 
         /*
         io_api.outlet({

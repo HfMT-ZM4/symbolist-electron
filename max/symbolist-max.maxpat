@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 59.0, 104.0, 1009.0, 910.0 ],
+		"rect" : [ 13.0, 79.0, 1291.0, 937.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -45,7 +45,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 472.0, 457.5, 167.0, 60.0 ],
+					"patching_rect" : [ 505.0, 448.5, 167.0, 60.0 ],
 					"text" : "note: jweb doesn't function unless it has become visible once, then it will run while hidden, or?"
 				}
 
@@ -79,33 +79,9 @@
 			}
 , 			{
 				"box" : 				{
-					"id" : "obj-18",
-					"maxclass" : "newobj",
-					"numinlets" : 2,
-					"numoutlets" : 1,
-					"outlettype" : [ "FullPacket" ],
-					"patching_rect" : [ 625.0, 161.0, 35.0, 22.0 ],
-					"text" : "o.var"
-				}
-
-			}
-, 			{
-				"box" : 				{
-					"id" : "obj-13",
-					"maxclass" : "newobj",
-					"numinlets" : 2,
-					"numoutlets" : 1,
-					"outlettype" : [ "FullPacket" ],
-					"patching_rect" : [ 161.0, 255.0, 35.0, 22.0 ],
-					"text" : "o.var"
-				}
-
-			}
-, 			{
-				"box" : 				{
 					"comment" : "",
 					"id" : "obj-6",
-					"index" : 0,
+					"index" : 2,
 					"maxclass" : "outlet",
 					"numinlets" : 1,
 					"numoutlets" : 0,
@@ -117,7 +93,7 @@
 				"box" : 				{
 					"comment" : "",
 					"id" : "obj-2",
-					"index" : 0,
+					"index" : 1,
 					"maxclass" : "outlet",
 					"numinlets" : 1,
 					"numoutlets" : 0,
@@ -564,7 +540,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 310.0, 262.5, 295.0, 33.0 ]
+					"patching_rect" : [ 310.0, 261.5, 295.0, 33.0 ]
 				}
 
 			}
@@ -599,7 +575,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 625.0, 252.5, 37.0, 22.0 ],
+					"patching_rect" : [ 624.0, 261.5, 37.0, 22.0 ],
 					"text" : "o.dict"
 				}
 
@@ -611,7 +587,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 625.0, 223.5, 54.0, 22.0 ],
+					"patching_rect" : [ 624.0, 232.5, 54.0, 22.0 ],
 					"text" : "o.accum"
 				}
 
@@ -624,7 +600,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 4,
 					"outlettype" : [ "dictionary", "", "", "" ],
-					"patching_rect" : [ 625.0, 283.5, 96.0, 22.0 ],
+					"patching_rect" : [ 624.0, 298.5, 96.0, 22.0 ],
 					"saved_object_attributes" : 					{
 						"embed" : 0,
 						"parameter_enable" : 0,
@@ -642,7 +618,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 2,
 					"outlettype" : [ "", "FullPacket" ],
-					"patching_rect" : [ 625.0, 191.5, 118.0, 22.0 ],
+					"patching_rect" : [ 624.0, 200.5, 118.0, 22.0 ],
 					"text" : "o.route /viewParams"
 				}
 
@@ -902,8 +878,8 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 160.0, 517.5, 471.0, 217.0 ],
-					"rendermode" : 0,
+					"patching_rect" : [ 160.0, 517.5, 704.0, 367.0 ],
+					"rendermode" : 1,
 					"url" : "file://jweb-max.html"
 				}
 
@@ -932,6 +908,8 @@
 					"saved_object_attributes" : 					{
 						"autostart" : 1,
 						"defer" : 0,
+						"node_bin_path" : "",
+						"npm_bin_path" : "",
 						"watch" : 1
 					}
 ,
@@ -943,11 +921,11 @@
 				"box" : 				{
 					"comment" : "",
 					"id" : "obj-33",
-					"index" : 0,
+					"index" : 1,
 					"maxclass" : "inlet",
 					"numinlets" : 0,
 					"numoutlets" : 1,
-					"outlettype" : [ "" ],
+					"outlettype" : [ "bang" ],
 					"patching_rect" : [ 160.0, 40.0, 30.0, 30.0 ]
 				}
 
@@ -955,7 +933,7 @@
  ],
 		"lines" : [ 			{
 				"patchline" : 				{
-					"destination" : [ "obj-13", 0 ],
+					"destination" : [ "obj-14", 0 ],
 					"source" : [ "obj-1", 0 ]
 				}
 
@@ -972,13 +950,6 @@
 					"destination" : [ "obj-8", 0 ],
 					"midpoints" : [ 453.5, 490.0, 169.5, 490.0 ],
 					"source" : [ "obj-10", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
-					"destination" : [ "obj-14", 0 ],
-					"source" : [ "obj-13", 0 ]
 				}
 
 			}
@@ -1038,13 +1009,6 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-34", 0 ],
-					"source" : [ "obj-18", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
-					"destination" : [ "obj-18", 0 ],
 					"source" : [ "obj-21", 0 ]
 				}
 
@@ -1246,7 +1210,7 @@
 				"patchline" : 				{
 					"color" : [ 1.0, 0.0, 1.0, 1.0 ],
 					"destination" : [ "obj-4", 0 ],
-					"midpoints" : [ 169.5, 796.5, 1014.5, 796.5, 1014.5, 79.5, 507.5, 79.5 ],
+					"midpoints" : [ 169.5, 910.5, 1014.5, 910.5, 1014.5, 79.5, 507.5, 79.5 ],
 					"source" : [ "obj-8", 0 ]
 				}
 
@@ -1268,51 +1232,7 @@
 				}
 
 			}
- ],
-		"dependency_cache" : [ 			{
-				"name" : "symbolist-max.js",
-				"bootpath" : "~/Documents/dev-lib/symbolist-electron",
-				"patcherrelativepath" : "..",
-				"type" : "TEXT",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "o.accum.maxpat",
-				"bootpath" : "~/Documents/Max 8/Packages/odot/patchers/namespace",
-				"patcherrelativepath" : "../../../Max 8/Packages/odot/patchers/namespace",
-				"type" : "JSON",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "o.route.mxo",
-				"type" : "iLaX"
-			}
-, 			{
-				"name" : "o.dict.mxo",
-				"type" : "iLaX"
-			}
-, 			{
-				"name" : "o.union.mxo",
-				"type" : "iLaX"
-			}
-, 			{
-				"name" : "o.display.mxo",
-				"type" : "iLaX"
-			}
-, 			{
-				"name" : "o.compose.mxo",
-				"type" : "iLaX"
-			}
-, 			{
-				"name" : "o.pack.mxo",
-				"type" : "iLaX"
-			}
-, 			{
-				"name" : "o.var.mxo",
-				"type" : "iLaX"
-			}
- ],
-		"autosave" : 0
+ ]
 	}
 
 }

@@ -1,5 +1,4 @@
 
-const fs = require('fs');
 const path = require('path');
 const sym_util = require('./lib/utils')
 const { cloneObj } = sym_util;
@@ -250,6 +249,14 @@ function addScoreToModelRecursive(obj)
 
 }
 
+/**
+ * 
+ * Read / Write
+ * 
+ */
+
+const fs = require('fs');
+
 function saveScore(filepath)
 {
     fs.writeFile(filepath, JSON.stringify(score), (err) => {
@@ -394,26 +401,30 @@ function addCacheState( data )
 }
 
 
-function addToModel( dataobj )
+function addToModel( dataobj_arr )
 {
   //  console.log('setting val into model', dataobj )
 
-    // set object into flat model array
-    if( model.has(dataobj.id) )
-    {
-       // console.log('updating exsiting val in model', dataobj )
-        let ref = model.get(dataobj.id);
-        for (const [key, value] of Object.entries(dataobj)) 
+    dataobj_arr = Array.isArray(dataobj_arr) ? dataobj_arr : [ dataobj_arr ];
+
+    dataobj_arr.forEach( dataobj => {
+        // set object into flat model array
+        if( model.has(dataobj.id) )
         {
-            ref[key] = value;
-          //  console.log(`updating value ${key}: ${value}`);
-        }    
-    }
-    else 
-    {
-        model.set( dataobj.id, dataobj );
-        addToScore(dataobj);
-    }
+        // console.log('updating exsiting val in model', dataobj )
+            let ref = model.get(dataobj.id);
+            for (const [key, value] of Object.entries(dataobj)) 
+            {
+                ref[key] = value;
+            //  console.log(`updating value ${key}: ${value}`);
+            }    
+        }
+        else 
+        {
+            model.set( dataobj.id, dataobj );
+            addToScore(dataobj);
+        }
+    });
 
     // the model includes the score
     outlet({
@@ -833,11 +844,11 @@ function input(_obj)
             newScore();
             addCacheState( score );
             break;
-
+/*
         case 'load-io-defs':
             loadDefFiles(val);
             break;
-
+*/
         case 'import-io-def-bundle':
             loadDefBundleFile(val);
             break;
