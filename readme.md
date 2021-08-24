@@ -1,4 +1,4 @@
-# Symbolist
+# Symbolist 
 
 `Symbolist` is an in-development application for experimental notation, with the goal of creating a working environment for developing symbolic notation for multimedia which can be interpreted and performed by electronics. 
 
