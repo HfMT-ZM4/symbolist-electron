@@ -393,7 +393,7 @@ class SymbolBase
      * 
      * 
      */
-    creatNewFromMouseEvent(event)
+    createNewFromMouseEvent(event)
     {
 
         // remove preview sprite
@@ -600,7 +600,7 @@ class SymbolBase
             break;
             case 'mousedown':
                 if( e.metaKey ){
-                    this.creatNewFromMouseEvent(e);
+                    this.createNewFromMouseEvent(e);
                 }
             break;
             case 'mousemove':

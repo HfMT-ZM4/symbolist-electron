@@ -193,7 +193,7 @@ const ui_def = function( ui_api )
      * 
      * 
      */
-    function creatNewFromMouseEvent(event)
+    function createNewFromMouseEvent(event)
     {
 
         // remove preview sprite
@@ -322,7 +322,7 @@ const ui_def = function( ui_api )
     {
         if( e.metaKey )
         {
-            creatNewFromMouseEvent(e);
+            createNewFromMouseEvent(e);
         }
     }
 

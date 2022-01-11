@@ -91,7 +91,7 @@ class PathSymbol extends Template.SymbolBase
                 if( this.m_mode == "palette" )
                 {
                     if( e.metaKey ){
-                        let newEl = this.creatNewFromMouseEvent(e);
+                        let newEl = this.createNewFromMouseEvent(e);
                       //  this.editMode(newEl, true);
                     }
                 }

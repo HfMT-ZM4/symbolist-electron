@@ -177,7 +177,7 @@ const ui_def = function(ui_api)
      * 
      * returns new view object in drawsocket format, to be drawn
      */
-    function creatNewFromMouseEvent(event)
+    function createNewFromMouseEvent(event)
     {
         const cx = event.clientX;
         const cy = event.clientY;
@@ -283,7 +283,7 @@ const ui_def = function(ui_api)
         console.log('hai');
         if( e.metaKey )
         {
-            creatNewFromMouseEvent(e);
+            createNewFromMouseEvent(e);
         }
     }
 

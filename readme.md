@@ -443,7 +443,7 @@ These functions have no specific required name or use outside the definition, bu
 
 * `window event listeners` to handle mouse interaction, typically created in the `paletteSelected` and `editMode` functions.
 * `mouseToData` generates a full set of data from mouse movements, usually some defaults will be needed since the mouse has a limited number of parameters.
-* `creatNewFromMouseEvent`: a handler mouse down creation of new semantic data and graphic representation pair. Often some parts of the data are using default values set in the `dataInstance`. Optionally, more advanced UI interaction could be used to create different aspects of the data, for example using mouse drag or key modifiers.
+* `createNewFromMouseEvent`: a handler mouse down creation of new semantic data and graphic representation pair. Often some parts of the data are using default values set in the `dataInstance`. Optionally, more advanced UI interaction could be used to create different aspects of the data, for example using mouse drag or key modifiers.
 * `dataToViewParams` mapping from data to graphic view, usually called from `fromData`, but also used in `updateFromDataset`
 * `viewParamsToData` map from the graphic view to data representation
 * `display` helper function to input view parameters, and return a `drawsocket` format object to send to the browser.

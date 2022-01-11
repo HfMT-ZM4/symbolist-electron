@@ -199,7 +199,7 @@ const ui_def = function( ui_api )
      * 
      * returns new view object in drawsocket format, to be drawn
      */
-    function creatNewFromMouseEvent(event)
+    function createNewFromMouseEvent(event)
     {
         const mousePt = ui_api.getSVGCoordsFromEvent(event);
 
@@ -381,7 +381,7 @@ const ui_def = function( ui_api )
     {
         if( e.metaKey )
         {
-            creatNewFromMouseEvent(e);
+            createNewFromMouseEvent(e);
         }
 
     }

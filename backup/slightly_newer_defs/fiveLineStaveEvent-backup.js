@@ -352,7 +352,7 @@ const ui_def = function(ui_api)
      * 
      * returns new view object in drawsocket format, to be drawn
      */
-    function creatNewFromMouseEvent(event)
+    function createNewFromMouseEvent(event)
     {
 
         // remove preview sprite
@@ -485,7 +485,7 @@ const ui_def = function(ui_api)
     {
         if( e.metaKey )
         {
-            creatNewFromMouseEvent(e);
+            createNewFromMouseEvent(e);
         }
     }
 
@@ -829,7 +829,7 @@ const ui_def = function(ui_api)
      * 
      * returns new view object in drawsocket format, to be drawn
      */
-    function creatNewFromMouseEvent(event)
+    function createNewFromMouseEvent(event)
     {      
         const container = ui_api.getCurrentContext();
 
@@ -1066,7 +1066,7 @@ const ui_def = function(ui_api)
     {
         if( e.metaKey )
         {
-            creatNewFromMouseEvent(e);
+            createNewFromMouseEvent(e);
         }
     }
 
