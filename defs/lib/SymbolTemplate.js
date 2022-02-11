@@ -644,7 +644,7 @@ class SymbolBase
     /**
      * 
      * API function called from controller
-     * when user hits the [e] button
+     * when user hits the [s] button
      * 
      * here we are only setting the status
      * the implementation is in the subclasses

@@ -591,7 +591,7 @@ function symbolist_mousedown(event)
 
     if( event.metaKey )
     {
-        event.symbolistAction = "newFromClick_down";
+        //event.symbolistAction = "newFromClick_down";
 
         /*
         if( uiDefs.has(currentPaletteClass) )
