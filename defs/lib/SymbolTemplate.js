@@ -19,6 +19,10 @@
 'use strict';
 class SymbolBase
 {
+    /**
+     * constructor 
+     * sets class name (required), and other optional member variables
+     */
     constructor()
     {
         this.class = "template";
@@ -28,6 +32,9 @@ class SymbolBase
     }
     
 
+    /**
+     * internal helper function that sets defaults for symbol parameters
+     */
     get structs () {
         return {
 
@@ -46,10 +53,12 @@ class SymbolBase
             },
 
             
-
-            /*
-            // container symbols define the parameters they map here
-            childStructs: {
+            /**
+             * container symbols define the parameters that are used when 
+             * queried by child calls to childViewParamsToData and childDataToViewParams
+             * for example:
+ 
+            children: {
                 data: {
                     time: 0
                 },
@@ -57,7 +66,10 @@ class SymbolBase
                     x: 0
                 }
             }
-            */
+            
+            */                            
+
+            
         }
     }
 

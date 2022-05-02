@@ -4,7 +4,8 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build": "webpack"
+    "build": "webpack",
+    "compile": "npm run --prefix defs build; npm run build"
   },
   "devDependencies": {
     "electron": "^17.0.0",

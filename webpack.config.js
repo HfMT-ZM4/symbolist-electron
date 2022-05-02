@@ -14,6 +14,7 @@
 
 let files = utils.getFilesFromMenuFolderArray(symbolist_config['default-init-folder']);
 */
+
 const path = require('path');
 
 module.exports = [{

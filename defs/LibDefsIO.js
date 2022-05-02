@@ -13,6 +13,8 @@ const CartesianPlot = require('./lib/CartesianPlot');
 const ColorPitch = require('./lib/ColorPitch');
 const FiveLineStave = require('./lib/FiveLineStave');
 const FiveLineStaveEvent = require('./lib/FiveLineStaveEvent');
+const PathSymbol = require('./lib/PathSymbol');
+
 const Measure = require('./lib/Measure');
 const PartStave = require('./lib/PartStave');
 const RootSymbol = require('./lib/RootSymbol');
@@ -31,6 +33,8 @@ ioDefs.set("CartesianPlot", new CartesianPlot.io_def() );
 ioDefs.set("ColorPitch", new ColorPitch.io_def() );
 ioDefs.set("FiveLineStave", new FiveLineStave.io_def() );
 ioDefs.set("FiveLineStaveEvent", new FiveLineStaveEvent.io_def() );
+ioDefs.set("PathSymbol", new PathSymbol.ui_def() );
+
 ioDefs.set("Measure", new Measure.io_def() );
 ioDefs.set("PartStave", new PartStave.io_def() );
 ioDefs.set("RootSymbol", new RootSymbol.io_def() );

@@ -1597,15 +1597,6 @@ function cloneObj(obj) {
 }
 
 
-function copyObjectAndAddToParent(obj)
-{
-    let new_node = obj.cloneNode(true);
-    new_node.id = makeUniqueID(obj);
-    console.log("copyObjectAndAddToParent", obj, new_node);
-    return obj.parentElement.appendChild(new_node);
-}
-
-
 function makeUniqueID(obj)
 {
     let tok = obj.id.split("_u_");
@@ -1614,6 +1605,27 @@ function makeUniqueID(obj)
     return newId;
 }
 
+function makeUniqueID_rec(node)
+{
+    if( typeof node.id !== "undefined"  )
+        node.id = makeUniqueID(node);
+
+    if( node.hasChildNodes() )
+    {
+        const child_nodes = node.childNodes;
+        for(let i = 0, l = child_nodes.length; i < l; ++i){
+            makeUniqueID_rec(child_nodes[i]);
+        }
+    }
+}
+
+function copyObjectAndAddToParent(obj)
+{
+    let new_node = obj.cloneNode(true);
+    makeUniqueID_rec(new_node);
+    console.log("copyObjectAndAddToParent", obj, new_node);
+    return obj.parentElement.appendChild(new_node);
+}
 
 module.exports = {
     fairlyUniqueString,
@@ -1762,13 +1774,18 @@ __webpack_require__.d(__webpack_exports__, {
 // Unique ID creation requires a high quality random # generator. In the browser we therefore
 // require the crypto API and do not support built-in fallback to lower quality random number
 // generators (like Math.random()).
-// getRandomValues needs to be invoked in a context where "this" is a Crypto implementation. Also,
-// find the complete implementation of crypto (msCrypto) on IE11.
-var getRandomValues = typeof crypto !== 'undefined' && crypto.getRandomValues && crypto.getRandomValues.bind(crypto) || typeof msCrypto !== 'undefined' && typeof msCrypto.getRandomValues === 'function' && msCrypto.getRandomValues.bind(msCrypto);
+var getRandomValues;
 var rnds8 = new Uint8Array(16);
 function rng() {
+  // lazy load so that environments that need to polyfill have a chance to do so
   if (!getRandomValues) {
-    throw new Error('crypto.getRandomValues() not supported. See https://github.com/uuidjs/uuid#getrandomvalues-not-supported');
+    // getRandomValues needs to be invoked in a context where "this" is a Crypto implementation. Also,
+    // find the complete implementation of crypto (msCrypto) on IE11.
+    getRandomValues = typeof crypto !== 'undefined' && crypto.getRandomValues && crypto.getRandomValues.bind(crypto) || typeof msCrypto !== 'undefined' && typeof msCrypto.getRandomValues === 'function' && msCrypto.getRandomValues.bind(msCrypto);
+
+    if (!getRandomValues) {
+      throw new Error('crypto.getRandomValues() not supported. See https://github.com/uuidjs/uuid#getrandomvalues-not-supported');
+    }
   }
 
   return getRandomValues(rnds8);
@@ -3553,7 +3570,7 @@ async function loadScript(script, src){
  */
 function iterateScore(contents, context_element = null)
 {
-    console.log('iterateScore', contents, context_element);
+    //console.log('iterateScore', contents, context_element);
 
     if( !context_element ){
         context_element = getCurrentContext();
@@ -3562,7 +3579,7 @@ function iterateScore(contents, context_element = null)
     const contents_arr = Array.isArray(contents) ? contents : [ contents ];
 
     contents_arr.forEach( data => {
-        console.log('iterateScore', data);
+        //console.log('iterateScore', data);
         
         if( !hasParam(data, 'container' ) )
             data.container = context_element.id;
@@ -4103,7 +4120,7 @@ function svgPreviewFromViewAndData(view, dataObj, relativeTo = null)
         id: `${dataObj.class}-sprite`
     }, relativeTo );
 
-    console.log("svgPreviewFromViewAndData", drawing, text_drawing );
+    //console.log("svgPreviewFromViewAndData", drawing, text_drawing );
     return [ drawing, text_drawing ];
 }
 

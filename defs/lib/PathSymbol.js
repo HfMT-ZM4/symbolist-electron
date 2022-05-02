@@ -41,18 +41,18 @@ class PathSymbol extends Template.SymbolBase
     display(params) {
 
         ui_api.hasParam(params, Object.keys(this.structs.view) );
-        console.log(params.points, SVGPoints.toPath(params.points));
+       // console.log(params.points, SVGPoints.toPath(params.points));
         return {
             new: "path",
-            class: 'trajectory',
-            id: `${params.id}-notehead`,
+            class: 'PathSymbol',
+            id: `${params.id}-PathSymbol`,
             d: SVGPoints.toPath(params.points)
         }
     }
     
     getElementViewParams(element) {
 
-        const trajectory = element.querySelector('.display .trajectory');
+        const trajectory = element.querySelector('.display .PathSymbol');
         const d = trajectory.getAttribute('d');
         
         const points = SVGPoints.toPoints({ 

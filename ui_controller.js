@@ -1162,7 +1162,7 @@ async function loadScript(script, src){
  */
 function iterateScore(contents, context_element = null)
 {
-    console.log('iterateScore', contents, context_element);
+    //console.log('iterateScore', contents, context_element);
 
     if( !context_element ){
         context_element = getCurrentContext();
@@ -1171,7 +1171,7 @@ function iterateScore(contents, context_element = null)
     const contents_arr = Array.isArray(contents) ? contents : [ contents ];
 
     contents_arr.forEach( data => {
-        console.log('iterateScore', data);
+        //console.log('iterateScore', data);
         
         if( !hasParam(data, 'container' ) )
             data.container = context_element.id;
@@ -1712,7 +1712,7 @@ function svgPreviewFromViewAndData(view, dataObj, relativeTo = null)
         id: `${dataObj.class}-sprite`
     }, relativeTo );
 
-    console.log("svgPreviewFromViewAndData", drawing, text_drawing );
+    //console.log("svgPreviewFromViewAndData", drawing, text_drawing );
     return [ drawing, text_drawing ];
 }
 
