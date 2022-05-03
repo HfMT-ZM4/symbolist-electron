@@ -18,8 +18,7 @@ const PathSymbol = require('./lib/PathSymbol');
 const Measure = require('./lib/Measure');
 const PartStave = require('./lib/PartStave');
 const RootSymbol = require('./lib/RootSymbol');
-//const SnapPoint = require('./SnapPoint');
-//const SubdivisionTool = require('./SubdivisionTool');
+
 const DataPoint = require('./lib/DataPoint');
 const SystemContainer = require('./lib/SystemContainer');
 
@@ -38,8 +37,7 @@ ioDefs.set("PathSymbol", new PathSymbol.ui_def() );
 ioDefs.set("Measure", new Measure.io_def() );
 ioDefs.set("PartStave", new PartStave.io_def() );
 ioDefs.set("RootSymbol", new RootSymbol.io_def() );
-//ioDefs.set("SnapPoint", new SnapPoint.io_def() );
-//ioDefs.set("SubdivisionTool", new SubdivisionTool.io_def() );
+
 ioDefs.set("DataPoint", new DataPoint.io_def() );
 ioDefs.set("SystemContainer", new SystemContainer.io_def() );
 
@@ -87,3 +85,10 @@ sytlie.css
 */
 
 
+
+// snapPoint and subdivision aren't used in io
+//const SnapPoint = require('./SnapPoint');
+//const SubdivisionTool = require('./SubdivisionTool');
+
+//ioDefs.set("SnapPoint", new SnapPoint.io_def() );
+//ioDefs.set("SubdivisionTool", new SubdivisionTool.io_def() );

@@ -37,12 +37,12 @@ else if( typeof window.electron != 'undefined')
     appContext = 'Electron';
 
     io_send = (msg) => {
-        console.log('io_send to main ', msg); 
+        //console.log('io_send to main ', msg); 
         window.electron.io_send(msg);
     };
 
     window.electron.set_receiver_fn( (msg) => {
-        console.log('received from main ', msg); 
+        //console.log('received from main ', msg); 
         input(msg);
      });
 }

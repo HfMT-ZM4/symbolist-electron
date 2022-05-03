@@ -548,3 +548,13 @@ so the new plan is:
 
 
 uiDefs will be a global object imported via require
+
+
+
+
+>>
+
+when alt-click copying we need to update the ids of all child objects
+symbols use the same ID for all of the display elements like:
+ID-notehead, ID-line, etc.
+how then to handle child symbols like paths?

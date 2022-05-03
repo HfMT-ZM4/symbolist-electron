@@ -13,7 +13,7 @@ module.exports = [{
         path: path.resolve(__dirname, 'build')
     },
     optimization: {
-        minimize: true
+        minimize: false
     }
 }, {
     entry: './LibDefsIO.js',
@@ -23,6 +23,6 @@ module.exports = [{
         path: path.resolve(__dirname, 'build')
     },
     optimization: {
-        minimize: true
+        minimize: false
     }
 }]

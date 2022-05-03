@@ -729,10 +729,12 @@ function callFromIO(params)
                         'return/io': ret
                     })
                 }
-            }
-            else
+            } /*
+            else {
+                // fail quietly
                 post('call failed, no method def', params);
-
+            } 
+            */
 
         }
         else

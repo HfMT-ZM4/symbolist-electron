@@ -106,13 +106,21 @@ class BetaEnv extends Template.SymbolBase
         });
 
         // part stave wants x and y
+        /*
         let x = points[0].x;
         let y = points[0].y;
-
         let width = points[points.length-1].x - x;
+        */
 
+        let bbox = ui_api.getBBoxAdjusted(element);
+        let x = bbox.x;
+        let y = bbox.y;
+        let width = bbox.width;
+
+        console.log("BetaEnv getElementViewParams", width) ;
         let a = parseFloat(element.dataset.a);
         let b = parseFloat(element.dataset.b);
+        let duration =  parseFloat(element.dataset.duration);
 
         return {
             id: element.id,
@@ -120,6 +128,7 @@ class BetaEnv extends Template.SymbolBase
             y,
             a,
             b,
+            duration,
             width
         }
 

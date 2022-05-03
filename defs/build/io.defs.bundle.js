@@ -1,1 +1,4791 @@
-(()=>{var t={489:(t,e,i)=>{const s=new Map,a=i(254),r=i(934),o=i(270),n=i(755),l=i(350),c=i(564),d=i(783),h=i(16),u=i(584),p=i(670),y=i(472),m=i(169),g=i(558),x=i(102),w=i(890);s.set("AzimNote",new r.io_def),s.set("BasicSymbol",new o.io_def),s.set("BetaEnv",new n.io_def),s.set("CartesianPlot",new l.io_def),s.set("ColorPitch",new c.io_def),s.set("FiveLineStave",new d.io_def),s.set("FiveLineStaveEvent",new h.io_def),s.set("PathSymbol",new u.ui_def),s.set("Measure",new p.io_def),s.set("PartStave",new y.io_def),s.set("RootSymbol",new m.io_def),s.set("DataPoint",new g.io_def),s.set("SystemContainer",new x.io_def),s.set("NodescoreAPI",new w.io_def),t.exports={ioDefs:s,initDef:a}},254:t=>{"use strict";t.exports=JSON.parse('{"about":"symbolist will read a json file to configure the palette setup, this can be used to dynamically change also (eventually)","id":"Score","tools":[],"palette":["SubdivisionTool","BasicSymbolGL"],"class":"RootSymbol","contents":{"id":"trio","class":"SystemContainer","x":200,"y":100,"duration":20,"time":0,"contents":[{"id":"oboe","class":"FiveLineStave","height":100,"lineSpacing":10,"duration":20,"time":0,"contents":[]},{"id":"bassoon","class":"PartStave","height":100,"time":0,"duration":20,"contents":[]},{"id":"synth","class":"PartStave","height":200,"time":0,"duration":20,"contents":[]}]}}')},934:(t,e,i)=>{const s=i(20);class a extends s.SymbolBase{constructor(){super(),this.class="AzimNote",this.default_dist=10}get structs(){return{data:{class:this.class,id:`${this.class}-0`,time:0,pitch:55,azim:3.14,duration:.1},view:{class:this.class,id:`${this.class}-0`,x:0,y:0,r:2,azim:3.14}}}display(t){return ui_api.hasParam(t,Object.keys(this.structs.view)),[{id:`${t.id}-notehead`,class:"notehead",new:"circle",cx:t.x,cy:t.y,r:t.r},{new:"line",id:`${t.id}-azim`,class:"azimLine",x1:t.x,y1:t.y,x2:t.x+Math.sin(t.azim)*this.default_dist,y2:t.y+Math.cos(t.azim)*this.default_dist}]}getElementViewParams(t){const e=t.querySelector(".notehead"),i=t.querySelector(".azimLine"),s=parseFloat(e.getAttribute("cx")),a=parseFloat(e.getAttribute("cy")),r=parseFloat(e.getAttribute("r")),o=parseFloat(i.getAttribute("x2")),n=parseFloat(i.getAttribute("y2")),l=Math.atan2(o-s,n-a);return{id:t.id,x:s,y:a,r,azim:l}}getPaletteIcon(){return{key:"svg",val:this.display({id:`${this.class}-icon`,class:this.class,x:10,y:10,r:2,azim:.15})}}editMode(t,e=!1){return super.editMode(t,e),e&&ui_api.createHandle(t,{selector:`#${t.id} .azimLine`,x:"x2",y:"y2"},((t,e)=>{const i=t.querySelector(".azimLine"),s=parseFloat(i.getAttribute("x1")),a=parseFloat(i.getAttribute("y1"));let r=ui_api.getSVGCoordsFromEvent(e),o=Math.atan2(r.x-s,r.y-a);t.dataset.azim=o,this.updateFromDataset(t)})),!0}}class r extends s.IO_SymbolBase{constructor(){super(),this.class="AzimNote"}}t.exports={ui_def:a,io_def:r}},270:(t,e,i)=>{const s=i(20);class a extends s.SymbolBase{constructor(){super(),this.class="BasicSymbol"}get structs(){return{data:{class:this.class,id:`${this.class}-0`,time:0,pitch:55,duration:.1},view:{class:this.class,id:`${this.class}-0`,x:0,y:0,r:2}}}display(t){return ui_api.hasParam(t,Object.keys(this.structs.view)),{new:"circle",class:"notehead",id:`${t.id}-notehead`,cx:t.x,cy:t.y,r:t.r}}getElementViewParams(t){const e=t.querySelector(".notehead"),i=parseFloat(e.getAttribute("cx")),s=parseFloat(e.getAttribute("cy")),a=parseFloat(e.getAttribute("r"));return{id:t.id,x:i,y:s,r:a}}getPaletteIcon(){return{key:"svg",val:this.display({id:`${this.class}-palette-icon`,class:this.class,x:10,y:10,r:2})}}getDataTextView(t,e=null){let i={key:"svg",val:[]};return Object.keys(t).forEach((s=>{i.val.push({new:"text",class:"data_text sprite",container:"symbolist_overlay",relativeTo:e||`#${t.id}`,id:`${t.id}-${s}-data_text`,x:0,y:-20,text:s+String(t[s])})})),console.log(i),i}svgPreviewFromViewAndData(t,e,i=null){let s=ui_api.svgFromViewAndData(t,{...e,class:`${e.class} sprite`,id:`${e.class}-sprite`,container:"symbolist_overlay"},!0);return i&&(i=`#${e.class}-sprite ${i}`),[s,this.getDataTextView({...e,id:`${e.class}-sprite`},i)]}fromData(t,e,i=!1){const s={...this.structs.data,...t},a=this.dataToViewParams(s,e),r=this.display(a),o=i?this.svgPreviewFromViewAndData(r,s):ui_api.svgFromViewAndData(r,s);if(ui_api.drawsocketInput(o),!i){let e={};e[t.id]=a,ui_api.outlet({viewParams:e})}}}class r extends s.IO_SymbolBase{constructor(){super(),this.class="BasicSymbol"}}t.exports={ui_def:a,io_def:r}},755:(t,e,i)=>{const s=i(20);class a extends s.SymbolBase{constructor(){super(),this.class="BetaEnv",this.height=10}get structs(){return{data:{class:this.class,id:`${this.class}-0`,a:2,b:2,duration:.1,time:0,pitch:60},view:{class:this.class,id:`${this.class}-0`,x:0,y:0,a:2,b:2,width:10}}}display(t){ui_api.hasParam(t,Object.keys(this.structs.view));let e=function(t,e){for(var i=function(t,e,i){var s=function(t,e){return Math.exp(n(t)+n(e)-n(t+e))}(t,e);return t>1&&e>1?1/(s*(d((t-1)/(t+e-2),t,e)/s)):t>1&&1==e?1/(s*(d(1,t,e)/s)):1==t&&e>1?1/(s*(d(0,t,e)/s)):t>=1&&e<1?1/(s*(d(1-i,t,e)/s)):t<1&&e>=1?1/(s*(d(i,t,e)/s)):t<1&&e<1?t>e?1/(s*(d(1-i,t,e)/s)):1/(s*(d(i,t,e)/s)):1==t&&1==e?1:(post("unknown situation",t,e,"\n"),0)}(t=t<=h?h:t,e=e<=h?h:e,c),s=[],a=0;a<l;++a){var r=d(a*c,t,e)*i;r<1e-6&&(r=0),r>1&&(r=1),s.push(r)}return s}(t.a,t.b);const i=e.length,s=t.width/i;let a=[{x:t.x,y:t.y+this.height}],r=0;for(;r<i;r++)a.push({x:t.x+r*s,y:t.y+(1-e[r])*this.height});for(;--r>0;)a.push({x:t.x+r*s,y:t.y+this.height+e[r]*this.height});return a.push(a[0]),[{new:"path",class:"beta_env",id:`${t.id}-path`,d:SVGPoints.toPath(a)},{new:"line",x1:t.x,x2:t.x,y1:t.y-2*this.height,y2:t.y+2*this.height,class:"beta_env_start",id:`${t.id}-start`}]}getElementViewParams(t){const e=t.querySelector(".display .beta_env").getAttribute("d"),i=SVGPoints.toPoints({type:"path",d:e});let s=i[0].x,a=i[0].y,r=i[i.length-1].x-s,o=parseFloat(t.dataset.a),n=parseFloat(t.dataset.b);return{id:t.id,x:s,y:a,a:o,b:n,width:r}}getPaletteIcon(){return{key:"svg",val:this.display({...this.structs.view,id:"newPartStave-palette-icon",class:this.class,a:2,b:2,duration:.2})}}}class r extends s.IO_SymbolBase{constructor(){super(),this.class="BetaEnv"}getFormattedLookup(t,e){return{pitch:e.pitch,duration:e.duration,time:e.time,a:e.a,b:e.b}}}t.exports={ui_def:a,io_def:r};var o=[.9999999999999971,57.15623566586292,-59.59796035547549,14.136097974741746,-.4919138160976202,3399464998481189e-20,4652362892704858e-20,-9837447530487956e-20,.0001580887032249125,-.00021026444172410488,.00021743961811521265,-.0001643181065367639,8441822398385275e-20,-26190838401581408e-21,36899182659531625e-22];function n(t){if(t<0)return Number("0/0");for(var e=o[0],i=o.length-1;i>0;--i)e+=o[i]/(t+i);var s=t+4.7421875+.5;return.5*Math.log(2*Math.PI)+(t+.5)*Math.log(s)-s+Math.log(e)-Math.log(t)}var l=100,c=.01;function d(t,e,i){var s=Math.pow(t,e-1)*Math.pow(1-t,i-1);return s==1/0?1:s}var h=1e-6},350:(t,e,i)=>{const s=i(20);class a extends s.SymbolBase{constructor(){super(),this.class="CartesianPlot",this.palette=["DataPoint"],this.margin=20,this.half_margin=this.margin/2}get structs(){return{data:{class:this.class,id:`${this.class}-0`,x_param:"centroid",y_param:"spread",x:100,y:100,width:800,height:600},view:{class:this.class,id:`${this.class}-0`,x:0,y:0,height:20,width:20},children:{data:{centroid:0,spread:0,amplitude:0},view:{x:0,y:0}}}}drag(t,e){}display(t){return ui_api.hasParam(t,Object.keys(this.structs.view)),{new:"rect",id:`${t.id}-rect`,class:"CartesianPlot-rect",x:t.x,y:t.y,height:t.height,width:t.width}}getElementViewParams(t){const e=t.querySelector(".display .CartesianPlot-rect");return{id:t.id,x:parseFloat(e.getAttribute("x")),y:parseFloat(e.getAttribute("y")),width:parseFloat(e.getAttribute("width")),height:parseFloat(e.getAttribute("height"))}}dataToViewParams(t,e){let i=ui_api.filterByKeys(t,Object.keys(this.structs.view));return{...this.structs.view,...i,id:t.id}}getPaletteIcon(){return{key:"svg",val:this.display({...this.structs.view,id:"CartesianPlot-palette-icon",class:this.class})}}childDataToViewParams(t,e){const i=t.dataset.x_param,s=t.dataset.y_param;if(ui_api.hasParam(e,[i,s])){const a=ui_api.getBBoxAdjusted(t);return{x:a.x+e[i]*a.width,y:a.y+a.height-e[s]*a.height}}}childViewParamsToData(t,e,i=null){const s=t.dataset.x_param,a=t.dataset.y_param;if(ui_api.hasParam(e,["x","y"])){const i=ui_api.getBBoxAdjusted(t);let r={};return r[s]=(e.x-i.x)/i.width,r[a]=1-(e.y-i.y)/i.height,r}}updateAfterContents(t){}updateFromDataset(t){}}class r extends s.IO_SymbolBase{constructor(){super(),this.class="CartesianPlot"}}t.exports={ui_def:a,io_def:r}},564:(t,e,i)=>{const s=i(20);class a extends s.SymbolBase{constructor(){super(),this.class="ColorPitch"}get structs(){return{data:{class:this.class,id:`${this.class}-0`,time:0,pitch:55,duration:.1},view:{class:this.class,id:`${this.class}-0`,x:0,y:0,r:4,color:"rgba(255,0,255,1)"}}}display(t){return ui_api.hasParam(t,Object.keys(this.structs.view)),console.log("test",t),{new:"circle",class:"notehead",id:`${t.id}-notehead`,cx:t.x,cy:t.y,r:t.r,style:{fill:t.color}}}getElementViewParams(t){const e=t.querySelector(".notehead"),i=parseFloat(e.getAttribute("cx")),s=parseFloat(e.getAttribute("cy")),a=parseFloat(e.getAttribute("r")),r=e.style.fill;return{id:t.id,x:i,y:s,r:a,color:r}}getPaletteIcon(){return{key:"svg",val:this.display({id:`${this.class}-palette-icon`,class:this.class,x:10,y:10,r:2,color:"rbga(255, 0, 255, 1)"})}}dataToViewParams(t,e){const i=ui_api.getDefForElement(e);let s=`rgba( ${t.pitch/127*255}, 0, 255, 1)`;return{...this.structs.view,...ui_api.filterByKeys(t,Object.keys(this.structs.view)),...i.childDataToViewParams(e,t),color:s,id:t.id,container:t.container}}drag(t,e){if("edit"==this.m_mode);else{ui_api.translate(t,e.delta_pos);let i=this.getElementViewParams(t);i.x+=e.delta_pos.x,i.y+=e.delta_pos.y;let s=ui_api.getContainerForElement(t),a=this.viewParamsToData(i,s),r=this.dataToViewParams(a,s),o={key:"svg",val:{id:`${a.id}-notehead`,style:{fill:r.color}}};console.log("updating color",o),ui_api.drawsocketInput([o,ui_api.getDataTextView(a)])}return!0}}class r extends s.IO_SymbolBase{constructor(){super(),this.class="ColorPitch"}}t.exports={ui_def:a,io_def:r}},558:(t,e,i)=>{const s=i(20);class a extends s.SymbolBase{constructor(){super(),this.class="DataPoint"}get structs(){return{data:{class:this.class,id:`${this.class}-0`,centroid:0,spread:0,amplitude:0},view:{class:this.class,id:`${this.class}-0`,x:0,y:0,r:2}}}display(t){return ui_api.hasParam(t,Object.keys(this.structs.view)),{new:"circle",class:"notehead",id:`${t.id}-notehead`,cx:t.x,cy:t.y,r:t.r}}getElementViewParams(t){const e=t.querySelector(".notehead"),i=parseFloat(e.getAttribute("cx")),s=parseFloat(e.getAttribute("cy")),a=parseFloat(e.getAttribute("r"));return{id:t.id,x:i,y:s,r:a}}getPaletteIcon(){return{key:"svg",val:this.display({id:`${this.class}-palette-icon`,class:this.class,x:10,y:10,r:2})}}}class r extends s.IO_SymbolBase{constructor(){super(),this.class="DataPoint"}}t.exports={ui_def:a,io_def:r}},783:(t,e,i)=>{const s=i(20),a=[0,1,1,2,2,3,4,4,5,5,6,6],r=[0,1,2,2,3,3,4,5,5,6,6,7],o=[0,0,1,0,1,0,0,1,0,1,0,1];class n extends s.SymbolBase{constructor(){super(),this.class="FiveLineStave",this.palette=["FiveLineStaveEvent"],this.left_margin=20,this.x2time=.001,this.time2x=1e3,this.midiMiddleLine=71}get structs(){return{data:{class:this.class,id:`${this.class}-0`,time:0,duration:1,height:100,lineSpacing:10},view:{class:this.class,id:`${this.class}-0`,x:0,y:0,height:100,width:100,lineSpacing:10},children:{data:{time:0,midi:60,duration:1},view:{x:0,y:0,width:100}}}}display(t){ui_api.hasParam(t,Object.keys(this.structs.view));let e=t.y+t.height/2;return[{new:"rect",id:`${t.id}-rect`,class:"staveBox",x:t.x,y:t.y,width:t.width,height:t.height},{new:"text",id:`${t.id}-label`,class:"staveLabel",x:t.x-this.left_margin,y:e,text:t.id},{new:"image",id:`${t.id}-clef`,href:"defs/assets/g_clef.svg",x:t.x,y:t.y},{new:"g",id:`${t.id}-staffline-group`,children:[{new:"line",id:`${t.id}-line-1`,class:"staffline",x1:t.x,y1:e-2*t.lineSpacing,x2:t.x+t.width,y2:e-2*t.lineSpacing},{new:"line",id:`${t.id}-line-2`,class:"staffline",x1:t.x,y1:e-t.lineSpacing,x2:t.x+t.width,y2:e-t.lineSpacing},{new:"line",id:`${t.id}-line-3`,class:"staffline",x1:t.x,y1:e,x2:t.x+t.width,y2:e},{new:"line",id:`${t.id}-line-4`,class:"staffline",x1:t.x,y1:e+t.lineSpacing,x2:t.x+t.width,y2:e+t.lineSpacing},{new:"line",id:`${t.id}-line-5`,class:"staffline",x1:t.x,y1:e+2*t.lineSpacing,x2:t.x+t.width,y2:e+2*t.lineSpacing}]}]}getElementViewParams(t){const e=t.querySelector(".staveBox");return{id:t.id,x:parseFloat(e.getAttribute("x")),y:parseFloat(e.getAttribute("y")),width:parseFloat(e.getAttribute("width")),height:parseFloat(e.getAttribute("height")),lineSpacing:parseFloat(t.dataset.lineSpacing)}}getPaletteIcon(){return{key:"svg",val:this.display({...this.structs.view,id:"fiveLine-palette-icon",class:this.class})}}midi2y(t,e,i="sharp"){const s=t-this.midiMiddleLine;let n=Math.floor(s)%12;return n<0&&(n+=12),Number(s<0),{yOffset:Math.floor(s/12)*(7*e)+("sharp"==i?a:r)[n]*e,accidental:o[n]?i:null}}y2midi(t,e,i="sharp"){const s=document.getElementById(`${e.id}-line-3`),a=.25*e.dataset.lineSpacing,r=parseFloat(s.getAttribute("y1"))-t,o=Math.floor(r/a);return this.midiMiddleLine+o}childDataToViewParams(t,e){if("Measure"==e.class||"SnapPoint"==e.class){let i={};if("Measure"==e.class){const s=document.getElementById(`${t.id}-line-1`),a=document.getElementById(`${t.id}-line-5`);i.y=parseFloat(s.getAttribute("y1"));let r=parseFloat(a.getAttribute("y1"));i.height=r-i.y,i.x=parseFloat(s.getAttribute("x1"))+(e.time-parseFloat(t.dataset.time))*this.time2x,i.width=e.duration*this.time2x}else{const s=document.getElementById(`${t.id}-rect`);i.y=parseFloat(s.getAttribute("y")),i.x=parseFloat(s.getAttribute("x"))+(e.time-parseFloat(t.dataset.time))*this.time2x}return i}if(ui_api.hasParam(e,["time","duration","midi"])){const i=document.getElementById(`${t.id}-rect`),s=parseFloat(i.getAttribute("x")),a=document.getElementById(`${t.id}-line-3`),r=parseFloat(t.dataset.lineSpacing),o=.5*r,n=this.midi2y(Math.round(e.midi),o,"sharp"),l=parseFloat(a.getAttribute("y1"))-n.yOffset,c=Math.floor(Math.abs(n.yOffset)/r)-2;let d=n.yOffset<0?-1:1,h=parseFloat(a.getAttribute("y1"))-3*r*d,u=[];for(let t=0;t<c;t++)u.push(h-t*r*d);return{y:l,x:s+(e.time-parseFloat(t.dataset.time))*this.time2x,width:e.duration*this.time2x,r:o-2,ledgerLine_y:u,accidental:n.accidental}}}childViewParamsToData(t,e,i=null){if(ui_api.hasParam(e,["x","y","width"])){let s=e.x;if(i&&i.shiftKey){const e=t.querySelectorAll(".contents .snapline");if(e){let t=1e5;e.forEach((e=>{let i=parseFloat(e.getAttribute("x1"));Math.abs(s-i)<Math.abs(s-t)&&(t=i)})),s=t}}const a=.5*parseFloat(t.dataset.lineSpacing);let r=Math.floor(e.y/a)*a;const o=this.y2midi(r,t),n=document.getElementById(`${t.id}-rect`),l=parseFloat(n.getAttribute("x"));return{midi:o,time:(s-l)*this.x2time+parseFloat(t.dataset.time),duration:e.width*this.x2time}}}playbar(t){if(void 0!==t.id&&void 0!==t.time){let e=document.getElementById(`${t.id}-rect`),i=ui_api.getBBoxAdjusted(e);ui_api.drawsocketInput({key:"svg",val:{id:`${t.id}-playbar`,class:"playbar",parent:t.id,new:"line",x1:i.x+t.time*this.time2x,x2:i.x+t.time*this.time2x,y1:i.top,y2:i.bottom}})}}drag(t,e){}}class l extends s.IO_SymbolBase{constructor(){super(),this.class="FiveLineStave",this.lookup=super.default_container_lookup}getFormattedLookup(t,e){let i={time:[],duration:[],midi:[]};void 0!==e.contents?e.contents.forEach((e=>{const s=io_api.defGet(e.class).getFormattedLookup(t,e);s&&(i.time.push(s.time),i.duration.push(s.duration),i.midi.push(s.midi))})):i={lookup_error:`no contents element with id "${e.contents}" found`};let s={};return s[e.id]=i,s}}t.exports={ui_def:n,io_def:l}},16:(t,e,i)=>{const s=i(20),a={flat:"&#xE260",natural:"&#xE261",sharp:"&#xE262","flat-5^1o":"&#xE2C2","natural-5^1o":"&#xE2C1","sharp-5^1o":"&#xE2C3","flat-5^2o":"&#xE2CB","natural-5^2o":"&#xE2CC","sharp-5^2o":"&#xE2CD","flat-5^3o":"&#xE2CB","natural-5^3o":"&#xE2CC","sharp-5^3o":"&#xE2CD","flat-5^1u":"&#xE2C6","natural-5^1u":"&#xE2C7","sharp-5^1u":"&#xE2C8","flat-5^2u":"&#xE2D0","natural-5^2u":"&#xE2D1","sharp-5^2u":"&#xE2D2","flat-5^3u":"&#xE2DA","natural-5^3u":"&#xE2DB","sharp-5^3u":"&#xE2DC","7^1o":"&#xE2DE","7^2o":"&#xE2E0","7^2u":"&#xE2DF","7^2u":"&#xE2E1","11^1u":"&#xE2E2","11^1o":"&#xE2E3","13^1o":"&#xE2E4","13^1u":"&#xE2E5"};class r extends s.SymbolBase{constructor(){super(),this.class="FiveLineStaveEvent",this.default_dist=10,this.palette=["PathSymbol"]}get structs(){return{data:{class:this.class,id:`${this.class}-0`,time:0,midi:55,duration:.1,accid:"natural"},view:{class:this.class,id:`${this.class}-0`,x:0,y:0,r:2,width:100,ledgerLine_y:0,accidental:!1}}}display(t){ui_api.hasParam(t,Object.keys(this.structs.view));let e=[{id:`${t.id}-notehead`,new:"circle",class:"notehead",cx:t.x,cy:t.y,r:t.r},{new:"line",id:`${t.id}-duration`,class:"duration-line",x1:t.x,y1:t.y,x2:t.x+t.width,y2:t.y}];if(t.accidental)document.getElementById(`${t.id}-accidental`),e.push({new:"text",id:`${t.id}-accidental`,text:a[t.accidental],class:"accidental",x:t.x-15,y:t.y});else{let e=document.getElementById(`${t.id}-accidental`);e&&e.remove()}if(document.getElementById(`${t.id}-ledgerLines`)&&ui_api.drawsocketInput({key:"clear",val:`${t.id}-ledgerLines`}),t.ledgerLine_y.length>0){let i={new:"g",id:`${t.id}-ledgerLines`,children:[]};t.ledgerLine_y.forEach((e=>{i.children.push({new:"line",class:"staffline",x1:t.x-15,x2:t.x+15,y1:e,y2:e})})),e.unshift(i)}return e}getElementViewParams(t){const e=t.querySelector(".notehead"),i=t.querySelector(".duration-line"),s=parseFloat(e.getAttribute("cx")),a=parseFloat(e.getAttribute("cy")),r=parseFloat(i.getAttribute("x2"))-s;return{id:t.id,x:s,y:a,width:r}}childViewParamsToData(t,e,i=null){if(ui_api.hasParam(e,["points"],!0)){const i=t.querySelector(".display .notehead"),s=parseFloat(i.getAttribute("cx")),a=parseFloat(i.getAttribute("cy"));return console.log("childViewParamsToData",Points.offset(e.points,-s,-a)),{points:Points.offset(e.points,-s,-a)}}if(ui_api.hasParam(e,["x","y"],!0)){const i=t.querySelector(".display .notehead"),s=parseFloat(i.getAttribute("cx")),a=parseFloat(i.getAttribute("cy"));return{x:e.x-s,y:e.y-a}}}fromData(t,e,i=!1){const s={...this.structs.data,...t},a=this.dataToViewParams(s,e),r=this.display(a),o=i?ui_api.svgPreviewFromViewAndData(r,s,".notehead"):ui_api.svgFromViewAndData(r,s);if(ui_api.drawsocketInput(o),!i){let e={};e[t.id]=a,ui_api.outlet({viewParams:e})}}childDataToViewParams(t,e){if(ui_api.hasParam(e,"points")){const i=t.querySelector(".display .notehead"),s=parseFloat(i.getAttribute("cx")),a=parseFloat(i.getAttribute("cy"));return{points:Points.offset(e.points,s,a)}}if(ui_api.hasParam(e,["x","y"],!0)){const i=t.querySelector(".display .notehead"),s=parseFloat(i.getAttribute("cx")),a=parseFloat(i.getAttribute("cy"));return{x:e.x+s,y:e.y+a}}}getPaletteIcon(){return{key:"svg",val:this.display({id:`${this.class}-icon`,class:this.class,x:25,y:25,r:2,width:35,ledgerLine_y:[],accidental:!1})}}paletteSelected(t=!1){console.log("FiveLineStaveEvent paletteSelected",t),super.paletteSelected(t)}editMode(t,e=!1){return super.editMode(t,e),e&&ui_api.createHandle(t,{selector:`#${t.id} .duration-line`,x:"x2",y:"y2"},((t,e)=>{let i=ui_api.getContainerForElement(t);ui_api.getDefForElement(i);const s=t.querySelector(".duration-line"),a=parseFloat(s.getAttribute("x1")),r=parseFloat(s.getAttribute("y1"));let o=ui_api.getSVGCoordsFromEvent(e).x-a,n=this.viewParamsToData({x:a,y:r,width:o},i);t.dataset.duration=n.duration,this.updateFromDataset(t)})),!0}}class o extends s.IO_SymbolBase{constructor(){super(),this.class="FiveLineStaveEvent"}getFormattedLookup(t,e){return{time:e.time,duration:e.duration,midi:e.midi}}}t.exports={ui_def:r,io_def:o}},670:(t,e,i)=>{const s=i(20);class a extends s.SymbolBase{constructor(){super(),this.class="Measure",this.palette=["AzimNote","BasicSymbol","ColorPitch","BetaEnv"]}get structs(){return{data:{class:this.class,id:`${this.class}-0`,time:0,duration:1,barlineType:"barline"},view:{class:this.class,id:`${this.class}-0`,x:0,y:0,height:20,width:20,barlineType:"barline"},children:{data:{time:0,duration:1},view:{x:0,width:100}}}}drag(t,e){}display(t){return console.log(t),ui_api.hasParam(t,Object.keys(this.structs.view)),[{new:"rect",id:`${t.id}-meterbox`,class:"meterbox",x:t.x,width:t.width,y:t.y,height:t.height},{new:"line",id:`${t.id}-barline`,class:t.barlineType,x1:t.x,x2:t.x,y1:t.y,y2:t.y+t.height}]}getElementViewParams(t){const e=t.getElementById(`${params.id}-meterbox`),i=t.getElementById(`${params.id}-barline`);return{id:t.id,barlineType:i.dataset.barlineType,x:parseFloat(e.getAttribute("x")),y:parseFloat(e.getAttribute("y")),height:parseFloat(e.getAttribute("height")),width:parseFloat(e.getAttribute("width"))}}getPaletteIcon(){return{key:"svg",val:this.display({...this.structs.view,id:"newMeasure-palette-icon",class:this.class})}}}class r extends s.IO_SymbolBase{constructor(){super(),this.class="Measure",this.lookup=super.default_container_lookup}getFormattedLookup(t,e){let i={time:[],duration:[],pitch:[]};void 0!==e.contents?e.contents.forEach((e=>{const s=io_api.defGet(e.class).getFormattedLookup(t,e);s&&(i.time.push(s.time),i.duration.push(s.duration),i.pitch.push(s.pitch))})):i={lookup_error:`no contents element with id "${e.contents}" found`};let s={};return s[e.id]=i,s}}t.exports={ui_def:a,io_def:r}},890:t=>{t.exports={ui_def:class{constructor(){this.class="NodescoreAPI"}changeNoteColor(t){document.querySelectorAll(".symbol.FiveLineStaveEvent").forEach((e=>{ui_api.sendToServer({key:"data",val:{id:e.id,midi:Number(e.dataset.midi)+t.interval}})}))}},io_def:class{constructor(){this.class="NodescoreAPI"}transpositionTransform(t){if(void 0!==t.args){let e=Array.isArray(t.args)?t.args:[t.args],i=Number(e[0]),s=io_api.getModel(),a=[];s.forEach((t=>{if("FiveLineStaveEvent"==t.class){let e={...t,midi:t.midi+i};a.push(e)}})),io_api.addToModel(a),io_api.sendDataToUI(a)}}}}},472:(t,e,i)=>{const s=i(20);class a extends s.SymbolBase{constructor(){super(),this.class="PartStave",this.palette=["AzimNote","BasicSymbol","ColorPitch","BetaEnv"],this.left_margin=20,this.x2time=.001,this.time2x=1e3,this.y2pitch=127,this.pitch2y=1/127}get structs(){return{data:{class:this.class,id:`${this.class}-0`,time:0,duration:1,height:100},view:{class:this.class,id:`${this.class}-0`,x:0,y:0,height:20,width:20},children:{data:{time:0,pitch:60,duration:1},view:{x:0,y:0,width:100}}}}drag(t,e){}display(t){return ui_api.hasParam(t,Object.keys(this.structs.view)),[{new:"rect",class:"partStave-rect",id:`${t.id}-rect`,x:t.x,y:t.y,width:t.width,height:t.height},{new:"text",class:"staveLabel",id:`${t.id}-label`,x:t.x-this.left_margin,y:t.y+t.height/2,text:t.id}]}getElementViewParams(t){const e=t.querySelector(".notehead"),i=parseFloat(e.getAttribute("cx")),s=parseFloat(e.getAttribute("cy")),a=parseFloat(e.getAttribute("r"));return{id:t.id,x:i,y:s,r:a}}getPaletteIcon(){return{key:"svg",val:this.display({...this.structs.view,id:"newPartStave-palette-icon",class:this.class})}}childDataToViewParams(t,e){let i={};const s=t.querySelector(".partStave-rect");if(ui_api.hasParam(e,"pitch",!0)){const t=parseFloat(s.getAttribute("y")),a=parseFloat(s.getAttribute("height"));i.y=t+(1-e.pitch*this.pitch2y)*a}if(ui_api.hasParam(e,"time",!0)){const a=parseFloat(s.getAttribute("x"));i.x=a+(e.time-parseFloat(t.dataset.time))*this.time2x}return ui_api.hasParam(e,"duration")&&(i.width=e.duration*this.time2x),"Measure"!=e.class&&"SnapPoint"!=e.class||(i.y=parseFloat(s.getAttribute("y")),i.height=parseFloat(s.getAttribute("height"))),i}childViewParamsToData(t,e,i=null){if(ui_api.hasParam(e,["x","y"])){let s=e.x;if(i&&i.shiftKey){const e=t.querySelectorAll(".contents .snapline");if(e){let t=1e5;e.forEach((e=>{let i=parseFloat(e.getAttribute("x1"));Math.abs(s-i)<Math.abs(s-t)&&(t=i)})),s=t}}const a=document.getElementById(`${t.id}-rect`),r=parseFloat(a.getAttribute("x")),o=parseFloat(a.getAttribute("y")),n=parseFloat(a.getAttribute("height"));let l={pitch:(1-(e.y-o)/n)*this.y2pitch,time:(s-r)*this.x2time+parseFloat(t.dataset.time)};return ui_api.hasParam(e,"width")&&(l.duration=e.width*this.x2time),l}}playbar(t){if(void 0!==t.id&&void 0!==t.time){let e=document.getElementById(`${t.id}-rect`),i=ui_api.getBBoxAdjusted(e);ui_api.drawsocketInput({key:"svg",val:{id:`${t.id}-playbar`,parent:t.id,new:"line",x1:i.x+t.time*this.time2x,x2:i.x+t.time*this.time2x,y1:i.top,y2:i.bottom,class:"playbar"}})}}fooFN(t){console.log("hi I have your ",t)}}class r extends s.IO_SymbolBase{constructor(){super(),this.class="PartStave",this.lookup=super.default_container_lookup}getFormattedLookup(t,e){let i={};void 0!==e.contents?e.contents.forEach((e=>{const s=io_api.defGet(e.class);void 0===i[e.class]&&(i[e.class]={});const a=s.getFormattedLookup(t,e);a&&Object.keys(a).forEach((t=>{void 0===i[e.class][t]&&(i[e.class][t]=[]),i[e.class][t].push(a[t])}))})):i={lookup_error:`no contents element with id "${e.contents}" found`};let s={};return s[e.id]=i,s}}t.exports={ui_def:a,io_def:r}},584:(t,e,i)=>{const s=i(20);class a extends s.SymbolBase{constructor(){super(),this.class="PathSymbol",this.pts=[],this.currentPosition={x:0,y:0},this.downTarget=null}get structs(){return{data:{class:this.class,id:`${this.class}-0`,points:[{x:0,y:0,moveTo:!0},{x:50,y:50,curve:{type:"quadratic",x1:0,y1:50}},{x:50,y:30,curve:{type:"quadratic",x1:0,y1:50}}]},view:{class:this.class,id:`${this.class}-0`,points:[{x:10,y:10,moveTo:!0},{x:50,y:50,curve:{type:"quadratic",x1:0,y1:50}},{x:50,y:30,curve:{type:"quadratic",x1:0,y1:50}}]}}}display(t){return ui_api.hasParam(t,Object.keys(this.structs.view)),{new:"path",class:"PathSymbol",id:`${t.id}-PathSymbol`,d:SVGPoints.toPath(t.points)}}getElementViewParams(t){const e=t.querySelector(".display .PathSymbol").getAttribute("d"),i=SVGPoints.toPoints({type:"path",d:e});return{id:t.id,points:i}}getPaletteIcon(){return{key:"svg",val:this.display({id:`${this.class}-palette-icon`,class:this.class,points:this.structs.view.points})}}handleEvent(t){switch(t.type){case"keyup":"Meta"==t.key&&ui_api.removeSprites();break;case"mousedown":"palette"==this.m_mode?t.metaKey&&this.createNewFromMouseEvent(t):"edit"==this.m_mode&&this.editMouseDown(t);break;case"mousemove":"edit"==this.m_mode?this.editMove(t):this.mousemove(t)}}mouseToData(t,e){const i=ui_api.getSVGCoordsFromEvent(t),s=ui_api.getDefForElement(e);Points.boundingBox(this.structs.data.points);let a=Points.offset(this.structs.data.points,i.x,i.y);return{...this.structs.data,...s.childViewParamsToData(e,a,t),id:`${this.class}_u_${ui_api.fairlyUniqueString()}`,container:e.id}}getPreviewLine(){let t=this.pts[this.pts.length-1];return{new:"line",parent:"symbolist_overlay",id:"preview-line",class:"preview-line",x1:t.x,y1:t.y,x2:this.currentPosition.x,y2:this.currentPosition.y}}HandleRect(t,e,i){return{new:"rect",parent:"handle-layer",class:"path-handle",x:t-5,y:e-5,width:10,height:10,id:`handle-${i}`,onclick:'console.log( "selected", this.id )'}}editMode(t,e=!1){if(super.editMode(t,e),e){let e=this.getElementViewParams(t);if(!e.points)return void console.error("no points found for editing");this.pts=e.points,this.currentPosition=this.pts[this.pts.length-1];let i=[];this.pts.forEach(((t,e)=>{i.push(this.HandleRect(t.x,t.y,e)),t.curve&&"quadratic"==t.curve.type&&(i.push(this.HandleRect(t.curve.x1,t.curve.y1,`quad-${e}`)),i.push({id:`quad-${e}-connector`,parent:"preview-line-layer",new:"path",class:"preview-line",points:[{x:this.pts[e-1].x,y:this.pts[e-1].y},{x:t.curve.x1,y:t.curve.y1},{x:t.x,y:t.y}]}))})),ui_api.drawsocketInput({key:"svg",val:{new:"g",parent:"symbolist_overlay",id:"path-preview-group",children:[{new:"g",id:"preview-line-layer",children:{new:"path",id:"path-preview",class:"path-preview",points:this.pts}},{new:"g",id:"handle-layer",children:i}]}}),t.style.visibility="hidden"}else{const e=document.getElementById("path-preview").getAttribute("d"),i=SVGPoints.toPoints({type:"path",d:e});let s=ui_api.getContainerForElement(t);const a=ui_api.getDefForElement(s).childViewParamsToData(s,{points:i});let r={id:t.id,class:this.class,container:s.id,points:a.points};this.fromData(r,s),ui_api.sendToServer({key:"data",val:r}),t.style.visibility="visible"}return console.log(" path edit mode",e),!0}editMove(t){if(this.currentPosition=ui_api.getSVGCoordsFromEvent(t),null!=this.downTarget&&this.pts.length>0){const e="path-handle"==this.downTarget.getAttribute("class");if(e&&!t.metaKey){let e=this.downTarget.id.split("-"),i=Number(e[e.length-1]);if(1==t.buttons)if(3==e.length)"quad"==e[1]&&(this.pts[i].curve.x1=this.currentPosition.x,this.pts[i].curve.y1=this.currentPosition.y,ui_api.drawsocketInput({key:"svg",val:[this.HandleRect(this.currentPosition.x,this.currentPosition.y,`quad-${i}`),{id:"path-preview",points:this.pts},{id:`quad-${i}-connector`,parent:"preview-line-layer",class:"preview-line",new:"path",points:[{x:this.pts[i-1].x,y:this.pts[i-1].y},{x:this.currentPosition.x,y:this.currentPosition.y},{x:this.pts[i].x,y:this.pts[i].y}]}]}));else if(2==e.length){this.pts[i].x=this.currentPosition.x,this.pts[i].y=this.currentPosition.y;let t=[this.HandleRect(this.currentPosition.x,this.currentPosition.y,i),{id:"path-preview",points:this.pts}];if(this.pts[i].curve&&t.push({id:`quad-${i}-connector`,parent:"preview-line-layer",new:"path",class:"preview-line",points:[{x:this.pts[i-1].x,y:this.pts[i-1].y},{x:this.pts[i].curve.x1,y:this.pts[i].curve.y1},{x:this.pts[i].x,y:this.pts[i].y}]}),this.pts.length>=i+2&&this.pts[i+1].curve){let e=i+1;t.push({id:`quad-${e}-connector`,parent:"preview-line-layer",new:"path",class:"preview-line",points:[{x:this.pts[i].x,y:this.pts[i].y},{x:this.pts[e].curve.x1,y:this.pts[e].curve.y1},{x:this.pts[e].x,y:this.pts[e].y}]})}ui_api.drawsocketInput({key:"svg",val:t})}}else 1==t.buttons?t.metaKey&&!e&&this.pts.length>1&&(this.pts[this.pts.length-1].curve={type:"quadratic",x1:this.currentPosition.x,y1:this.currentPosition.y},ui_api.drawsocketInput({key:"svg",val:[this.HandleRect(this.currentPosition.x,this.currentPosition.y,"quad-"+(this.pts.length-1)),{id:"path-preview",points:this.pts},{id:`quad-${this.pts.length-1}-connector`,parent:"preview-line-layer",new:"path",class:"preview-line",points:[{x:this.pts[this.pts.length-2].x,y:this.pts[this.pts.length-2].y},{x:this.currentPosition.x,y:this.currentPosition.y},{x:this.pts[this.pts.length-1].x,y:this.pts[this.pts.length-1].y}]}]})):t.metaKey&&ui_api.drawsocketInput({key:"svg",val:this.getPreviewLine()})}}editMouseDown(t){if(this.currentPosition=ui_api.getSVGCoordsFromEvent(t),this.downTarget=t.target,t.metaKey){let t={...this.currentPosition};0==this.pts.length&&(t.moveTo=!0),this.pts.push(t),ui_api.drawsocketInput([{key:"remove",val:"preview-line"},{key:"svg",val:[this.getPreviewLine(),this.HandleRect(t.x,t.y,this.pts.length-1)]}]),console.log("new point",this.pts,this.getPreviewLine())}}}class r extends s.IO_SymbolBase{constructor(){super(),this.class="PathSymbol"}lookup(t,e){const i=e.points,s=t.phase;return{id:e.id,trajectory_pt:io_api.Points.position(i,s,1)}}}t.exports={ui_def:a,io_def:r}},169:(t,e,i)=>{const s=i(20);class a extends s.SymbolBase{constructor(){super(),this.class="RootSymbol"}get structs(){return{data:{class:this.class,id:`${this.class}-0`,about:"",name:"",tools:[],palette:[]},view:{class:this.class,id:`${this.class}-0`}}}display(t){return{new:"g",id:`${t.id}`,class:"RootSymbol"}}drag(t,e){}dataToViewParams(t,e){return{...this.structs.view,id:t.id}}fromData(t,e,i=!1){const s=this.dataToViewParams(t,e),a=this.display(s),r=i?ui_api.svgPreviewFromViewAndData(a,t):ui_api.svgFromViewAndData(a,t);ui_api.drawsocketInput(r)}getElementViewParams(t){}getPaletteIcon(){}getInfoDisplay(t){ui_api.drawsocketInput(ui_api.makeDefaultInfoDisplay(t))}getElementViewParams(t){}childDataToViewParams(t,e){return e}childViewParamsToData(t,e,i){return e}}class r extends s.IO_SymbolBase{constructor(){super(),this.class="RootSymbol"}comparator(t,e){}lookup(t,e){}}t.exports={ui_def:a,io_def:r}},20:t=>{"use strict";t.exports={SymbolBase:class{constructor(){this.class="template",this.palette=[],this.m_mode="",this.mouseListening=!1}get structs(){return{data:{class:this.class,id:`${this.class}-0`,time:0},view:{class:this.class,id:`${this.class}-0`,x:0,y:0,text:"undefined"}}}display(t){return console.error(`${this.class} display is undefined`),ui_api.hasParam(t,Object.keys(this.structs.view)),{new:"text",id:`${t.id}-undefined`,class:"template",x:t.x,y:t.y,text:"undefined symbol"}}getElementViewParams(t){console.error(`${this.class} getElementViewParams is undefined`);const e=t.querySelector("text");return{id:t.id,x:parseFloat(e.getAttribute("x")),y:parseFloat(e.getAttribute("y")),text:e.innerHTML}}getPaletteIcon(){return console.error(`${this.class} getPaletteIcon is undefined`),{key:"svg",val:this.display({id:"template-palette-icon",class:this.class,x:10,y:10,text:"template"})}}fromData(t,e,i=!1){const s={...this.structs.data,...t},a=this.dataToViewParams(s,e),r=this.display(a),o=i?ui_api.svgPreviewFromViewAndData(r,s):ui_api.svgFromViewAndData(r,s);if(ui_api.drawsocketInput(o),!i){let e={};e[t.id]=a,ui_api.outlet({viewParams:e})}}dataToViewParams(t,e){const i=ui_api.getDefForElement(e);return{...this.structs.view,...ui_api.filterByKeys(t,Object.keys(this.structs.view)),...i.childDataToViewParams(e,t),id:t.id,container:t.container}}viewParamsToData(t,e,i=null){const s=ui_api.getDefForElement(e);return{...this.structs.data,...ui_api.filterByKeys(t,Object.keys(this.structs.data)),...s.childViewParamsToData(e,t,i),class:this.class,container:e.id}}childViewParamsToData(t,e,i=null){const s=ui_api.getContainerForElement(t);return ui_api.getDefForElement(s).childViewParamsToData(s,e,i)}childDataToViewParams(t,e){const i=ui_api.getContainerForElement(t);return ui_api.getDefForElement(i).childDataToViewParams(i,e)}updateAfterContents(t){}getContainerForData(t){return document.getElementById(t.container)}getInfoDisplay(t){ui_api.drawsocketInput(ui_api.makeDefaultInfoDisplay(t))}updateFromDataset(t){const e=ui_api.getContainerForElement(t);let i=ui_api.getElementData(t,e);this.fromData(i,e),ui_api.sendToServer({key:"data",val:i});let s=t.querySelector(".contents").children;for(let t=0;t<s.length;t++)ui_api.getDefForElement(s[t]).updateFromDataset(s[t])}mouseToData(t,e){const i=ui_api.getSVGCoordsFromEvent(t),s=ui_api.getDefForElement(e);return s||console.error(`could not find def for container ${e}`),{...this.structs.data,...s.childViewParamsToData(e,{...this.structs.view,...i},t),id:`${this.class}_u_${ui_api.fairlyUniqueString()}`,container:e.id}}createNewFromMouseEvent(t){ui_api.drawsocketInput({key:"remove",val:`${this.class}-sprite`});const e=ui_api.getCurrentContext();let i=this.mouseToData(t,e);return this.fromData(i,e),ui_api.sendToServer({key:"data",val:i}),i}mousemove(t){if(t.metaKey&&"palette"==this.m_mode){const e=ui_api.getCurrentContext();let i=this.mouseToData(t,e);this.fromData(i,e,!0)}}drag(t,e={delta_pos:{x:0,y:0}}){if("edit"==this.m_mode);else{ui_api.translate(t,e.delta_pos);let i=this.getElementViewParams(t);i.x+=e.delta_pos.x,i.y+=e.delta_pos.y;let s=ui_api.getContainerForElement(t),a=this.viewParamsToData(i,s,e);ui_api.drawsocketInput(ui_api.getDataTextView(a))}return!0}applyTransformToData(t){ui_api.applyTransform(t);let e=this.getElementViewParams(t),i=ui_api.getContainerForElement(t),s=this.viewParamsToData(e,i);return ui_api.drawsocketInput({key:"svg",val:ui_api.dataToHTML(s)}),ui_api.sendToServer({key:"data",val:s}),!0}selected(t,e){console.log("select state",e)}mouseListeners(t=!1){t&&!this.mouseListening?(window.addEventListener("mousedown",this,!1),window.addEventListener("mousemove",this,!1),window.addEventListener("mouseup",this,!1),window.addEventListener("keydown",this,!1),window.addEventListener("keyup",this,!1),this.mouseListening=!0):(ui_api.removeSprites(),window.removeEventListener("mousedown",this,!1),window.removeEventListener("mousemove",this,!1),window.removeEventListener("mouseup",this,!1),window.removeEventListener("keydown",this,!1),window.removeEventListener("keyup",this,!1),this.mouseListening=!1)}paletteSelected(t=!1){t?(this.m_mode="palette",this.mouseListeners(t)):(this.m_mode="exited palette",this.mouseListeners(t))}handleEvent(t){switch(t.type){case"keyup":"Meta"==t.key&&(ui_api.removeSprites(),console.log("na?"));break;case"mousedown":t.metaKey&&this.createNewFromMouseEvent(t);break;case"mousemove":this.mousemove(t)}}editMode(t,e=!1){return e?(this.m_mode="edit",this.mouseListeners(e)):(this.m_mode="exited edit",this.mouseListeners(e)),!0}currentContext(t,e=!1){console.log(this.class," is context ",e),this.m_mode=e?"context":"exited context"}},IO_SymbolBase:class{constructor(){this.class="template"}comparator(t,e){return t.time<e.time?-1:t.time==e.time?0:1}lookup(t,e){const i=e.time,s=i+e.duration;if(i<=t.time&&s>=t.time){t.phase=(t.time-i)/e.duration;let s=[{...e,phase:t.phase}];return void 0!==e.contents&&e.contents.forEach((e=>{const i=io_api.defGet(e.class).lookup(t,e);i&&s.push(i)})),s}return null}default_container_lookup(t,e){let i=[];void 0!==e.contents?e.contents.forEach((e=>{const s=io_api.defGet(e.class).lookup(t,e);s&&i.push(s)})):i={lookup_error:`no contents element with id "${e.contents}" found`};let s={};return s[e.id]=i,s}getFormattedLookup(t,e){return console.error("getFormattedLookup not defined for class",this.class,"using default"),e}default_container_getFormattedLookup(t,e){let i={};void 0!==e.contents?e.contents.forEach((e=>{const s=io_api.defGet(e.class);void 0===i[e.class]&&(i[e.class]={});const a=s.getFormattedLookup(t,e);a&&Object.keys(a).forEach((t=>{void 0===i[e.class][t]&&(i[e.class][t]=[]),i[e.class][t].push(a[t])}))})):i={lookup_error:`no contents element with id "${e.contents}" found`};let s={};return s[e.id]=i,s}}}},102:(t,e,i)=>{const s=i(20);class a extends s.SymbolBase{constructor(){super(),this.class="SystemContainer",this.palette=["TextSymbol"],this.margin=20,this.half_margin=this.margin/2,this.x2time=.001,this.time2x=1e3}get structs(){return{data:{class:this.class,id:`${this.class}-0`,time:0,duration:1,height:100,x:100,y:100,x_offset:2*this.margin},view:{class:this.class,id:`${this.class}-0`,x:0,y:0,height:20,width:20},children:{data:{time:0,height:100,duration:1},view:{x:0,y:0,height:100}}}}drag(t,e){}display(t){return ui_api.hasParam(t,Object.keys(this.structs.view)),[{new:"rect",id:`${t.id}-rect`,class:"systemContainer-rect",x:t.x,y:t.y,height:t.height,width:t.width},{new:"path",id:`${t.id}-bracket`,class:"systemContainer-bracket",d:`M ${t.x+this.margin} ${t.y+this.half_margin} h -${this.half_margin} v ${t.height-this.margin} h ${this.half_margin}`}]}getElementViewParams(t){const e=t.querySelector(".systemContainer-rect");return{id:t.id,x:parseFloat(e.getAttribute("x")),y:parseFloat(e.getAttribute("y")),width:parseFloat(e.getAttribute("width")),height:parseFloat(e.getAttribute("height"))}}dataToViewParams(t,e){let i=ui_api.filterByKeys(t,Object.keys(this.structs.view));const s=this.margin+(void 0!==t.height?parseFloat(t.height):this.structs.data.height),a=2*this.margin+parseFloat(t.duration)*this.time2x;return{...this.structs.view,...i,width:a,height:s,id:t.id}}getPaletteIcon(){return{key:"svg",val:this.display({...this.structs.view,id:"SystemContainer-palette-icon",class:this.class})}}childDataToViewParams(t,e){if(ui_api.hasParam(e,Object.keys(this.structs.children.data))){const i=ui_api.getContainerForElement(t),s=ui_api.getElementData(t),a=this.dataToViewParams(s,i),r=t.querySelector(".contents"),o=r.children.length;let n=0;if(o>0){n=this.margin+ui_api.getBBoxAdjusted(r.children[o-1]).bottom-a.y;const t=document.getElementById(e.id);t&&(n-=ui_api.getBBoxAdjusted(t).height+this.margin)}return{y:a.y+n,x:a.x+this.margin,width:a.width-2*this.margin,height:e.height}}}childViewParamsToData(t,e,i){}updateAfterContents(t){const e=t.querySelector(".contents"),i=ui_api.getBBoxAdjusted(e);let s={id:t.id,duration:t.dataset.duration,x:t.dataset.x,y:parseFloat(t.dataset.y)-20,height:i.height+40,x_offset:t.dataset.x_offset};const a=ui_api.getContainerForElement(t);this.fromData(s,a)}updateFromDataset(t){}playbar(t){if(void 0!==t.id&&void 0!==t.time){let e=document.getElementById(`${t.id}-rect`),i=ui_api.getBBoxAdjusted(e);ui_api.drawsocketInput({key:"svg",val:{id:`${t.id}-playbar`,parent:t.id,new:"line",x1:i.x+t.time*this.time2x,x2:i.x+t.time*this.time2x,y1:i.top,y2:i.bottom,class:"playbar"}})}}}class r extends s.IO_SymbolBase{constructor(){super(),this.class="SystemContainer",this.lookup=super.default_container_lookup,this.getFormattedLookup=super.default_container_getFormattedLookup}}t.exports={ui_def:a,io_def:r}}},e={},i=function i(s){var a=e[s];if(void 0!==a)return a.exports;var r=e[s]={exports:{}};return t[s](r,r.exports,i),r.exports}(489),s=exports;for(var a in i)s[a]=i[a];i.__esModule&&Object.defineProperty(s,"__esModule",{value:!0})})();
+/******/ (() => { // webpackBootstrap
+/******/ 	var __webpack_modules__ = ({
+
+/***/ 489:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+
+// need to import css
+
+const ioDefs = new Map();
+
+const initDef = __webpack_require__(254);
+
+// load defs
+const AzimNote = __webpack_require__(934);
+const BasicSymbol = __webpack_require__(270);
+const BetaEnv = __webpack_require__(755);
+const CartesianPlot = __webpack_require__(350);
+const ColorPitch = __webpack_require__(564);
+const FiveLineStave = __webpack_require__(783);
+const FiveLineStaveEvent = __webpack_require__(16);
+const PathSymbol = __webpack_require__(584);
+
+const Measure = __webpack_require__(670);
+const PartStave = __webpack_require__(472);
+const RootSymbol = __webpack_require__(169);
+
+const DataPoint = __webpack_require__(558);
+const SystemContainer = __webpack_require__(102);
+
+const NodescoreAPI = __webpack_require__(890);
+
+// set into def map
+ioDefs.set("AzimNote", new AzimNote.io_def() );
+ioDefs.set("BasicSymbol", new BasicSymbol.io_def() );
+ioDefs.set("BetaEnv", new BetaEnv.io_def() );
+ioDefs.set("CartesianPlot", new CartesianPlot.io_def() );
+ioDefs.set("ColorPitch", new ColorPitch.io_def() );
+ioDefs.set("FiveLineStave", new FiveLineStave.io_def() );
+ioDefs.set("FiveLineStaveEvent", new FiveLineStaveEvent.io_def() );
+ioDefs.set("PathSymbol", new PathSymbol.ui_def() );
+
+ioDefs.set("Measure", new Measure.io_def() );
+ioDefs.set("PartStave", new PartStave.io_def() );
+ioDefs.set("RootSymbol", new RootSymbol.io_def() );
+
+ioDefs.set("DataPoint", new DataPoint.io_def() );
+ioDefs.set("SystemContainer", new SystemContainer.io_def() );
+
+ioDefs.set("NodescoreAPI", new NodescoreAPI.io_def() );
+
+
+module.exports = {
+    ioDefs,
+    initDef
+}
+
+
+/*
+BasicSymbol.js          
+BasicSymbolGL.js        
+BetaEnv.js              
+CartesianPlot.js        
+ColorPitch.js           
+DataPoint.js            
+FiveLineStave.js        
+LibDefs.js              
+Measure.js              
+PartStave.js            
+PathSymbol.js           
+RootSymbol.js           
+SnapPoint.js            
+SubdivisionTool.js      
+SymbolTemplate.js       
+RootSymbol.js           
+SnapPoint.js            
+SubdivisionTool.js      
+SymbolTemplate.js       
+RootSymbol.js           
+SnapPoint.js            
+SubdivisionTool.js      
+SymbolTemplate.js       
+TextSymbol.js           
+assets                  
+fiveLineStaveEvent.js   
+grains.json             
+init.json
+plot.json
+systemContainer.js
+sytlie.css
+*/
+
+
+
+// snapPoint and subdivision aren't used in io
+//const SnapPoint = require('./SnapPoint');
+//const SubdivisionTool = require('./SubdivisionTool');
+
+//ioDefs.set("SnapPoint", new SnapPoint.io_def() );
+//ioDefs.set("SubdivisionTool", new SubdivisionTool.io_def() );
+
+/***/ }),
+
+/***/ 254:
+/***/ ((module) => {
+
+"use strict";
+module.exports = JSON.parse('{"about":"symbolist will read a json file to configure the palette setup, this can be used to dynamically change also (eventually)","id":"Score","tools":[],"palette":["SubdivisionTool","BasicSymbolGL"],"class":"RootSymbol","contents":{"id":"trio","class":"SystemContainer","x":200,"y":100,"duration":20,"time":0,"contents":[{"id":"oboe","class":"FiveLineStave","height":100,"lineSpacing":10,"duration":20,"time":0,"contents":[]},{"id":"bassoon","class":"PartStave","height":100,"time":0,"duration":20,"contents":[]},{"id":"synth","class":"PartStave","height":200,"time":0,"duration":20,"contents":[]}]}}');
+
+/***/ }),
+
+/***/ 934:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const Template = __webpack_require__(20) 
+
+class AzimNote extends Template.SymbolBase 
+{
+    constructor() {
+        super();
+        this.class = "AzimNote";
+        this.default_dist = 10;
+    }
+
+
+    get structs () {
+        return {
+
+            data: {
+                class: this.class,
+                id : `${this.class}-0`,
+                time: 0,
+                pitch: 55,
+                azim: 3.14,
+                duration: 0.1
+            },
+            
+            view: {
+                class: this.class,
+                id: `${this.class}-0`, 
+                x: 0,
+                y: 0,
+                r: 2,
+                azim: 3.14
+            }
+        }
+    }
+
+
+    display(params) {
+
+        ui_api.hasParam(params, Object.keys(this.structs.view) );
+        
+        return [{
+            id: `${params.id}-notehead`, // << make sure to give the sub-elements ids
+            class: 'notehead',
+            new: "circle",
+            cx: params.x,
+            cy: params.y,
+            r: params.r
+        },
+        {
+            new: "line" ,
+            id: `${params.id}-azim`, // << make sure to give the sub-elements ids
+            class: 'azimLine',
+            x1: params.x,
+            y1: params.y,
+            x2: params.x + Math.sin(params.azim) * this.default_dist,
+            y2: params.y + Math.cos(params.azim) * this.default_dist
+        }]
+
+        /**
+         * note that we are returning the drawsocket def that will be 
+         * displayed in the "view" group
+         * the top level element of the symbol has the root id
+         * so here we need to make sure that the id is different
+         */
+
+    }
+    
+    getElementViewParams(element) {
+
+        const circle = element.querySelector('.notehead');
+        const azim_line = element.querySelector('.azimLine');
+
+        const x = parseFloat(circle.getAttribute('cx'));
+        const y = parseFloat(circle.getAttribute('cy'));
+        const r = parseFloat(circle.getAttribute('r'));
+
+        const x2 = parseFloat(azim_line.getAttribute('x2'));
+        const y2 = parseFloat(azim_line.getAttribute('y2'));
+
+        const azim = Math.atan2(x2-x, y2-y);
+
+        return {
+            id: element.id,
+            x,
+            y,
+            r,
+            azim
+        }
+
+    }
+
+
+    getPaletteIcon() {
+        return {
+            key: "svg",
+            val: this.display({
+                id: `${this.class}-icon`,
+                class: this.class,
+                x: 10,
+                y: 10,
+                r: 2,
+                azim: 0.15
+            })
+        }
+    }
+
+
+    editMode( element, enable = false )
+    {
+        super.editMode(element, enable);
+        
+        if( enable )
+        {
+            ui_api.createHandle( 
+                // element to use for reference
+                element, 
+                // xy attrs to use for the handle
+                { selector: `#${element.id} .azimLine`, x: "x2", y: "y2"},
+                // callback function
+                (element_, event) => {
+                    const line = element_.querySelector('.azimLine');
+                    const x1 = parseFloat(line.getAttribute('x1'));
+                    const y1 = parseFloat(line.getAttribute('y1'));
+                    
+                    let mousePt = ui_api.getSVGCoordsFromEvent(event);
+                    
+                    let azim = Math.atan2( mousePt.x - x1, mousePt.y - y1);
+                    element_.dataset.azim = azim;
+
+                    this.updateFromDataset(element_);
+
+                }
+            );
+        }
+
+
+        return true; // << required if defined
+    }
+}
+
+
+
+class AzimNote_IO extends Template.IO_SymbolBase
+{
+    constructor()
+    {
+        super();
+        this.class = "AzimNote";
+    }
+    
+}
+
+
+module.exports = {
+    ui_def: AzimNote,
+    io_def: AzimNote_IO
+}
+
+/***/ }),
+
+/***/ 270:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const Template = __webpack_require__(20) 
+
+class BasicSymbol extends Template.SymbolBase 
+{
+    constructor() {
+        super();
+        this.class = "BasicSymbol";
+    }
+
+
+    get structs () {
+        return {
+
+            data: {
+                class: this.class,
+                id : `${this.class}-0`,
+                time: 0,
+                pitch: 55,
+                duration: 0.1
+            },
+            
+            view: {
+                class: this.class,
+                id: `${this.class}-0`, 
+                x: 0,
+                y: 0,
+                r: 2
+            }
+        }
+    }
+
+
+    display(params) {
+
+        ui_api.hasParam(params, Object.keys(this.structs.view) );
+        
+        return {
+            new: "circle",
+            class: 'notehead',
+            id: `${params.id}-notehead`,
+            cx: params.x,
+            cy: params.y,
+            r: params.r
+        }
+
+        /**
+         * note that we are returning the drawsocket def that will be 
+         * displayed in the "view" group
+         * the top level element of the symbol has the root id
+         * so here we need to make sure that the id is different
+         */
+
+    }
+    
+    getElementViewParams(element) {
+
+        const circle = element.querySelector('.notehead');
+        const x = parseFloat(circle.getAttribute('cx'));
+        const y = parseFloat(circle.getAttribute('cy'));
+        const r = parseFloat(circle.getAttribute('r'));
+
+        return {
+            id: element.id,
+            x,
+            y,
+            r
+        }
+
+    }
+
+
+    getPaletteIcon() {
+        return {
+            key: "svg",
+            val: this.display({
+                id: `${this.class}-palette-icon`,
+                class: this.class,
+                x: 10,
+                y: 10,
+                r: 2
+            })
+        }
+    }
+
+
+    getDataTextView(dataObj, relativeTo = null)
+    {
+
+        let ret = {};
+        ret.key = "svg";
+        ret.val = [];
+
+        Object.keys(dataObj).forEach( key => {
+            ret.val.push({  
+                new: "text",
+                class: "data_text sprite",
+                container: `symbolist_overlay`,
+                relativeTo : (relativeTo ? relativeTo : `#${dataObj.id}`),
+                id: `${dataObj.id}-${key}-data_text`,
+                x: 0,
+                y: -20,
+                text: key + String(dataObj[key])
+            })
+        });
+
+        console.log(ret);
+
+        return ret;
+    }
+    
+    svgPreviewFromViewAndData(view, dataObj, relativeTo = null)
+    {
+        let drawing = ui_api.svgFromViewAndData(view, 
+            {
+                ...dataObj,
+                class: `${dataObj.class} sprite`, // << sprite flags the object to be deleted
+                id: `${dataObj.class}-sprite`,
+                container: 'symbolist_overlay' // << temp overlay layer gets cleared also
+            }, 
+            true /* overwrite*/ 
+        );
+        
+        if( relativeTo )
+        {
+            relativeTo = `#${dataObj.class}-sprite ${relativeTo}`;
+        }
+            
+        let text_drawing = this.getDataTextView({
+            ...dataObj,
+            id: `${dataObj.class}-sprite`
+        }, relativeTo );
+    
+        return [ drawing, text_drawing ];
+    }
+
+
+    fromData(dataObj, container, preview = false)
+    {
+      //  console.log('template fromData', container, dataObj);
+        // merging with defaults in case the user forgot to include something
+        const data_union = {
+            ...this.structs.data,
+            ...dataObj
+        };
+        
+        const viewParams = this.dataToViewParams(data_union, container);
+        
+        const viewObj = this.display(viewParams);        
+        
+        const drawObj = (preview ? 
+            this.svgPreviewFromViewAndData(viewObj, data_union) : 
+            ui_api.svgFromViewAndData(viewObj, data_union) );
+
+        ui_api.drawsocketInput( drawObj );
+
+        if( !preview ) {
+            let outObj = {};
+            outObj[dataObj.id] = viewParams;
+            ui_api.outlet({ viewParams: outObj });
+        }
+
+    }
+
+
+}
+
+class BasicSymbol_IO extends Template.IO_SymbolBase
+{
+    constructor()
+    {
+        super();
+        this.class = "BasicSymbol";
+    }
+    
+}
+
+
+
+module.exports = {
+    ui_def: BasicSymbol,
+    io_def: BasicSymbol_IO    
+}
+
+
+
+/***/ }),
+
+/***/ 755:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const Template = __webpack_require__(20) 
+
+class BetaEnv extends Template.SymbolBase 
+{
+    constructor() {
+        super();
+        this.class = "BetaEnv";
+        this.height = 10;
+    }
+
+
+    get structs () {
+        return {
+
+            data: {
+                class: this.class,
+                id : `${this.class}-0`,
+                a: 2,
+                b: 2,
+                duration: 0.1,
+                time: 0,
+                pitch: 60
+            },
+            
+            view: {
+                class: this.class,
+                id: `${this.class}-0`,
+                x: 0,
+                y: 0,
+                a: 2,
+                b: 2,
+                width: 10
+            }
+        }
+    }
+
+
+    display(params) {
+
+        ui_api.hasParam(params, Object.keys(this.structs.view) );
+
+     //   console.log(params.points, SVGPoints.toPath(params.points));
+
+        let y_arr = betaDist(params.a, params.b);
+
+        const n_pts = y_arr.length;
+        const x_incr = params.width / n_pts;
+       // console.log(y_arr);
+
+        let points = [{
+            x: params.x,
+            y: params.y + this.height
+        }];
+
+        let i = 0;
+        for( ; i < n_pts; i++ )
+        {
+            points.push({
+                x: params.x + i * x_incr,
+                y: params.y + (1 - y_arr[i]) * this.height
+            })
+        }
+
+        while( --i > 0 )
+        {
+            points.push({
+                x: params.x + i * x_incr,
+                y: params.y + this.height + y_arr[i] * this.height
+            })
+        }
+
+        // points.push({
+        //     x: params.x + params.width,
+        //     y: params.y + this.height
+        // });
+
+        points.push( points[0] );
+
+
+        return [{
+            new: "path",
+            class: 'beta_env',
+            id: `${params.id}-path`,
+            d: SVGPoints.toPath(points)
+        }, {
+            new: "line",
+            x1: params.x,
+            x2: params.x,
+            y1: params.y - this.height * 2,
+            y2: params.y + this.height * 2,
+            class: "beta_env_start",
+            id: `${params.id}-start`
+        }]
+
+    }
+    
+
+    getElementViewParams(element) {
+
+        const trajectory = element.querySelector('.display .beta_env');
+        const d = trajectory.getAttribute('d');
+        
+        const points = SVGPoints.toPoints({ 
+            type: 'path',
+            d
+        });
+
+        // part stave wants x and y
+        /*
+        let x = points[0].x;
+        let y = points[0].y;
+        let width = points[points.length-1].x - x;
+        */
+
+        let bbox = ui_api.getBBoxAdjusted(element);
+        let x = bbox.x;
+        let y = bbox.y;
+        let width = bbox.width;
+
+        console.log("BetaEnv getElementViewParams", width) ;
+        let a = parseFloat(element.dataset.a);
+        let b = parseFloat(element.dataset.b);
+        let duration =  parseFloat(element.dataset.duration);
+
+        return {
+            id: element.id,
+            x,
+            y,
+            a,
+            b,
+            duration,
+            width
+        }
+
+    }
+/*
+    dataToViewParams(data, container)
+    {
+        const parentDef = ui_api.getDefForElement(container);
+
+        // duration to width
+        const parent_data_mapping = parentDef.childDataToViewParams(container, data);
+
+        let viewParms = {
+            ...this.structs.view, // defaults
+            ...ui_api.filterByKeys(data, Object.keys(this.structs.view) ), // gets view values that might in the data
+            ...parent_data_mapping,
+            id: data.id,
+            container: data.container
+        }
+
+        console.log(data);
+        let y_arr = betaDist(data.a, data.b);
+
+        const n_pts = y_arr.length;
+        const x_incr = parent_data_mapping.width / n_pts;
+       // console.log(y_arr);
+
+        let points = [{
+            x: viewParms.x,
+            y: viewParms.y + this.height
+        }];
+
+        for(let i = 0; i < n_pts; i++ )
+        {
+            points.push({
+                x: viewParms.x + i * x_incr,
+                y: viewParms.y + (1 - y_arr[i]) * this.height
+            })
+        }
+        points.push({
+            x: viewParms.x + parent_data_mapping.width,
+            y: viewParms.y + this.height
+        })
+        viewParms.points = points;
+
+        return viewParms;
+
+    }
+*/
+
+    getPaletteIcon() {
+        return {
+            key: "svg",
+            val: this.display({
+                ...this.structs.view,
+                id: `newPartStave-palette-icon`,
+                class: this.class,
+                a: 2,
+                b: 2,
+                duration: 0.2
+            })
+        }
+    }
+
+/*
+    editMode( element, enable = false )
+    {
+        super.editMode(element, enable);
+        
+        if( enable )
+        {
+            ui_api.createHandle( 
+                // element to use for reference
+                element, 
+                // xy attrs to use for the handle
+                { selector: `#${element.id} .azimLine`, x: "x2", y: "y2"},
+                // callback function
+                (element_, event) => {
+                    const line = element_.querySelector('.azimLine');
+                    const x1 = parseFloat(line.getAttribute('x1'));
+                    const y1 = parseFloat(line.getAttribute('y1'));
+                    
+                    let mousePt = ui_api.getSVGCoordsFromEvent(event);
+                    
+                    let azim = Math.atan2( mousePt.x - x1, mousePt.y - y1);
+                    element_.dataset.azim = azim;
+
+                    this.updateFromDataset(element_);
+
+                }
+            );
+        }
+
+
+        return true; // << required if defined
+    }
+    */
+}
+
+
+
+class BetaEnv_IO extends Template.IO_SymbolBase
+{
+    constructor()
+    {
+        super();
+        this.class = "BetaEnv";
+    }
+    
+ /**
+     * 
+     * API function called from controller
+     * 
+     * @param {*} params 
+     * @param {*} obj_ref 
+     */
+    getFormattedLookup( params, obj_ref )
+    {
+        return {
+            pitch: obj_ref.pitch,
+            duration: obj_ref.duration,
+            time: obj_ref.time,
+            a: obj_ref.a,
+            b: obj_ref.b
+        };
+    }
+
+
+}
+
+
+module.exports = {
+    ui_def: BetaEnv,
+    io_def: BetaEnv_IO
+}
+
+
+
+
+// gamma function from https://github.com/substack/gamma.js/blob/master/index.jsw
+// transliterated from the python snippet here:
+// http://en.wikipedia.org/wiki/Lanczos_approximation
+
+var g = 7;
+var p = (/* unused pure expression or super */ null && ([
+    0.99999999999980993,
+    676.5203681218851,
+    -1259.1392167224028,
+    771.32342877765313,
+    -176.61502916214059,
+    12.507343278686905,
+    -0.13857109526572012,
+    9.9843695780195716e-6,
+    1.5056327351493116e-7
+]));
+
+var g_ln = 607/128;
+var p_ln = [
+    0.99999999999999709182,
+    57.156235665862923517,
+    -59.597960355475491248,
+    14.136097974741747174,
+    -0.49191381609762019978,
+    0.33994649984811888699e-4,
+    0.46523628927048575665e-4,
+    -0.98374475304879564677e-4,
+    0.15808870322491248884e-3,
+    -0.21026444172410488319e-3,
+    0.21743961811521264320e-3,
+    -0.16431810653676389022e-3,
+    0.84418223983852743293e-4,
+    -0.26190838401581408670e-4,
+    0.36899182659531622704e-5
+];
+
+// Spouge approximation (suitable for large arguments)
+function lngamma(z) {
+
+    if(z < 0) return Number('0/0');
+    var x = p_ln[0];
+    for(var i = p_ln.length - 1; i > 0; --i) x += p_ln[i] / (z + i);
+    var t = z + g_ln + 0.5;
+    return .5*Math.log(2*Math.PI)+(z+.5)*Math.log(t)-t+Math.log(x)-Math.log(z);
+}
+
+function gamma (z) {
+    if (z < 0.5) {
+        return Math.PI / (Math.sin(Math.PI * z) * gamma(1 - z));
+    }
+    else if(z > 100) return Math.exp(lngamma(z));
+    else {
+        z -= 1;
+        var x = p[0];
+        for (var i = 1; i < g + 2; i++) {
+            x += p[i] / (z + i);
+        }
+        var t = z + g + 0.5;
+
+        return Math.sqrt(2 * Math.PI)
+            * Math.pow(t, z + 0.5)
+            * Math.exp(-t)
+            * x
+        ;
+    }
+}
+
+function beta( a, b )
+{
+	return Math.exp( lngamma(a) + lngamma(b) - lngamma(a+b) );
+}
+
+
+var len = 100;
+var maxIdx = len - 1;
+var m_incr = 1 / len;
+
+function betaMode(a, b)
+{
+    if( a > 1 && b > 1)
+        return (a-1)/(a+b-2);
+    else if( a == 1 && b == 1) // all 1s
+        return 0.5;
+    else if( a < 1 && b < 1) // bi modal
+        return 0.0001;
+    else if( a < 1 && b >= 1)
+        return 0.0001;
+    else if( a >= 1 && b < 1)
+        return 0.9999;
+    else if( a == 1 && b > 1)
+        return 0.0001;
+    else if( a > 1 && b == 1)
+        return 0.9999;
+    else {
+        post("unmatched beta mode %f %f returning 0\n", a, b);
+        return 0;
+    }
+}
+
+
+function betaNumerator(x, a, b)
+{
+    var num = Math.pow(x, a-1) * Math.pow(1-x, b-1);    
+    return num == Infinity ? 1 : num;
+}
+
+
+function getBetaScalar( a, b, stepsize)
+{
+    
+    // reusing denominator: (betaNum / betaDen) == betaPDF
+    var betaDenominator = beta(a, b);
+    
+    if( a > 1 && b > 1)
+        return 1. / (betaDenominator * ( betaNumerator( (a-1)/(a+b-2), a, b ) / betaDenominator ));
+    else if( a > 1 && b == 1 )
+        return 1. / (betaDenominator * ( betaNumerator( 1., a, b ) / betaDenominator ));
+    else if (a == 1 && b > 1 )
+        return 1. / (betaDenominator * ( betaNumerator( 0., a, b ) / betaDenominator ));
+    else if (a >= 1 && b < 1 ) // in this case x(1) = inf
+        return 1. / (betaDenominator * ( betaNumerator( 1 - stepsize, a, b ) / betaDenominator ));
+    else if (a < 1 && b >= 1 ) // in this case x(0) = inf
+        return 1. / (betaDenominator * ( betaNumerator( stepsize, a, b ) / betaDenominator ));
+    else if (a < 1 && b < 1 )
+    {
+        if( a > b) // if a > b, then use x(1 - stepsize)
+            return 1. / (betaDenominator * ( betaNumerator( 1 - stepsize, a, b ) / betaDenominator ));
+        else
+            return 1. / (betaDenominator * ( betaNumerator( stepsize, a, b ) / betaDenominator ));
+    }
+    else if( a == 1 && b == 1 )
+        return 1.;
+    else
+        post("unknown situation", a, b, '\n');
+    
+    return 0;
+    
+}
+
+
+var min_coef = 0.000001;
+
+function betaDist(a,b)
+{
+	a = a <= min_coef ? min_coef : a;
+	b = b <= min_coef ? min_coef : b;
+		
+    var  m_wind_norm_coef = getBetaScalar(a, b, m_incr);
+	var normalized = [];
+	
+	for( var i = 0; i < len; ++i)
+	{
+		var phase = i * m_incr;
+
+        var v = betaNumerator(phase, a, b) * m_wind_norm_coef;
+		if( v < 0.000001 ) v = 0;
+		if( v > 1 ) v = 1;
+
+		normalized.push( v );
+	}
+
+	return normalized;
+
+}
+
+
+/***/ }),
+
+/***/ 350:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const Template = __webpack_require__(20); 
+
+class CartesianPlot extends Template.SymbolBase 
+{
+    constructor() {
+        super();
+        this.class = "CartesianPlot";
+        this.palette = [ "DataPoint"];
+
+        this.margin = 20;
+        this.half_margin = this.margin / 2.;
+
+    }
+
+    get structs () {
+        return {
+
+            data: {
+                class: this.class,
+                id : `${this.class}-0`,
+                x_param: "centroid",
+                y_param: "spread",
+                x: 100,
+                y: 100,
+                width: 800,
+                height: 600
+            },
+            
+            view: {
+                class: this.class,
+                id: `${this.class}-0`, 
+                x: 0,
+                y: 0,
+                height: 20, 
+                width: 20
+            },
+
+            children: {
+                data: {
+                    centroid: 0,
+                    spread: 0,
+                    amplitude: 0
+                },
+                view: {
+                    x: 0,
+                    y: 0
+                }
+            }
+        }
+    }
+
+    drag(element, pos){}
+
+    display(params) {
+
+        ui_api.hasParam(params, Object.keys(this.structs.view) );
+        
+        return {
+            new:    "rect",
+            id:     `${params.id}-rect`,
+            class:  'CartesianPlot-rect',
+            x:      params.x,
+            y:      params.y,
+            height: params.height,
+            width:  params.width
+        };
+
+        /**
+         * note that we are returning the drawsocket def that will be 
+         * displayed in the "view" group
+         * the top level element of the symbol has the root id
+         * so here we need to make sure that the id is different
+         */
+
+    }
+    
+    getElementViewParams(element) {
+
+        const rect = element.querySelector('.display .CartesianPlot-rect');
+
+        return {
+            id: element.id,
+            x: parseFloat(rect.getAttribute('x')),
+            y: parseFloat(rect.getAttribute('y')),
+            width: parseFloat(rect.getAttribute('width')),
+            height: parseFloat(rect.getAttribute('height'))
+        }
+
+    }
+    
+    /**
+     * note: this container is a "top level" DURATION container, and so for the moment we are not querying
+     * the parent for info, because the here the width is determined by the duration, and the parent
+     * is purely graphical, and has no knowledge of duration.
+     */
+
+    dataToViewParams(data, container)
+    {      
+
+        let viewInData = ui_api.filterByKeys(data, Object.keys(this.structs.view) );
+
+        return {
+            ...this.structs.view, // defaults
+            ...viewInData, // view params passed in from data
+            id: data.id
+        }
+     
+    }
+
+    getPaletteIcon() {
+        return {
+            key: "svg",
+            val: this.display({
+                ...this.structs.view,
+                id: `CartesianPlot-palette-icon`,
+                class: this.class
+            })
+        }
+    }
+
+    /**
+     * 
+     * @param {Element} this_element instance of this element
+     * @param {Object} child_data child data object, requesting information about where to put itself
+     */
+    childDataToViewParams(this_element, child_data)
+    {
+        
+        const x_param = this_element.dataset.x_param;
+        const y_param = this_element.dataset.y_param;
+
+        if( ui_api.hasParam(child_data, [ x_param, y_param ] ) )
+        {
+            const bbox = ui_api.getBBoxAdjusted(this_element);
+
+            let x = bbox.x + (child_data[ x_param ] * bbox.width );
+            let y = bbox.y + bbox.height - (child_data[ y_param ] * bbox.height );
+
+            return {
+                x,
+                y
+            }
+        }
+    }
+
+    /**
+     * 
+     * Called by child objects using the template
+     * the parent/container object supplies a mapping from view params to data
+     * 
+     * @param {Element} this_element instance of this element
+     * @param {Object} child_viewParams child data object, requesting information about where to put itself
+     * @param {Event}   event (optional) include the mouse event for mode handling
+     */
+     childViewParamsToData(this_element, child_viewParams, event = null) 
+     {
+        // no updates from view at the momement
+
+        const x_param = this_element.dataset.x_param;
+        const y_param = this_element.dataset.y_param;
+
+        if( ui_api.hasParam(child_viewParams, [ "x", "y" ] ) )
+        {
+            const bbox = ui_api.getBBoxAdjusted(this_element);
+
+            let ret = {};
+
+            ret[x_param] = (child_viewParams.x - bbox.x) / bbox.width;
+            ret[y_param] = 1 - ((child_viewParams.y - bbox.y) / bbox.height);
+
+
+            return ret;
+        }
+
+    }
+
+    /**
+     * 
+     * @param {Element} element 
+     * 
+     * called after child object has been added in order to adjust 
+     * drawing of the container element
+     * 
+     */
+    updateAfterContents( element ) {}
+
+    updateFromDataset(element){
+
+        /**
+         * here is where we might want to change the x_ and y_ params
+         * for mapping the children
+         */
+
+    }
+
+   
+
+}
+
+class CartesianPlot_IO extends Template.IO_SymbolBase
+{
+    constructor()
+    {
+        super();
+        this.class = "CartesianPlot";
+    }
+    
+}
+
+
+module.exports = {
+    ui_def: CartesianPlot,
+    io_def: CartesianPlot_IO
+}
+
+
+
+/***/ }),
+
+/***/ 564:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const Template = __webpack_require__(20) 
+
+class ColorPitch extends Template.SymbolBase 
+{
+    constructor() {
+        super();
+        this.class = "ColorPitch";
+    }
+
+
+    get structs () {
+        return {
+
+            data: {
+                class: this.class,
+                id : `${this.class}-0`,
+                time: 0,
+                pitch: 55,
+                duration: 0.1
+            },
+            
+            view: {
+                class: this.class,
+                id: `${this.class}-0`, 
+                x: 0,
+                y: 0,
+                r: 4,
+                color: 'rgba(255,0,255,1)'
+            }
+        }
+    }
+
+
+    display(params) {
+
+        ui_api.hasParam(params, Object.keys(this.structs.view) );
+        
+        console.log('test', params);
+
+        return {
+            new: "circle",
+            class: 'notehead',
+            id: `${params.id}-notehead`,
+            cx: params.x,
+            cy: params.y,
+            r: params.r,
+            style: {
+                fill: params.color
+            }
+        }
+
+        /**
+         * note that we are returning the drawsocket def that will be 
+         * displayed in the "view" group
+         * the top level element of the symbol has the root id
+         * so here we need to make sure that the id is different
+         */
+
+    }
+    
+    getElementViewParams(element) {
+
+        const circle = element.querySelector('.notehead');
+        const x = parseFloat(circle.getAttribute('cx'));
+        const y = parseFloat(circle.getAttribute('cy'));
+        const r = parseFloat(circle.getAttribute('r'));
+        const color = circle.style.fill;
+
+        return {
+            id: element.id,
+            x,
+            y,
+            r,
+            color
+        }
+
+    }
+
+    getPaletteIcon() {
+        return {
+            key: "svg",
+            val: this.display({
+                id: `${this.class}-palette-icon`,
+                class: this.class,
+                x: 10,
+                y: 10,
+                r: 2,
+                color: 'rbga(255, 0, 255, 1)'
+            })
+        }
+    }
+
+    dataToViewParams(data, container)
+    {
+        const parentDef = ui_api.getDefForElement(container);
+        
+        let color_val = (data.pitch / 127.) * 255;
+        let color = `rgba( ${color_val}, 0, 255, 1)`;
+
+        return {
+            ...this.structs.view, // defaults
+            ...ui_api.filterByKeys(data, Object.keys(this.structs.view) ), // gets view values that might in the data
+            ...parentDef.childDataToViewParams(container, data),
+            
+            // other mappings that the parent doesn't know about might be added here
+            color,
+            id: data.id,
+            container: data.container // set container/parent id
+        }
+     
+    }
+
+    /**
+     * API function called from controller
+     * 
+     * @param {Element} element html/svg element to translate
+     * 
+     * return true to use default translation
+     * return false to use custom translation 
+     */
+    drag(element, event) 
+    {
+        if( this.m_mode == "edit" )
+        {
+            //console.log('drag in edit mode');
+        }
+        else
+        {
+         //   console.log('drag in mode', this.m_mode);
+
+            // maybe rename... sets translation in transform matrix, but doesn't apply it
+            ui_api.translate(element, event.delta_pos);
+
+            let viewParams =  this.getElementViewParams(element);
+
+            // this can be resused in most cases
+            // if x and y are in the viewParams
+            viewParams.x += event.delta_pos.x;
+            viewParams.y += event.delta_pos.y;
+
+            let container = ui_api.getContainerForElement(element);
+            let data = this.viewParamsToData(viewParams, container);
+
+
+            /**
+             * in this example, we wanted to update the color of the notehead
+             * so we used the dataToViewParams function to do the mapping from
+             * pitch to color, and then update the notehead color from the mouse 
+             * interaction. 
+             * 
+             * Since the mapping is from pitch to color only (not color to pitch), 
+             * we didn't need to add the mapping in viewParamsToData.
+             * 
+             */
+            let newView = this.dataToViewParams(data, container);
+
+            /**
+             * note that usually we would make a preview of the change from dragging
+             * and not change the actual value of the symbol until mouse up, which then
+             * calls the applyTransformToData function. 
+             * 
+             * But for the color example we are setting the notehead value directly, so the
+             * value has already been updated when the applyTransformToData function is called.
+             * 
+             */
+            let updateColor = {
+                key: "svg",
+                val: {
+                    id: `${data.id}-notehead`,
+                    style: {
+                        fill: newView.color
+                    }
+                }
+            };
+
+            console.log('updating color', updateColor );
+
+            ui_api.drawsocketInput([
+                updateColor,
+                ui_api.getDataTextView(data)
+            ])
+        }
+
+       
+        return true; // return true if you are handling your own translation
+    }
+
+
+}
+
+class ColorPitch_IO extends Template.IO_SymbolBase
+{
+    constructor()
+    {
+        super();
+        this.class = "ColorPitch";
+    }
+    
+}
+
+
+
+module.exports = {
+    ui_def: ColorPitch,
+    io_def: ColorPitch_IO    
+}
+
+
+
+/***/ }),
+
+/***/ 558:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const Template = __webpack_require__(20) 
+
+class DataPoint extends Template.SymbolBase 
+{
+    constructor() {
+        super();
+        this.class = "DataPoint";
+    }
+
+
+    get structs () {
+        return {
+
+            data: {
+                class: this.class,
+                id : `${this.class}-0`,
+                centroid: 0,
+                spread: 0,
+                amplitude: 0
+            },
+            
+            view: {
+                class: this.class,
+                id: `${this.class}-0`, 
+                x: 0,
+                y: 0,
+                r: 2
+            }
+        }
+    }
+
+
+    display(params) {
+
+        ui_api.hasParam(params, Object.keys(this.structs.view) );
+        
+        return {
+            new: "circle",
+            class: 'notehead',
+            id: `${params.id}-notehead`,
+            cx: params.x,
+            cy: params.y,
+            r: params.r
+        }
+
+        /**
+         * note that we are returning the drawsocket def that will be 
+         * displayed in the "view" group
+         * the top level element of the symbol has the root id
+         * so here we need to make sure that the id is different
+         */
+
+    }
+    
+    getElementViewParams(element) {
+
+        const circle = element.querySelector('.notehead');
+        const x = parseFloat(circle.getAttribute('cx'));
+        const y = parseFloat(circle.getAttribute('cy'));
+        const r = parseFloat(circle.getAttribute('r'));
+
+        return {
+            id: element.id,
+            x,
+            y,
+            r
+        }
+
+    }
+
+
+    getPaletteIcon() {
+        return {
+            key: "svg",
+            val: this.display({
+                id: `${this.class}-palette-icon`,
+                class: this.class,
+                x: 10,
+                y: 10,
+                r: 2
+            })
+        }
+    }
+
+
+}
+
+class DataPoint_IO extends Template.IO_SymbolBase
+{
+    constructor()
+    {
+        super();
+        this.class = "DataPoint";
+    }
+    
+}
+
+
+
+module.exports = {
+    ui_def: DataPoint,
+    io_def: DataPoint_IO    
+}
+
+
+
+/***/ }),
+
+/***/ 783:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const Template = __webpack_require__(20) 
+
+
+const sharpSteps =          [ 0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6 ];
+const flatSteps =           [ 0, 1, 2, 2, 3, 3, 4, 5, 5, 6, 6, 7 ];
+const chromaAccidList =     [ 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1 ];
+//const midiMiddleLine =      71;
+
+
+class FiveLineStave extends Template.SymbolBase 
+{
+    constructor() {
+        super();
+        this.class = "FiveLineStave";
+        this.palette = ["FiveLineStaveEvent" ];
+
+        this.left_margin = 20;
+
+        this.x2time = 0.001;
+        this.time2x = 1000;
+
+        this.midiMiddleLine = 71;
+
+    }
+
+
+    get structs () {
+        return {
+
+            data: {
+                class: this.class,
+                id : `${this.class}-0`,
+                time: 0,
+                duration: 1,
+                height: 100,
+                lineSpacing: 10
+            },
+            
+            view: {
+                class: this.class,
+                id: `${this.class}-0`, 
+                x: 0,
+                y: 0,
+                height: 100, 
+                width: 100,
+                lineSpacing: 10
+            },
+
+            children: {
+                data: {
+                    time: 0,
+                    midi: 60,
+                    duration: 1
+                },
+                view: {
+                    x: 0,
+                    y: 0,
+                    width: 100
+                }
+            }
+        }
+    }
+
+
+    display(params) {
+
+        ui_api.hasParam(params, Object.keys(this.structs.view) );
+        
+        let centerY = params.y + (params.height / 2);
+
+        return [{
+                new: "rect",
+                id: `${params.id}-rect`,
+                class: `staveBox`,
+                x: params.x,
+                y: params.y,
+                width: params.width,
+                height: params.height
+            },{
+                new: "text",
+                id: `${params.id}-label`,
+                class: 'staveLabel',
+                x: params.x - this.left_margin,
+                y: centerY,
+                text: params.id
+            }, {
+                new: "image",
+                id: `${params.id}-clef`,
+                href: "defs/assets/g_clef.svg",
+                x: params.x,
+                y: params.y
+        
+            },
+            {
+                new: "g",
+                id: `${params.id}-staffline-group`,
+                children: [{
+                    new: "line",
+                    id: `${params.id}-line-1`,
+                    class : "staffline",
+                    x1: params.x,
+                    y1: centerY - params.lineSpacing * 2,
+                    x2: params.x + params.width,
+                    y2: centerY - params.lineSpacing * 2
+                },
+                {
+                    new: "line",
+                    id: `${params.id}-line-2`,
+                    class : "staffline",
+                    x1: params.x,
+                    y1: centerY - params.lineSpacing,
+                    x2: params.x + params.width,
+                    y2: centerY - params.lineSpacing
+                },
+                {
+                    new: "line",
+                    id: `${params.id}-line-3`,
+                    class : "staffline",
+                    x1: params.x,
+                    y1: centerY,
+                    x2: params.x + params.width,
+                    y2: centerY
+                },
+                {
+                    new: "line",
+                    id: `${params.id}-line-4`,
+                    class : "staffline",
+                    x1: params.x,
+                    y1: centerY + params.lineSpacing,
+                    x2: params.x + params.width,
+                    y2: centerY + params.lineSpacing
+                },
+                {
+                    new: "line",
+                    id: `${params.id}-line-5`,
+                    class : "staffline",
+                    x1: params.x,
+                    y1: centerY + params.lineSpacing * 2,
+                    x2: params.x + params.width,
+                    y2: centerY + params.lineSpacing * 2
+                }]
+            }];
+
+    }
+    
+    getElementViewParams(element) {
+
+        const rect = element.querySelector('.staveBox');
+
+        return {
+            id: element.id,
+            x: parseFloat(rect.getAttribute('x')),
+            y: parseFloat(rect.getAttribute('y')),
+            width: parseFloat(rect.getAttribute('width')),
+            height: parseFloat(rect.getAttribute('height')),
+            lineSpacing: parseFloat(element.dataset.lineSpacing)
+        }
+
+    }
+
+
+    getPaletteIcon() {
+        return {
+            key: "svg",
+            val: this.display({
+                ...this.structs.view,
+                id: `fiveLine-palette-icon`,
+                class: this.class
+            })
+        }
+    }
+
+
+
+
+    midi2y(midi, stepSpacing, accidentalType = "sharp")
+    {
+        const midiNote = midi - this.midiMiddleLine;
+        let chroma = Math.floor(midiNote) % 12;
+        if( chroma < 0 )
+        {
+            chroma += 12;
+        }
+        
+        const octShift = Number(midiNote < 0);
+        const oct = Math.floor( midiNote / 12 );
+
+        // line offset from B natural
+
+        const lineOffset = accidentalType == "sharp" ? sharpSteps : flatSteps; 
+
+        const lineYoffset = lineOffset[ chroma ] * stepSpacing;
+        const octaveYoffset = oct * (stepSpacing * 7);
+
+//        console.log(chroma, lineYoffset, octaveYoffset);
+        // add num ledgerlines here?
+
+        const accidental = chromaAccidList[ chroma ] ? accidentalType : null;
+
+        return {
+            yOffset: octaveYoffset + lineYoffset,
+            accidental
+        }
+    }
+
+    // note, we don't have a good way to know whether a y point is an accidental or not...
+    y2midi(y, container, accidentalType = "sharp")
+    {
+        const middleLine = document.getElementById(`${container.id}-line-3`);
+
+        /*
+            0.25 is a rough scalar since the actual position depends on the
+            accidentals which aren't linear in the staff
+        */
+        const stepSize = container.dataset.lineSpacing * 0.25;
+
+        const y_pix = parseFloat(middleLine.getAttribute('y1')) - y;
+        
+        const y_steps = Math.floor( y_pix / stepSize);
+
+        return  this.midiMiddleLine + y_steps;
+
+    }
+
+
+
+    /**
+     * 
+     * @param {Element} this_element instance of this element
+     * @param {Object} child_data child data object, requesting information about where to put itself
+     */
+    childDataToViewParams(this_element, child_data)
+    {
+
+        if( child_data.class == "Measure" || child_data.class == "SnapPoint" ){
+           
+
+            let ret = {};
+            if( child_data.class == "Measure" )
+            {
+                const topLine = document.getElementById(`${this_element.id}-line-1`);
+                const bottomLine = document.getElementById(`${this_element.id}-line-5`);
+                
+                ret.y = parseFloat(topLine.getAttribute('y1')); 
+                let y2 =  parseFloat(bottomLine.getAttribute('y1'));
+                ret.height = y2 - ret.y;
+
+                ret.x = parseFloat(topLine.getAttribute('x1')) + ((child_data.time - parseFloat(this_element.dataset.time)) * this.time2x);
+                ret.width = child_data.duration * this.time2x;
+
+                
+            }
+            else
+            {
+                const containerRect = document.getElementById(`${this_element.id}-rect`);
+                ret.y = parseFloat(containerRect.getAttribute('y')); 
+                ret.x = parseFloat(containerRect.getAttribute('x')) + ((child_data.time - parseFloat(this_element.dataset.time)) * this.time2x);
+            }
+
+            return ret;
+
+        }
+        else if( ui_api.hasParam(child_data, ['time', 'duration', 'midi']) )
+        {
+
+            const containerRect = document.getElementById(`${this_element.id}-rect`);
+            const bbox_x = parseFloat(containerRect.getAttribute('x'));
+       
+            const middleLine = document.getElementById(`${this_element.id}-line-3`);
+            const lineSpacing = parseFloat(this_element.dataset.lineSpacing);
+            const stepSize = lineSpacing * 0.5;
+
+            // accidental type (sharp/flat) should be settable somewhere
+            const pitchInfo = this.midi2y( Math.round(child_data.midi), stepSize, "sharp"); 
+            const y = parseFloat(middleLine.getAttribute('y1')) - pitchInfo.yOffset;
+
+            const n_ledgerLines = Math.floor( Math.abs(pitchInfo.yOffset) / lineSpacing) - 2;
+            let sign = pitchInfo.yOffset < 0 ? -1 : 1;
+
+            let starty = parseFloat(middleLine.getAttribute('y1')) - (lineSpacing * 3) * sign;
+
+            let ledgerLine_y = [];
+            for( let i = 0; i < n_ledgerLines; i++)
+            {
+                ledgerLine_y.push( starty - (i * lineSpacing) * sign );
+            }
+     
+            const x = bbox_x + ((child_data.time - parseFloat(this_element.dataset.time)) * this.time2x);
+            const width = child_data.duration * this.time2x;
+
+            let ret = {
+                y,
+                x,
+                width,
+                r: stepSize - 2,
+                ledgerLine_y,
+                accidental: pitchInfo.accidental
+            }
+
+            return ret;
+
+        }
+    }
+
+    /**
+     * 
+     * Called by child objects using the template
+     * the parent/container object supplies a mapping from view params to data
+     * 
+     * @param {Element} this_element instance of this element
+     * @param {Object} child_viewParams child data object, requesting information about where to put itself
+     * @param {Event}   event (optional) include the mouse event for mode handling
+     */
+     childViewParamsToData(this_element, child_viewParams, event = null) 
+     {
+        if( ui_api.hasParam(child_viewParams, ['x', 'y', 'width']) ) 
+        {
+
+            let child_x = child_viewParams.x;
+
+            if( event && event.shiftKey )
+            {
+                const snapPoints = this_element.querySelectorAll('.contents .snapline');
+                if( snapPoints )
+                {
+
+                    let choose_x = 100000;
+                    snapPoints.forEach( e => {
+                        let snap_x = parseFloat( e.getAttribute("x1") );
+                        if( Math.abs(child_x - snap_x) < Math.abs(child_x - choose_x) ) 
+                        {
+                            choose_x = snap_x;
+                        }
+                    })
+                    child_x = choose_x;
+
+                }
+            }
+
+            const stepSpacing = parseFloat(this_element.dataset.lineSpacing) * 0.5;
+    
+            let child_y = Math.floor(child_viewParams.y / stepSpacing) * stepSpacing;
+    
+            // note, we don't have a good way to know whether the moved point is an accidental or not...
+            const midi = this.y2midi(child_y, this_element); 
+
+            const containerRect = document.getElementById(`${this_element.id}-rect`);
+            const bbox_x = parseFloat(containerRect.getAttribute('x'));
+
+            const time = ((child_x-bbox_x) * this.x2time) + parseFloat(this_element.dataset.time);
+            const duration = child_viewParams.width * this.x2time;
+
+            return {
+                midi,
+                time,
+                duration
+            };
+        }
+    }
+
+
+    /**
+     * 
+     * @param {object} params passed in from call/method syntax
+     */
+    playbar(params)
+    {
+        if( typeof params.id != "undefined" && typeof params.time != "undefined" )
+        {
+            let rect = document.getElementById(`${params.id}-rect`);
+            let bbox = ui_api.getBBoxAdjusted(rect);
+            ui_api.drawsocketInput({
+                key: "svg",
+                val: {
+                    id: `${params.id}-playbar`,
+                    class: "playbar",
+                    parent: params.id,
+                    new: "line",
+                    x1: bbox.x + params.time * this.time2x,
+                    x2: bbox.x + params.time * this.time2x,
+                    y1: bbox.top,
+                    y2: bbox.bottom
+                }
+            })
+        }
+    }
+
+    drag(element, pos){}
+
+
+}
+
+class FiveLineStave_IO extends Template.IO_SymbolBase
+{
+    constructor()
+    {
+        super();
+        this.class = "FiveLineStave";
+        this.lookup = super.default_container_lookup;
+
+    }
+    
+
+    getFormattedLookup(params, obj_ref )
+    {
+
+        let ret = {
+            time: [],
+            duration: [],
+            midi: []
+        };
+
+        if( typeof obj_ref.contents != "undefined" )
+        {
+            obj_ref.contents.forEach(obj => {
+                const def = io_api.defGet(obj.class);
+                const event = def.getFormattedLookup(params, obj);
+                if( event )
+                {
+                    ret.time.push(event.time);
+                    ret.duration.push(event.duration);
+                    ret.midi.push(event.midi);
+                }
+            });
+        
+        }
+        else
+        {
+            ret = {
+                lookup_error: `no contents element with id "${obj_ref.contents}" found`
+            };
+        }
+
+        let ret_obj = {};
+        ret_obj[obj_ref.id] = ret;
+        
+        return ret_obj;
+    }
+}
+
+
+module.exports = {
+    ui_def: FiveLineStave,
+    io_def: FiveLineStave_IO
+}
+
+
+
+/***/ }),
+
+/***/ 16:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const Template = __webpack_require__(20) 
+
+
+// to do: move the lookup to the stave
+
+const accidentalLookup = {
+    flat : "&#xE260",
+    natural: "&#xE261",
+    sharp: "&#xE262",
+
+// lowered 3rds for numerator (overtone) 
+
+    'flat-5^1o': "&#xE2C2",
+    'natural-5^1o': "&#xE2C1",
+    'sharp-5^1o': "&#xE2C3",
+
+    'flat-5^2o': "&#xE2CB",
+    'natural-5^2o': "&#xE2CC",
+    'sharp-5^2o': "&#xE2CD",
+
+    'flat-5^3o': "&#xE2CB",
+    'natural-5^3o': "&#xE2CC",
+    'sharp-5^3o': "&#xE2CD",
+
+// raised 3rds for denominator (undertone) (4/5, 16/25, 64/125)
+    'flat-5^1u': "&#xE2C6",
+    'natural-5^1u': "&#xE2C7",
+    'sharp-5^1u': "&#xE2C8",
+
+    'flat-5^2u': "&#xE2D0",
+    'natural-5^2u': "&#xE2D1",
+    'sharp-5^2u': "&#xE2D2",
+
+    'flat-5^3u': "&#xE2DA",
+    'natural-5^3u': "&#xE2DB",
+    'sharp-5^3u': "&#xE2DC",
+
+// 7ths
+
+    '7^1o': "&#xE2DE",
+    '7^2o': "&#xE2E0",
+
+    '7^2u': "&#xE2DF",
+    '7^2u': "&#xE2E1",
+
+// 11ths
+
+    '11^1u': "&#xE2E2",
+    '11^1o': "&#xE2E3",
+
+// 13th
+    '13^1o': "&#xE2E4",
+    '13^1u': "&#xE2E5"
+}
+
+
+class FiveLineStaveEvent extends Template.SymbolBase 
+{
+    constructor() {
+        super();
+        this.class = "FiveLineStaveEvent";
+        this.default_dist = 10;
+        this.palette = ["PathSymbol"];
+/*
+        this.font = opentype.loadSync('css/fonts/Bravura.ttf');
+        //console.log(this.font.glyphs.length);
+
+        this.bravuraUnicode = new Map();
+
+        for(let i = 0; i < this.font.glyphs.length; i++)
+        {
+            this.bravuraUnicode.set(this.font.glyphs.get(i).name, this.font.glyphs.get(i));
+        }
+*/
+    }
+
+
+    get structs () {
+        return {
+
+            data: {
+                class: this.class,
+                id : `${this.class}-0`,
+                time: 0,
+                midi: 55,
+                duration: 0.1,
+                accid: "natural"
+            },
+            
+            view: {
+                class: this.class,
+                id: `${this.class}-0`, 
+                x: 0,
+                y: 0,
+                r: 2,
+                width: 100,
+                ledgerLine_y: 0,
+                accidental: false
+
+            }
+        }
+    }
+
+
+    display(params) {
+
+        ui_api.hasParam(params, Object.keys(this.structs.view) );
+        
+        let obj = [{
+            id: `${params.id}-notehead`,
+            new: "circle",
+            class: "notehead",
+            cx: params.x,
+            cy: params.y,
+            r: params.r
+        },
+        {
+            new: "line",
+            id: `${params.id}-duration`,
+            class: "duration-line",
+            x1: params.x,
+            y1: params.y,
+            x2: params.x + params.width, 
+            y2: params.y
+        }];
+
+        if( params.accidental )
+        {
+            let oldAcc = document.getElementById(`${params.id}-accidental`);
+
+            obj.push({
+                new: "text",
+                id: `${params.id}-accidental`,
+                text : accidentalLookup[params.accidental], //(accidental == "sharp" ? "&#xE262" : "&#xE260"),
+                class: "accidental",
+                x : params.x - 15,
+                y : params.y
+            })
+
+        }
+        else
+        {
+            let oldAcc = document.getElementById(`${params.id}-accidental`);
+            if( oldAcc )
+                oldAcc.remove();
+        }
+
+        let ledgerLine_g_exists = document.getElementById(`${params.id}-ledgerLines`);
+        if( ledgerLine_g_exists )
+        {
+            ui_api.drawsocketInput({
+                key: "clear",
+                val: `${params.id}-ledgerLines`
+            })
+        }
+
+        if( params.ledgerLine_y.length > 0 )
+        {
+            let ledgerLine_g = {
+                new: "g",
+                id: `${params.id}-ledgerLines`,
+                children: []  
+            }
+
+            params.ledgerLine_y.forEach( ledge_y => {
+                ledgerLine_g.children.push({
+                    new: "line",
+                    class : "staffline",
+                    x1: params.x - 15,
+                    x2: params.x + 15,
+                    y1: ledge_y,
+                    y2: ledge_y
+                })
+            })
+
+            obj.unshift( ledgerLine_g );
+
+          //  console.log('ledgerLine_g', obj);
+
+        }
+
+    
+
+        return obj;
+
+    }
+    
+    getElementViewParams(element) {
+
+        const notehead = element.querySelector('.notehead');
+        const durationLine = element.querySelector('.duration-line');
+
+        const x = parseFloat(notehead.getAttribute('cx'));
+        const y = parseFloat(notehead.getAttribute('cy'));
+        const x2 = parseFloat(durationLine.getAttribute('x2'));
+
+        const width = x2 - x;
+
+        return {
+            id: element.id,
+            x,
+            y,
+            width
+            // ledgerlines
+            // accidental ...
+        }
+    }
+
+
+    /**
+     * 
+     * Called by child objects using the template
+     * the parent/container object supplies a mapping from view params to data
+     * 
+     * @param {Element} this_element instance of this element
+     * @param {Object} child_viewParams child data object, requesting information about where to put itself
+     * @param {Event}   event (optional) include the mouse event for mode handling
+     */
+     childViewParamsToData(this_element, child_viewParams, event = null) 
+     {
+//        return child_viewParams;
+        // absolute to relative
+        if( ui_api.hasParam(child_viewParams, ['points'], true) )
+        {
+            const notehead = this_element.querySelector('.display .notehead');
+            const cx = parseFloat(notehead.getAttribute('cx'));
+            const cy = parseFloat(notehead.getAttribute('cy'));
+
+           console.log('childViewParamsToData', Points.offset(child_viewParams.points, -cx, -cy));
+
+            return {
+                points: Points.offset(child_viewParams.points, -cx, -cy)
+            }
+        }
+        else if( ui_api.hasParam(child_viewParams, ['x', 'y'], true) )
+        {
+            const notehead = this_element.querySelector('.display .notehead');
+            const cx = parseFloat(notehead.getAttribute('cx'));
+            const cy = parseFloat(notehead.getAttribute('cy'));
+
+            return {
+                x: child_viewParams.x - cx,
+                y: child_viewParams.y - cy
+            }
+        }
+
+        
+    }
+
+    
+    /**
+     * API function called from controller to draw new data objects
+     * also used internally
+     * 
+     * @param {Object} dataObj 
+     * @param {Element} container 
+     * @param {Boolean} preview -- optional flag to draw as sprite overlay and draw data text
+     * 
+     */
+    fromData(dataObj, container, preview = false)
+    {
+        // merging with defaults in case the user forgot to include something
+        const data_union = {
+            ...this.structs.data,
+            ...dataObj
+        };
+        
+        const viewParams = this.dataToViewParams(data_union, container);
+        const viewObj = this.display(viewParams);        
+        const drawObj = (preview ? 
+            ui_api.svgPreviewFromViewAndData(viewObj, data_union, `.notehead`) : //<< relative position
+            ui_api.svgFromViewAndData(viewObj, data_union) );
+
+        ui_api.drawsocketInput( drawObj );
+
+        if( !preview ){
+            let outObj = {};
+            outObj[dataObj.id] = viewParams;
+            ui_api.outlet({ viewParams: outObj });
+        }
+            
+    }
+
+
+
+     /**
+     * 
+     * Called by child objects using the template
+     * the parent/container object supplies a mapping from data to view params
+     * 
+     * @param {Element} this_element instance of this element
+     * @param {Object} child_data child data object, requesting information about where to put itself
+     * 
+     */
+    childDataToViewParams(this_element, child_data) 
+    {
+      //  console.log('FiveLine event childDataToViewParams', child_data, ui_api.hasParam(child_data, 'points'));
+ //       return child_data;
+        // relative to absolute
+        if( ui_api.hasParam(child_data, 'points') )
+        {
+            const notehead = this_element.querySelector('.display .notehead');
+            const cx = parseFloat(notehead.getAttribute('cx'));
+            const cy = parseFloat(notehead.getAttribute('cy'));
+
+     //       console.log('true????', child_data.points, cx, cy);
+     //       console.log('no?', Points.offset(child_data.points, cx, cy));
+            return {
+                points: Points.offset(child_data.points, cx, cy)
+            }
+        }
+        else if( ui_api.hasParam(child_data, ['x', 'y'], true) )
+        {
+            const notehead = this_element.querySelector('.display .notehead');
+            const cx = parseFloat(notehead.getAttribute('cx'));
+            const cy = parseFloat(notehead.getAttribute('cy'));
+
+            return {
+                x: child_data.x + cx,
+                y: child_data.y + cy
+            }
+        }
+         
+
+    }
+
+
+    getPaletteIcon() {
+        return {
+            key: "svg",
+            val: this.display({
+                id: `${this.class}-icon`,
+                class: this.class,
+                x: 25,
+                y: 25,
+                r: 2,
+                width: 35,
+                ledgerLine_y: [],
+                accidental: false            
+            })
+        }
+    }
+    
+    paletteSelected( enable = false ) 
+    {
+        console.log('FiveLineStaveEvent paletteSelected', enable);
+        super.paletteSelected(enable);
+    }
+
+    editMode( element, enable = false )
+    {
+        super.editMode(element, enable);
+        
+        if( enable )
+        {
+            ui_api.createHandle( 
+                // element to use for reference
+                element, 
+                // xy attrs to use for the handle
+                { selector: `#${element.id} .duration-line`, x: "x2", y: "y2"},
+                // callback function
+                (element_, event) => {
+
+                    let container = ui_api.getContainerForElement(element_);
+                    const parentDef = ui_api.getDefForElement(container);
+
+                    const line = element_.querySelector('.duration-line');
+                    const x = parseFloat(line.getAttribute('x1'));
+                    const y = parseFloat(line.getAttribute('y1'));
+                    
+                    let mousePt = ui_api.getSVGCoordsFromEvent(event);
+                    let width = mousePt.x - x;
+
+                    let dataObj = this.viewParamsToData({
+                        x, y, width
+                    }, container);
+
+                    element_.dataset.duration = dataObj.duration;
+
+                    this.updateFromDataset(element_);
+
+                }
+            );
+        }
+
+
+        return true; // << required if defined
+    }
+
+
+}
+
+
+
+
+class FiveLineStaveEvent_IO extends Template.IO_SymbolBase
+{
+    constructor()
+    {
+        super();
+        this.class = "FiveLineStaveEvent";
+    }
+
+    getFormattedLookup( params, obj_ref )
+    {
+        return {
+            time: obj_ref.time,
+            duration: obj_ref.duration,
+            midi: obj_ref.midi
+        }
+    }
+    
+}
+
+
+module.exports = {
+    ui_def: FiveLineStaveEvent,
+    io_def: FiveLineStaveEvent_IO
+}
+
+/***/ }),
+
+/***/ 670:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const Template = __webpack_require__(20) 
+
+class Measure extends Template.SymbolBase 
+{
+    constructor() {
+        super();
+        this.class = "Measure";
+        this.palette = [ "AzimNote", "BasicSymbol", "ColorPitch", "BetaEnv"];
+    }
+
+
+    get structs () {
+        return {
+
+            data: {
+                class: this.class,
+                id : `${this.class}-0`,
+                time: 0,
+                duration: 1,
+                barlineType: "barline"
+            },
+            
+            view: {
+                class: this.class,
+                id: `${this.class}-0`, 
+                x: 0,
+                y: 0,
+                height: 20, 
+                width: 20, 
+                barlineType: "barline"
+            },
+
+            children: {
+                data: {
+                    time: 0,
+                    duration: 1
+                },
+                view: {
+                    x: 0,
+                    width: 100
+                }
+            }
+        }
+    }
+
+    drag(element, pos){}
+
+    display(params) {
+
+        console.log(params);
+        ui_api.hasParam(params, Object.keys(this.structs.view) );
+        
+        return [{
+            new: "rect",
+            id : `${params.id}-meterbox`,
+            class: 'meterbox', 
+            x: params.x,
+            width: params.width,
+            y: params.y,
+            height: params.height
+        }, {
+            new: "line",
+            id : `${params.id}-barline`,
+            class: params.barlineType, 
+            x1: params.x,
+            x2: params.x,
+            y1: params.y ,
+            y2: params.y + params.height
+        }];
+    }
+    
+    getElementViewParams(element) {
+
+        const rect = element.getElementById(`${params.id}-meterbox`);
+        const line = element.getElementById(`${params.id}-barline`);
+
+        return {
+            id: element.id,
+            barlineType: line.dataset.barlineType,
+            x: parseFloat(rect.getAttribute('x')),
+            y: parseFloat(rect.getAttribute('y')),
+            height: parseFloat(rect.getAttribute('height')),
+            width: parseFloat(rect.getAttribute('width'))
+        }
+    }
+
+
+    getPaletteIcon() {
+        return {
+            key: "svg",
+            val: this.display({
+                ...this.structs.view,
+                id: `newMeasure-palette-icon`,
+                class: this.class
+            })
+        }
+    }
+
+}
+
+class Measure_IO extends Template.IO_SymbolBase
+{
+    constructor()
+    {
+        super();
+        this.class = "Measure";
+        this.lookup = super.default_container_lookup;
+    }
+    
+    getFormattedLookup(params, obj_ref )
+    {
+
+        let ret = {
+            time: [],
+            duration: [],
+            pitch: []
+        };
+
+        if( typeof obj_ref.contents != "undefined" )
+        {
+            obj_ref.contents.forEach(obj => {
+                const def = io_api.defGet(obj.class);
+                const event = def.getFormattedLookup(params, obj);
+                if( event )
+                {
+                    ret.time.push(event.time);
+                    ret.duration.push(event.duration);
+                    ret.pitch.push(event.pitch);
+                }
+            });
+        
+        }
+        else
+        {
+            ret = {
+                lookup_error: `no contents element with id "${obj_ref.contents}" found`
+            };
+        }
+
+        let ret_obj = {};
+        ret_obj[obj_ref.id] = ret;
+        
+        return ret_obj;
+    }
+}
+
+
+module.exports = {
+    ui_def: Measure,
+    io_def: Measure_IO
+}
+
+
+
+/***/ }),
+
+/***/ 890:
+/***/ ((module) => {
+
+
+class NodescoreAPI_UI 
+{
+    constructor()
+    {
+        this.class = "NodescoreAPI";
+    }
+
+    changeNoteColor(params)
+    {
+        let notes = document.querySelectorAll('.symbol.FiveLineStaveEvent');
+
+
+        notes.forEach( el => {
+            ui_api.sendToServer({
+                key: "data",
+                val: {
+                    id: el.id,
+                    midi: Number(el.dataset.midi) + params.interval
+                }
+            })
+        });
+
+
+    }
+    
+}
+
+class NodescoreAPI_IO
+{
+    constructor()
+    {
+        this.class = "NodescoreAPI";
+    }
+
+    transpositionTransform(params)
+    {
+
+        if( typeof params.args != "undefined" )
+        {
+            let args = Array.isArray(params.args) ? params.args : [ params.args ];
+
+            let interval = Number(args[0]);
+
+            let model = io_api.getModel();
+
+            let updates = [];
+            model.forEach( el => {
+                if( el.class == "FiveLineStaveEvent" )
+                {
+                    let data = {
+                        ...el,
+                        midi: el.midi + interval
+                    };
+                    updates.push(data);
+                }
+            });
+    
+            io_api.addToModel(updates);
+            io_api.sendDataToUI(updates);
+        }
+
+        /*
+        io_api.outlet({
+            exampleCallAPI: {
+                model: Object.fromEntries(io_api.getModel()),
+                score: io_api.getScore()
+            }
+        });
+        */
+    }
+    
+}
+
+
+module.exports = {
+    ui_def: NodescoreAPI_UI,
+    io_def: NodescoreAPI_IO
+}
+
+
+
+/***/ }),
+
+/***/ 472:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const Template = __webpack_require__(20) 
+
+class PartStave extends Template.SymbolBase 
+{
+    constructor() {
+        super();
+        this.class = "PartStave";
+        this.palette = [ "AzimNote", "BasicSymbol", "ColorPitch", "BetaEnv"];
+
+        this.left_margin = 20;
+
+        this.x2time = 0.001;
+        this.time2x = 1000;
+        this.y2pitch = 127.; // y is normalized 0-1
+        this.pitch2y = 1 / 127.;
+
+    }
+
+
+    get structs () {
+        return {
+
+            data: {
+                class: this.class,
+                id : `${this.class}-0`,
+                time: 0,
+                duration: 1,
+                height: 100
+            },
+            
+            view: {
+                class: this.class,
+                id: `${this.class}-0`, 
+                x: 0,
+                y: 0,
+                height: 20, 
+                width: 20
+            },
+
+            children: {
+                data: {
+                    time: 0,
+                    pitch: 60,
+                    duration: 1
+                },
+                view: {
+                    x: 0,
+                    y: 0,
+                    width: 100
+                }
+            }
+        }
+    }
+
+    drag(element, pos){}
+
+    display(params) {
+
+        ui_api.hasParam(params, Object.keys(this.structs.view) );
+        
+        return [{
+            new:    "rect",
+            class: 'partStave-rect',
+            id:     `${params.id}-rect`,
+            x:      params.x,
+            y:      params.y,
+            width:  params.width,
+            height: params.height
+        },
+        {
+            new:    "text",
+            class:  'staveLabel',
+            id:     `${params.id}-label`,
+            x:      params.x - this.left_margin,
+            y:      params.y + (params.height / 2),
+            text:   params.id
+        }];
+
+        /**
+         * note that we are returning the drawsocket def that will be 
+         * displayed in the "view" group
+         * the top level element of the symbol has the root id
+         * so here we need to make sure that the id is different
+         */
+
+    }
+    
+    getElementViewParams(element) {
+
+        const circle = element.querySelector('.notehead');
+        const x = parseFloat(circle.getAttribute('cx'));
+        const y = parseFloat(circle.getAttribute('cy'));
+        const r = parseFloat(circle.getAttribute('r'));
+
+        return {
+            id: element.id,
+            x,
+            y,
+            r
+        }
+
+    }
+
+
+    getPaletteIcon() {
+        return {
+            key: "svg",
+            val: this.display({
+                ...this.structs.view,
+                id: `newPartStave-palette-icon`,
+                class: this.class
+            })
+        }
+    }
+
+    /**
+     * 
+     * @param {Element} this_element instance of this element
+     * @param {Object} child_data child data object, requesting information about where to put itself
+     */
+    childDataToViewParams(this_element, child_data)
+    {
+
+        let ret = {};
+        const containerRect = this_element.querySelector('.partStave-rect');
+
+        if( ui_api.hasParam(child_data, 'pitch', true) )
+        {
+            const bbox_y = parseFloat(containerRect.getAttribute('y'));
+            const bbox_height = parseFloat(containerRect.getAttribute('height'));
+
+            ret.y = bbox_y + ((1. - (child_data.pitch * this.pitch2y)) * bbox_height);
+        }
+
+        if( ui_api.hasParam(child_data, 'time', true) )
+        {
+            const bbox_x = parseFloat(containerRect.getAttribute('x'));
+
+            ret.x = bbox_x + ((child_data.time - parseFloat(this_element.dataset.time)) * this.time2x);
+        }
+
+        if( ui_api.hasParam(child_data, "duration" ) )
+        {
+            ret.width = child_data.duration * this.time2x;
+        }
+
+        if( child_data.class == "Measure" || child_data.class == "SnapPoint" ){
+            ret.y = parseFloat(containerRect.getAttribute('y'));
+            ret.height = parseFloat(containerRect.getAttribute('height'));
+        }
+
+       // console.log(ret);
+        return ret;
+
+    }
+
+    /**
+     * 
+     * Called by child objects using the template
+     * the parent/container object supplies a mapping from view params to data
+     * 
+     * @param {Element} this_element instance of this element
+     * @param {Object}  child_viewParams child data object, requesting information about where to put itself
+     * @param {Event}   event (optional) include the mouse event for mode handling
+     */
+     childViewParamsToData(this_element, child_viewParams, event = null) 
+     {
+        if( ui_api.hasParam(child_viewParams, ['x', 'y']) ) 
+        {
+
+            let child_x = child_viewParams.x;
+
+            if( event && event.shiftKey )
+            {
+                const snapPoints = this_element.querySelectorAll('.contents .snapline');
+                if( snapPoints )
+                {
+
+                    let choose_x = 100000;
+                    snapPoints.forEach( e => {
+                        let snap_x = parseFloat( e.getAttribute("x1") );
+                        if( Math.abs(child_x - snap_x) < Math.abs(child_x - choose_x) ) 
+                        {
+                            choose_x = snap_x;
+                        }
+                    })
+                    /*
+                    var closest = counts.reduce( function(prev, curr) {
+                        return (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev);
+                      });
+                      */
+                    child_x = choose_x;
+
+                }
+            }
+
+            const containerRect = document.getElementById(`${this_element.id}-rect`);
+            const bbox_x = parseFloat(containerRect.getAttribute('x'));
+            const bbox_y = parseFloat(containerRect.getAttribute('y'));
+            const bbox_height = parseFloat(containerRect.getAttribute('height'));
+
+            let ret = {
+                pitch: (1 - ((child_viewParams.y-bbox_y) / bbox_height)) * this.y2pitch,
+                time: ((child_x-bbox_x) * this.x2time) + parseFloat(this_element.dataset.time)            
+            }
+
+            if( ui_api.hasParam(child_viewParams, "width" ) )
+            {
+                ret.duration = child_viewParams.width * this.x2time;
+            }
+
+            return ret;
+        }
+    }
+
+
+    /**
+     * 
+     * @param {object} params passed in from call/method syntax
+     */
+    playbar(params)
+    {
+        if( typeof params.id != "undefined" && typeof params.time != "undefined" )
+        {
+            let rect = document.getElementById(`${params.id}-rect`);
+            let bbox = ui_api.getBBoxAdjusted(rect);
+            ui_api.drawsocketInput({
+                key: "svg",
+                val: {
+                    id: `${params.id}-playbar`,
+                    parent: params.id,
+                    new: "line",
+                    x1: bbox.x + params.time * this.time2x,
+                    x2: bbox.x + params.time * this.time2x,
+                    y1: bbox.top,
+                    y2: bbox.bottom,
+                    class: "playbar"
+                    
+                }
+            })
+        }
+    }
+
+    fooFN(params)
+    {
+        console.log('hi I have your ', params);
+    }
+
+
+}
+
+class PartStave_IO extends Template.IO_SymbolBase
+{
+    constructor()
+    {
+        super();
+        this.class = "PartStave";
+        this.lookup = super.default_container_lookup;
+    }
+    
+    getFormattedLookup(params, obj_ref )
+    {
+
+        let ret = {
+            time: [],
+            duration: [],
+            pitch: []
+        };
+
+        let ret_by_type = {};
+
+        if( typeof obj_ref.contents != "undefined" )
+        {
+            obj_ref.contents.forEach(obj => {
+                const def = io_api.defGet(obj.class);
+                if( typeof ret_by_type[obj.class] == "undefined" ){
+                    ret_by_type[obj.class] = {};
+                }
+
+                const event = def.getFormattedLookup(params, obj);
+                if( event )
+                {
+                    Object.keys(event).forEach( k => {
+
+                        if( typeof ret_by_type[obj.class][k] == "undefined" ){
+                            ret_by_type[obj.class][k] = [];
+                        }
+
+                        ret_by_type[obj.class][k].push(event[k]);
+                    })
+
+                    /*
+                    ret.time.push(event.time);
+                    ret.duration.push(event.duration);
+                    ret.pitch.push(event.pitch);
+                    */
+                }
+            });
+        
+        }
+        else
+        {
+            ret_by_type = {
+                lookup_error: `no contents element with id "${obj_ref.contents}" found`
+            };
+        }
+
+        let ret_obj = {};
+        ret_obj[obj_ref.id] = ret_by_type;
+        
+        return ret_obj;
+    }
+}
+
+
+module.exports = {
+    ui_def: PartStave,
+    io_def: PartStave_IO
+}
+
+
+
+/***/ }),
+
+/***/ 584:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const Template = __webpack_require__(20); 
+
+class PathSymbol extends Template.SymbolBase 
+{
+    constructor() {
+        super();
+        this.class = "PathSymbol";
+
+        this.pts = [];
+        this.currentPosition = {x:0, y:0};
+        this.downTarget = null;
+    }
+
+
+    get structs () {
+        return {
+
+            data: {
+                class: this.class,
+                id : `${this.class}-0`,
+                points: [
+                    { x: 0, y: 0, moveTo: true },
+                    { x: 50, y: 50, curve: { type: 'quadratic', x1: 0, y1: 50 } },
+                    { x: 50, y: 30, curve: { type: 'quadratic', x1: 0, y1: 50 } }
+                  ] // need to filter the points from being sent to the svg dataset
+            },
+            view: {
+                class: this.class,
+                id: `${this.class}-0`, 
+                points: [
+                    { x: 10, y: 10, moveTo: true },
+                    { x: 50, y: 50, curve: { type: 'quadratic', x1: 0, y1: 50 } },
+                    { x: 50, y: 30, curve: { type: 'quadratic', x1: 0, y1: 50 } }
+                  ] 
+            }
+        }
+    }
+
+
+
+    display(params) {
+
+        ui_api.hasParam(params, Object.keys(this.structs.view) );
+       // console.log(params.points, SVGPoints.toPath(params.points));
+        return {
+            new: "path",
+            class: 'PathSymbol',
+            id: `${params.id}-PathSymbol`,
+            d: SVGPoints.toPath(params.points)
+        }
+    }
+    
+    getElementViewParams(element) {
+
+        const trajectory = element.querySelector('.display .PathSymbol');
+        const d = trajectory.getAttribute('d');
+        
+        const points = SVGPoints.toPoints({ 
+            type: 'path',
+            d
+        });
+
+        return {
+            id: element.id,
+            points
+        }
+
+    }
+
+
+    getPaletteIcon() {
+        return {
+            key: "svg",
+            val: this.display({
+                id: `${this.class}-palette-icon`,
+                class: this.class,
+                points: this.structs.view.points
+            })
+        }
+    }
+
+    handleEvent(e) {
+        switch(e.type)
+        {
+            case 'keyup':
+                if( e.key == "Meta" ){
+                    ui_api.removeSprites();
+                }
+            break;
+            case 'mousedown':
+                if( this.m_mode == "palette" )
+                {
+                    if( e.metaKey ){
+                        let newEl = this.createNewFromMouseEvent(e);
+                      //  this.editMode(newEl, true);
+                    }
+                }
+                else if( this.m_mode == "edit" )
+                {
+                    this.editMouseDown(e);
+                }
+                
+            break;
+            case 'mousemove':
+                if( this.m_mode == "edit")
+                {
+                    this.editMove(e);
+                }
+                else
+                {
+                    this.mousemove(e);
+                }
+            break;
+
+        }
+    }
+
+
+
+    /**
+     * 
+     * internal method called from createNewFromMouseEvent and mousemove in palette mode
+     * 
+     * @param {Event} event 
+     * @param {Element} container 
+     */
+    mouseToData( event, container )
+    {
+        const pt = ui_api.getSVGCoordsFromEvent(event);
+
+        const parent_def = ui_api.getDefForElement(container);
+
+        let bbox = Points.boundingBox(this.structs.data.points);
+        let translated_default = Points.offset(this.structs.data.points,
+                                                pt.x , 
+                                                pt.y );
+
+        return {
+            ...this.structs.data, // set defaults, before overwriting with parent's mapping
+            ...parent_def.childViewParamsToData(container, translated_default, event), 
+            id: `${this.class}_u_${ui_api.fairlyUniqueString()}`,
+            container: container.id
+        }    
+    }
+
+
+    getPreviewLine()
+    {
+        let lastpt = this.pts[this.pts.length - 1];
+
+        // preview line
+        return {
+                new: "line",
+                parent: "symbolist_overlay",
+                id: "preview-line",
+                class: "preview-line",
+                x1 : lastpt.x,
+                y1: lastpt.y,
+                x2: this.currentPosition.x,
+                y2: this.currentPosition.y
+            }
+    }
+
+
+    HandleRect(x,y, idx) {
+        const r = 5;
+        const d = r * 2;
+        return {
+            new: "rect",
+            parent: "handle-layer",
+            class: "path-handle",
+            x: x - r,
+            y: y - r,
+            width: d,
+            height: d,
+            id: `handle-${idx}`,
+            onclick: `console.log( "selected", this.id )`
+        }
+    }
+    
+
+
+    editMode( element, enable = false )
+    {
+        super.editMode(element, enable);
+        
+        if( enable )
+        {
+            let data = this.getElementViewParams(element);
+            if( data.points )
+            {
+                this.pts = data.points;
+                this.currentPosition = this.pts[ this.pts.length - 1];
+            }
+            else
+            {
+                console.error('no points found for editing');
+                return;
+            }
+    
+    
+            let handles = [];
+            this.pts.forEach( (p, i) => {
+                handles.push( this.HandleRect(p.x, p.y, i) );
+        
+                if( p.curve && p.curve.type == "quadratic")
+                {
+                    handles.push( this.HandleRect( p.curve.x1, p.curve.y1, `quad-${i}`) );
+                    handles.push( {
+                        id: `quad-${i}-connector`,
+                        parent: "preview-line-layer",
+                        new: "path",
+                        class: "preview-line",
+                        points: [{
+                            x: this.pts[i-1].x,
+                            y: this.pts[i-1].y
+                        }, 
+                        {
+                            x: p.curve.x1,
+                            y: p.curve.y1
+                        }, 
+                        {
+                            x: p.x,
+                            y: p.y
+                        }]
+                    })
+                }
+                
+            })
+            
+            // create new UI (probably should be on separate layer)
+            ui_api.drawsocketInput({
+                key: "svg",
+                val: {
+                    new: "g",
+                    parent: "symbolist_overlay",
+                    id : "path-preview-group",
+                    children : [
+                        {
+                            new: "g",
+                            id: "preview-line-layer",
+                            children: {
+                                new: "path",
+                                id: "path-preview",
+                                class: "path-preview",
+                                points: this.pts
+                            }
+                        },
+                        {
+                            new: "g",
+                            id: "handle-layer",
+                            children: handles
+                        }
+                    
+                    ]
+                }
+            });
+    
+            element.style.visibility = "hidden";
+
+        }
+        else // exiting edit mode
+        {
+
+            let preview = document.getElementById("path-preview");
+            const d = preview.getAttribute('d');
+            const preview_points = SVGPoints.toPoints({ 
+                type: 'path',
+                d
+            });
+    
+
+            let container = ui_api.getContainerForElement(element);
+            const parentDef = ui_api.getDefForElement(container);
+            const relaltive_pts = parentDef.childViewParamsToData(container, {points: preview_points});
+
+            let data = {
+                id: element.id,
+                class: this.class,
+                container: container.id,
+                points: relaltive_pts.points
+            };
+
+            this.fromData(data, container);
+
+            // update data 
+            ui_api.sendToServer({
+                key: "data",
+                val: data
+            })
+
+            element.style.visibility = "visible";
+        }
+        console.log(" path edit mode", enable);
+
+        return true;
+    }
+
+
+
+    editMove(e)
+    {
+    
+        this.currentPosition = ui_api.getSVGCoordsFromEvent(e);
+
+      //  console.log("path edit move", this.downTarget, e);
+      
+        if( this.downTarget == null )
+            return;
+    
+        if( this.pts.length > 0 )
+        {
+    
+    
+            const grabHandle = this.downTarget.getAttribute("class") == "path-handle";
+            if( grabHandle && !e.metaKey)
+            {
+                //console.log(e.target.id);
+    
+                let tok = this.downTarget.id.split("-");
+               // console.log(tok);
+    
+                let idx = Number( tok[tok.length - 1] );
+    
+                if( e.buttons == 1 ) // drag handle
+                {
+                    // update point position based on handle drag, then redraw points
+                    //  console.log("handle?", e.target.getAttribute("class"));
+    
+                    if( tok.length == 3 ) 
+                    {
+                        if (tok[1] == "quad") 
+                        {
+                            this.pts[idx].curve.x1 = this.currentPosition.x;
+                            this.pts[idx].curve.y1 = this.currentPosition.y;
+    
+                            ui_api.drawsocketInput({
+                                key: "svg",
+                                val: [
+                                    this.HandleRect(this.currentPosition.x, this.currentPosition.y, `quad-${idx}`),
+                                    {
+                                        id: "path-preview",
+                                        points: this.pts
+                                    },
+                                    {
+                                        id: `quad-${idx}-connector`,
+                                        parent: "preview-line-layer",
+                                        class: "preview-line",
+                                        new: "path",
+                                        points: [{
+                                            x: this.pts[idx - 1].x,
+                                            y: this.pts[idx - 1].y
+                                        }, 
+                                        {
+                                            x: this.currentPosition.x,
+                                            y: this.currentPosition.y
+                                        }, 
+                                        {
+                                            x: this.pts[idx].x,
+                                            y: this.pts[idx].y
+                                        }]
+                                    }
+                                ]
+                            });
+    
+                        }
+                    }
+                    else if( tok.length == 2 )
+                    {
+                        this.pts[idx].x = this.currentPosition.x;
+                        this.pts[idx].y = this.currentPosition.y;
+    
+                        let drawArr = [
+                            this.HandleRect(this.currentPosition.x, this.currentPosition.y, idx),
+                            {
+                                id: "path-preview",
+                                points: this.pts
+                            }
+                        ];
+    
+                        if( this.pts[idx].curve )
+                        {
+                            drawArr.push({
+                                id: `quad-${idx}-connector`,
+                                parent: "preview-line-layer",
+                                new: "path",
+                                class: "preview-line",
+                                points: [{
+                                    x: this.pts[idx - 1].x,
+                                    y: this.pts[idx - 1].y
+                                }, 
+                                {
+                                    x: this.pts[idx].curve.x1,
+                                    y: this.pts[idx].curve.y1
+                                }, 
+                                {
+                                    x: this.pts[idx].x,
+                                    y: this.pts[idx].y
+                                }]
+                            })
+                        }
+    
+                        if( this.pts.length >= (idx + 2) && this.pts[idx+1].curve )
+                        {
+                            let nextPt = idx+1;
+                            drawArr.push({
+                                id: `quad-${nextPt}-connector`,
+                                parent: "preview-line-layer",
+                                new: "path",
+                                class: "preview-line",
+                                points: [{
+                                    x: this.pts[idx].x,
+                                    y: this.pts[idx].y
+                                }, 
+                                {
+                                    x: this.pts[nextPt].curve.x1,
+                                    y: this.pts[nextPt].curve.y1
+                                }, 
+                                {
+                                    x: this.pts[nextPt].x,
+                                    y: this.pts[nextPt].y
+                                }]
+                            })
+                        }
+    
+    
+                        ui_api.drawsocketInput({
+                            key: "svg",
+                            val: drawArr
+                        });
+                    }
+    
+                }
+                
+            }
+            else if( e.buttons == 1 ) // drag path
+            {
+                if( e.metaKey && !grabHandle && this.pts.length > 1 ) // if not dragging handle, then we are adding a curve point
+                {
+                    //  console.log("not handle!", e.target.getAttribute("class"));
+    
+                    this.pts[this.pts.length - 1].curve = {
+                        type: 'quadratic',
+                        x1: this.currentPosition.x,
+                        y1: this.currentPosition.y
+                    }
+    
+                    ui_api.drawsocketInput(
+                    {
+                        key: "svg",
+                        val: [
+                            this.HandleRect(this.currentPosition.x, this.currentPosition.y, `quad-${this.pts.length - 1}`),
+                            {
+                                id: "path-preview",
+                                points: this.pts
+                            },
+                            {
+                                id: `quad-${this.pts.length - 1}-connector`,
+                                parent: "preview-line-layer",
+                                new: "path",
+                                class: "preview-line",
+                                points: [{
+                                    x: this.pts[this.pts.length - 2].x,
+                                    y: this.pts[this.pts.length - 2].y
+                                }, 
+                                {
+                                    x: this.currentPosition.x,
+                                    y: this.currentPosition.y
+                                }, 
+                                {
+                                    x: this.pts[this.pts.length - 1].x,
+                                    y: this.pts[this.pts.length - 1].y
+                                }]
+                            }
+                        ]
+                    })
+                }
+                
+              
+            }
+            else if( e.metaKey )
+            {
+                ui_api.drawsocketInput({
+                    key: "svg",
+                    val: this.getPreviewLine()
+                });
+            }
+            
+            
+        }
+        
+        //console.log('move', e.clientX, e.clientY);
+    }
+    
+    
+
+    editMouseDown(e)
+    {
+        this.currentPosition = ui_api.getSVGCoordsFromEvent(e);
+
+        this.downTarget = e.target;
+    
+        if( e.metaKey )
+        {
+            let newPt = { ...this.currentPosition };
+            
+            if( this.pts.length == 0 )
+                newPt.moveTo = true;
+        
+            this.pts.push( newPt );
+        
+            ui_api.drawsocketInput([{
+                    key: "remove",
+                    val: "preview-line"
+                },
+                {
+                    key: "svg",
+                    val: [
+                        this.getPreviewLine(),
+                        this.HandleRect(newPt.x, newPt.y, this.pts.length - 1)
+                    ]
+                }        
+            ])
+        
+            
+            console.log('new point', this.pts, this.getPreviewLine());
+        }
+    
+    }
+
+}
+
+class PathSymbol_IO extends Template.IO_SymbolBase
+{
+    constructor()
+    {
+        super();
+        this.class = "PathSymbol";
+    }
+    
+    /**
+     * 
+     * @param {Object} params here we expect a phase value not duration
+     * @param {Object} obj_ref 
+     */
+    lookup( params, obj_ref )
+    {
+
+        const points = obj_ref.points;
+        const phase = params.phase;
+
+        return {
+            id: obj_ref.id,
+            trajectory_pt: io_api.Points.position(points, phase, 1)
+        }
+
+    }
+}
+
+
+
+module.exports = {
+    ui_def: PathSymbol,
+    io_def: PathSymbol_IO    
+}
+
+
+
+/***/ }),
+
+/***/ 169:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const Template = __webpack_require__(20) 
+
+/**
+ * top level symbol is the frame of the application
+ * and allows any child to place itself wherever it wants
+ * the root symbol controls the palette and tool menus which are created
+ * when a context is selected.
+ * the top most context is set in the init.json or score file
+ * 
+ */
+
+class RootSymbol extends Template.SymbolBase 
+{
+    constructor() {
+        super();
+        this.class = "RootSymbol";
+
+        /**
+         * the palette is created in the json file
+         * however the user might want to set the tools/palette
+         * for the base 
+         * 
+         * so, probably the tools/palette and metadata should be
+         * in the data object, and changeable from the editor
+         */
+        
+        // 
+    }
+
+    get structs () {
+        return {
+            data: {
+                class: this.class,
+                id : `${this.class}-0`,
+                about: "",
+                name: "",
+                tools: [],
+                palette: []
+            },
+            view: {
+                class: this.class,
+                id : `${this.class}-0`
+            }
+        }
+    }
+
+
+    display(params) {
+        return {
+            new: "g",
+            id: `${params.id}`,
+            class: "RootSymbol"
+        }
+
+    }
+
+    drag(element, pos){}
+
+
+    dataToViewParams(data, container)
+    {
+        /**
+         * note: this container is a top level application symbol
+         */
+
+        return {
+            ...this.structs.view, // defaults
+            id: data.id
+        }
+     
+    }
+
+    /**
+     * API function called from controller to draw new data objects
+     * also used internally
+     * 
+     * @param {Object} dataObj 
+     * @param {Element} container 
+     * @param {Boolean} preview -- optional flag to draw as sprite overlay and draw data text
+     * 
+     */
+    fromData(dataObj, container, preview = false)
+    {
+        // RootSymbol view is the palettes?
+        const viewParams = this.dataToViewParams(dataObj, container);
+        const viewObj = this.display(viewParams);        
+        const drawObj = (preview ? 
+            ui_api.svgPreviewFromViewAndData(viewObj, dataObj) : 
+            ui_api.svgFromViewAndData(viewObj, dataObj) );
+        ui_api.drawsocketInput( drawObj );
+
+        
+        /**
+         * maybe here is where we trigger the drawing of the palette and 
+         * start up the global event listeners
+         * 
+         */
+
+    }
+
+
+    getElementViewParams(element) {}
+    
+    getPaletteIcon() {}
+    
+
+    /**
+     * 
+     * how to select the top level? needs a menu command probably
+     * 
+     * @param {*} viewElement 
+     */
+    getInfoDisplay( viewElement )
+    {
+        ui_api.drawsocketInput(
+            ui_api.makeDefaultInfoDisplay(viewElement)
+        )
+    }
+    
+    getElementViewParams(element) {}
+
+
+   
+    childDataToViewParams(this_element, child_data)
+    {
+        return child_data;
+    }
+
+    childViewParamsToData(this_element, child_viewParams, event)
+    {
+        return child_viewParams;
+    }
+
+}
+
+class RootSymbol_IO extends Template.IO_SymbolBase
+{
+    constructor()
+    {
+        super();
+        this.class = "RootSymbol";
+    }
+    
+    comparator(a,b){}
+    lookup(params, obj_ref){}
+
+}
+
+
+module.exports = {
+    ui_def: RootSymbol,
+    io_def: RootSymbol_IO
+}
+
+
+
+/***/ }),
+
+/***/ 20:
+/***/ ((module) => {
+
+"use strict";
+
+/**
+ * Methods called from Controller:
+ * 
+ * class
+ * palette
+ * paletteSelected
+ * getPaletteIcon
+ * fromData
+ * editMode
+ * selected
+ * applyTransformToData
+ * currentContext
+ * updateAfterContents
+ * drag
+ * getInfoDisplay
+ */
+
+
+class SymbolBase
+{
+    /**
+     * constructor 
+     * sets class name (required), and other optional member variables
+     */
+    constructor()
+    {
+        this.class = "template";
+        this.palette = [];
+        this.m_mode = '';
+        this.mouseListening = false;
+    }
+    
+
+    /**
+     * internal helper function that sets defaults for symbol parameters
+     */
+    get structs () {
+        return {
+
+            data: {
+                class: this.class,
+                id : `${this.class}-0`,
+                time: 0
+            },
+            
+            view: {
+                class: this.class,
+                id: `${this.class}-0`, 
+                x: 0,
+                y: 0,
+                text: "undefined"
+            },
+
+            
+            /**
+             * container symbols define the parameters that are used when 
+             * queried by child calls to childViewParamsToData and childDataToViewParams
+             * for example:
+ 
+            children: {
+                data: {
+                    time: 0
+                },
+                view: {
+                    x: 0
+                }
+            }
+            
+            */                            
+
+            
+        }
+    }
+
+
+    /**
+     * internal method called when drawing
+     * maps view parameters to drawing commands
+     * 
+     * returns drawsocket object
+     * 
+     * @param {Object} params 
+     */
+    display(params) { 
+        console.error(`${this.class} display is undefined`);
+
+        ui_api.hasParam(params, Object.keys(this.structs.view) );
+        
+        return {
+            new: "text",
+            id: `${params.id}-undefined`,
+            class: "template",
+            x: params.x,
+            y: params.y,
+            text: "undefined symbol"
+        }
+
+    }
+    
+
+
+    /**
+     * internal method, should be re-defined in subclass
+     * 
+     * gets viewParams from element
+     * 
+     * @param {Element} element the symbol SVG/HTML element to parse to view params
+     * 
+     * 
+     */
+    getElementViewParams(element) { 
+        console.error(`${this.class} getElementViewParams is undefined`);
+
+        const textEl = element.querySelector('text');
+        
+        return {
+            id: element.id,
+            x: parseFloat(textEl.getAttribute('x')),
+            y: parseFloat(textEl.getAttribute('y')),
+            text: textEl.innerHTML
+        }
+    }
+
+    /**
+     * API function called from controller
+     * 
+     */
+    getPaletteIcon () { 
+        console.error(`${this.class} getPaletteIcon is undefined`);
+
+        return {
+            key: "svg",
+            val: this.display({
+                id: `template-palette-icon`,
+                class: this.class,
+                x: 10,
+                y: 10,
+                text: "template"
+            })
+        }
+
+    }
+    
+
+
+    /**
+     * API function called from controller to draw new data objects
+     * also used internally
+     * 
+     * @param {Object} dataObj 
+     * @param {Element} container 
+     * @param {Boolean} preview -- optional flag to draw as sprite overlay and draw data text
+     * 
+     */
+    fromData(dataObj, container, preview = false)
+    {
+        //console.log('template fromData', container, dataObj);
+        // merging with defaults in case the user forgot to include something
+        const data_union = {
+            ...this.structs.data,
+            ...dataObj
+        };
+        
+        const viewParams = this.dataToViewParams(data_union, container);
+        
+        const viewObj = this.display(viewParams);        
+        
+        const drawObj = (preview ? 
+            ui_api.svgPreviewFromViewAndData(viewObj, data_union) : 
+            ui_api.svgFromViewAndData(viewObj, data_union) );
+
+        ui_api.drawsocketInput( drawObj );
+
+        if( !preview ) {
+            let outObj = {};
+            outObj[dataObj.id] = viewParams;
+            ui_api.outlet({ viewParams: outObj });
+        }
+
+    }
+
+
+    /**
+     * internal mapping function data->viewParams
+     * 
+     * @param {Object} data 
+     * @param {Element} container 
+     * 
+     * @returns object of view params
+     * 
+     */
+    dataToViewParams(data, container)
+    {
+        const parentDef = ui_api.getDefForElement(container);
+        //console.log('dataToViewParams', data, container);
+
+        return {
+            ...this.structs.view, // defaults
+            ...ui_api.filterByKeys(data, Object.keys(this.structs.view) ), // gets view values that might in the data
+            ...parentDef.childDataToViewParams(container, data),
+            
+            // other mappings that the parent doesn't know about might be added here
+
+            id: data.id,
+            container: data.container // set container/parent id
+        }
+     
+    /**
+     * note: This template prototype works only for child objects, the top level element object 
+     * is the application which has no built in knowledge of time, duration etc. and so the 
+     * childToViewParameters function will not apply the mapping. In the case of top-level symbols,
+     * you will need to create your own mapping and put it in the dataToViewParams function
+     */
+
+    }
+
+
+    /**
+     * internal mapping function viewParams->data
+     * 
+     * @param {Object}  viewParams 
+     * @param {Element} container
+     * @param {Event}   event (optional) include the mouse event for mode handling
+     * 
+     * returns data object
+     * 
+     * note that the view params should be able to generate a data object from the view params without access to the element dataset.
+     * in some cases, this means that drawing coefficients need to be pulled in the getElementViewParams function
+     * 
+     */
+    viewParamsToData(viewParams, container, event = null)
+    {
+        const parentDef = ui_api.getDefForElement(container);
+
+        return {
+            ...this.structs.data, // defaults
+            ...ui_api.filterByKeys(viewParams, Object.keys(this.structs.data) ), // gets data values that might in the view
+            ...parentDef.childViewParamsToData(container, viewParams, event),
+
+            // other mappings that the parent doesn't know about might be added here
+
+            class: this.class, // overwrite the classname, since we don't want symbol or selected etc.
+            container: container.id // set container/parent id
+        }
+    }
+
+
+    /**
+     * 
+     * Called by child objects using the template
+     * the parent/container object supplies a mapping from view params to data
+     * 
+     * @param {Element} this_element instance of this element
+     * @param {Object} child_viewParams child data object, requesting information about where to put itself
+     * @param {Event}   event (optional) include the mouse event for mode handling
+     */
+    childViewParamsToData(this_element, child_viewParams, event = null) {
+        const this_element_container = ui_api.getContainerForElement(this_element);
+        const parentDef = ui_api.getDefForElement(this_element_container);
+        return parentDef.childViewParamsToData(this_element_container, child_viewParams, event);
+        
+        // by default pass on to the parent, since we don't have anything to add
+        // the top level will return the child's data fully
+    }
+
+
+     /**
+     * 
+     * Called by child objects using the template
+     * the parent/container object supplies a mapping from data to view params
+     * 
+     * @param {Element} this_element instance of this element
+     * @param {Object} child_data child data object, requesting information about where to put itself
+     * 
+     */
+    childDataToViewParams(this_element, child_data) {
+        const this_element_container = ui_api.getContainerForElement(this_element);
+        const parentDef = ui_api.getDefForElement(this_element_container);
+        return parentDef.childDataToViewParams(this_element_container, child_data);
+        // by default pass on to the parent, since we don't have anything to add
+        // the top level will return the child's data fully
+    }
+
+    /**
+     * 
+     * API function called from controller
+     * 
+     * @param {Element} element 
+     * 
+     * called after child object has been added from the score
+     * in order to adjust drawing of the container element
+     * 
+     */
+    updateAfterContents( element ) {}
+
+  
+    /**
+     * 
+     * API function called from controller
+     * 
+     * @param {Object} dataObj 
+     * 
+     * called from controller in dataToView as a for containers to decide
+     * which of it's kind should be the context in case there are more than one
+     * 
+     */
+    getContainerForData(dataObj)
+    {
+        return document.getElementById(dataObj.container);
+    }
+
+    /**
+     * API function called from controller
+     * called when the user hits [i] when selecting an object
+     * 
+     * @param {HTML or SVG Element} viewElement element that is being viewed
+     * 
+     * @returns drawsocket format object(s) to draw
+     */
+    getInfoDisplay( viewElement )
+    {
+       // console.log('getInfoDisplay', viewElement );
+        ui_api.drawsocketInput(
+            ui_api.makeDefaultInfoDisplay(viewElement)
+        )
+        
+    }
+
+    /**
+     * 
+     * API function called from info panel
+     * on update
+     * 
+     * @param {Element} element element to use for update
+     * 
+     * called from info panel edit boxes -- the datset is used to update the graphics
+     */
+    updateFromDataset(element)
+    {
+        const container = ui_api.getContainerForElement(element);        
+        let data = ui_api.getElementData(element, container);
+     
+        //console.log(element.id, 'updateFromDataset', data);
+
+        this.fromData(data, container);
+
+        // update data 
+        ui_api.sendToServer({
+            key: "data",
+            val: data
+        })
+
+        let contents = element.querySelector('.contents');
+        let children = contents.children;
+        //console.log(element.id, 'contents', children);
+
+        for( let i = 0; i < children.length; i++)
+        {
+            const child_def = ui_api.getDefForElement(children[i]);
+            child_def.updateFromDataset(children[i]);
+        }
+
+    }
+
+    /**
+     * 
+     * internal method
+     * called from createNewFromMouseEvent and mousemove in palette mode
+     * 
+     * @param {Event} event 
+     * @param {Element} container 
+     */
+    mouseToData( event, container )
+    {
+        console.log("template mouseToData");
+
+        const pt = ui_api.getSVGCoordsFromEvent(event);
+        const parent_def = ui_api.getDefForElement(container);
+
+        if( !parent_def )
+        {
+            console.error(`could not find def for container ${container}`);
+        }
+
+        return {
+            ...this.structs.data, // set defaults, before overwriting with parent's mapping
+            ...parent_def.childViewParamsToData(container, 
+                {
+                    ...this.structs.view, //get defaults
+                    ...pt
+                }, 
+                event ), 
+            id: `${this.class}_u_${ui_api.fairlyUniqueString()}`,
+            container: container.id
+        }    
+    }
+
+
+    /**
+     * (internal method)
+     * called when new instance of this object is created by a mouse down event
+     * 
+     * @param {Event} event mouse event from click
+     * 
+     * returns new view object in drawsocket format, to be drawn
+     * 
+     * 
+     */
+    createNewFromMouseEvent(event)
+    {
+        console.log("template createNewFromMouseEvent");
+        // remove preview sprite
+        ui_api.drawsocketInput({
+            key: "remove", 
+            val: `${this.class}-sprite`
+        })
+
+        // generate objectData from Mouse Event
+        const container = ui_api.getCurrentContext();
+        let data =  this.mouseToData(event, container);
+        
+        this.fromData(data, container);
+
+        // send new object to server
+        ui_api.sendToServer({
+            key: "data",
+            val: data
+        })
+
+        return data;
+    }
+
+    /**
+     * (internal method)
+     * 
+     * @param {Event} event mouse event
+     * 
+     */
+    mousemove(event)
+    {
+        if( event.metaKey && this.m_mode == "palette" )
+        {
+            // preview of mouse down creation
+            const container = ui_api.getCurrentContext();
+            let data = this.mouseToData(event, container);
+            this.fromData( data, container, true); // sets preview flag to true
+        }
+
+    }
+
+
+
+    /**
+     * API function called from controller
+     * 
+     * @param {Element} element html/svg element to translate
+     * @param {Event} event mouse event, with added delta_pos x/y point
+     * 
+     * return true to use default translation
+     * return false to use custom translation 
+     */
+    drag(element, event = { delta_pos: {x:0, y:0} } ) 
+    {
+        if( this.m_mode == "edit" )
+        {
+            //console.log('drag in edit mode');
+        }
+        else
+        {
+         //   console.log('drag in mode', this.m_mode);
+
+            // maybe rename... sets translation in transform matrix, but doesn't apply it
+            ui_api.translate(element, event.delta_pos);
+
+            let viewParams =  this.getElementViewParams(element);
+
+            // this can be resused in most cases
+            // if x and y are in the viewParams
+            viewParams.x += event.delta_pos.x;
+            viewParams.y += event.delta_pos.y;
+
+            let container = ui_api.getContainerForElement(element);
+            let data = this.viewParamsToData(viewParams, container, event);
+            
+            ui_api.drawsocketInput(
+                ui_api.getDataTextView(data)
+            )
+        }
+
+       
+        return true; // return true if you are handling your own translation
+    }
+
+    /**
+     * 
+     * API function called from controller
+     * on mouseup after drag
+     * 
+     * @param {SVG/HTMLElement} element 
+     */
+    applyTransformToData(element)
+    {
+        ui_api.applyTransform(element);
+
+        let viewParams =  this.getElementViewParams(element);
+        let container = ui_api.getContainerForElement(element);
+        let data =  this.viewParamsToData(viewParams, container);
+
+        ui_api.drawsocketInput({
+            key: "svg",
+            val: ui_api.dataToHTML(data)
+        })
+
+        // send out
+        ui_api.sendToServer({
+            key: "data",
+            val: data
+        })
+
+        return true; // << required if defined
+
+    }
+
+
+    /**
+     * 
+     * API function called from controller
+     * when user selects a symbol
+     * 
+     * @param {SVG/HTMLElement} element 
+     * @param {Boolean} state notifications on selection and deselection
+     *  
+     */
+    selected(element, state)
+    {
+        console.log('select state', state);
+        // return true if you want to disable the default selection
+    }
+
+    
+    mouseListeners(enable = false )
+    {
+        if( enable && !this.mouseListening )
+        {
+            window.addEventListener("mousedown",    this, false );
+            window.addEventListener("mousemove",    this, false );
+            window.addEventListener("mouseup",      this, false);
+            window.addEventListener("keydown",      this, false);
+            window.addEventListener("keyup",        this, false);
+
+            this.mouseListening = true;
+        }
+        else
+        {
+            ui_api.removeSprites();
+            window.removeEventListener("mousedown",     this, false);
+            window.removeEventListener("mousemove",     this, false);
+            window.removeEventListener("mouseup",       this, false);
+            window.removeEventListener("keydown",       this, false);
+            window.removeEventListener("keyup",         this, false);
+            this.mouseListening = false;
+        }
+    }
+
+    /**
+     * 
+     * API function called from controller
+     * 
+     * @param {Boolean} enable called when entering  "palette" or  "edit"  mode
+     * 
+     * creation mode starts when the symbol is sected in the palette
+     * edit mode is when the symbols is when one symbol is selected (or when you hit [e]?)
+     */
+    paletteSelected( enable = false ) 
+    {
+
+        if( enable )
+        {
+            this.m_mode = 'palette';
+            this.mouseListeners(enable);
+        }
+        else
+        {
+            this.m_mode = 'exited palette';
+            this.mouseListeners(enable);
+        }
+    }
+
+    
+    /**
+     * 
+     * (internal method)
+     * 
+     * handleEvents is a default JS method for handling mouse events
+     * 
+     * @param {Event} e mouse event
+     * 
+     * routes and handles events by type, 
+     * and program logic
+     * 
+     * currently only used in palette mode but could be used in other 
+     * cases
+     * 
+     */
+    handleEvent(e) {
+        switch(e.type)
+        {
+            case 'keyup':
+                if( e.key == "Meta" ){
+                    ui_api.removeSprites();
+                }
+            break;
+            case 'mousedown':
+                if( e.metaKey ){
+                    this.createNewFromMouseEvent(e);
+                }
+            break;
+            case 'mousemove':
+                this.mousemove(e);
+            break;
+
+        }
+
+    }
+
+    /**
+     * 
+     * API function called from controller
+     * when user hits the [e] button
+     * 
+     * here we are only setting the status
+     * the implementation is in the subclasses
+     * 
+     * @param {SVG/HTML Element} element 
+     * @param {Boolean} enable 
+     */
+    editMode( element, enable = false )
+    {
+        if( enable )
+        {
+            this.m_mode = 'edit';
+            this.mouseListeners(enable);
+        }
+        else
+        {
+            this.m_mode = 'exited edit';
+            this.mouseListeners(enable);
+        }
+
+        return true; 
+        // return true in subclass
+        // otherwise edit mode is not set in the controller
+    }
+
+
+    /**
+     * 
+     * API function called from controller
+     * when user hits the [s] button
+     * 
+     * here we are only setting the status
+     * the implementation is in the subclasses
+     * 
+     * @param {SVG/HTML Element} element 
+     * @param {Boolean} enable 
+     */
+    currentContext( element, enable = false ) 
+    {
+        console.log(this.class, " is context ", enable);
+        if( enable )
+        {
+            this.m_mode = 'context';
+        }
+        else
+        {
+            this.m_mode = "exited context";
+        }
+    }
+
+}
+
+
+class IO_SymbolBase
+{
+    constructor() {
+        this.class = "template"
+    }
+
+    /**
+     * 
+     * API function called from controller
+     * 
+     * @param {Object} a 
+     * @param {Object} b 
+     * 
+     * comparator for sorting instances of this class type (rectangleStave)
+     */
+    comparator (a, b) {
+        return (a.time < b.time ? -1 : (a.time == b.time ? 0 : 1))
+    }
+
+
+    /**
+      *
+      * API function called from controller
+      *  
+      * @param {Object} dataObj data object that has been looked up
+      * 
+      * script here is called when looking up symbols, and potentially could respond with
+      * generative values in realtime
+      * 
+      */
+    lookup( params, obj_ref )
+    {
+        const start = obj_ref.time;
+        const end = start + obj_ref.duration;
+        if( start <= params.time && end >= params.time )
+        {
+
+            params.phase = (params.time - start) / obj_ref.duration;
+            let ret = [{
+                ...obj_ref,
+                phase: params.phase
+            }];
+
+
+            if( typeof obj_ref.contents != "undefined" )
+            {
+                obj_ref.contents.forEach( obj => {
+                    const def = io_api.defGet(obj.class);
+                    const event = def.lookup(params, obj);
+                    if( event )
+                    {
+                        ret.push(event);
+                    }
+                });
+            
+            }
+
+            return ret;
+        }
+
+        return null;
+    }
+
+
+    default_container_lookup( params, obj_ref )
+    {
+        let ret = [];
+
+        if( typeof obj_ref.contents != "undefined" )
+        {
+            obj_ref.contents.forEach(obj => {
+                const def = io_api.defGet(obj.class);
+                const event = def.lookup(params, obj);
+                if( event )
+                {
+                    ret.push(event);
+                }
+            });
+        
+        }
+        else
+        {
+            ret = {
+                lookup_error: `no contents element with id "${obj_ref.contents}" found`
+            };
+        }
+
+        let ret_obj = {};
+        ret_obj[obj_ref.id] = ret;
+        
+        return ret_obj;
+    }
+
+
+    /**
+     * 
+     * API function called from controller
+     * 
+     * @param {*} params 
+     * @param {*} obj_ref 
+     */
+    getFormattedLookup(params, obj_ref)
+    {
+        console.error('getFormattedLookup not defined for class', this.class, 'using default');
+        return obj_ref;
+    }
+
+    default_container_getFormattedLookup(params, obj_ref )
+    {
+        let ret_by_type = {};
+
+        if( typeof obj_ref.contents != "undefined" )
+        {
+            obj_ref.contents.forEach(obj => {
+                const def = io_api.defGet(obj.class);
+                if( typeof ret_by_type[obj.class] == "undefined" ){
+                    ret_by_type[obj.class] = {};
+                }
+
+                const event = def.getFormattedLookup(params, obj);
+                if( event )
+                {
+                    Object.keys(event).forEach( k => {
+
+                        if( typeof ret_by_type[obj.class][k] == "undefined" ){
+                            ret_by_type[obj.class][k] = [];
+                        }
+
+                        ret_by_type[obj.class][k].push(event[k]);
+                    })
+                }
+            });
+        
+        }
+        else
+        {
+            ret_by_type = {
+                lookup_error: `no contents element with id "${obj_ref.contents}" found`
+            };
+        }
+
+        let ret_obj = {};
+        ret_obj[obj_ref.id] = ret_by_type;
+        
+        return ret_obj;
+    }
+    
+}
+
+module.exports = {
+    SymbolBase,
+    IO_SymbolBase
+};
+
+
+/***/ }),
+
+/***/ 102:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const Template = __webpack_require__(20); 
+
+class SystemContainer extends Template.SymbolBase 
+{
+    constructor() {
+        super();
+        this.class = "SystemContainer";
+        this.palette = [ "TextSymbol"];
+
+        this.margin = 20;
+        this.half_margin = this.margin / 2.;
+
+        this.x2time = 0.001;
+        this.time2x = 1000;
+
+    }
+
+
+    get structs () {
+        return {
+
+            data: {
+                class: this.class,
+                id : `${this.class}-0`,
+                time: 0,
+                duration: 1,
+                height: 100,
+                x: 100,
+                y: 100,
+                x_offset: this.margin * 2
+            },
+            
+            view: {
+                class: this.class,
+                id: `${this.class}-0`, 
+                x: 0,
+                y: 0,
+                height: 20, 
+                width: 20
+            },
+
+            children: {
+                data: {
+                    time: 0,
+                    height: 100,
+                    duration: 1
+                },
+                view: {
+                    x: 0,
+                    y: 0,
+                    height: 100
+                }
+            }
+        }
+    }
+
+    drag(element, pos){}
+
+    display(params) {
+
+        ui_api.hasParam(params, Object.keys(this.structs.view) );
+        
+        return [{
+            new:    "rect",
+            id:     `${params.id}-rect`,
+            class:  'systemContainer-rect',
+            x:      params.x,
+            y:      params.y,
+            height: params.height,
+            width:  params.width
+        },
+        {
+            new: "path",
+            id: `${params.id}-bracket`,
+            class: 'systemContainer-bracket',
+            d: `M ${params.x+this.margin} ${params.y+this.half_margin} h -${this.half_margin} v ${params.height - this.margin} h ${this.half_margin}`
+        }];
+
+        /**
+         * note that we are returning the drawsocket def that will be 
+         * displayed in the "view" group
+         * the top level element of the symbol has the root id
+         * so here we need to make sure that the id is different
+         */
+
+    }
+    
+    getElementViewParams(element) {
+
+        const rect = element.querySelector('.systemContainer-rect');
+
+        return {
+            id: element.id,
+            x: parseFloat(rect.getAttribute('x')),
+            y: parseFloat(rect.getAttribute('y')),
+            width: parseFloat(rect.getAttribute('width')),
+            height: parseFloat(rect.getAttribute('height'))
+        }
+
+    }
+    
+    /**
+     * note: this container is a "top level" DURATION container, and so for the moment we are not querying
+     * the parent for info, because the here the width is determined by the duration, and the parent
+     * is purely graphical, and has no knowledge of duration.
+     */
+
+    dataToViewParams(data, container)
+    {      
+
+        let viewInData = ui_api.filterByKeys(data, Object.keys(this.structs.view) );
+
+        const height = this.margin + (typeof data.height != 'undefined' ? parseFloat(data.height) : this.structs.data.height);
+        const width = (2 * this.margin) + parseFloat(data.duration) * this.time2x;
+
+        return {
+            ...this.structs.view, // defaults
+            ...viewInData, // view params passed in from data
+            width,
+            height,
+            id: data.id
+        }
+     
+    }
+
+    getPaletteIcon() {
+        return {
+            key: "svg",
+            val: this.display({
+                ...this.structs.view,
+                id: `SystemContainer-palette-icon`,
+                class: this.class
+            })
+        }
+    }
+
+    /**
+     * 
+     * @param {Element} this_element instance of this element
+     * @param {Object} child_data child data object, requesting information about where to put itself
+     */
+    childDataToViewParams(this_element, child_data)
+    {
+        if( ui_api.hasParam(child_data, Object.keys(this.structs.children.data)) )
+        {
+
+            const container = ui_api.getContainerForElement(this_element);
+            const this_data = ui_api.getElementData(this_element);
+
+            const viewParams = this.dataToViewParams(this_data, container);
+
+            const contents = this_element.querySelector('.contents');
+            const n_childStaves = contents.children.length;
+
+            let y_offset = 0;
+            if( n_childStaves > 0 )
+            {
+                y_offset = this.margin + ui_api.getBBoxAdjusted(contents.children[n_childStaves - 1]).bottom - viewParams.y;
+
+                const thisChild = document.getElementById(child_data.id);
+                if( thisChild )
+                {
+                    y_offset -= ui_api.getBBoxAdjusted(thisChild).height + this.margin;
+                }
+                
+            }
+
+            return {
+                y: viewParams.y + y_offset,
+                x: viewParams.x + this.margin,
+                width: viewParams.width - (this.margin * 2),
+                height: child_data.height
+            }
+        }
+    }
+
+    /**
+     * 
+     * @param {Element} this_element instance of this element
+     * @param {Object} child_viewParams child data object, requesting information about where to put itself
+     */
+    childViewParamsToData(this_element, child_viewParams, event)
+    {
+        // no updates from view at the momement
+    }
+
+    /**
+     * 
+     * @param {Element} element 
+     * 
+     * called after child object has been added in order to adjust 
+     * drawing of the container element
+     * 
+     */
+    updateAfterContents( element )
+    {
+        const contents = element.querySelector('.contents');
+        const contents_bbox = ui_api.getBBoxAdjusted(contents);
+
+        let dataObj = {
+            id: element.id, // I don't love this, but the dataObj needs the id
+            duration: element.dataset.duration,
+            x: element.dataset.x,
+            y: parseFloat(element.dataset.y) - 20,
+            height: contents_bbox.height + 40,
+            x_offset: element.dataset.x_offset
+
+        }
+
+        const container = ui_api.getContainerForElement(element);
+
+        this.fromData(dataObj, container);
+
+    }
+
+    updateFromDataset(element){}
+
+
+    /**
+     * 
+     * @param {object} params passed in from call/method syntax
+     */
+    playbar(params)
+    {
+        if( typeof params.id != "undefined" && typeof params.time != "undefined" )
+        {
+            let rect = document.getElementById(`${params.id}-rect`);
+            let bbox = ui_api.getBBoxAdjusted(rect);
+            ui_api.drawsocketInput({
+                key: "svg",
+                val: {
+                    id: `${params.id}-playbar`,
+                    parent: params.id,
+                    new: "line",
+                    x1: bbox.x + params.time * this.time2x,
+                    x2: bbox.x + params.time * this.time2x,
+                    y1: bbox.top,
+                    y2: bbox.bottom,
+                    class: "playbar"
+                    
+                }
+            })
+        }
+    }
+
+
+}
+
+class SystemContainer_IO extends Template.IO_SymbolBase
+{
+    constructor()
+    {
+        super();
+        this.class = "SystemContainer";
+        this.lookup = super.default_container_lookup;
+        this.getFormattedLookup = super.default_container_getFormattedLookup;
+    }
+    
+}
+
+
+module.exports = {
+    ui_def: SystemContainer,
+    io_def: SystemContainer_IO
+}
+
+
+
+/***/ })
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module is referenced by other modules so it can't be inlined
+/******/ 	var __webpack_exports__ = __webpack_require__(489);
+/******/ 	var __webpack_export_target__ = exports;
+/******/ 	for(var i in __webpack_exports__) __webpack_export_target__[i] = __webpack_exports__[i];
+/******/ 	if(__webpack_exports__.__esModule) Object.defineProperty(__webpack_export_target__, "__esModule", { value: true });
+/******/ 	
+/******/ })()
+;

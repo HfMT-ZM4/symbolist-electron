@@ -226,7 +226,7 @@ class SymbolBase
      * returns data object
      * 
      * note that the view params should be able to generate a data object from the view params without access to the element dataset.
-     * in some cases, this menas that drawing coeficients need to be pulled in the getElementViewParams function
+     * in some cases, this means that drawing coefficients need to be pulled in the getElementViewParams function
      * 
      */
     viewParamsToData(viewParams, container, event = null)
@@ -373,6 +373,8 @@ class SymbolBase
      */
     mouseToData( event, container )
     {
+        console.log("template mouseToData");
+
         const pt = ui_api.getSVGCoordsFromEvent(event);
         const parent_def = ui_api.getDefForElement(container);
 
@@ -407,7 +409,7 @@ class SymbolBase
      */
     createNewFromMouseEvent(event)
     {
-
+        console.log("template createNewFromMouseEvent");
         // remove preview sprite
         ui_api.drawsocketInput({
             key: "remove", 
@@ -480,7 +482,7 @@ class SymbolBase
 
             let container = ui_api.getContainerForElement(element);
             let data = this.viewParamsToData(viewParams, container, event);
-
+            
             ui_api.drawsocketInput(
                 ui_api.getDataTextView(data)
             )
@@ -607,7 +609,6 @@ class SymbolBase
             case 'keyup':
                 if( e.key == "Meta" ){
                     ui_api.removeSprites();
-                    console.log('na?');
                 }
             break;
             case 'mousedown':

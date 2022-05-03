@@ -140,7 +140,7 @@ if( cluster.isMaster )
    */
   io_controller_proc.on('message', (msg)=> {
    
-    console.log("received msg", msg);
+    //console.log("received msg", msg);
     if( !Array.isArray(msg) )
       msg = [ msg ];
 
