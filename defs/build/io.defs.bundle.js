@@ -245,6 +245,10 @@ class AzimNote extends Template.SymbolBase
                 }
             );
         }
+        else
+        {
+            ui_api.removeHandles();
+        }
 
 
         return true; // << required if defined
@@ -288,9 +292,9 @@ class BasicSymbol extends Template.SymbolBase
         return {
 
             data: {
-                class: this.class,
-                id : `${this.class}-0`,
-                time: 0,
+                class: this.class,      // required for all instances
+                id : `${this.class}-0`, // required (unique) for all instances
+                time: 0,                // optional defaults for each class type
                 pitch: 55,
                 duration: 0.1
             },
@@ -308,7 +312,7 @@ class BasicSymbol extends Template.SymbolBase
 
     display(params) {
 
-        ui_api.hasParam(params, Object.keys(this.structs.view) );
+        ui_api.hasParam(params, Object.keys(this.structs.view) ); // check that all view params are present 
         
         return {
             new: "circle",
@@ -344,7 +348,6 @@ class BasicSymbol extends Template.SymbolBase
 
     }
 
-
     getPaletteIcon() {
         return {
             key: "svg",
@@ -356,85 +359,6 @@ class BasicSymbol extends Template.SymbolBase
                 r: 2
             })
         }
-    }
-
-
-    getDataTextView(dataObj, relativeTo = null)
-    {
-
-        let ret = {};
-        ret.key = "svg";
-        ret.val = [];
-
-        Object.keys(dataObj).forEach( key => {
-            ret.val.push({  
-                new: "text",
-                class: "data_text sprite",
-                container: `symbolist_overlay`,
-                relativeTo : (relativeTo ? relativeTo : `#${dataObj.id}`),
-                id: `${dataObj.id}-${key}-data_text`,
-                x: 0,
-                y: -20,
-                text: key + String(dataObj[key])
-            })
-        });
-
-        console.log(ret);
-
-        return ret;
-    }
-    
-    svgPreviewFromViewAndData(view, dataObj, relativeTo = null)
-    {
-        let drawing = ui_api.svgFromViewAndData(view, 
-            {
-                ...dataObj,
-                class: `${dataObj.class} sprite`, // << sprite flags the object to be deleted
-                id: `${dataObj.class}-sprite`,
-                container: 'symbolist_overlay' // << temp overlay layer gets cleared also
-            }, 
-            true /* overwrite*/ 
-        );
-        
-        if( relativeTo )
-        {
-            relativeTo = `#${dataObj.class}-sprite ${relativeTo}`;
-        }
-            
-        let text_drawing = this.getDataTextView({
-            ...dataObj,
-            id: `${dataObj.class}-sprite`
-        }, relativeTo );
-    
-        return [ drawing, text_drawing ];
-    }
-
-
-    fromData(dataObj, container, preview = false)
-    {
-      //  console.log('template fromData', container, dataObj);
-        // merging with defaults in case the user forgot to include something
-        const data_union = {
-            ...this.structs.data,
-            ...dataObj
-        };
-        
-        const viewParams = this.dataToViewParams(data_union, container);
-        
-        const viewObj = this.display(viewParams);        
-        
-        const drawObj = (preview ? 
-            this.svgPreviewFromViewAndData(viewObj, data_union) : 
-            ui_api.svgFromViewAndData(viewObj, data_union) );
-
-        ui_api.drawsocketInput( drawObj );
-
-        if( !preview ) {
-            let outObj = {};
-            outObj[dataObj.id] = viewParams;
-            ui_api.outlet({ viewParams: outObj });
-        }
-
     }
 
 
@@ -2583,7 +2507,7 @@ class PartStave extends Template.SymbolBase
     constructor() {
         super();
         this.class = "PartStave";
-        this.palette = [ "AzimNote", "BasicSymbol", "ColorPitch", "BetaEnv"];
+        this.palette = [ "AzimNote", "BasicSymbol", "ColorPitch", "BetaEnv", "BasicSymbolOverridePreview"];
 
         this.left_margin = 20;
 
@@ -3195,6 +3119,11 @@ class PathSymbol extends Template.SymbolBase
             })
 
             element.style.visibility = "visible";
+
+            ui_api.drawsocketInput({
+                key: "clear",
+                val: "symbolist_overlay"
+            })
         }
         console.log(" path edit mode", enable);
 
@@ -3723,7 +3652,7 @@ class SymbolBase
      * @param {Object} params 
      */
     display(params) { 
-        console.error(`${this.class} display is undefined`);
+        console.error(`${this.class} display should be overridden in subclass!`);
 
         ui_api.hasParam(params, Object.keys(this.structs.view) );
         
@@ -4013,7 +3942,7 @@ class SymbolBase
      */
     mouseToData( event, container )
     {
-        console.log("template mouseToData");
+//        console.log("template mouseToData");
 
         const pt = ui_api.getSVGCoordsFromEvent(event);
         const parent_def = ui_api.getDefForElement(container);
@@ -4049,7 +3978,7 @@ class SymbolBase
      */
     createNewFromMouseEvent(event)
     {
-        console.log("template createNewFromMouseEvent");
+//        console.log("template createNewFromMouseEvent");
         // remove preview sprite
         ui_api.drawsocketInput({
             key: "remove", 

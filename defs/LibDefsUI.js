@@ -9,6 +9,8 @@ window.initDef = require('./init.json');
 // load defs
 const AzimNote = require('./lib/AzimNote');
 const BasicSymbol = require('./lib/BasicSymbol');
+const BasicSymbolGL = require('./lib/BasicSymbolGL');
+
 const BetaEnv = require('./lib/BetaEnv');
 const CartesianPlot = require('./lib/CartesianPlot');
 const ColorPitch = require('./lib/ColorPitch');
@@ -25,9 +27,13 @@ const SystemContainer = require('./lib/SystemContainer');
 
 const NodescoreAPI = require('./lib/NodescoreAPI');
 
+const BasicSymbolOverridePreview = require('./lib/BasicSymbolOverridePreview');
+
 // set into def map
 uiDefs.set("AzimNote", new AzimNote.ui_def() );
 uiDefs.set("BasicSymbol", new BasicSymbol.ui_def() );
+uiDefs.set("BasicSymbolGL", new BasicSymbol.ui_def() );
+
 uiDefs.set("BetaEnv", new BetaEnv.ui_def() );
 uiDefs.set("CartesianPlot", new CartesianPlot.ui_def() );
 uiDefs.set("ColorPitch", new ColorPitch.ui_def() );
@@ -44,6 +50,7 @@ uiDefs.set("DataPoint", new DataPoint.ui_def() );
 uiDefs.set("SystemContainer", new SystemContainer.ui_def() );
 
 uiDefs.set("NodescoreAPI", new NodescoreAPI.ui_def() );
+uiDefs.set("BasicSymbolOverridePreview", new BasicSymbolOverridePreview.ui_def() );
 
 
 let cssFile = "./defs/css/stylie.css";

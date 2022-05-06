@@ -83,7 +83,7 @@ class SymbolBase
      * @param {Object} params 
      */
     display(params) { 
-        console.error(`${this.class} display is undefined`);
+        console.error(`${this.class} display should be overridden in subclass!`);
 
         ui_api.hasParam(params, Object.keys(this.structs.view) );
         
@@ -373,7 +373,7 @@ class SymbolBase
      */
     mouseToData( event, container )
     {
-        console.log("template mouseToData");
+//        console.log("template mouseToData");
 
         const pt = ui_api.getSVGCoordsFromEvent(event);
         const parent_def = ui_api.getDefForElement(container);
@@ -409,7 +409,7 @@ class SymbolBase
      */
     createNewFromMouseEvent(event)
     {
-        console.log("template createNewFromMouseEvent");
+//        console.log("template createNewFromMouseEvent");
         // remove preview sprite
         ui_api.drawsocketInput({
             key: "remove", 

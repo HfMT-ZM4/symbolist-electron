@@ -131,6 +131,10 @@ class AzimNote extends Template.SymbolBase
                 }
             );
         }
+        else
+        {
+            ui_api.removeHandles();
+        }
 
 
         return true; // << required if defined

@@ -5,7 +5,7 @@ class PartStave extends Template.SymbolBase
     constructor() {
         super();
         this.class = "PartStave";
-        this.palette = [ "AzimNote", "BasicSymbol", "ColorPitch", "BetaEnv"];
+        this.palette = [ "AzimNote", "BasicSymbol", "ColorPitch", "BetaEnv", "BasicSymbolOverridePreview"];
 
         this.left_margin = 20;
 

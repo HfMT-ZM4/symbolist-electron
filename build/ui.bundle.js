@@ -4514,6 +4514,7 @@ let ui_api = {
 
     hasParam,
     createHandle,
+    removeHandles,
 
     startDefaultEventHandlers,
     stopDefaultEventHandlers,

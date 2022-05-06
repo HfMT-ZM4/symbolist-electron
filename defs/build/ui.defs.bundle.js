@@ -145,6 +145,10 @@ class AzimNote extends Template.SymbolBase
                 }
             );
         }
+        else
+        {
+            ui_api.removeHandles();
+        }
 
 
         return true; // << required if defined
@@ -188,9 +192,9 @@ class BasicSymbol extends Template.SymbolBase
         return {
 
             data: {
-                class: this.class,
-                id : `${this.class}-0`,
-                time: 0,
+                class: this.class,      // required for all instances
+                id : `${this.class}-0`, // required (unique) for all instances
+                time: 0,                // optional defaults for each class type
                 pitch: 55,
                 duration: 0.1
             },
@@ -208,7 +212,340 @@ class BasicSymbol extends Template.SymbolBase
 
     display(params) {
 
+        ui_api.hasParam(params, Object.keys(this.structs.view) ); // check that all view params are present 
+        
+        return {
+            new: "circle",
+            class: 'notehead',
+            id: `${params.id}-notehead`,
+            cx: params.x,
+            cy: params.y,
+            r: params.r
+        }
+
+        /**
+         * note that we are returning the drawsocket def that will be 
+         * displayed in the "view" group
+         * the top level element of the symbol has the root id
+         * so here we need to make sure that the id is different
+         */
+
+    }
+    
+    getElementViewParams(element) {
+
+        const circle = element.querySelector('.notehead');
+        const x = parseFloat(circle.getAttribute('cx'));
+        const y = parseFloat(circle.getAttribute('cy'));
+        const r = parseFloat(circle.getAttribute('r'));
+
+        return {
+            id: element.id,
+            x,
+            y,
+            r
+        }
+
+    }
+
+    getPaletteIcon() {
+        return {
+            key: "svg",
+            val: this.display({
+                id: `${this.class}-palette-icon`,
+                class: this.class,
+                x: 10,
+                y: 10,
+                r: 2
+            })
+        }
+    }
+
+
+}
+
+class BasicSymbol_IO extends Template.IO_SymbolBase
+{
+    constructor()
+    {
+        super();
+        this.class = "BasicSymbol";
+    }
+    
+}
+
+
+
+module.exports = {
+    ui_def: BasicSymbol,
+    io_def: BasicSymbol_IO    
+}
+
+
+
+/***/ }),
+
+/***/ 361:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const Template = __webpack_require__(20) 
+
+class BasicSymbolGL extends Template.SymbolBase 
+{
+    constructor() {
+        super();
+        this.class = "BasicSymbolGL";
+    }
+
+
+    get structs () {
+        return {
+
+            data: {
+                class: this.class,
+                id : `${this.class}-0`,
+                x: 100,
+                y: 100,
+                width: 100,
+                height: 100
+            },
+            
+            view: {
+                class: this.class,
+                id: `${this.class}-0`, 
+                x: 0,
+                y: 0,
+                width: 25,
+                height: 25
+            }
+        }
+    }
+
+
+    display(params) {
+
         ui_api.hasParam(params, Object.keys(this.structs.view) );
+        
+        return {
+            new: "foreignObject",
+            id: `${params.id}-htmlWrapper`,
+            class: "htmlWrapper",
+            x: params.x,
+            y: params.y,
+            width: params.width,
+            height: params.height,
+            children: {
+                new: "html:canvas",
+                id: `${params.id}-canvas`,
+                class: "basicGL-canvas"
+            }
+        }
+
+        /**
+         * note that we are returning the drawsocket def that will be 
+         * displayed in the "view" group
+         * the top level element of the symbol has the root id
+         * so here we need to make sure that the id is different
+         */
+
+    }
+    
+    getElementViewParams(element) {
+
+        const foreignObject = element.querySelector('.display .htmlWrapper');
+        
+        const bbox = ui_api.getBBoxAdjusted(foreignObject);
+
+        return {
+            id: element.id,
+            x: bbox.x,
+            y: bbox.y,
+            width: bbox.width,
+            height: bbox.height
+        }
+
+
+    }
+
+
+    getPaletteIcon() {
+        return {
+            key: "svg",
+            val: this.display({
+                ...this.structs.view,
+                id: `${this.class}-palette-icon`,
+                class: this.class
+            })
+        }
+    }
+
+    updateAfterContents( element )
+    {
+        const canvas = element.querySelector(`#${element.id}-canvas`);
+
+        const renderer = new THREE.WebGLRenderer({canvas, alpha: true, antialias: true  });
+        renderer.setClearColor( 0x000000, 0 ); // the default
+
+        const fov = 75;
+        const aspect = 1;  // the canvas default
+        const near = 0.1;
+        const far = 5;
+
+        const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+        camera.position.z = 2;
+
+        const controls = new OrbitControls( camera, renderer.domElement );
+
+        const scene = new THREE.Scene();
+
+        {
+            const color = 0xFFFFFF;
+            const intensity = 1;
+            const light = new THREE.DirectionalLight(color, intensity);
+            light.position.set(-1, 2, 4);
+            scene.add(light);
+        }
+
+        const boxWidth = 1;
+        const boxHeight = 1;
+        const boxDepth = 1;
+        const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
+
+        const wireframe = new THREE.WireframeGeometry( geometry );
+        const cube = new THREE.LineSegments( wireframe );
+        cube.material.depthTest = false;
+        cube.material.opacity = 1;
+        cube.material.transparent = true;
+        cube.material.color =  new THREE.Color( 'rgb(100,100,100)' );
+
+        scene.add( cube );
+
+/*
+        //  const material = new THREE.MeshBasicMaterial({color: 0x44aa88});  // greenish blue
+        const material = new THREE.MeshPhongMaterial({color: 0x44aa88});  // greenish blue
+
+
+        const cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
+*/
+        function render(time) {
+            time *= 0.001;  // convert time to seconds
+    /*
+            cube.rotation.x = time;
+            cube.rotation.y = time;
+    */
+            controls.update();
+            renderer.render(scene, camera);
+
+            requestAnimationFrame(render);
+        }
+
+        requestAnimationFrame(render);
+
+
+    }
+
+
+    fromData(dataObj, container, preview = false)
+    {
+        super.fromData(dataObj, container, preview);
+
+        if(!preview){
+            console.log(dataObj, document.getElementById(dataObj.id));
+            this.updateAfterContents( document.getElementById(dataObj.id) );
+        }
+    }
+
+
+     // here we're avoiding asking the parent for information
+    // but still using the template system
+    // probably it would be better to stick to the template, and
+    // create a graphic only container
+    dataToViewParams(data, container)
+    {
+        data.container = container.id;
+        return data;
+    }
+
+    viewParamsToData(viewParams, container)
+    {
+        viewParams.container = container.id;
+        return viewParams;
+    }
+
+    mouseToData( event, container )
+    {
+        const pt = ui_api.getSVGCoordsFromEvent(event);
+
+        return {
+            ...this.structs.data, // set defaults, before overwriting with parent's mapping
+            ...pt,
+            id: `${this.class}_u_${ui_api.fairlyUniqueString()}`,
+            container: container.id
+        }    
+    }
+
+}
+
+class BasicSymbolGL_IO extends Template.IO_SymbolBase
+{
+    constructor()
+    {
+        super();
+        this.class = "BasicSymbolGL";
+    }
+    
+}
+
+
+
+module.exports = {
+    ui_def: BasicSymbolGL,
+    io_def: BasicSymbolGL_IO    
+}
+
+
+
+/***/ }),
+
+/***/ 26:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const Template = __webpack_require__(20) 
+
+class BasicSymbolOverridePreview extends Template.SymbolBase 
+{
+    constructor() {
+        super();
+        this.class = "BasicSymbolOverridePreview";
+    }
+
+
+    get structs () {
+        return {
+
+            data: {
+                class: this.class,      // required for all instances
+                id : `${this.class}-0`, // required (unique) for all instances
+                time: 0,                // optional defaults for each class type
+                pitch: 55,
+                duration: 0.1
+            },
+            
+            view: {
+                class: this.class,
+                id: `${this.class}-0`, 
+                x: 0,
+                y: 0,
+                r: 2
+            }
+        }
+    }
+
+
+    display(params) {
+
+        ui_api.hasParam(params, Object.keys(this.structs.view) ); // check that all view params are present 
         
         return {
             new: "circle",
@@ -262,26 +599,39 @@ class BasicSymbol extends Template.SymbolBase
     getDataTextView(dataObj, relativeTo = null)
     {
 
-        let ret = {};
-        ret.key = "svg";
-        ret.val = [];
+        let infoBoxChildren = [];
 
-        Object.keys(dataObj).forEach( key => {
-            ret.val.push({  
-                new: "text",
-                class: "data_text sprite",
-                container: `symbolist_overlay`,
-                relativeTo : (relativeTo ? relativeTo : `#${dataObj.id}`),
-                id: `${dataObj.id}-${key}-data_text`,
-                x: 0,
-                y: -20,
-                text: key + String(dataObj[key])
-            })
+        let showData = ui_api.filterDataset(dataObj);
+        let id = dataObj.id;
+        let dataKeys = Object.keys(showData);
+
+        dataKeys.map(param => {
+            infoBoxChildren = infoBoxChildren.concat( [{
+                new : "label",
+                class : "infoparam",
+                for : id+"-"+param+"-input",
+                text : param
+            }, {
+                new : "input",
+                class : "infovalue",
+                type : "text",
+                id : id+"-"+param+"-input",
+                value : showData[param],
+            }] )
         });
+        
+        return {
+            key : "html",
+            val : {
+                parent : "floating-forms",
+                new : "div",
+                relativeTo : (relativeTo ? relativeTo : `#${id}`),
+                id : id+"-infobox",
+                class : "infobox sprite",
+                children : infoBoxChildren
+            }
+        }
 
-        console.log(ret);
-
-        return ret;
     }
     
     svgPreviewFromViewAndData(view, dataObj, relativeTo = null)
@@ -340,12 +690,12 @@ class BasicSymbol extends Template.SymbolBase
 
 }
 
-class BasicSymbol_IO extends Template.IO_SymbolBase
+class BasicSymbolOverridePreview_IO extends Template.IO_SymbolBase
 {
     constructor()
     {
         super();
-        this.class = "BasicSymbol";
+        this.class = "BasicSymbolOverridePreview";
     }
     
 }
@@ -353,8 +703,8 @@ class BasicSymbol_IO extends Template.IO_SymbolBase
 
 
 module.exports = {
-    ui_def: BasicSymbol,
-    io_def: BasicSymbol_IO    
+    ui_def: BasicSymbolOverridePreview,
+    io_def: BasicSymbolOverridePreview_IO    
 }
 
 
@@ -2483,7 +2833,7 @@ class PartStave extends Template.SymbolBase
     constructor() {
         super();
         this.class = "PartStave";
-        this.palette = [ "AzimNote", "BasicSymbol", "ColorPitch", "BetaEnv"];
+        this.palette = [ "AzimNote", "BasicSymbol", "ColorPitch", "BetaEnv", "BasicSymbolOverridePreview"];
 
         this.left_margin = 20;
 
@@ -3095,6 +3445,11 @@ class PathSymbol extends Template.SymbolBase
             })
 
             element.style.visibility = "visible";
+
+            ui_api.drawsocketInput({
+                key: "clear",
+                val: "symbolist_overlay"
+            })
         }
         console.log(" path edit mode", enable);
 
@@ -4046,7 +4401,7 @@ class SymbolBase
      * @param {Object} params 
      */
     display(params) { 
-        console.error(`${this.class} display is undefined`);
+        console.error(`${this.class} display should be overridden in subclass!`);
 
         ui_api.hasParam(params, Object.keys(this.structs.view) );
         
@@ -4336,7 +4691,7 @@ class SymbolBase
      */
     mouseToData( event, container )
     {
-        console.log("template mouseToData");
+//        console.log("template mouseToData");
 
         const pt = ui_api.getSVGCoordsFromEvent(event);
         const parent_def = ui_api.getDefForElement(container);
@@ -4372,7 +4727,7 @@ class SymbolBase
      */
     createNewFromMouseEvent(event)
     {
-        console.log("template createNewFromMouseEvent");
+//        console.log("template createNewFromMouseEvent");
         // remove preview sprite
         ui_api.drawsocketInput({
             key: "remove", 
@@ -5115,6 +5470,8 @@ window.initDef = __webpack_require__(254);
 // load defs
 const AzimNote = __webpack_require__(934);
 const BasicSymbol = __webpack_require__(270);
+const BasicSymbolGL = __webpack_require__(361);
+
 const BetaEnv = __webpack_require__(755);
 const CartesianPlot = __webpack_require__(350);
 const ColorPitch = __webpack_require__(564);
@@ -5131,9 +5488,13 @@ const SystemContainer = __webpack_require__(102);
 
 const NodescoreAPI = __webpack_require__(890);
 
+const BasicSymbolOverridePreview = __webpack_require__(26);
+
 // set into def map
 uiDefs.set("AzimNote", new AzimNote.ui_def() );
 uiDefs.set("BasicSymbol", new BasicSymbol.ui_def() );
+uiDefs.set("BasicSymbolGL", new BasicSymbol.ui_def() );
+
 uiDefs.set("BetaEnv", new BetaEnv.ui_def() );
 uiDefs.set("CartesianPlot", new CartesianPlot.ui_def() );
 uiDefs.set("ColorPitch", new ColorPitch.ui_def() );
@@ -5150,6 +5511,7 @@ uiDefs.set("DataPoint", new DataPoint.ui_def() );
 uiDefs.set("SystemContainer", new SystemContainer.ui_def() );
 
 uiDefs.set("NodescoreAPI", new NodescoreAPI.ui_def() );
+uiDefs.set("BasicSymbolOverridePreview", new BasicSymbolOverridePreview.ui_def() );
 
 
 let cssFile = "./defs/css/stylie.css";

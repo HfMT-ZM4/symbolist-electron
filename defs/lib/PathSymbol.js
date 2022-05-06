@@ -290,6 +290,11 @@ class PathSymbol extends Template.SymbolBase
             })
 
             element.style.visibility = "visible";
+
+            ui_api.drawsocketInput({
+                key: "clear",
+                val: "symbolist_overlay"
+            })
         }
         console.log(" path edit mode", enable);
 
