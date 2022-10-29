@@ -6,7 +6,7 @@
         "type": "node",
         "request": "launch",
         "cwd": "${workspaceFolder}",
-        "runtimeExecutable": "/usr/local/bin/electron",
+        "runtimeExecutable": "/opt/homebrew/bin/electron",
         "windows": {
           "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron.cmd"
         },
