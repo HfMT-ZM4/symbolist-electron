@@ -8,7 +8,7 @@
     "compile": "npm run --prefix defs build; npm run build"
   },
   "devDependencies": {
-    "electron": "^17.2.0",
+    "electron": "^18.3.7",
     "lodash": ">=4.17.21",
     "normalize-url": ">=4.5.1"
   },
